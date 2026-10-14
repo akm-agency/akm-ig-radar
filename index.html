@@ -143,6 +143,7 @@ a{color:inherit}
 .lv-foot{position:absolute;left:24px;right:24px;bottom:14px;font-size:11px;opacity:.6;z-index:1}
 
 #tblLab{justify-content:flex-start}#tblLab .hq{margin-left:8px}
+.h48{display:block;width:100%;height:auto}
 /* insight section tiles */
 .ilist{display:flex;flex-direction:column}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border:0;border-top:1px solid rgba(0,0,0,.09);background:none;text-align:left;width:100%}
@@ -978,6 +979,75 @@ function liveMount(total) {
     document.fonts?.ready.then(lvFit);
   }
 }
+/* ---------- по часам, 48 ч ---------- */
+// H: {start: "YYYY-MM-DDTHH:00", acc: {u: {f: [48], p: [48]}}}; f — подписчики (null — замера не было), p — постов в этот час
+function h48Slots(us) {
+  const H = S.extra?.hourly; if (!H) return null;
+  const A = us.map(u => H.acc?.[u]).filter(Boolean); if (!A.length) return null;
+  const t0 = Date.parse(H.start + ":00+03:00"), n = A[0].f.length;
+  return Array.from({ length: n }, (_, k) => {
+    let g = 0, m = 0, p = 0, f = 0, fn = 0;
+    for (const a of A) {
+      p += a.p[k] || 0;
+      if (a.f[k] != null) { f += a.f[k]; fn++; }
+      if (k && a.f[k] != null && a.f[k - 1] != null) { g += a.f[k] - a.f[k - 1]; m++; }
+    }
+    return { t: t0 + k * 36e5, g: m ? g : null, m, p, f: fn === A.length ? f : null };
+  });
+}
+function h48(el, slots, { line = false } = {}) {
+  if (!el) return;
+  if (!slots || slots.filter(s => s.g != null).length < 2) { el.innerHTML = `<div class="vp-empty">Почасовые замеры идут с 14:00 до 23:00 МСК — график заполнится после пары часов замеров.</div>`; return; }
+  const W = 860, L = line ? 76 : 56, R = 10, n = slots.length, bw = (W - L - R) / n;
+  const LT = 10, LH = line ? 110 : 0, BT = LT + LH + (line ? 14 : 0), BH = line ? 64 : 120, PT = BT + BH + 8, H = PT + 30;
+  const X = k => L + k * bw;
+  const hh = t => { const d = new Date(t + 3 * 36e5); return [d.getUTCHours(), `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")}`]; };
+  const gs = slots.map(s => s.g).filter(g => g != null), gmax = Math.max(1, ...gs.map(Math.abs));
+  const neg = gs.some(g => g < 0), z = neg ? BT + BH * (Math.max(...gs, 0) / (Math.max(...gs, 0) + Math.max(...gs.map(g => -g), 0) || 1)) : BT + BH;
+  const sc = (neg ? BH : BH) / (neg ? (Math.max(...gs, 0) + Math.max(...gs.map(g => -g), 0) || 1) : gmax);
+  let svg = "";
+  // сетка по суткам и подписи
+  slots.forEach((s, k) => { const [h, d] = hh(s.t);
+    if (h === 0) svg += `<line x1="${X(k)}" x2="${X(k)}" y1="${LT}" y2="${PT + 14}" stroke="var(--line)"/><text x="${X(k) + 4}" y="${H - 4}" font-size="11" font-weight="600" fill="var(--ink)">${d}</text>`;
+    else if (h % 6 === 0) svg += `<text x="${X(k) + bw / 2}" y="${H - 4}" text-anchor="middle" font-size="11" fill="var(--muted)">${String(h).padStart(2, "0")}:00</text>`; });
+  // линия подписчиков (разрывы там, где замеров не было)
+  if (line) {
+    const F = slots.map(s => s.f).filter(v => v != null);
+    if (F.length >= 2) {
+      let y0 = Math.min(...F), y1 = Math.max(...F); if (y0 === y1) { y0 -= 1; y1 += 1; }
+      const pad = (y1 - y0) * .12; y0 -= pad; y1 += pad;
+      const Y = v => LT + (1 - (v - y0) / (y1 - y0)) * LH;
+      let d = "", prev = false;
+      slots.forEach((s, k) => { if (s.f == null) { prev = false; return; } d += `${prev ? "L" : "M"}${(X(k) + bw / 2).toFixed(1)},${Y(s.f).toFixed(1)}`; prev = true; });
+      [y0 + pad, (y0 + y1) / 2, y1 - pad].forEach(v => { svg += `<text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(fmt(Math.round(v)))}</text>`; });
+      svg += `<path d="${d}" fill="none" stroke="var(--blue)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`;
+      slots.forEach((s, k) => { if (s.f != null) svg += `<circle cx="${X(k) + bw / 2}" cy="${Y(s.f)}" r="2.6" fill="var(--blue)"/>`; });
+    }
+  }
+  // столбики прироста за час
+  svg += `<line x1="${L}" x2="${W - R}" y1="${z}" y2="${z}" stroke="var(--line)"/><text x="${L - 8}" y="${BT + 9}" text-anchor="end" font-size="11" fill="var(--muted)">+${esc(compact(Math.max(...gs, 0)))}</text>`;
+  slots.forEach((s, k) => {
+    if (s.g == null) return;
+    const h = Math.max(2, Math.abs(s.g) * sc);
+    svg += `<rect x="${X(k) + 1.5}" y="${s.g >= 0 ? z - h : z}" width="${Math.max(2, bw - 3)}" height="${h}" rx="2" fill="${s.g >= 0 ? "var(--up)" : "var(--down)"}" fill-opacity=".85"/>`;
+  });
+  // часы с публикациями
+  slots.forEach((s, k) => { if (s.p) svg += `<circle cx="${X(k) + bw / 2}" cy="${PT + 3}" r="${Math.min(6, 2.5 + s.p)}" fill="var(--orange)"/>`; });
+  // подсказки на весь столбец часа
+  slots.forEach((s, k) => { const [h, d] = hh(s.t);
+    svg += `<rect x="${X(k)}" y="${LT}" width="${bw}" height="${PT + 8 - LT}" fill="transparent"><title>${d} ${String(h).padStart(2, "0")}:00${s.f != null ? " · подписчиков " + fmt(s.f) : ""}${s.g != null ? " · за час " + signed(s.g) : " · замера не было"}${s.m && s.m > 1 ? ` (${s.m} акк.)` : ""}${s.p ? " · постов: " + s.p : ""}</title></rect>`; });
+  el.innerHTML = `<svg class="h48" viewBox="0 0 ${W} ${H}" role="img" aria-label="Прирост по часам за 48 часов">${svg}</svg>
+    <div class="legend"><span><i style="background:var(--up)"></i>прирост за час</span><span><i style="background:var(--down)"></i>отток</span>${line ? `<span><i style="background:var(--blue)"></i>подписчики</span>` : ""}<span><i style="background:var(--orange);border-radius:50%"></i>в этот час выходили посты</span></div>`;
+}
+function hourlyTile() {
+  const sl = h48Slots(S.M.accounts.map(a => a.u)); if (!sl) return "";
+  const last24 = sl.slice(-24).filter(s => s.g != null), sum = last24.reduce((t, s) => t + s.g, 0);
+  const best = [...sl].filter(s => s.g != null).sort((a, b) => b.g - a.g)[0];
+  const bh = best ? new Date(best.t + 3 * 36e5) : null;
+  return `<section class="t s12"><div class="lab">Прирост сетки по часам · 48 ч <span class="tag">замеры каждый час 14–23 МСК · ночью замеров нет</span></div>
+    <div class="sub" style="opacity:1">${last24.length ? `за последние сутки в часы замеров <b class="${cls(sum)}">${signed(sum)}</b> за ${last24.length} ${plu(last24.length, "час", "часа", "часов")}` : ""}${best ? ` · лучший час — <b>${String(bh.getUTCHours()).padStart(2, "0")}:00 ${String(bh.getUTCDate()).padStart(2, "0")}.${String(bh.getUTCMonth() + 1).padStart(2, "0")}</b> (${signed(best.g)})` : ""}</div>
+    <div id="netHourly"></div></section>`;
+}
 function renderBento() {
   const M = S.M, A = M.accounts, T = [];
   if (!M.latest) { $("bento").innerHTML = `<section class="t s12"><div class="lab">Сетка</div><div class="headline">Данные появятся после первого сбора.</div></section>`; return; }
@@ -1035,11 +1105,13 @@ function renderBento() {
   T.push(`<section class="t s7" id="sigTile"><div class="lab">Сигналы ${sig.length > 6 ? `<button class="linkbtn" type="button" data-act="more">${S.showAllSig ? "Свернуть" : `Все · ${sig.length}`}</button>` : ""}</div>
     <div class="sigs">${shown.map(s => s.u ? `<button type="button" class="sg" data-u="${esc(s.u)}"><span class="dt ${s.lvl}"></span><span><b>@${esc(s.u)}</b> — ${esc(s.text)}</span></button>` : `<div class="sg"><span class="dt"></span><span><b>Вся сетка</b> — ${esc(s.text)}</span></div>`).join("") || `<div class="muted">Сигналов нет — всё спокойно.</div>`}</div></section>`);
 
+  T.push(hourlyTile());
   T.push(viralTile((S.viral || []).filter(p => p.own), "наши страницы · посты до 72 ч, ≥3× к обычному"));
   T.push(growthTiles());
   $("bento").innerHTML = T.join("");
   LV.pts = M.net.filter(p => p.d >= shift(M.latest, -30));
   lvChart();
+  h48($("netHourly"), h48Slots(A.map(a => a.u)));
   liveMount(total);
 }
 
@@ -1151,12 +1223,14 @@ function openAccount(u, M = S.M) {
       <div class="big">${signed(a.w1, compact)}</div><div class="sub">за неделю ${a.w1pct != null ? "· " + pct(a.w1pct) : ""}</div>
       <div class="kvs">${kv("За 4 недели", signed(a.w4))}${kv("Публикаций", fmt(L.media))}${kv("Ср. лайки", fmt(L.likes))}${kv("ER", L.er != null ? L.er.toLocaleString("ru-RU") + "%" : "—")}</div></section>
     ${a.sig.length ? `<section class="t peach d6"><div class="lab">Сигналы</div><div class="sgn">${a.sig.map(s => `<div><span class="dt ${s.lvl}"></span><span>${esc(s.text)}</span></div>`).join("")}</div></section>` : ""}
+    ${S.extra?.hourly?.acc?.[a.u] ? `<section class="t" style="grid-column:1/-1"><div class="lab">По часам · 48 ч <span class="tag">замеры каждый час 14–23 МСК</span></div><div id="accHourly"></div></section>` : ""}
     <section class="t d6"><div class="lab">Подписчики · 45 дней</div><div id="accChart"></div></section>
     <section class="t d6"><div class="lab">Прирост по дням и публикации</div><div id="accBars"></div>
       <div class="legend"><span><i style="background:var(--up)"></i>прирост</span><span><i style="background:var(--down)"></i>отток</span><span><i style="background:var(--ink);border-radius:50%"></i>публикации в этот день</span></div></section>
     <section class="t lime d6" id="accBest"></section>
     <section class="t d6"><div class="lab">По дням · клик по столбику выше подсветит день</div><div class="daylist"><table><thead><tr><th scope="col">Дата</th><th scope="col">Подписчики</th><th scope="col">Прирост</th><th scope="col" style="text-align:left">Публикации</th></tr></thead><tbody id="accDays"></tbody></table></div></section>
   </div>`;
+  h48($("accHourly"), h48Slots([a.u]), { line: true });
   chart($("accChart"), a.pts.filter(p => p.d > shift(M.latest, -46)).map(p => ({ d: p.d, y: p.followers })), { w: 820, h: 200 });
   const recent = a.daily.filter(x => x.d > shift(M.latest, -31));
   bars($("accBars"), recent, d => { const r = $("accDays").querySelector(`tr[data-d="${d}"]`); $("accDays").querySelectorAll("tr.hl").forEach(x => x.classList.remove("hl")); if (r) { r.classList.add("hl"); r.scrollIntoView({ block: "nearest" }); } });
