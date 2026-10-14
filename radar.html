@@ -436,18 +436,47 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .scope-t{gap:10px}
 .scope-head{display:flex;align-items:flex-end;gap:16px}
 .scope-head .sub{margin-bottom:8px;line-height:1.35}
-.scope{flex:1;min-height:260px;display:grid;place-items:center}
-.scope svg{width:100%;height:100%;max-height:520px;aspect-ratio:1;display:block;overflow:visible}
-.sc-cat{font-size:9.5px;font-weight:700;letter-spacing:.02em}
-.sc-b{cursor:pointer}
-.sc-b .d{transform-box:fill-box;transform-origin:center;transform:scale(calc(.82 + var(--o) * .3));opacity:calc(.55 + var(--o) * .45)}
-.sc-b .h{opacity:calc(var(--o) * var(--o) * .22)}
-.sc-b:hover .d{opacity:1}.sc-b:hover .h{opacity:.3}
-.sc-l rect{fill:#fff;opacity:calc(.82 + var(--o) * .18)}
-.sc-l text{font-size:10.5px;font-weight:600;fill:#0D0D0F}
-.scope-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;opacity:.6}
-.scope-leg i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF4F1F;margin-right:6px;vertical-align:0}
-.scope-leg i.nw{background:transparent;box-shadow:0 0 0 2px #fff inset}
+.scope{flex:1;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.sc-stage{position:relative;width:min(100%,500px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(210,243,91,.07) 0,rgba(255,255,255,.035) 38%,rgba(255,255,255,.015) 70%,transparent 71%)}
+.sc-grid{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sc-grid circle{fill:none;stroke:rgba(255,255,255,.075);stroke-width:.25}
+.sc-grid circle.o{stroke:rgba(255,255,255,.16);stroke-width:.35}
+.sc-grid .t line{stroke:rgba(255,255,255,.18);stroke-width:.22;stroke-linecap:round}
+/* луч: настоящий конусный градиент, вращается на видеокарте */
+.sc-sweep{position:absolute;inset:.8%;border-radius:50%;will-change:transform;pointer-events:none;
+  background:conic-gradient(from 0deg,rgba(210,243,91,0) 0deg,rgba(210,243,91,0) 250deg,rgba(210,243,91,.05) 300deg,rgba(210,243,91,.20) 352deg,rgba(210,243,91,.55) 359.2deg,#E6FF7A 359.9deg,rgba(210,243,91,0) 360deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 9%,#000 10%);mask:radial-gradient(circle,transparent 0 9%,#000 10%)}
+.sc-core{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#D2F35B;box-shadow:0 0 0 5px rgba(210,243,91,.15)}
+.sc-core i{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(210,243,91,.6);animation:scPulse 2.6s cubic-bezier(.2,.6,.3,1) infinite}
+@keyframes scPulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(4.4);opacity:0}}
+/* точки */
+.sc-b{position:absolute;width:0;height:0;border:0;padding:0;background:none;cursor:pointer;color:#fff;z-index:2;
+  animation:scIn .9s cubic-bezier(.2,1.5,.35,1) both;animation-delay:calc(var(--i) * 90ms + .35s)}
+@keyframes scIn{from{opacity:0;transform:scale(.2)}}
+.sc-b .core{position:absolute;left:calc(var(--s) / -2);top:calc(var(--s) / -2);width:var(--s);height:var(--s);border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85),var(--c) 46%);box-shadow:0 0 0 3px rgba(13,13,15,.85),0 6px 18px -4px var(--c);
+  transition:transform .35s cubic-bezier(.2,1.6,.4,1);animation:scBreath 4.2s ease-in-out infinite;animation-delay:calc(var(--i) * -420ms)}
+@keyframes scBreath{50%{transform:scale(1.07)}}
+.sc-b.nw .core{box-shadow:0 0 0 2px #fff,0 0 0 4.5px rgba(13,13,15,.85),0 6px 18px -4px var(--c)}
+.sc-b .ring{position:absolute;left:calc(var(--s) / -2);top:calc(var(--s) / -2);width:var(--s);height:var(--s);border-radius:50%;border:1.5px solid var(--c);opacity:0;pointer-events:none}
+.sc-b.hit .ring{animation:scPing 1.5s cubic-bezier(.15,.7,.3,1)}
+.sc-b.hit .core{animation:scFlash .7s ease-out,scBreath 4.2s ease-in-out infinite}
+@keyframes scPing{0%{transform:scale(1);opacity:.85}100%{transform:scale(3.6);opacity:0}}
+@keyframes scFlash{0%{filter:brightness(1.9) saturate(1.2)}100%{filter:none}}
+.sc-b:hover .core,.sc-b:focus-visible .core{transform:scale(1.35)}
+.sc-b:focus-visible{outline:none}
+.sc-b .nm{position:absolute;top:calc(-9px + var(--dy, 0px));white-space:nowrap;font-size:12px;font-weight:600;letter-spacing:-.01em;line-height:1.15;text-align:left;
+  text-shadow:0 1px 10px rgba(13,13,15,.9),0 0 2px rgba(13,13,15,.9);transition:opacity .25s,transform .35s cubic-bezier(.2,1,.3,1)}
+.sc-b .nm small{display:block;font-size:10px;font-weight:500;opacity:.55;margin-top:2px}
+.sc-b.r .nm{left:calc(var(--s) / 2 + 9px)}
+.sc-b.l .nm{right:calc(var(--s) / 2 + 9px);text-align:right}
+.sc-b:hover .nm{transform:translateX(3px)}.sc-b.l:hover .nm{transform:translateX(-3px)}
+.sc-cats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.sc-cats span{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.07)}
+.sc-cats i{width:8px;height:8px;border-radius:50%}
+.scope-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;opacity:.55}
+@media (prefers-reduced-motion:reduce){.sc-sweep{display:none}}
 
 .pcard .lk .ic{font-size:.46em;margin-right:7px;vertical-align:.32em;opacity:.5;letter-spacing:0}.kpis{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 2px}.kpis span{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;background:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}.kpis .good{color:var(--up)}.kpis .bad{color:var(--down)}
 
@@ -598,83 +627,68 @@ const igLink = u => `https://www.instagram.com/${encodeURIComponent(u)}/`;
 const postLink = p => `https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/`;
 
 /* ---------- bento ---------- */
-/* ---------- радар: крутящийся луч и самые «жирные» рекламодатели (бенто-стиль сайта) ---------- */
-const SC = { raf: 0, blips: [], t0: performance.now(), visible: true };
-const SC_COL = ["#FF4F1F", "#D2F35B", "#CFC2FF", "#7D8CFF", "#FFD9C7", "#FFFFFF", "#FFB86B", "#9BE7C4"];
-const scHash = s => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return ((h >>> 0) % 1000) / 1000; };
+/* ---------- радар: топ-10 рекламодателей, вращающийся луч (бенто, премиум) ---------- */
+const SC = { raf: 0, blips: [], t0: performance.now(), visible: true, last: 0 };
+const SC_COL = ["#FF4F1F", "#D2F35B", "#CFC2FF", "#8EA0FF", "#FFD9C7", "#FFFFFF", "#FFB86B", "#9BE7C4"];
+const SC_PERIOD = 6000;
 function scope(el, B, latest) {
   if (!el) return;
   cancelAnimationFrame(SC.raf);
-  const N = 24, C = 200, R = 188, score = b => (b.hostsN || 0) * 3 + (b.n || 0) + Math.log10((b.reach || 0) + 10);
-  const top = [...B].sort((a, b) => score(b) - score(a)).slice(0, N);
+  const score = b => (b.hostsN || 0) * 3 + (b.n || 0) + Math.log10((b.reach || 0) + 10);
+  const top = [...B].sort((a, b) => score(b) - score(a)).slice(0, 10);
   if (!top.length) { el.innerHTML = `<div class="sub">Рекламодатели появятся после первого сбора.</div>`; return; }
-  // секторы — категории (до 7 крупных + «Другое»), у каждой свой цвет сайта
-  const cnt = {}; top.forEach(b => { const c = b.category || "Другое"; cnt[c] = (cnt[c] || 0) + 1; });
-  let cats = Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(x => x[0]);
-  if (cats.length > 8) cats = [...cats.slice(0, 7), "Другое"];
-  const catOf = b => cats.includes(b.category || "Другое") ? (b.category || "Другое") : "Другое";
+  const cats = [...new Set(top.map(b => b.category || "Другое"))];
   const col = c => SC_COL[cats.indexOf(c) % SC_COL.length];
-  const span = 360 / cats.length, mx = Math.max(...top.map(b => b.hostsN || 1));
-  const P = (r, a) => [C + r * Math.cos((a - 90) * Math.PI / 180), C + r * Math.sin((a - 90) * Math.PI / 180)];
-  const arc = (r0, r1, a0, a1) => { const [x0, y0] = P(r1, a0), [x1, y1] = P(r1, a1), [x2, y2] = P(r0, a1), [x3, y3] = P(r0, a0), lg = a1 - a0 > 180 ? 1 : 0;
-    return `M${x0.toFixed(1)},${y0.toFixed(1)}A${r1},${r1} 0 ${lg} 1 ${x1.toFixed(1)},${y1.toFixed(1)}L${x2.toFixed(1)},${y2.toFixed(1)}A${r0},${r0} 0 ${lg} 0 ${x3.toFixed(1)},${y3.toFixed(1)}Z`; };
-  // плоские «плитки» колец: каждая категория — свой сектор с зазором, кольца чередуются по тону
-  let g = "";
-  const rings = [[18, 70, .07], [70, 122, .045], [122, R, .03]];
-  cats.forEach((c, i) => {
-    const a0 = i * span + 1.6, a1 = (i + 1) * span - 1.6;
-    rings.forEach(([r0, r1, o]) => g += `<path d="${arc(r0, r1, a0, a1)}" fill="rgba(255,255,255,${o})"/>`);
-    const [lx, ly] = P(R - 13, i * span + span / 2);
-    g += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="sc-cat" fill="${col(c)}">${esc(c.length > 15 ? c.slice(0, 14) + "…" : c)}</text>`;
-  });
-  // луч: мягкий лаймовый сектор с затуханием и чёткая кромка
-  let sw = "";
-  for (let i = 0; i < 14; i++) {
-    const a1 = -i * 3, a0 = a1 - 3;
-    sw += `<path d="${arc(18, R, a0, a1)}" fill="rgba(210,243,91,${(.22 * (1 - i / 14) ** 1.8).toFixed(3)})"/>`;
-  }
-  const [ex, ey] = P(R, 0), [sx, sy] = P(18, 0);
-  sw += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="#D2F35B" stroke-width="2.5" stroke-linecap="round"/>`;
-  // точки: ближе к центру и крупнее — шире размещается
+  const mx = Math.max(...top.map(b => b.hostsN || 1));
+  // «подсолнух»: угол — золотой (точки сами расходятся), радиус растёт с рангом — крупнейшие ближе к центру
   SC.blips = top.map((b, i) => {
-    const c = catOf(b), ci = cats.indexOf(c), ang = ci * span + span * (.2 + .6 * scHash(b.key));
-    const rad = 40 + Math.sqrt(i / Math.max(1, top.length - 1)) * (R - 68) + (scHash(b.key + "r") - .5) * 14;
-    const [x, y] = P(rad, ang), sz = 4 + 6 * Math.sqrt((b.hostsN || 1) / mx), fresh = b.first >= shift(latest, -6);
-    return { b, x, y, sz, ang, fresh, color: col(c), label: i < 7, side: 1 };
+    const ang = (i * 137.508 + 24) % 360, rad = 17 + Math.sqrt((i + .6) / top.length) * 27;   // в % от стороны
+    const x = 50 + rad * Math.sin(ang * Math.PI / 180), y = 50 - rad * Math.cos(ang * Math.PI / 180);
+    return { b, i, ang, x, y, c: col(b.category || "Другое"), s: 10 + 12 * Math.sqrt((b.hostsN || 1) / mx),
+             fresh: b.first >= shift(latest, -6), lap: -1,
+             // подпись — наружу, но у края блока — к центру, чтобы не обрезалась
+             side: Math.abs(x - 50) > 20 ? (x > 50 ? "l" : "r") : (x >= 50 ? "r" : "l") };
   });
-  // подписи-плашки без наложений: справа от точки, иначе слева, иначе — только по наведению
-  const w = p => Math.min(18, p.b.brand.length) * 6.3 + 18;
-  const boxes = SC.blips.map(p => [p.x - p.sz, p.x + p.sz, p.y, p.sz + 10, p]);   // сами точки — тоже препятствия
-  const hit = (x0, x1, y, self) => boxes.some(q => q[4] !== self && x0 < q[1] + 4 && x1 > q[0] - 4 && Math.abs(y - q[2]) < (q[3] || 22));
+  // раскладка подписей в % сцены: предпочтительная сторона → другая сторона → сдвиг по вертикали
+  const lw = p => (Math.min(20, Math.max(p.b.brand.length, 13)) * 6.6 + 10) / 4.6, boxes = [];
+  const box = (p, side, dy) => { const g = p.s / 9.2 + 2, w = lw(p);
+    return side === "r" ? [p.x + g, p.x + g + w, p.y + dy - 2.2, p.y + dy + 6] : [p.x - g - w, p.x - g, p.y + dy - 2.2, p.y + dy + 6]; };
+  const free = q => q[0] > 1 && q[1] < 99 && !boxes.some(o => q[0] < o[1] && q[1] > o[0] && q[2] < o[3] && q[3] > o[2])
+    && !SC.blips.some(o => Math.abs(o.x - (q[0] + q[1]) / 2) < (q[1] - q[0]) / 2 && o.y > q[2] - 1 && o.y < q[3] + 1);
   SC.blips.forEach(p => {
-    if (!p.label) return;
-    const r0 = p.x + p.sz + 6, l1 = p.x - p.sz - 6;
-    if (r0 + w(p) < 2 * C && !hit(r0, r0 + w(p), p.y, p)) { boxes.push([r0, r0 + w(p), p.y, 22]); p.side = 1; }
-    else if (l1 - w(p) > 0 && !hit(l1 - w(p), l1, p.y, p)) { boxes.push([l1 - w(p), l1, p.y, 22]); p.side = -1; }
-    else p.label = false;
+    const alt = p.side === "r" ? "l" : "r";
+    for (const [side, dy] of [[p.side, 0], [alt, 0], [p.side, -7], [p.side, 7], [alt, -7], [alt, 7]]) {
+      const q = box(p, side, dy);
+      if (free(q)) { boxes.push(q); p.side = side; p.dy = dy; return; }
+    }
+    boxes.push(box(p, p.side, 0)); p.dy = 0;
   });
-  const blips = SC.blips.map(p => {
-    const name = p.b.brand.length > 18 ? p.b.brand.slice(0, 17) + "…" : p.b.brand, bw = w(p), bx = p.side > 0 ? p.sz + 6 : -(p.sz + 6) - bw;
-    return `<g class="sc-b" data-b="${esc(p.b.key)}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" style="--o:.4">
-      <circle class="h" r="${(p.sz + 7).toFixed(1)}" fill="${p.color}"/>
-      <circle class="d" r="${p.sz.toFixed(1)}" fill="${p.color}"${p.fresh ? ' stroke="#fff" stroke-width="2.2"' : ""}/>
-      ${p.label ? `<g class="sc-l"><rect x="${bx.toFixed(1)}" y="-10" width="${bw.toFixed(1)}" height="20" rx="10"/><text x="${(bx + bw / 2).toFixed(1)}" y="4" text-anchor="middle">${esc(name)}</text></g>` : ""}
-      <title>${esc(p.b.brand)} · ${esc(p.b.category || "Другое")} · ${p.b.hostsN} площ. · ${p.b.n} пост. · охват ${compact(p.b.reach)}${p.fresh ? " · новый" : ""}</title></g>`;
-  }).join("");
-  el.innerHTML = `<svg viewBox="0 0 400 400" role="img" aria-label="Радар: ${top.length} крупнейших рекламодателей">
-    ${g}<g id="scSweep">${sw}</g>${blips}<circle cx="${C}" cy="${C}" r="7" fill="#D2F35B"/><circle cx="${C}" cy="${C}" r="3" fill="#0D0D0F"/></svg>`;
-  const sweepEl = el.querySelector("#scSweep"), nodes = [...el.querySelectorAll(".sc-b")];
-  const PERIOD = 5200;
+  const ticks = Array.from({ length: 72 }, (_, k) => { const a = k * 5 * Math.PI / 180, r1 = 49.2, r0 = k % 6 ? 48.2 : 47;
+    return `<line x1="${(50 + r0 * Math.sin(a)).toFixed(2)}" y1="${(50 - r0 * Math.cos(a)).toFixed(2)}" x2="${(50 + r1 * Math.sin(a)).toFixed(2)}" y2="${(50 - r1 * Math.cos(a)).toFixed(2)}"/>`; }).join("");
+  el.innerHTML = `<div class="sc-stage">
+    <svg class="sc-grid" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="49.2" class="o"/><circle cx="50" cy="50" r="36"/><circle cx="50" cy="50" r="23"/><circle cx="50" cy="50" r="10"/>
+      <g class="t">${ticks}</g></svg>
+    <div class="sc-sweep"></div>
+    ${SC.blips.map(p => `<button type="button" class="sc-b ${p.side}${p.fresh ? " nw" : ""}" data-b="${esc(p.b.key)}"
+        style="left:${p.x.toFixed(2)}%;top:${p.y.toFixed(2)}%;--c:${p.c};--s:${p.s.toFixed(1)}px;--i:${p.i};--dy:${(p.dy || 0) * 4.6}px"
+        aria-label="${esc(p.b.brand)}: ${p.b.hostsN} площадок, ${p.b.n} постов">
+        <i class="ring"></i><i class="core"></i>
+        <span class="nm">${esc(p.b.brand.length > 20 ? p.b.brand.slice(0, 19) + "…" : p.b.brand)}<small>${p.b.hostsN} ${plu(p.b.hostsN, "площадка", "площадки", "площадок")}${p.fresh ? " · новый" : ""}</small></span></button>`).join("")}
+    <div class="sc-core"><i></i></div></div>
+    <div class="sc-cats">${cats.map(c => `<span><i style="background:${col(c)}"></i>${esc(c)}</span>`).join("")}</div>`;
+  const sweep = el.querySelector(".sc-sweep"), nodes = [...el.querySelectorAll(".sc-b")];
   const frame = now => {
-    const a = ((now - SC.t0) / PERIOD * 360) % 360;
-    sweepEl.setAttribute("transform", `rotate(${a.toFixed(2)} ${C} ${C})`);
-    nodes.forEach((n, i) => {   // точка «загорается», когда по ней прошёл луч, и плавно гаснет к следующему обороту
-      const d = (a - SC.blips[i].ang + 360) % 360, o = d < 5 ? 1 : Math.max(.38, 1 - d / 260);
-      n.style.setProperty("--o", o.toFixed(3));
+    const t = (now - SC.t0) / SC_PERIOD, a = (t % 1) * 360, lap = Math.floor(t);
+    sweep.style.transform = `rotate(${a.toFixed(2)}deg)`;
+    nodes.forEach((n, i) => {   // луч прошёл точку — «пинг» один раз за оборот
+      const p = SC.blips[i];
+      if (p.lap !== lap && a >= p.ang) { p.lap = lap; n.classList.remove("hit"); void n.offsetWidth; n.classList.add("hit"); }
     });
     if (SC.visible && !document.hidden) SC.raf = requestAnimationFrame(frame);
   };
-  if (reduce) { nodes.forEach(n => n.style.setProperty("--o", 1)); return; }
+  if (reduce) return;
+  SC.blips.forEach(p => { p.lap = Math.floor((performance.now() - SC.t0) / SC_PERIOD) - ((((performance.now() - SC.t0) / SC_PERIOD) % 1) * 360 >= p.ang ? 0 : 1); });
   if (!SC.io) {
     SC.io = new IntersectionObserver(es => { SC.visible = es[0].isIntersecting; if (SC.visible) { cancelAnimationFrame(SC.raf); SC.raf = requestAnimationFrame(SC.frame); } });
     document.addEventListener("visibilitychange", () => { if (!document.hidden && SC.visible) { cancelAnimationFrame(SC.raf); SC.raf = requestAnimationFrame(SC.frame); } });
@@ -697,7 +711,7 @@ function render() {
     <div class="scope-head"><div class="huge" data-n="${B.length}" data-fmt="int">${B.length}</div>
     <div class="sub">${fmt(posts.length)} рекламных постов<br>на ${hostsWithAds.size} площадках из ${S.hosts.length}</div></div>
     <div class="scope" id="scope"></div>
-    <div class="scope-leg"><span><i></i>ближе к центру и крупнее — шире размещается</span><span><i class="nw"></i>белая обводка — новые за 7 дней</span><span>цвет и сектор — категория · клик — карточка</span></div></section>`);
+    <div class="scope-leg"><span>Топ-10 · ближе к центру и крупнее — шире размещается</span><span>белая обводка — новый за 7 дней · клик — карточка</span></div></section>`);
   const fresh = B.filter(b => b.first >= shift(latest, -6)).sort((x, y) => y.reach - x.reach);
   T.push(`<section class="t orange s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
     <div class="sub">${fresh.length ? "впервые замечены в рекламе" : "новых рекламодателей нет"}</div>
