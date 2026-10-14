@@ -1396,6 +1396,7 @@ function showPage(p) {
   $("pTitle").textContent = p === "comp" ? "Конкуренты" : "Статистика сетки";
   document.querySelectorAll("#nav a").forEach(a => a.setAttribute("aria-current", a.dataset.p === p ? "page" : "false"));
   document.querySelectorAll("[data-only]").forEach(b => b.hidden = b.dataset.only !== p);
+  if (p === "net") { lvFit(); lvChart(); } // пока страница была скрыта, ширина плитки = 0 — счётчик и график мерились неправильно
 }
 const pageEl = p => p === "comp" ? $("pageComp") : $("pageNet");
 function go(p) {
