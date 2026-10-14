@@ -39,7 +39,7 @@ a{color:inherit}
 .brand{display:flex;align-items:center;gap:14px;min-width:0}
 .logo{display:inline-flex;align-items:center;background:var(--tile);border-radius:999px;height:52px;padding:0 20px;flex:none}
 .logo .akm{display:block;height:22px;width:auto}
-.bar h1{margin:0;font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.bar h1{margin:0;font-size:clamp(22px,2.6vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1;white-space:nowrap}
 .bar .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .pills{display:flex;flex-wrap:nowrap;gap:8px;min-height:52px;align-items:center}
 .bar .nav{margin-inline:6px}
@@ -84,8 +84,9 @@ a{color:inherit}
 .segd button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .segd button:disabled{opacity:.35;cursor:default}
 .headline{font-size:clamp(20px,2.2vw,30px);font-weight:600;letter-spacing:-.035em;line-height:1.12;max-width:34ch;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.mets{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
-.met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:120px}
+.mets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:auto}
+.vmore{margin:4px auto 0;height:44px}
+.met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:0}
 .met b{display:block;font-size:22px;font-weight:600;letter-spacing:-.04em}
 .met span{font-size:11.5px;color:rgba(0,0,0,.6)}
 .met.up b{color:var(--up)} .met.down b{color:var(--down)} .met.warn b{color:var(--warn)}
@@ -804,10 +805,12 @@ function openViral(code) {
 }
 
 // «Залетает сейчас»: свежие посты (до 72 ч) с лайками/просмотрами ≥3× к обычному посту аккаунта; замеры каждый час
-function viralTile(list, sub) {
-  const V = list.slice(0, 12);
+function viralTile(list, sub, key = "own", title = "Залетает сейчас") {
+  S.vMore = S.vMore || {};
+  const n = S.vMore[key] || 12, V = list.slice(0, n);
   if (!V.length) return "";
-  return `<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">${esc(sub)}</span></div>${cards(V, { btn: true })}</section>`;
+  return `<section class="t s12" id="vt-${key}"><div class="lab">${esc(title)} <span class="tag">${esc(sub)}</span></div>${cards(V, { btn: true })}
+    ${list.length > n ? `<button type="button" class="pill vmore" data-vmore="${key}">Показать ещё · ${list.length - n}</button>` : ""}</section>`;
 }
 
 function ideasTile(D) {
@@ -1128,7 +1131,7 @@ function renderBento() {
     <div class="sigs">${shown.map(s => s.u ? `<button type="button" class="sg" data-u="${esc(s.u)}"><span class="dt ${s.lvl}"></span><span><b>@${esc(s.u)}</b> — ${esc(s.text)}</span></button>` : `<div class="sg"><span class="dt"></span><span><b>Вся сетка</b> — ${esc(s.text)}</span></div>`).join("") || `<div class="muted">Сигналов нет — всё спокойно.</div>`}</div></section>`);
 
   T.push(hourlyTile());
-  T.push(viralTile((S.viral || []).filter(p => p.own), "наши страницы · посты до 72 ч, ≥3× к обычному"));
+  T.push(viralTile((S.viral || []).filter(p => p.own && p.d >= shift(M.latest, -3)), "наши страницы · посты до 72 ч, ≥3× к обычному"));
   T.push(growthTiles());
   $("bento").innerHTML = T.join("");
   LV.pts = M.net.filter(p => p.d >= shift(M.latest, -30));
@@ -1349,17 +1352,6 @@ function renderComp() {
       return it.u ? `<button type="button" class="irow" data-cu="${esc(it.u)}">${inner}</button>` : `<div class="irow">${inner}</div>`;
     }).join("")}</div></section>`);
   }
-  const posts = topPosts(A, M.latest).sort((x, y) => y.k * cW(y.u) - x.k * cW(x.u)).slice(0, 8);
-  const sim = [...A].sort((x, y) => cW(y.u) - cW(x.u)).slice(0, 10);
-  if (S.extra?.cscore) T.push(`<section class="t s12"><div class="lab">Самые похожие на нашу сетку <span class="tag">сходство 0–100 · по нему взвешена вся аналитика на странице</span></div>
-    <div class="ilist">${sim.map(a => { const c = S.extra.cscore[a.u]; return `<button type="button" class="irow" data-cu="${esc(a.u)}" title="${esc((c?.why || []).join(" · "))}"><span class="u">@${esc(a.u)}</span><span class="v">${c?.s ?? "—"}</span><span class="x2">${esc(a.group)} · ${compact(a.cur)} подп. · ${esc((c?.why || []).map(w => w.replace(/ \(\+\d+\)$/, "")).slice(0, 2).join("; "))}</span></button>`; }).join("")}</div></section>`);
-  T.push(`<section class="t s12"><div class="lab">Залетевшие посты · 7 дней <span class="tag">лайки к обычному посту аккаунта</span></div>
-    ${posts.length ? `<div class="pcards">${posts.map(p => `<a class="pcard" href="https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/" target="_blank" rel="noopener">
-      <div class="top"><span class="who">@${esc(p.u)}</span><span class="x">×${p.k.toFixed(1)}</span></div>
-      <div class="lk">${compact(p.l)}<small>лайков${p.cm != null ? " · " + compact(p.cm) + " комм." : ""}</small></div>
-      <div class="cap">${esc(p.x || (p.k === "reel" ? "Reels" : "Пост") + " без подписи")}</div>
-      <div class="meta2"><span>${esc(p.group)}</span><span>${dShort(p.d)}, ${esc(p.t)} ↗</span></div></a>`).join("")}</div>`
-      : `<div class="empty-t">Лайки по постам конкурентов собираются ежедневно со страниц постов Instagram. Карточки появятся после ближайшего сбора — по каждому свежему посту будет видно, во сколько раз он обогнал обычный пост аккаунта.</div>`}</section>`);
   const rankAll = [...A].sort((x, y) => (y.w1pct ?? -1e9) - (x.w1pct ?? -1e9)), rank = S.cAllRank ? rankAll : rankAll.slice(0, 10);
   T.push(`<section class="t s7"><div class="lab">Рейтинг роста · 7 дней ${rankAll.length > 10 ? `<button class="linkbtn" type="button" data-act="rank">${S.cAllRank ? "Свернуть" : `Все · ${rankAll.length}`}</button>` : ""}</div><div class="tbl-wrap"><table class="rank"><thead><tr><th>#</th><th style="text-align:left">Аккаунт</th><th title="Сходство с нашей сеткой, 0–100">Сходство</th><th>Подписчики</th><th>7 дней</th><th class="c-hide">30 дней</th><th class="c-hide">Тренд</th></tr></thead><tbody>
     ${rank.map((a, i) => `<tr class="acc" data-cu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b><div class="nich">${esc(a.group)}${a.level >= 2 ? ' · <span class="neg">есть сигналы</span>' : ""}</div></td><td class="n">${S.extra?.cscore?.[a.u]?.s ?? "—"}</td><td class="n">${compact(a.cur ?? a.lastOk?.followers)}</td><td class="n ${cls(a.w1)}">${pct2(a.w1pct)}</td><td class="n c-hide ${cls(a.w4)}">${pct2(a.w4pct)}</td><td class="c-hide">${sparkSvg(a.pts.filter(p => p.d > shift(M.latest, -30)))}</td></tr>`).join("")}
@@ -1367,7 +1359,8 @@ function renderComp() {
   T.push(`<section class="t s5"><div class="lab">Все залёты · 14 дней <span class="tag">${spikes.length}</span></div><div class="slist">${spikes.slice(0, 9).map(x => `
     <button type="button" class="srow" data-cu="${esc(x.u)}"><span class="k">×${x.k.toFixed(1)}</span><span class="w"><b>@${esc(x.u)}</b><span>${dShort(x.d)} · ${esc(x.group)} · ${x.x.n ? x.x.n + " публ." : "без публикаций"}</span></span><span class="g">${signed(x.g, compact)}</span></button>`).join("") || `<div class="empty-t">Всплесков нет.</div>`}</div></section>`);
   const cset = new Set(A.map(a => a.u));
-  T.push(viralTile((S.viral || []).filter(p => cset.has(p.u)).sort((x, y) => (y.r || 0) * cW(y.u) - (x.r || 0) * cW(x.u)), "конкуренты · посты до 72 ч, ≥3× к обычному · сортировка: залёт × сходство"));
+  T.push(viralTile((S.viral || []).filter(p => cset.has(p.u)).sort((x, y) => (y.r || 0) * cW(y.u) - (x.r || 0) * cW(x.u)),
+    "посты за 7 дней, ≥3× к обычному посту страницы · ролики конкурентов перемеряются каждые 8 ч", "comp", "Залетает у конкурентов"));
   el.innerHTML = T.join("");
 }
 
@@ -1430,6 +1423,8 @@ window.addEventListener("resize", () => placeInd(false));
 $("cchips").addEventListener("click", e => { const b = e.target.closest("[data-cg]"); if (b) { S.cFilter = b.dataset.cg; renderComp(); enter($("pageComp")); } });
 $("cbento").addEventListener("click", e => {
   if (e.target.closest('[data-act="rank"]')) { S.cAllRank = !S.cAllRank; renderComp(); return; }
+  const vm = e.target.closest("[data-vmore]");
+  if (vm) { S.vMore = S.vMore || {}; S.vMore[vm.dataset.vmore] = (S.vMore[vm.dataset.vmore] || 12) + 24; vm.dataset.vmore === "own" ? renderBento() : renderComp(); return; }
   const b = e.target.closest("[data-cu]"); if (b) openAccount(b.dataset.cu, S.cM);
 });
 

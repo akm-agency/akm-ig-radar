@@ -39,7 +39,7 @@ a{color:inherit}
 .brand{display:flex;align-items:center;gap:14px;min-width:0}
 .logo{display:inline-flex;align-items:center;background:var(--tile);border-radius:999px;height:52px;padding:0 20px;flex:none}
 .logo .akm{display:block;height:22px;width:auto}
-.bar h1{margin:0;font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.bar h1{margin:0;font-size:clamp(22px,2.6vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1;white-space:nowrap}
 .bar .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .pills{display:flex;flex-wrap:nowrap;gap:8px;min-height:52px;align-items:center}
 .bar .nav{margin-inline:6px}
@@ -84,8 +84,9 @@ a{color:inherit}
 .segd button[aria-pressed="true"]{background:var(--ink);color:#fff}
 .segd button:disabled{opacity:.35;cursor:default}
 .headline{font-size:clamp(20px,2.2vw,30px);font-weight:600;letter-spacing:-.035em;line-height:1.12;max-width:34ch;text-wrap:balance;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.mets{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
-.met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:120px}
+.mets{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:auto}
+.vmore{margin:4px auto 0;height:44px}
+.met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:0}
 .met b{display:block;font-size:22px;font-weight:600;letter-spacing:-.04em}
 .met span{font-size:11.5px;color:rgba(0,0,0,.6)}
 .met.up b{color:var(--up)} .met.down b{color:var(--down)} .met.warn b{color:var(--warn)}
