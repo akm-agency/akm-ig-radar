@@ -88,6 +88,7 @@ a{color:inherit}
 .vmore{margin:4px auto 0;height:44px}
 .met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:0}
 .met b{display:block;font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.2;overflow-wrap:anywhere}
+.met b.sm{font-size:15px;letter-spacing:-.01em;overflow-wrap:normal;word-break:break-word}
 .met span{font-size:11.5px;color:rgba(0,0,0,.6)}
 .met.up b{color:var(--up)} .met.down b{color:var(--down)} .met.warn b{color:var(--warn)}
 
@@ -1106,7 +1107,7 @@ function renderBento() {
     T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · ${S.insTab === "day" ? "разбор за " + esc(dLong(ins.date)) + (ins.asof ? " · на " + esc(ins.asof) : "") : "итоги недели"}
       <span class="segd" role="group" aria-label="Период"><button type="button" data-t="day" aria-pressed="${S.insTab === "day"}" ${day ? "" : "disabled"}>День</button><button type="button" data-t="week" aria-pressed="${S.insTab === "week"}" ${week ? "" : "disabled"}>Неделя</button></span></div>
       <div class="headline" title="${esc(headline)}">${markHandles(headline, new Set(A.map(a => a.u.toLowerCase())))}</div>
-      ${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${tone(m.tone)}"><span>${esc(m.label)}</span><b>${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}</section>`);
+      ${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${tone(m.tone)}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}</section>`);
     const rest = ins.headline ? sents : sents.slice(1);
     const secs = ins.sections?.length ? ins.sections : rest.length ? [{ title: "Подробности", tone: "info", items: rest.map(t => ({ text: t })) }] : [];
     const span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, secs.length)];
@@ -1343,7 +1344,7 @@ function renderComp() {
       <button class="corner" type="button" data-cu="${esc(fast.u)}" aria-label="Открыть @${esc(fast.u)}">↗</button></section>` : "");
   const ins = S.insights.find(i => i.type === "comp" && has(i));
   T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · тренды ниш</div>
-    ${ins ? `<div class="headline">${esc(ins.headline || ins.summary || "")}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b>${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
+    ${ins ? `<div class="headline">${esc(ins.headline || ins.summary || "")}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
       : `<div class="headline">Еженедельная сводка трендов появится после первого разбора агента.</div><div class="empty-t">Агент смотрит залетевшие посты конкурентов (лайки, подписи, время выхода) и пишет, какие темы и форматы сейчас приносят аудиторию.</div>`}</section>`);
   if (ins?.sections?.length) {
     const color = { up: "lime", down: "", warn: "peach", info: "stone" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];

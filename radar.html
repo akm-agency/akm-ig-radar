@@ -88,6 +88,7 @@ a{color:inherit}
 .vmore{margin:4px auto 0;height:44px}
 .met{background:rgba(255,255,255,.62);border-radius:18px;padding:10px 14px;min-width:0}
 .met b{display:block;font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.2;overflow-wrap:anywhere}
+.met b.sm{font-size:15px;letter-spacing:-.01em;overflow-wrap:normal;word-break:break-word}
 .met span{font-size:11.5px;color:rgba(0,0,0,.6)}
 .met.up b{color:var(--up)} .met.down b{color:var(--down)} .met.warn b{color:var(--warn)}
 
@@ -753,7 +754,7 @@ function render() {
     ${topCat ? `<button class="corner" type="button" data-cat="${esc(topCat[0])}" aria-label="Показать категорию">↗</button>` : ""}</section>`);
   const ins = S.insights.find(i => i.type === "ads" && (i.headline || i.summary));
   T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · рекламный рынок</div>
-    ${ins ? `<div class="headline">${markHandles(ins.headline || ins.summary)}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b>${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
+    ${ins ? `<div class="headline">${markHandles(ins.headline || ins.summary)}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
       : `<div class="headline">Сводка по рекламному рынку появится после первого разбора агента.</div>`}</section>`);
   if (ins?.sections?.length) {
     const color = { up: "lime", down: "", warn: "peach", info: "stone" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];
