@@ -882,8 +882,9 @@ function scan() {
     l.appendChild(b);   // всегда в правом краю заголовка (после плашки, если она есть)
   });
 }
-let t = 0;
-new MutationObserver(() => { clearTimeout(t); t = setTimeout(scan, 60); }).observe(document.body, { childList: true, subtree: true });
+// сразу, без задержки: колбэк наблюдателя выполняется до отрисовки кадра, поэтому «?» появляется вместе с блоком
+// и заголовок не перестраивается на глазах (иначе плашки и переключатели прыгали вбок)
+new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
 scan();
 })();
 </script></body></html>
