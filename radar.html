@@ -103,7 +103,7 @@ a{color:inherit}
 @keyframes lv-ping{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(3.2);opacity:0}}
 .odo-wrap{position:relative;margin-top:4px}
 .odo{display:flex;align-items:center;font-weight:600;letter-spacing:-.02em;font-size:84px;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums}
-.odo .dg{position:relative;display:inline-block;width:.6em;height:1.16em;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent)}
+.odo .dg{position:relative;display:inline-block;width:var(--dw,.64em);height:1.16em;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent)}
 .odo .reel{position:absolute;left:0;top:0;width:100%;will-change:transform;transition:transform .62s cubic-bezier(.2,1.25,.35,1)}
 .odo .reel.fast{transition-duration:.28s;transition-timing-function:cubic-bezier(.3,.9,.4,1)}
 .odo .reel.snap{transition:none}
