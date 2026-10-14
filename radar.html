@@ -535,13 +535,14 @@ const S = { brands: [], hosts: [], hostsAt: null, insights: [], leads: {}, st: "
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const nf = new Intl.NumberFormat("ru-RU");
 const fmt = n => n == null ? "—" : nf.format(Math.round(n));
-const compact = n => { if (n == null) return "—"; const a = Math.abs(n); if (a >= 1e6) return (n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " млн"; if (a >= 1e3) return (n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + " тыс"; return nf.format(Math.round(n)); };
+const compact = n => { if (n == null) return "—"; const a = Math.abs(n); if (a >= 1e6) return (n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " млн"; if (a >= 1e3) return (n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + " тыс"; return nf.format(Math.round(n)); };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const dms = d => Date.parse(d + "T00:00:00Z");
 const shift = (d, n) => new Date(dms(d) + n * 864e5).toISOString().slice(0, 10);
 const dShort = d => { const [, m, dd] = d.split("-"); return `${dd}.${m}`; };
 const dLong = d => new Date(dms(d)).toLocaleDateString("ru-RU", { day: "numeric", month: "long", timeZone: "UTC" });
 const median = a => { const v = [...a].sort((x, y) => x - y), m = v.length >> 1; return v.length ? (v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2) : null; };
+const plu = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many; };
 const xr = r => r == null ? "—" : "×" + r.toLocaleString("ru-RU", { maximumFractionDigits: r < 1 ? 2 : 1 });
 const rcls = r => r == null ? "" : r >= 1 ? "good" : r < .5 ? "bad" : "";
 const today = new Date().toISOString().slice(0, 10);
@@ -593,21 +594,24 @@ function render() {
   const V = (S.viral || []).slice(0, 12);
   if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час 14–23 МСК</span></div>
     <div class="pcards">${V.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
-      <div class="lk">${p.pl != null ? compact(p.pl) : p.l != null ? compact(p.l) : "—"}<small>${p.pl != null ? "просмотров" : "лайков"}${p.r != null ? " · " + xr(p.r) : ""}${p.growth?.per_h ? ` · +${compact(p.growth.per_h)}/ч` : ""}</small></div>
+      <div class="lk">${p.pl != null ? compact(p.pl) : p.l != null ? compact(p.l) : p.cm != null ? compact(p.cm) : "—"}<small>${p.pl != null ? "просмотров" : p.l != null ? "лайков" : "комментариев"}${p.r != null ? " · " + xr(p.r) : ""}${p.growth?.per_h ? ` · +${compact(p.growth.per_h)}/ч` : ""}</small></div>
       <div class="muted" style="font-size:12px">@${esc(p.u)}${p.brand ? " → @" + esc(p.brand) : ""} · ${dShort(p.d)} ${esc(p.t)}</div>
       <div style="font-size:13px;line-height:1.35">${esc((p.x || "").slice(0, 140))}</div></a>`).join("")}</div>
     <div class="foot">× — лайки к медиане обычных постов площадки; /ч — прирост между двумя последними замерами.</div></section>`);
   // hosts selling ads
   const hs =S.hosts.filter(h => h.checked >= 3 && !h.group?.startsWith("Наши · ")).map(h => ({ ...h, share: h.ads / h.checked })).sort((a, b) => b.share - a.share || b.ads - a.ads).slice(0, 8);
-  T.push(`<section class="t s7"><div class="lab">Кто продаёт рекламу <span class="tag">доля рекламных постов, чужие площадки</span></div>
-    <div>${hs.map(h => `<div class="hrow"><div><b>@${esc(h.u)}</b><span>${esc(h.group)} · ${compact(h.followers)} подписчиков · ${h.ads} из ${h.checked} постов</span></div><span></span><span class="share">${Math.round(h.share * 100)}%</span><span class="hbar"><i class="track-i" style="width:${Math.max(2, h.share * 100).toFixed(1)}%;--j:${hs.indexOf(h)}"></i></span></div>`).join("") || '<div class="empty-t">Данные по площадкам появятся после сбора.</div>'}</div></section>`);
+  T.push(`<section class="t s7"><div class="lab">Кто продаёт рекламу <span class="tag">доля рекламы · чужие площадки</span></div>
+    <div>${hs.map(h => `<div class="hrow"><div><b>@${esc(h.u)}</b><span>${esc(h.group)} · ${compact(h.followers)} подписчиков · ${h.ads} из ${h.checked} ${plu(h.checked, "поста", "постов", "постов")}</span></div><span></span><span class="share">${Math.round(h.share * 100)}%</span><span class="hbar"><i class="track-i" style="width:${Math.max(2, h.share * 100).toFixed(1)}%;--j:${hs.indexOf(h)}"></i></span></div>`).join("") || '<div class="empty-t">Данные по площадкам появятся после сбора.</div>'}</div></section>`);
   // what works
   const ex = posts.filter(p => p.cls === "explicit" && p.r != null).map(p => p.r), na = posts.filter(p => p.cls === "native" && p.r != null).map(p => p.r);
   const best = posts.filter(p => p.r != null).sort((a, b) => b.r - a.r)[0];
   T.push(`<section class="t s5"><div class="lab">Что работает в рекламе</div>
-    <div class="cmpgrid"><div class="cmpcell"><span>Нативная подача</span><b class="${rcls(median(na))}">${xr(median(na))}</b><span>${na.length} постов</span></div>
-    <div class="cmpcell"><span>Явная (#ad)</span><b class="${rcls(median(ex))}">${xr(median(ex))}</b><span>${ex.length} постов</span></div></div>
-    ${best ? `<div class="empty-t" style="color:var(--ink)">Лучший рекламный пост: <b>${esc(best.b.brand)}</b> у @${esc(best.u)} — ${xr(best.r)} к обычному посту площадки.</div>` : ""}
+    <div class="cmpgrid"><div class="cmpcell"><span>Нативная подача</span><b class="${rcls(median(na))}">${xr(median(na))}</b><span>${na.length} ${plu(na.length, "пост", "поста", "постов")}</span></div>
+    <div class="cmpcell"><span>Явная (#ad)</span><b class="${rcls(median(ex))}">${xr(median(ex))}</b><span>${ex.length} ${plu(ex.length, "пост", "поста", "постов")}</span></div></div>
+    ${(() => { // лучшие рекламные посты: по одному на бренд
+      const seen = new Set(), top = posts.filter(p => p.r != null && p.r >= 1).sort((a, b) => b.r - a.r).filter(p => !seen.has(p.b.key) && seen.add(p.b.key)).slice(0, 6);
+      return top.length ? `<div class="lab" style="margin-top:6px">Лучшие рекламные посты</div><div>${top.map(p => `<a class="hrow" style="color:inherit;text-decoration:none" href="https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/" target="_blank" rel="noopener"><div><b>${esc(p.b.brand)}</b><span>@${esc(p.u)} · ${p.cls === "native" ? "нативная" : "явная"} · ${dShort(p.d)}</span></div><span></span><span class="share ${rcls(p.r)}">${xr(p.r)}</span></a>`).join("")}</div>`
+        : `<div class="empty-t">Рекламных постов лучше обычного пока нет.</div>`; })()}
     <div class="foot">× — лайки рекламного поста к медиане обычных постов той же площадки.</div></section>`);
   $("abento").innerHTML = T.join("");
   renderChips(); renderTable();
@@ -623,7 +627,7 @@ function filtered() {
   const q = S.q.toLowerCase();
   return S.brands.filter(b => (S.st === "all" || statusOf(b) === S.st) && (S.cat === "all" || (b.category || "Другое") === S.cat)
     && (!q || (b.brand + " " + (b.handle || "") + " " + (b.category || "")).toLowerCase().includes(q)))
-    .sort((a, b) => (statusOf(a) === "new" ? 0 : 1) - (statusOf(b) === "new" ? 0 : 1) || b.last.localeCompare(a.last) || b.reach - a.reach);
+    .sort((a, b) => (statusOf(a) === "new" ? 0 : 1) - (statusOf(b) === "new" ? 0 : 1) || (b.hostsN || 0) - (a.hostsN || 0) || b.n - a.n || b.reach - a.reach);
 }
 function renderTable() {
   const L = filtered();

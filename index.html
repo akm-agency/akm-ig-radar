@@ -498,8 +498,8 @@ const fmt = n => n == null ? "—" : nf.format(Math.round(n));
 const compact = n => {
   if (n == null) return "—";
   const a = Math.abs(n);
-  if (a >= 1e6) return (n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " млн";
-  if (a >= 1e3) return (n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + " тыс";
+  if (a >= 1e6) return (n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " млн";
+  if (a >= 1e3) return (n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: a >= 1e5 ? 0 : 1 }) + " тыс";
   return nf.format(Math.round(n));
 };
 const signed = (n, f = fmt) => n == null ? "—" : (n > 0 ? "+" : n < 0 ? "−" : "") + f(Math.abs(n));
@@ -530,18 +530,18 @@ function erRatio(p) {
 function signals(a, latest, netR) {
   const out = [], p = a.pts, last = a.last;
   const add = (lvl, text, kind = "") => out.push({ lvl, text, u: a.u, kind });
-  if (!last || !last.ok) { add("crit", /не найден/.test(last?.error || "") ? "не найден на Socialblade — удалён, переименован или заблокирован" : "не удалось собрать данные"); return out; }
+  if (!last || !last.ok) { add("crit", /не найден/.test(last?.error || "") ? "не найден в Instagram — удалён, переименован или закрыт" : "не удалось собрать данные"); return out; }
   if (p.length < 2) return out;
   // mass post deletion
   for (let i = Math.max(1, p.length - 30); i < p.length; i++) {
     const a0 = p[i - 1].media, a1 = p[i].media;
-    if (a0 > 20 && a1 != null && a1 < a0 * 0.8) { add("crit", `удалено ${fmt(a0 - a1)} публикаций (${dShort(p[i].d)}) — архивация или ограничение аккаунта`); break; }
+    if (a0 > 20 && a1 != null && a1 < a0 * 0.8) { add("crit", `удалено ${fmt(a0 - a1)} ${plu(a0 - a1, "публикация", "публикации", "публикаций")} (${dShort(p[i].d)}) — архивация или ограничение аккаунта`); break; }
   }
   // Socialblade stopped updating
   let j = p.length - 1;
   while (j > 0 && p[j].followers === p[j - 1].followers) j--;
   const frozen = daysBetween(p[j].d, latest);
-  if (frozen >= 4) add("warn", `цифры не меняются с ${dShort(p[j].d)} — Socialblade перестал обновлять аккаунт`);
+  if (frozen >= 4) add("warn", `цифры не меняются с ${dShort(p[j].d)} — сбор не обновляет страницу`);
   // followers dynamics
   if (a.w1pct != null && a.w1pct <= -1) add("crit", `резкая отписка: ${signed(a.w1)} за неделю (${pct(a.w1pct)})`, "growth");
   else if (a.w1pct != null && a.w1pct <= -0.3) add("warn", `теряет подписчиков: ${signed(a.w1)} за неделю (${pct(a.w1pct)})`, "growth");
@@ -565,6 +565,7 @@ function signals(a, latest, netR) {
 }
 
 const RANK = { crit: 3, warn: 2, info: 1 };
+const plu = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many; };
 function build(days0 = S.days, groups0 = S.groups) {
   const days = [...days0].sort((x, y) => x.date < y.date ? -1 : 1);
   const latest = days.length ? days[days.length - 1].date : null;
@@ -683,7 +684,7 @@ function bars(el, days, onPick) {
 function render() {
   const M = S.M = build();
   const A = M.accounts;
-  $("meta").textContent = M.latest ? `Обновлено ${dLong(M.latest)} · данные Socialblade и Instagram` : "Данных пока нет — первый сбор появится автоматически.";
+  $("meta").textContent = M.latest ? `Обновлено ${dLong(M.latest)} · наш сбор Instagram (до 13.10 — Socialblade)` : "Данных пока нет — первый сбор появится автоматически.";
   renderBento();
   const attn = A.filter(a => a.level >= 2).length;
   $("chips").innerHTML = [["all", "Все"], ...M.groups.map(g => [g.name, g.name]), ["attn", `С сигналами · ${attn}`]]
@@ -797,7 +798,7 @@ function ideasTile(D) {
       <div class="id-tabs" role="tablist">${NI.map(n => { const c = NICHE_C[n.niche] || "#6B6B72", on = n.niche === S.ideaN;
         return `<button type="button" role="tab" class="id-tab${on ? " on" : ""}" data-niche="${esc(n.niche)}" aria-selected="${on}" style="--nc:${c}"><i></i>${esc(n.niche)}<span>${n.own.length}</span></button>`; }).join("")}</div>
     </div>
-    <div class="id-own" style="--nc:${nc}"><span class="id-dot"></span><span><b>${esc(cur.niche)}</b> · наши страницы: ${cur.own.map(u => `<a href="https://www.instagram.com/${encodeURIComponent(u)}/" target="_blank" rel="noopener">@${esc(u)}</a>`).join(" ")}</span>
+    <div class="id-own" style="--nc:${nc}"><span class="id-dot"></span><span title="${esc(cur.own.map(u => "@" + u).join(", "))}"><b>${esc(cur.niche)}</b> · ${cur.own.length} ${plu(cur.own.length, "наша страница", "наших страницы", "наших страниц")}</span>
       ${bt ? `<span class="id-time">лучшее время: ${bt.best.map(b => `<b>${String(b.h).padStart(2, "0")}:00</b>`).join(" ")} МСК</span>` : ""}</div>
     ${cur.ideas.length ? cards(cur.ideas) : `<div class="muted">В этой нише за неделю ничего не залетело.</div>`}</section>`;
 }
@@ -807,12 +808,12 @@ function growthTiles() {
   T.push(ideasTile(D));
   const P = (D.proven || []).slice(0, 8);
   if (P.length) T.push(`<section class="t s12"><div class="lab">Проверенный контент <span class="tag">одно и то же вышло у нескольких страниц за 72 ч</span></div>
-    <div class="pc-grid">${P.map(p => postCard(p, { extra: `<div class="pc-pages">у ${p.pagesN} страниц${p.ownPosted?.length ? ` · <span class="pc-up">есть у нас: @${p.ownPosted.map(esc).join(", @")}</span>` : ""}</div>` })).join("")}</div></section>`);
+    <div class="pc-grid">${P.map(p => postCard(p, { extra: `<div class="pc-pages">у ${p.pagesN} ${plu(p.pagesN, "страницы", "страниц", "страниц")}${p.ownPosted?.length ? ` · <span class="pc-up" title="${esc(p.ownPosted.map(u => "@" + u).join(", "))}">есть у нас: ${p.ownPosted.length > 2 ? `${p.ownPosted.length} стр.` : "@" + p.ownPosted.map(esc).join(", @")}</span>` : ""}</div>` })).join("")}</div></section>`);
   const bt = Object.entries(D.bestTime || {}).sort((a, b) => b[1].posts - a[1].posts);
   if (bt.length) T.push(`<section class="t s12"><div class="lab">Когда постить <span class="tag">МСК · × к обычному посту ниши, 30 дней</span></div>
     <div class="bt-grid">${bt.map(([n, v]) => `<div class="bt" style="--nc:${NICHE_C[n] || "#6B6B72"}"><div class="bt-n"><i></i>${esc(n)}</div>
       <div class="bt-h">${v.best.map(b => `<span><b>${String(b.h).padStart(2, "0")}:00</b>${xx(b.x)}</span>`).join("")}</div>
-      <div class="bt-w">хуже: ${v.worst.map(b => String(b.h).padStart(2, "0") + ":00").join(", ")} · ${v.posts} постов</div></div>`).join("")}</div></section>`);
+      <div class="bt-w">хуже: ${v.worst.map(b => String(b.h).padStart(2, "0") + ":00").join(", ")} · ${fmt(v.posts)} ${plu(v.posts, "пост", "поста", "постов")}</div></div>`).join("")}</div></section>`);
   const G = (D.postGain || []).slice(0, 8);
   T.push(`<section class="t s12"><div class="lab">Посты, которые приводят подписчиков <span class="tag">прирост за ~6 ч после поста · замеры каждый час 14–23 МСК</span></div>
     ${G.length ? `<div class="pc-grid">${G.map(p => postCard(p, { top: `<span class="pc-x ${p.gain > 0 ? "hot" : ""}">${signed(p.gain)}</span>`, extra: `<div class="pc-pages">подписчиков за ${p.hours} ч после поста</div>` })).join("")}</div>`
@@ -831,7 +832,7 @@ const hugeNum = n => n >= 1e6 ? `${(n / 1e6).toLocaleString("ru-RU", { maximumFr
    новые данные догоняются плавно; если оценка ушла вперёд — счётчик ждёт, а не отматывает назад;
    большой разрыв (вкладка была скрыта, пришёл свежий замер) докручивается барабанами за пару секунд. */
 const LV = { model: null, D: null, mood: 1, acc: 0, tw: null, timer: null, at: 0, lastPop: 0 };
-const LV_TAU = 45, LV_FS = 84, LV_H = 1.16;
+const LV_TAU = 120, LV_MAXX = 2.5, LV_FS = 84, LV_H = 1.16; // догон тиками: разрыв/τ, но не быстрее 2,5× темпа
 const lvHour = t => new Date((t + 3 * 3600) * 1000).getUTCHours();
 function lvW(a, b, prof) { // часы между a и b (сек), взвешенные суточным профилем; экстраполяция не дальше 48 ч
   b = Math.min(b, a + 48 * 3600); let s = 0, t = a;
@@ -854,7 +855,7 @@ function lvFromDays() { // артефакт без live.json: модель из 
 const lvSep = n => Math.round(n).toLocaleString("ru-RU").replace(/\s/g, " ");
 function lvBuild(odo, str) {
   const cells = "01234567890123456789".split("").map(x => `<span>${x}</span>`).join("");
-  odo.innerHTML = [...str].map(c => c === " " ? `<span class="sp"></span>` : `<span class="dg"><span class="reel snap" data-d="${c}" style="transform:translateY(${-c * LV_H}em)">${cells}</span></span>`).join("");
+  odo.innerHTML = [...str].map(c => c === " " ? `<span class="sp" aria-hidden="true"></span>` : `<span class="dg" aria-hidden="true"><span class="reel snap" data-d="${c}" style="transform:translateY(${-c * LV_H}em)">${cells}</span></span>`).join("");
   odo.dataset.s = str; lvFit();
   requestAnimationFrame(() => odo.querySelectorAll(".reel").forEach(r => r.classList.remove("snap")));
 }
@@ -918,7 +919,7 @@ function lvSide(t) {
 function lvStep() {
   if (!LV.model || LV.D == null) return;
   const t = Date.now() / 1000, dt = Math.min(1, t - (LV.t ?? t)); LV.t = t;
-  const E = lvEst(t), r = lvRate(t), gap = E - LV.D, big = Math.max(60, Math.abs(r) * 600); // меньше ~10 мин роста — догоняем учащёнными тиками
+  const E = lvEst(t), r = lvRate(t), gap = E - LV.D, big = Math.max(25, Math.abs(r) * 180); // больше ~3 мин роста — докрутка, меньше — учащённые тики
   if (LV.tw) { // докрутка большого разрыва: цель живая — оценка продолжает расти
     const p = Math.min(1, (performance.now() - LV.tw.t0) / LV.tw.dur), e = LV.tw.io ? (p < .5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2) : 1 - Math.pow(1 - p, 3);
     const v = Math.round(LV.tw.from + (E - LV.tw.from) * e);
@@ -928,7 +929,7 @@ function lvStep() {
     LV.tw = { from: LV.D, t0: performance.now(), io: true, dur: 1000 * Math.min(6, 2.4 + Math.log10(Math.abs(gap)) * .8) }; // разгон и торможение
   } else {
     LV.mood += (.4 + Math.random() * 1.5 - LV.mood) * .04; // медленно плавающая «активность»: пачки и затишья
-    const lam = Math.max(0, r + gap / LV_TAU) * LV.mood;
+    const lam = Math.min(Math.max(0, r + gap / LV_TAU), Math.max(r, 0) * LV_MAXX) * LV.mood;
     LV.acc += lam * dt;
     let k = 0;
     if (LV.acc >= 1) { k = Math.floor(LV.acc); LV.acc -= k; }
@@ -966,6 +967,12 @@ function liveMount(total) {
   LV.sideT = 0; lvSide(t);
   if (!LV.timer) {
     LV.timer = setInterval(lvStep, 100);
+    // фоновая вкладка: таймеры почти стоят, счётчик отстаёт — при возвращении докручиваем сразу, а не разгоняем тики
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden || !LV.model || LV.D == null) return;
+      const t = Date.now() / 1000, gap = lvEst(t) - LV.D; LV.t = t; LV.acc = 0;
+      if (gap > 3) LV.tw = { from: LV.D, t0: performance.now(), io: true, dur: 1000 * Math.min(3.5, 1.4 + Math.log10(gap) * .6) };
+    });
     setInterval(lvFetch, 60000);
     addEventListener("resize", () => { lvFit(); clearTimeout(LV.rz); LV.rz = setTimeout(lvChart, 120); });
     document.fonts?.ready.then(lvFit);
@@ -1060,8 +1067,8 @@ function renderTable() {
   $("tblTitle").textContent = S.mode === "day" ? "Прирост по дням" : "Подписчики по понедельникам";
   $("tblLab").textContent = S.mode === "day" ? "Посуточная детализация · 14 дней" : "Еженедельный срез";
   $("tblFoot").textContent = S.mode === "day"
-    ? "Прирост за день — разница между соседними замерами Socialblade. Точка в углу — в этот день выходили публикации. Эффект поста обычно виден в тот же или на следующий день. Нажмите на аккаунт, чтобы увидеть, после каких постов был прирост."
-    : "Значение на понедельник — последний замер Socialblade на эту дату. «За неделю» и «За 4 недели» считаются от текущего значения. Звёздочка — сумма неполная: по части аккаунтов у Socialblade нет данных на эту дату. Нажмите на аккаунт, чтобы открыть график и детали.";
+    ? "Прирост за день — разница между соседними дневными замерами (до 13.10 — Socialblade, дальше — наш сбор Instagram). Точка в углу — в этот день выходили публикации. Эффект поста обычно виден в тот же или на следующий день. Нажмите на аккаунт, чтобы увидеть, после каких постов был прирост."
+    : "Значение на понедельник — последний замер на эту дату (до 13.10 — Socialblade, дальше — наш сбор Instagram). «За неделю» и «За 4 недели» считаются от текущего значения. Звёздочка — сумма неполная: по части аккаунтов нет данных на эту дату. Нажмите на аккаунт, чтобы открыть график и детали.";
   if (!S.M.latest) return;
   if (S.mode === "day") return renderDayTable();
   $("tbl").className = "";
