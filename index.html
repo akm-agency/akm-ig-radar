@@ -144,6 +144,7 @@ a{color:inherit}
 
 #tblLab{justify-content:flex-start}#tblLab .hq{margin-left:8px}
 .h48{display:block;width:100%;height:auto}
+mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
 /* insight section tiles */
 .ilist{display:flex;flex-direction:column}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border:0;border-top:1px solid rgba(0,0,0,.09);background:none;text-align:left;width:100%}
@@ -565,6 +566,17 @@ function signals(a, latest, netR) {
   return out;
 }
 
+// «Обновлено сегодня в 18:55» — по времени выгрузки данных
+const updLabel = iso => {
+  if (!iso) return "";
+  const t = new Date(iso), msk = x => new Date(x.getTime() + 3 * 36e5), a = msk(t), b = msk(new Date());
+  const hm = `${String(a.getUTCHours()).padStart(2, "0")}:${String(a.getUTCMinutes()).padStart(2, "0")}`;
+  const day = Math.round((Date.UTC(b.getUTCFullYear(), b.getUTCMonth(), b.getUTCDate()) - Date.UTC(a.getUTCFullYear(), a.getUTCMonth(), a.getUTCDate())) / 864e5);
+  return `Обновлено ${day === 0 ? "сегодня" : day === 1 ? "вчера" : a.getUTCDate() + " " + ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"][a.getUTCMonth()]} в ${hm} МСК`;
+};
+// ники в заголовке разбора — маркером; наши страницы кликабельны (открывают карточку)
+const markHandles = (text, known = new Set()) => esc(text).replace(/@([A-Za-z0-9._]+[A-Za-z0-9_])/g, (m, u) =>
+  known.has(u.toLowerCase()) ? `<mark class="hl" data-u="${u}" role="button" tabindex="0">${m}</mark>` : `<mark class="hl">${m}</mark>`);
 const RANK = { crit: 3, warn: 2, info: 1 };
 const plu = (n, one, few, many) => { const a = Math.abs(n) % 100, b = a % 10; return a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many; };
 function build(days0 = S.days, groups0 = S.groups) {
@@ -685,7 +697,7 @@ function bars(el, days, onPick) {
 function render() {
   const M = S.M = build();
   const A = M.accounts;
-  $("meta").textContent = M.latest ? `Обновлено ${dLong(M.latest)} · наш сбор Instagram (до 13.10 — Socialblade)` : "Данных пока нет — первый сбор появится автоматически.";
+  $("meta").textContent = M.latest ? (S.extra?.updatedAt ? updLabel(S.extra.updatedAt) : `Обновлено ${dLong(M.latest)}`) : "Данных пока нет — первый сбор появится автоматически.";
   renderBento();
   const attn = A.filter(a => a.level >= 2).length;
   $("chips").innerHTML = [["all", "Все"], ...M.groups.map(g => [g.name, g.name]), ["attn", `С сигналами · ${attn}`]]
@@ -1080,7 +1092,7 @@ function renderBento() {
     const headline = ins.headline || (sents[0] || "").slice(0, 180);
     T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · ${S.insTab === "day" ? "разбор за " + esc(dLong(ins.date)) + (ins.asof ? " · на " + esc(ins.asof) : "") : "итоги недели"}
       <span class="segd" role="group" aria-label="Период"><button type="button" data-t="day" aria-pressed="${S.insTab === "day"}" ${day ? "" : "disabled"}>День</button><button type="button" data-t="week" aria-pressed="${S.insTab === "week"}" ${week ? "" : "disabled"}>Неделя</button></span></div>
-      <div class="headline" title="${esc(headline)}">${esc(headline)}</div>
+      <div class="headline" title="${esc(headline)}">${markHandles(headline, new Set(A.map(a => a.u.toLowerCase())))}</div>
       ${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${tone(m.tone)}"><span>${esc(m.label)}</span><b>${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}</section>`);
     const rest = ins.headline ? sents : sents.slice(1);
     const secs = ins.sections?.length ? ins.sections : rest.length ? [{ title: "Подробности", tone: "info", items: rest.map(t => ({ text: t })) }] : [];
