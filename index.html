@@ -355,19 +355,27 @@ button.srow:hover b{text-decoration:underline}
 .id-tab span{font-size:11.5px;opacity:.6}
 .id-tab.on{background:var(--nc);color:#fff}.id-tab.on i{background:#fff}.id-tab.on span{opacity:.85}
 .id-find input{border:1px solid var(--line);border-radius:999px;padding:9px 14px;font:inherit;font-size:13px;min-width:220px;background:#fff}
-.id-own{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:13px;padding:10px 14px;margin-bottom:14px;border-radius:14px;
+.id-own{display:grid;grid-template-columns:auto 1fr auto;align-items:baseline;gap:6px 10px;font-size:13px;line-height:1.6;padding:12px 16px;margin-bottom:14px;border-radius:14px;
   background:color-mix(in srgb,var(--nc) 10%,#fff)}
 .id-own a{color:inherit;text-decoration:none;margin-right:6px;opacity:.75}.id-own a:hover{opacity:1;text-decoration:underline}
 .id-own a.hl{opacity:1;font-weight:700;background:color-mix(in srgb,var(--nc) 25%,#fff);padding:1px 6px;border-radius:6px}
-.id-dot{width:10px;height:10px;border-radius:50%;background:var(--nc);flex:none}
-.id-time{margin-left:auto;color:var(--muted)}.id-time b{color:var(--ink);margin-left:4px}
+.id-dot{width:10px;height:10px;border-radius:50%;background:var(--nc);flex:none;align-self:center}
+.id-time{color:var(--muted);white-space:nowrap}.id-time b{color:var(--ink);margin-left:4px}
 /* когда постить */
 .bt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .bt{background:color-mix(in srgb,var(--nc) 9%,var(--tile-2));border-radius:16px;padding:12px 14px}
 .bt-n{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px}.bt-n i{width:9px;height:9px;border-radius:50%;background:var(--nc)}
 .bt-h{display:flex;gap:10px;margin:8px 0 4px;flex-wrap:wrap}.bt-h span{font-size:12px;color:var(--muted)}.bt-h b{font-size:16px;color:var(--ink);margin-right:3px}
 .bt-w{font-size:11.5px;color:var(--muted)}
-@media (max-width:640px){.pc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.id-find input{min-width:0;width:100%}.id-find{width:100%}.id-time{margin-left:0}}
+@media (max-width:640px){.pc-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.id-own{grid-template-columns:auto 1fr}.id-time{grid-column:1/-1}}
+@keyframes cellIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:none}}
+#tbl.wave th,#tbl.wave td{animation:cellIn .5s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--wd,0ms)}
+button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:100%}
+.pc-chart{color:var(--blue);font-weight:600}
+.vp-head{padding:0!important;overflow:hidden;min-height:220px;background:var(--tile-2)}.vp-head img{width:100%;height:100%;object-fit:cover;display:block}
+.vp-hook{font-size:clamp(20px,2.2vw,26px);font-weight:600;letter-spacing:-.02em;line-height:1.2;margin:10px 40px 14px 0}
+.vp-kvs{display:flex;gap:10px;flex-wrap:wrap}.vp-kvs .kv{flex:1;min-width:130px}.vp-kvs small{display:block;font-size:11px;color:var(--muted)}
+.vp-svg{width:100%;height:auto;display:block;margin-top:8px}.vp-empty{color:var(--muted);font-size:13px;padding:18px 0}
 </style>
 
 <div class="wrap">
@@ -645,31 +653,86 @@ const FMT_SHORT = { clip_podcast_stream: "Нарезка", meme: "Мем", fail_
 const heat = r => r == null ? "" : r >= 20 ? "hot" : r >= 8 ? "warm" : "";
 function postCard(p, opt = {}) {
   const fc = FMT_C[p.fmt] || "#6B6B72";
-  const metric = p.pl != null ? `▶ ${compact(p.pl)}` : `♥ ${compact(p.l)}`;
+  const lk = p.l != null ? `♥ ${compact(p.l)}` : p.le ? `<span title="Лайки скрыты владельцем — оценка: комментарии × типичное «лайков на комментарий» в нише">♥ ≈${compact(p.le)}</span>` : "лайки скрыты";
+  const metric = p.pl != null ? `▶ ${compact(p.pl)}` : lk;
   const top = opt.top ?? (p.r != null ? `<span class="pc-x ${heat(p.r)}" title="во столько раз больше обычного поста этого аккаунта">${xx(p.r)}</span>` : "");
-  return `<a class="pc2" href="${igPost(p)}" target="_blank" rel="noopener">
+  const open = opt.btn ? `<button type="button" class="pc2" data-vp="${esc(p.c)}" aria-label="Почасовой график поста">` : `<a class="pc2" href="${igPost(p)}" target="_blank" rel="noopener">`;
+  return `${open}
     <div class="pc-img" style="--fc:${fc}">${p.th ? `<img src="${esc(p.th)}" alt="" loading="lazy">` : `<span class="pc-ph">${p.k === "reel" ? "Reels" : "Пост"}</span>`}
       ${p.fmt ? `<span class="pc-fmt" style="background:${fc}">${esc(FMT_SHORT[p.fmt] || p.format || "")}</span>` : ""}${top}</div>
     <div class="pc-body">
       <div class="pc-hook">${esc(p.hook || (p.x || "").slice(0, 90) || (p.k === "reel" ? "Reels" : "Пост"))}</div>
       ${opt.extra || ""}
-      <div class="pc-meta"><b>${metric}</b>${p.pl != null && p.l != null ? ` · ♥ ${compact(p.l)}` : ""}${p.cm != null ? ` · 💬 ${compact(p.cm)}` : ""}${p.growth?.per_h ? ` · <span class="pc-up">+${compact(p.growth.per_h)}/ч</span>` : ""}</div>
-      <div class="pc-src">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)}</div>
-    </div></a>`;
+      <div class="pc-meta"><b>${metric}</b>${p.pl != null && (p.l != null || p.le) ? ` · ${lk}` : ""}${p.lh ? ' <span class="pc-src">(× по комм.)</span>' : ""}${p.cm != null ? ` · 💬 ${compact(p.cm)}` : ""}${p.growth?.per_h ? ` · <span class="pc-up">+${compact(p.growth.per_h)}/ч</span>` : ""}</div>
+      <div class="pc-src">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)}${opt.btn ? ' · <span class="pc-chart">график ↗</span>' : ""}</div>
+    </div>${opt.btn ? "</button>" : "</a>"}`;
 }
 const cards = (list, opt) => `<div class="pc-grid">${list.map(p => postCard(p, opt)).join("")}</div>`;
+
+// ---------- окно поста из «Залетает сейчас»: почасовой рост подписчиков аккаунта и цифры поста ----------
+function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = compact, h = 170 } = {}) {
+  // pts: [[ISO-час, значение], ...]; mark: ISO-время публикации (вертикальная линия)
+  const P = pts.filter(p => p[1] != null);
+  if (P.length < 2) return `<div class="vp-empty">Мало замеров для графика — точки появляются каждый час с 14:00 до 23:00 МСК.</div>`;
+  const W = 640, L = 56, R = 12, T = 12, B = 26;
+  const xs = P.map(p => Date.parse(p[0] + (p[0].length === 16 ? ":00" : "") + "+03:00")), ys = P.map(p => p[1]);
+  let x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const mt = mark ? Date.parse(mark + (mark.length === 16 ? ":00" : "") + "+03:00") : null;
+  if (mt && mt < x0) x0 = mt;
+  let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
+  const pad = (y1 - y0) * .15; y0 -= pad; y1 += pad;
+  const X = t => L + (t - x0) / Math.max(1, x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (h - T - B);
+  const line = P.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
+  const area = `${line}L${X(xs[xs.length - 1]).toFixed(1)},${h - B}L${X(xs[0]).toFixed(1)},${h - B}Z`;
+  const hh = t => { const d = new Date(t + 3 * 36e5); return `${String(d.getUTCHours()).padStart(2, "0")}:00`; };
+  const ticks = [0, .5, 1].map(f => y0 + pad + (y1 - y0 - 2 * pad) * f);
+  const xl = P.length > 8 ? [0, Math.floor(P.length / 2), P.length - 1] : P.map((_, i) => i);
+  return `<svg class="vp-svg" viewBox="0 0 ${W} ${h}" role="img">
+    ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(fmtY(v))}</text>`).join("")}
+    ${mt ? `<line x1="${X(mt)}" x2="${X(mt)}" y1="${T}" y2="${h - B}" stroke="var(--orange)" stroke-dasharray="4 4"/><text x="${X(mt) + 4}" y="${T + 10}" font-size="11" fill="var(--orange)">пост</text>` : ""}
+    <path d="${area}" fill="${color}" fill-opacity=".1"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round"/>
+    ${P.map((p, i) => `<circle cx="${X(xs[i])}" cy="${Y(p[1])}" r="3.5" fill="${color}"><title>${hh(xs[i])} · ${fmt(p[1])}</title></circle>`).join("")}
+    ${xl.map(i => `<text x="${X(xs[i])}" y="${h - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${hh(xs[i])}</text>`).join("")}
+  </svg>`;
+}
+function openViral(code) {
+  const p = [...(S.viral || []), ...(S.extra?.clips || []), ...(S.extra?.proven || [])].find(x => x.c === code);
+  if (!p) return;
+  const H = p.hist || {}, f = H.f || [], m = H.m || [];
+  const postT = `${p.d}T${p.t}`;
+  const base = [...f].reverse().find(x => x[0] <= postT.slice(0, 13) + ":00") || f[0];
+  const gain = f.length && base ? f[f.length - 1][1] - base[1] : null;
+  const hrs = f.length && base ? Math.max(1, Math.round((Date.parse(f[f.length - 1][0] + ":00+03:00") - Date.parse(base[0] + ":00+03:00")) / 36e5)) : null;
+  const metric = m.some(x => x[3] != null) ? { i: 3, n: "просмотры поста" } : { i: 1, n: "лайки поста" };
+  let dlg = $("vpDlg");
+  if (!dlg) { dlg = document.createElement("dialog"); dlg.id = "vpDlg"; document.body.appendChild(dlg); dlg.addEventListener("click", e => { if (e.target === dlg || e.target.closest("[data-close]")) dlg.close(); }); }
+  dlg.innerHTML = `<div class="dlg"><div class="dgrid">
+    <section class="t d2 vp-head" style="grid-column:span 2">${p.th ? `<img src="${esc(p.th)}" alt="">` : ""}</section>
+    <section class="t d4" style="grid-column:span 4"><button class="x" type="button" data-close aria-label="Закрыть">×</button>
+      <div class="lab">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)}</div>
+      <div class="vp-hook">${esc(p.hook || (p.x || "").slice(0, 140))}</div>
+      <div class="kvs vp-kvs">
+        <div class="kv"><span>Залёт</span><b>${xx(p.r)}</b></div>
+        <div class="kv"><span>${p.pl != null ? "Просмотры" : "Лайки"}</span><b>${p.pl != null ? compact(p.pl) : p.l != null ? compact(p.l) : p.le ? "≈" + compact(p.le) : "—"}</b></div>
+        <div class="kv"><span>Подписчики аккаунта</span><b class="${gain > 0 ? "pc-up" : ""}">${gain != null ? signed(gain) : "—"}</b>${hrs ? `<small>за ${hrs} ч замеров</small>` : ""}</div>
+      </div>
+      <a class="pill" href="${igPost(p)}" target="_blank" rel="noopener" style="margin-top:12px">Открыть в Instagram ↗</a></section>
+    <section class="t s6" style="grid-column:1/-1"><div class="lab">Подписчики @${esc(p.u)} по часам <span class="tag">пунктир — время поста</span></div>${hourlyChart(f, { mark: postT, color: "var(--blue)" })}</section>
+    <section class="t s6" style="grid-column:1/-1"><div class="lab">${metric.n} по часам</div>${hourlyChart(m.map(x => [x[0], x[metric.i]]), { color: "var(--orange)" })}</section>
+  </div></div>`;
+  dlg.showModal();
+}
 
 // «Залетает сейчас»: свежие посты (до 72 ч) с лайками/просмотрами ≥3× к обычному посту аккаунта; замеры каждый час 14–23 МСК
 function viralTile(list, sub) {
   const V = list.slice(0, 12);
   if (!V.length) return "";
-  return `<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">${esc(sub)}</span></div>${cards(V)}</section>`;
+  return `<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">${esc(sub)}</span></div>${cards(V, { btn: true })}</section>`;
 }
 
 function ideasTile(D) {
   const NI = D.ideas?.niches || [];
   if (!NI.length) return "";
-  if (S.ideaQ) { const hit = NI.find(n => n.own.some(u => u.includes(S.ideaQ.toLowerCase().replace(/^@/, "")))); if (hit) S.ideaN = hit.niche; }
   if (!NI.some(n => n.niche === S.ideaN)) S.ideaN = NI[0].niche;
   const cur = NI.find(n => n.niche === S.ideaN), nc = NICHE_C[cur.niche] || "#6B6B72";
   const bt = D.bestTime?.[cur.niche];
@@ -677,10 +740,8 @@ function ideasTile(D) {
     <div class="id-top">
       <div class="id-tabs" role="tablist">${NI.map(n => { const c = NICHE_C[n.niche] || "#6B6B72", on = n.niche === S.ideaN;
         return `<button type="button" role="tab" class="id-tab${on ? " on" : ""}" data-niche="${esc(n.niche)}" aria-selected="${on}" style="--nc:${c}"><i></i>${esc(n.niche)}<span>${n.own.length}</span></button>`; }).join("")}</div>
-      <label class="id-find"><input id="ideaFind" list="ideaAccs" placeholder="Найти свою страницу" value="${esc(S.ideaQ || "")}" autocomplete="off">
-        <datalist id="ideaAccs">${NI.flatMap(n => n.own).map(u => `<option value="@${esc(u)}">`).join("")}</datalist></label>
     </div>
-    <div class="id-own" style="--nc:${nc}"><span class="id-dot"></span><span><b>${esc(cur.niche)}</b> · наши страницы: ${cur.own.map(u => `<a href="https://www.instagram.com/${encodeURIComponent(u)}/" target="_blank" rel="noopener"${S.ideaQ && u.includes(S.ideaQ.replace(/^@/, "").toLowerCase()) ? ' class="hl"' : ""}>@${esc(u)}</a>`).join(" ")}</span>
+    <div class="id-own" style="--nc:${nc}"><span class="id-dot"></span><span><b>${esc(cur.niche)}</b> · наши страницы: ${cur.own.map(u => `<a href="https://www.instagram.com/${encodeURIComponent(u)}/" target="_blank" rel="noopener">@${esc(u)}</a>`).join(" ")}</span>
       ${bt ? `<span class="id-time">лучшее время: ${bt.best.map(b => `<b>${String(b.h).padStart(2, "0")}:00</b>`).join(" ")} МСК</span>` : ""}</div>
     ${cur.ideas.length ? cards(cur.ideas) : `<div class="muted">В этой нише за неделю ничего не залетело.</div>`}</section>`;
 }
@@ -1074,13 +1135,9 @@ function closeDlg(d) {
 for (const id of ["accDlg", "aiDlg"]) $(id).addEventListener("cancel", e => { e.preventDefault(); closeDlg($(id)); });
 
 /* ---------- events ---------- */
-$("bento").addEventListener("change", e => {
-  if (e.target.id !== "ideaFind") return;
-  S.ideaQ = e.target.value.trim(); const y = scrollY; renderBento(); scrollTo(0, y);
-});
 $("bento").addEventListener("click", e => {
   const ib = e.target.closest("[data-niche]");
-  if (ib) { S.ideaN = ib.dataset.niche; S.ideaQ = ""; const y = scrollY; renderBento(); scrollTo(0, y); return; }
+  if (ib) { S.ideaN = ib.dataset.niche; const y = scrollY; renderBento(); scrollTo(0, y); return; }
   const t = e.target.closest("[data-t]"); if (t && !t.disabled) { S.insTab = t.dataset.t; renderBento(); return; }
   const g = e.target.closest("[data-g]"); if (g) { S.filter = S.filter === g.dataset.g ? "all" : g.dataset.g; render(); $("tableTile").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
   const act = e.target.closest("[data-act]");
@@ -1088,7 +1145,15 @@ $("bento").addEventListener("click", e => {
   if (act?.dataset.act === "more") { S.showAllSig = !S.showAllSig; renderBento(); return; }
   const u = e.target.closest("[data-u]"); if (u) openAccount(u.dataset.u);
 });
-$("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; S.mode = b.dataset.m; try { localStorage.setItem("net.mode", S.mode); } catch (x) {} renderTable(); });
+// переключение недели/дни: ячейки таблицы появляются волной (строка × колонка), без прыжков страницы
+function cellWave() {
+  if (reduce) return;
+  const tb = $("tbl"); tb.classList.remove("wave"); void tb.offsetWidth;
+  [...tb.rows].forEach((r, ri) => [...r.cells].forEach((c, ci) => c.style.setProperty("--wd", Math.min(ri * 22 + ci * 14, 700) + "ms")));
+  tb.classList.add("wave");
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-vp]"); if (b) openViral(b.dataset.vp); });
+$("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || b.dataset.m === S.mode) return; S.mode = b.dataset.m; try { localStorage.setItem("net.mode", S.mode); } catch (x) {} const y = scrollY; renderTable(); scrollTo(0, y); cellWave(); });
 $("chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { S.filter = b.dataset.g; render(); } });
 $("tbody").addEventListener("click", e => { const r = e.target.closest("tr.acc"); if (r) openAccount(r.dataset.u); });
 $("tbody").addEventListener("keydown", e => { const r = e.target.closest("tr.acc"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openAccount(r.dataset.u); } });
@@ -1299,7 +1364,9 @@ const H = {
 };
 const keys = Object.keys(H).sort((a, b) => b.length - a.length);
 const css = document.createElement("style");
-css.textContent = `.hq{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border-radius:50%;
+css.textContent = `.lab:has(.hq){justify-content:flex-start}.lab:has(.hq) .tag{margin-left:auto}
+.lab .hq{margin-left:auto;order:99}.lab:has(.tag) .hq{margin-left:0}
+.hq{display:inline-flex;align-items:center;justify-content:center;flex:none;width:20px;height:20px;border-radius:50%;
 border:1px solid currentColor;opacity:.45;font:600 11px/1 inherit;cursor:pointer;background:none;color:inherit;vertical-align:middle;padding:0;transition:opacity .15s}
 .hq:hover,.hq:focus-visible{opacity:1}
 .hpop{position:absolute;z-index:9999;max-width:min(380px,calc(100vw - 32px));background:#111;color:#fff;border-radius:16px;padding:14px 16px;
@@ -1333,8 +1400,7 @@ function scan() {
     if (!k) return;
     const b = document.createElement("button");
     b.type = "button"; b.className = "hq"; b.dataset.k = k; b.textContent = "?"; b.setAttribute("aria-label", "Как считается: " + k);
-    const tag = l.querySelector(".tag");
-    tag ? l.insertBefore(b, tag) : l.appendChild(b);
+    l.appendChild(b);   // всегда в правом краю заголовка (после плашки, если она есть)
   });
 }
 let t = 0;
