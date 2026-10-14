@@ -130,6 +130,12 @@ a{color:inherit}
 .lv-end{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;will-change:transform}
 .lv-end::after{content:"";position:absolute;inset:0;border-radius:50%;background:#fff;animation:lv-ring 2.4s cubic-bezier(0,0,.2,1) infinite}
 @keyframes lv-ring{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(1.9);opacity:0}}
+/* растянутый график: штриховка через pathLength у non-scaling-stroke считается неверно и линия «не дорисовывается» —
+   поэтому здесь появление шторкой слева направо, линия всегда целая */
+.enter .t.live .ln{animation:none;stroke-dasharray:none;stroke-dashoffset:0}
+.enter .t.live .ar{animation:none}
+.enter .t.live .netchart svg{animation:lv-reveal 1.15s cubic-bezier(.65,0,.35,1) .28s both}
+@keyframes lv-reveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 .enter .lv-end{animation:lv-in .55s cubic-bezier(.2,1.4,.4,1) 1.3s both}
 @keyframes lv-in{from{transform:scale(0);opacity:0}}
 .lv-end.bump{animation:lv-bump .45s cubic-bezier(.3,1.5,.5,1)}
