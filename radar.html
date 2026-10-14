@@ -433,6 +433,22 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .vp-svg{width:100%;height:auto;display:block;margin-top:8px}.vp-empty{color:var(--muted);font-size:13px;padding:18px 0}
 </style></head><body><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
 <style>
+.scope-t{gap:10px}
+.scope-head{display:flex;align-items:flex-end;gap:16px}
+.scope-head .sub{margin-bottom:8px;line-height:1.35}
+.scope{flex:1;min-height:260px;display:grid;place-items:center}
+.scope svg{width:100%;height:100%;max-height:520px;aspect-ratio:1;display:block;overflow:visible}
+.sc-cat{font-size:9.5px;font-weight:700;letter-spacing:.02em}
+.sc-b{cursor:pointer}
+.sc-b .d{transform-box:fill-box;transform-origin:center;transform:scale(calc(.82 + var(--o) * .3));opacity:calc(.55 + var(--o) * .45)}
+.sc-b .h{opacity:calc(var(--o) * var(--o) * .22)}
+.sc-b:hover .d{opacity:1}.sc-b:hover .h{opacity:.3}
+.sc-l rect{fill:#fff;opacity:calc(.82 + var(--o) * .18)}
+.sc-l text{font-size:10.5px;font-weight:600;fill:#0D0D0F}
+.scope-leg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;opacity:.6}
+.scope-leg i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#FF4F1F;margin-right:6px;vertical-align:0}
+.scope-leg i.nw{background:transparent;box-shadow:0 0 0 2px #fff inset}
+
 .pcard .lk .ic{font-size:.46em;margin-right:7px;vertical-align:.32em;opacity:.5;letter-spacing:0}.kpis{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 2px}.kpis span{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;background:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}.kpis .good{color:var(--up)}.kpis .bad{color:var(--down)}
 
 mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
@@ -582,6 +598,90 @@ const igLink = u => `https://www.instagram.com/${encodeURIComponent(u)}/`;
 const postLink = p => `https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/`;
 
 /* ---------- bento ---------- */
+/* ---------- радар: крутящийся луч и самые «жирные» рекламодатели (бенто-стиль сайта) ---------- */
+const SC = { raf: 0, blips: [], t0: performance.now(), visible: true };
+const SC_COL = ["#FF4F1F", "#D2F35B", "#CFC2FF", "#7D8CFF", "#FFD9C7", "#FFFFFF", "#FFB86B", "#9BE7C4"];
+const scHash = s => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return ((h >>> 0) % 1000) / 1000; };
+function scope(el, B, latest) {
+  if (!el) return;
+  cancelAnimationFrame(SC.raf);
+  const N = 24, C = 200, R = 188, score = b => (b.hostsN || 0) * 3 + (b.n || 0) + Math.log10((b.reach || 0) + 10);
+  const top = [...B].sort((a, b) => score(b) - score(a)).slice(0, N);
+  if (!top.length) { el.innerHTML = `<div class="sub">Рекламодатели появятся после первого сбора.</div>`; return; }
+  // секторы — категории (до 7 крупных + «Другое»), у каждой свой цвет сайта
+  const cnt = {}; top.forEach(b => { const c = b.category || "Другое"; cnt[c] = (cnt[c] || 0) + 1; });
+  let cats = Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(x => x[0]);
+  if (cats.length > 8) cats = [...cats.slice(0, 7), "Другое"];
+  const catOf = b => cats.includes(b.category || "Другое") ? (b.category || "Другое") : "Другое";
+  const col = c => SC_COL[cats.indexOf(c) % SC_COL.length];
+  const span = 360 / cats.length, mx = Math.max(...top.map(b => b.hostsN || 1));
+  const P = (r, a) => [C + r * Math.cos((a - 90) * Math.PI / 180), C + r * Math.sin((a - 90) * Math.PI / 180)];
+  const arc = (r0, r1, a0, a1) => { const [x0, y0] = P(r1, a0), [x1, y1] = P(r1, a1), [x2, y2] = P(r0, a1), [x3, y3] = P(r0, a0), lg = a1 - a0 > 180 ? 1 : 0;
+    return `M${x0.toFixed(1)},${y0.toFixed(1)}A${r1},${r1} 0 ${lg} 1 ${x1.toFixed(1)},${y1.toFixed(1)}L${x2.toFixed(1)},${y2.toFixed(1)}A${r0},${r0} 0 ${lg} 0 ${x3.toFixed(1)},${y3.toFixed(1)}Z`; };
+  // плоские «плитки» колец: каждая категория — свой сектор с зазором, кольца чередуются по тону
+  let g = "";
+  const rings = [[18, 70, .07], [70, 122, .045], [122, R, .03]];
+  cats.forEach((c, i) => {
+    const a0 = i * span + 1.6, a1 = (i + 1) * span - 1.6;
+    rings.forEach(([r0, r1, o]) => g += `<path d="${arc(r0, r1, a0, a1)}" fill="rgba(255,255,255,${o})"/>`);
+    const [lx, ly] = P(R - 13, i * span + span / 2);
+    g += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" class="sc-cat" fill="${col(c)}">${esc(c.length > 15 ? c.slice(0, 14) + "…" : c)}</text>`;
+  });
+  // луч: мягкий лаймовый сектор с затуханием и чёткая кромка
+  let sw = "";
+  for (let i = 0; i < 14; i++) {
+    const a1 = -i * 3, a0 = a1 - 3;
+    sw += `<path d="${arc(18, R, a0, a1)}" fill="rgba(210,243,91,${(.22 * (1 - i / 14) ** 1.8).toFixed(3)})"/>`;
+  }
+  const [ex, ey] = P(R, 0), [sx, sy] = P(18, 0);
+  sw += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="#D2F35B" stroke-width="2.5" stroke-linecap="round"/>`;
+  // точки: ближе к центру и крупнее — шире размещается
+  SC.blips = top.map((b, i) => {
+    const c = catOf(b), ci = cats.indexOf(c), ang = ci * span + span * (.2 + .6 * scHash(b.key));
+    const rad = 40 + Math.sqrt(i / Math.max(1, top.length - 1)) * (R - 68) + (scHash(b.key + "r") - .5) * 14;
+    const [x, y] = P(rad, ang), sz = 4 + 6 * Math.sqrt((b.hostsN || 1) / mx), fresh = b.first >= shift(latest, -6);
+    return { b, x, y, sz, ang, fresh, color: col(c), label: i < 7, side: 1 };
+  });
+  // подписи-плашки без наложений: справа от точки, иначе слева, иначе — только по наведению
+  const w = p => Math.min(18, p.b.brand.length) * 6.3 + 18;
+  const boxes = SC.blips.map(p => [p.x - p.sz, p.x + p.sz, p.y, p.sz + 10, p]);   // сами точки — тоже препятствия
+  const hit = (x0, x1, y, self) => boxes.some(q => q[4] !== self && x0 < q[1] + 4 && x1 > q[0] - 4 && Math.abs(y - q[2]) < (q[3] || 22));
+  SC.blips.forEach(p => {
+    if (!p.label) return;
+    const r0 = p.x + p.sz + 6, l1 = p.x - p.sz - 6;
+    if (r0 + w(p) < 2 * C && !hit(r0, r0 + w(p), p.y, p)) { boxes.push([r0, r0 + w(p), p.y, 22]); p.side = 1; }
+    else if (l1 - w(p) > 0 && !hit(l1 - w(p), l1, p.y, p)) { boxes.push([l1 - w(p), l1, p.y, 22]); p.side = -1; }
+    else p.label = false;
+  });
+  const blips = SC.blips.map(p => {
+    const name = p.b.brand.length > 18 ? p.b.brand.slice(0, 17) + "…" : p.b.brand, bw = w(p), bx = p.side > 0 ? p.sz + 6 : -(p.sz + 6) - bw;
+    return `<g class="sc-b" data-b="${esc(p.b.key)}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})" style="--o:.4">
+      <circle class="h" r="${(p.sz + 7).toFixed(1)}" fill="${p.color}"/>
+      <circle class="d" r="${p.sz.toFixed(1)}" fill="${p.color}"${p.fresh ? ' stroke="#fff" stroke-width="2.2"' : ""}/>
+      ${p.label ? `<g class="sc-l"><rect x="${bx.toFixed(1)}" y="-10" width="${bw.toFixed(1)}" height="20" rx="10"/><text x="${(bx + bw / 2).toFixed(1)}" y="4" text-anchor="middle">${esc(name)}</text></g>` : ""}
+      <title>${esc(p.b.brand)} · ${esc(p.b.category || "Другое")} · ${p.b.hostsN} площ. · ${p.b.n} пост. · охват ${compact(p.b.reach)}${p.fresh ? " · новый" : ""}</title></g>`;
+  }).join("");
+  el.innerHTML = `<svg viewBox="0 0 400 400" role="img" aria-label="Радар: ${top.length} крупнейших рекламодателей">
+    ${g}<g id="scSweep">${sw}</g>${blips}<circle cx="${C}" cy="${C}" r="7" fill="#D2F35B"/><circle cx="${C}" cy="${C}" r="3" fill="#0D0D0F"/></svg>`;
+  const sweepEl = el.querySelector("#scSweep"), nodes = [...el.querySelectorAll(".sc-b")];
+  const PERIOD = 5200;
+  const frame = now => {
+    const a = ((now - SC.t0) / PERIOD * 360) % 360;
+    sweepEl.setAttribute("transform", `rotate(${a.toFixed(2)} ${C} ${C})`);
+    nodes.forEach((n, i) => {   // точка «загорается», когда по ней прошёл луч, и плавно гаснет к следующему обороту
+      const d = (a - SC.blips[i].ang + 360) % 360, o = d < 5 ? 1 : Math.max(.38, 1 - d / 260);
+      n.style.setProperty("--o", o.toFixed(3));
+    });
+    if (SC.visible && !document.hidden) SC.raf = requestAnimationFrame(frame);
+  };
+  if (reduce) { nodes.forEach(n => n.style.setProperty("--o", 1)); return; }
+  if (!SC.io) {
+    SC.io = new IntersectionObserver(es => { SC.visible = es[0].isIntersecting; if (SC.visible) { cancelAnimationFrame(SC.raf); SC.raf = requestAnimationFrame(SC.frame); } });
+    document.addEventListener("visibilitychange", () => { if (!document.hidden && SC.visible) { cancelAnimationFrame(SC.raf); SC.raf = requestAnimationFrame(SC.frame); } });
+  }
+  SC.frame = frame; SC.io.disconnect(); SC.io.observe(el);
+  SC.raf = requestAnimationFrame(frame);
+}
 function render() {
   const B = S.brands, posts = B.flatMap(b => b.posts.map(p => ({ ...p, b })));
   const latest = posts.reduce((m, p) => p.d > m ? p.d : m, "") || today;
@@ -593,10 +693,11 @@ function render() {
   const days = []; for (let i = 20; i >= 0; i--) days.push(shift(latest, -i));
   const perDay = days.map(d => posts.filter(p => p.d === d).length), mx = Math.max(1, ...perDay);
   const bars = `<svg viewBox="0 0 300 70" aria-hidden="true">${perDay.map((v, i) => { const h = Math.max(3, v / mx * 66); return `<rect class="gb" style="--j:${i}" x="${(i * 300 / 21 + 2).toFixed(1)}" y="${(70 - h).toFixed(1)}" width="${(300 / 21 - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="#fff" fill-opacity="${i === 20 ? 1 : .7}"><title>${dShort(days[i])}: ${v}</title></rect>`; }).join("")}</svg>`;
-  T.push(`<section class="t ink s5 r2"><div class="lab">Рекламодатели <span class="tag">45 дней</span></div>
-    <div class="huge" data-n="${B.length}" data-fmt="int">${B.length}</div>
-    <div class="sub">${fmt(posts.length)} рекламных постов на ${hostsWithAds.size} площадках из ${S.hosts.length}</div>
-    <div class="grow"></div><div class="lab" style="opacity:.5;font-size:11px">Рекламных постов по дням · 21 день</div><div class="minibars">${bars}</div></section>`);
+  T.push(`<section class="t ink s5 r2 scope-t"><div class="lab">Рекламодатели <span class="tag">45 дней</span></div>
+    <div class="scope-head"><div class="huge" data-n="${B.length}" data-fmt="int">${B.length}</div>
+    <div class="sub">${fmt(posts.length)} рекламных постов<br>на ${hostsWithAds.size} площадках из ${S.hosts.length}</div></div>
+    <div class="scope" id="scope"></div>
+    <div class="scope-leg"><span><i></i>ближе к центру и крупнее — шире размещается</span><span><i class="nw"></i>белая обводка — новые за 7 дней</span><span>цвет и сектор — категория · клик — карточка</span></div></section>`);
   const fresh = B.filter(b => b.first >= shift(latest, -6)).sort((x, y) => y.reach - x.reach);
   T.push(`<section class="t orange s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
     <div class="sub">${fresh.length ? "впервые замечены в рекламе" : "новых рекламодателей нет"}</div>
@@ -620,7 +721,7 @@ function render() {
   }
   // viral: fresh ads, ratio to the host's usual post + growth per hour from hourly checks
   const V = (S.viral || []).slice(0, 12);
-  if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час 14–23 МСК</span></div>
+  if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час</span></div>
     <div class="pcards">${V.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
       ${postHead(p)}
       <div class="muted" style="font-size:12px">@${esc(p.u)}${p.brand ? " → @" + esc(p.brand) : ""} · ${dShort(p.d)} ${esc(p.t)}</div>
@@ -642,6 +743,7 @@ function render() {
         : `<div class="empty-t">Рекламных постов лучше обычного пока нет.</div>`; })()}
     <div class="foot">× — лайки рекламного поста к медиане обычных постов той же площадки.</div></section>`);
   $("abento").innerHTML = T.join("");
+  scope($("scope"), B, latest);
   renderChips(); renderTable();
 }
 
@@ -838,11 +940,11 @@ const H = {
   "Новые проблемы": "Что сломалось или изменилось за сутки: ошибки сбора, конец «залёта», остановка роста.",
   "Группы": "Наши страницы по группам: суммарная аудитория и прирост за неделю. Клик — фильтр таблицы ниже.",
   "Сигналы": "Все сигналы по страницам с пояснением. Правила: отток ≥0,3% за неделю, рост <15% от прошлой недели, удалено ≥20% постов, ER упал вдвое сильнее, чем по сетке.",
-  "Залетает сейчас": "Посты до 72 ч, у которых лайки или просмотры минимум в 3 раза выше медианы обычных (не рекламных) постов этого же аккаунта за 30 дней.\n\nАккаунты со скрытыми лайками (медиана <50) не учитываются. С 14:00 до 23:00 МСК такие посты перемеряются каждый час — «+N/ч» это прирост между двумя последними замерами.\n\nНа «Конкурентах» порядок: залёт × сходство страницы с нашей сеткой.",
+  "Залетает сейчас": "Посты до 72 ч, у которых лайки или просмотры минимум в 3 раза выше медианы обычных (не рекламных) постов этого же аккаунта за 30 дней.\n\nАккаунты со скрытыми лайками (медиана <50) не учитываются. Посты наших страниц перемеряются каждый час круглосуточно, конкурентов — раз в сутки; «+N/ч» — прирост между двумя последними замерами.\n\nНа «Конкурентах» порядок: залёт × сходство страницы с нашей сеткой.",
   "Идеи для наших страниц": "Что залетает у конкурентов в нише выбранной нашей страницы за 72 ч.\n\nКак отобрано: пост ≥3× к обычному у своего аккаунта, не реклама, ИИ считает его повторяемым, и такой же обложки (по отпечатку изображения) у наших страниц за 30 дней не было. Порядок: сила залёта × сходство страницы-источника с нашей сеткой.\n\nНиша нашей страницы определена ИИ по её био и подписям. Хук и формат — разбор ИИ (локальная модель Qwen 2.5 7B).",
   "Проверенный контент": "Один и тот же ролик/картинка (совпадение отпечатка обложки) вышел у нескольких страниц за 72 ч и хотя бы у одной залетел — или вышел у 3+ страниц.\n\nЭто самый сильный сигнал, что формат работает. «Уже есть у нас» — какие наши страницы его публиковали. Одинаковые рекламные креативы сюда не попадают.",
   "Когда постить": "Для каждой ниши: в какие часы (МСК) посты набирают больше обычного — медиана «лайки ÷ медиана аккаунта» по часу публикации, все страницы ниши за 30 дней.\n\n×1,5 значит: пост в этот час в среднем на 50% лучше обычного поста той же страницы. Часы с <4 постами не учитываются.",
-  "Посты, которые приводят подписчиков": "Прирост подписчиков страницы за ~6 ч после публикации поста.\n\nПодписчики наших страниц замеряются каждый час с 14:00 до 23:00 МСК, поэтому учитываются посты, вышедшие в это окно. Прирост за эти часы — не только от этого поста, но крупный скачок почти всегда связан с ним.",
+  "Посты, которые приводят подписчиков": "Прирост подписчиков страницы за ~6 ч после публикации поста.\n\nПодписчики наших страниц замеряются каждый час круглосуточно, поэтому учитываются посты, вышедшие в это окно. Прирост за эти часы — не только от этого поста, но крупный скачок почти всегда связан с ним.",
   "Еженедельный срез": "Подписчики каждой страницы на понедельник (последний замер на эту дату) и изменение за неделю — та же таблица, что команда раньше заполняла вручную.\n\nПереключатель «По дням» — прирост за каждый день; если день пропущен, прирост считается от последнего известного дня.",
   "Подписчики по понедельникам": "Число подписчиков на каждый понедельник; «За неделю» — от текущего значения.",
   "Недельный отчёт": "Текст недельного отчёта по подписчикам — для пересылки команде.",
