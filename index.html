@@ -624,8 +624,18 @@ function build(days0 = S.days, groups0 = S.groups) {
   const netR = ratios.length >= 5 ? ratios[ratios.length >> 1] : null;
   for (const a of accounts) { a.sig = signals(a, latest, netR); a.level = Math.max(0, ...a.sig.map(s => RANK[s.lvl])); }
   const netSig = netR != null && netR < 0.7 ? `вовлечённость падает по всей сетке: медианный ER за последнюю неделю на ${Math.round((1 - netR) * 100)}% ниже, чем за три недели до неё. Похоже на общее снижение охватов, а не на баны отдельных аккаунтов.` : null;
-  // network series with carry-forward for gaps
-  const known = {}; const net = days.map(d => { for (const [u, s] of Object.entries(d.stats || {})) if (s.ok && s.followers != null) known[u] = s.followers; return { d: d.date, y: Object.values(known).reduce((s, v) => s + v, 0) }; });
+  // ряд сетки — «цепной»: последний день = текущая сумма, каждый предыдущий = следующий минус прирост тех аккаунтов,
+  // у которых есть данные за оба дня. Новый аккаунт (или пропавшие данные) не дают ступеньки — только органика.
+  const carry = accounts.map(a => { const m = new Map(); let v = null, i = 0; const P = a.pts;
+    for (const d of days) { while (i < P.length && P[i].d <= d.date) v = P[i++].followers; if (v != null) m.set(d.date, v); } return m; });
+  const net = days.map(d => ({ d: d.date, y: 0 }));
+  if (net.length) {
+    const L = net.length - 1; net[L].y = carry.reduce((s, m) => s + (m.get(net[L].d) ?? 0), 0);
+    for (let i = L - 1; i >= 0; i--) {
+      let g = 0; for (const m of carry) { const a0 = m.get(net[i].d), a1 = m.get(net[i + 1].d); if (a0 != null && a1 != null) g += a1 - a0; }
+      net[i].y = net[i + 1].y - g;
+    }
+  }
   const dayCols = []; for (let i = 13; i >= 0; i--) dayCols.push(shift(latest, -i));
   return { days, latest, groups, mondays, showNow, accounts, net, netSig, dayCols };
 }
@@ -639,9 +649,9 @@ function chart(el, pts, { w = 640, h = 200, fmtY = compact, bare = false, color 
   const pad = (y1 - y0) * .12; y0 -= bare ? pad * 3 : pad; y1 += pad;
   const X = t => L + (t - xs[0]) / (xs[xs.length - 1] - xs[0]) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
   const line = pts.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
-  // padR: справа место под точку «сейчас» — заливка продолжает последний наклон до края
+  // padR: справа место под точку «сейчас»
   const nX = X(xs[xs.length - 1]), nY = Y(ys[ys.length - 1]), pX = X(xs[xs.length - 2]), pY = Y(ys[ys.length - 2]);
-  const eY = padR ? Math.max(T, nY + (nY - pY) / Math.max(1e-6, nX - pX) * (W - nX)) : nY;
+  const eY = nY;   // справа от точки «сейчас» заливка ровная — без экстраполяции наклона
   const ticks = bare ? [] : [0, 1, 2].map(i => y0 + (y1 - y0) * (i + .5) / 3);
   const xl = bare ? [] : [0, pts.length - 1];
   el.innerHTML = `<div class="chartbox"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
