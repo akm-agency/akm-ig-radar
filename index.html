@@ -599,6 +599,39 @@ function viralTile(list, sub) {
     <div style="font-size:13px;line-height:1.35">${esc((p.x || "").slice(0, 140))}</div></a>`).join("")}</div>
     <div class="foot" style="font-size:12px;color:var(--muted);margin-top:8px">× — к медиане обычных постов этого аккаунта; /ч — прирост между двумя последними часовыми замерами.</div></section>`;
 }
+// ---------- инструменты для роста: идеи, проверенный контент, время, посты-магниты, нарезки ----------
+const igPost = p => `https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/`;
+const xx = r => r == null ? "" : "×" + r.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
+const ideaCard = p => `<a class="pcard" href="${igPost(p)}" target="_blank" rel="noopener">
+  <div style="font-weight:600;font-size:15px;line-height:1.3">${esc(p.hook || (p.x || "").slice(0, 80))}</div>
+  <div class="muted" style="font-size:12px">${esc(p.format || "")}${p.format ? " · " : ""}@${esc(p.u)} · ${p.pl != null ? compact(p.pl) + " просм." : compact(p.l) + " лайков"} ${xx(p.r)}${p.pagesN ? ` · у ${p.pagesN} страниц` : ""}</div>
+  ${p.ownPosted?.length ? `<div style="font-size:12px;color:var(--up)">уже есть у нас: @${p.ownPosted.map(esc).join(", @")}</div>` : ""}</a>`;
+function growthTiles() {
+  const T = [], D = S.extra || {};
+  const ideas = D.ideas || {}, accs = Object.keys(ideas).filter(u => ideas[u].ideas?.length);
+  if (accs.length) {
+    if (!accs.includes(S.ideaAcc)) S.ideaAcc = accs[0];
+    const cur = ideas[S.ideaAcc];
+    T.push(`<section class="t s12" id="ideasTile"><div class="lab">Идеи для наших страниц <span class="tag">что залетает в нише у конкурентов за 72 ч и ещё не выходило у нас</span></div>
+      <div class="chips" style="margin:6px 0 12px">${accs.map(u => `<button type="button" class="chip" data-idea="${esc(u)}" aria-pressed="${u === S.ideaAcc}">@${esc(u)} <span class="muted">${ideas[u].ideas.length}</span></button>`).join("")}</div>
+      <div class="muted" style="font-size:12px;margin-bottom:8px">Ниша @${esc(S.ideaAcc)}: ${esc(cur.niche || "—")}${D.bestTime?.[cur.niche] ? ` · лучшее время ${D.bestTime[cur.niche].best.map(b => String(b.h).padStart(2, "0") + ":00").join(", ")} МСК` : ""}</div>
+      <div class="pcards">${cur.ideas.map(ideaCard).join("")}</div></section>`);
+  }
+  const P = (D.proven || []).slice(0, 8);
+  if (P.length) T.push(`<section class="t s7"><div class="lab">Проверенный контент <span class="tag">одно и то же вышло у нескольких страниц за 72 ч</span></div><div class="pcards">${P.map(ideaCard).join("")}</div></section>`);
+  const bt = Object.entries(D.bestTime || {}).sort((a, b) => b[1].posts - a[1].posts);
+  if (bt.length) T.push(`<section class="t s5"><div class="lab">Когда постить <span class="tag">МСК · × к обычному посту ниши, 30 дней</span></div>
+    <div class="ilist">${bt.map(([n, v]) => `<div class="irow"><span class="u">${esc(n)}</span><span class="v">${v.best.map(b => `${String(b.h).padStart(2, "0")}:00 ${xx(b.x)}`).join(" · ")}</span><span class="x2">хуже всего: ${v.worst.map(b => String(b.h).padStart(2, "0") + ":00").join(", ")} · ${v.posts} постов</span></div>`).join("")}</div></section>`);
+  const G = (D.postGain || []).slice(0, 8);
+  T.push(`<section class="t s12"><div class="lab">Посты, которые приводят подписчиков <span class="tag">прирост за ~6 ч после поста · замеры каждый час 14–23 МСК</span></div>
+    ${G.length ? `<div class="pcards">${G.map(p => `<a class="pcard" href="${igPost(p)}" target="_blank" rel="noopener"><div style="font-size:24px;font-weight:600;color:var(${p.gain >= 0 ? "--up" : "--down"})">${signed(p.gain)}</div><div class="muted" style="font-size:12px">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)} · за ${p.hours} ч · ${compact(p.l)} лайков</div><div style="font-size:13px">${esc((p.x || "").slice(0, 120))}</div></a>`).join("")}</div>`
+      : `<div class="muted">Появится после первых почасовых замеров (с 14:00 МСК): видно, после какого поста пошёл рост.</div>`}</section>`);
+  return T.join("");
+}
+function clipsTile() {
+  const C = ((S.extra || {}).clips || []).slice(0, 12);
+  return C.length ? `<section class="t s12"><div class="lab">Нарезки, которые залетают <span class="tag">подкасты, стримы, интервью · референсы для клиппинга</span></div><div class="pcards">${C.map(ideaCard).join("")}</div></section>` : "";
+}
 const hugeNum = n => n >= 1e6 ? `${(n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 })}<small>млн</small>` : n >= 1e3 ? `${(n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 })}<small>тыс</small>` : fmt(n);
 function renderBento() {
   const M = S.M, A = M.accounts, T = [];
@@ -656,6 +689,7 @@ function renderBento() {
     <div class="sigs">${shown.map(s => s.u ? `<button type="button" class="sg" data-u="${esc(s.u)}"><span class="dt ${s.lvl}"></span><span><b>@${esc(s.u)}</b> — ${esc(s.text)}</span></button>` : `<div class="sg"><span class="dt"></span><span><b>Вся сетка</b> — ${esc(s.text)}</span></div>`).join("") || `<div class="muted">Сигналов нет — всё спокойно.</div>`}</div></section>`);
 
   T.push(viralTile((S.viral || []).filter(p => p.own), "наши страницы · посты до 72 ч, ≥3× к обычному"));
+  T.push(growthTiles());
   $("bento").innerHTML = T.join("");
   chart($("netChart"), M.net.filter(p => p.d >= shift(M.latest, -30)), { w: 600, h: 150, bare: true, color: "#fff", fill: .12 });
   $("netChart").querySelector("svg")?.setAttribute("preserveAspectRatio", "none");
@@ -884,6 +918,7 @@ function renderComp() {
     <button type="button" class="srow" data-cu="${esc(x.u)}"><span class="k">×${x.k.toFixed(1)}</span><span class="w"><b>@${esc(x.u)}</b><span>${dShort(x.d)} · ${esc(x.group)} · ${x.x.n ? x.x.n + " публ." : "без публикаций"}</span></span><span class="g">${signed(x.g, compact)}</span></button>`).join("") || `<div class="empty-t">Всплесков нет.</div>`}</div></section>`);
   const cset = new Set(A.map(a => a.u));
   T.push(viralTile((S.viral || []).filter(p => cset.has(p.u)), "конкуренты · посты до 72 ч, ≥3× к обычному"));
+  T.push(clipsTile());
   el.innerHTML = T.join("");
 }
 
@@ -960,6 +995,8 @@ for (const id of ["accDlg", "aiDlg"]) $(id).addEventListener("cancel", e => { e.
 
 /* ---------- events ---------- */
 $("bento").addEventListener("click", e => {
+  const ib = e.target.closest("[data-idea]");
+  if (ib) { S.ideaAcc = ib.dataset.idea; const y = scrollY; renderBento(); scrollTo(0, y); return; }
   const t = e.target.closest("[data-t]"); if (t && !t.disabled) { S.insTab = t.dataset.t; renderBento(); return; }
   const g = e.target.closest("[data-g]"); if (g) { S.filter = S.filter === g.dataset.g ? "all" : g.dataset.g; render(); $("tableTile").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
   const act = e.target.closest("[data-act]");
@@ -1101,7 +1138,7 @@ reveal.t = setTimeout(reveal, 2500); // fallback if some collection is slow or e
 if (window.__PUBLIC_DATA) {
   // public build: data is embedded in the page, no database and no Claude chat
   const D = window.__PUBLIC_DATA;
-  S.groups = D.groups || []; S.days = D.days || []; S.cgroups = D.cgroups || []; S.cdays = D.cdays || []; S.insights = D.insights || []; S.viral = D.viral || [];
+  S.groups = D.groups || []; S.days = D.days || []; S.cgroups = D.cgroups || []; S.cdays = D.cdays || []; S.insights = D.insights || []; S.viral = D.viral || []; S.extra = D;
   document.body.classList.add("public");
   $("aiTitle").textContent = "Недельный отчёт";
   reveal();

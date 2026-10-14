@@ -556,6 +556,10 @@ async function openBrand(key) {
       <div class="kvs"><div class="kv"><span>Отклик</span><b>${xr(b.ratio)}</b></div><div class="kv"><span>Охват</span><b>${compact(b.reach)}</b></div></div></section>
     <section class="t d6"><div class="lab">Контакты</div><div class="contacts">${contacts.length ? contacts.join("") : '<span class="muted">Агент ищет контакты новых брендов раз в неделю: сайт, почта для партнёрств.</span>'}</div>
       <div class="sub" style="opacity:1;color:var(--muted)">Площадки: ${b.hosts.map(h => `<a href="${igLink(h)}" target="_blank" rel="noopener">@${esc(h)}</a>`).join(", ")}</div></section>
+    ${b.fitOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить</div><div class="sub" style="opacity:1">Рекламируется в нишах: ${esc((b.fitNiches || []).join(", "))}</div>
+      <div class="sub" style="opacity:1">Наши страницы в этих нишах: ${b.fitOwn.map(u => `<a href="${igLink(u)}" target="_blank" rel="noopener">@${esc(u)}</a>`).join(", ")}</div></section>` : ""}
+    ${b.clipping?.length ? `<section class="t peach d6"><div class="lab">Запускает клиппинг</div>${b.clipping.map(c => `<div class="sub" style="opacity:1"><a href="${esc(c.url || "#")}" target="_blank" rel="noopener">${esc(c.title)}</a> · ${esc(c.org || "")}${c.budget ? ` · $${fmt(c.budget)}` : ""} · ${esc(c.at)}</div>`).join("")}
+      <div class="sub" style="opacity:1;color:var(--muted)">Бренд платит за охват прямо сейчас — тёплый лид для размещений.</div></section>` : ""}
     <section class="t d6"><div class="lab">Рекламные посты</div><div class="pcards">${b.posts.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
       <div class="top"><span class="who">@${esc(p.u)}</span><span class="tag2 ${p.cls}">${p.cls === "explicit" ? "явная" : "нативная"}</span></div>
       <div class="lk">${p.l != null ? compact(p.l) : "—"}<small>${p.l != null ? "лайков" : "лайки скрыты"}${p.r != null ? " · " + xr(p.r) : ""}</small></div>
