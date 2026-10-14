@@ -90,6 +90,49 @@ a{color:inherit}
 .met span{font-size:11.5px;color:rgba(0,0,0,.6)}
 .met.up b{color:var(--up)} .met.down b{color:var(--down)} .met.warn b{color:var(--warn)}
 
+/* live counter (black tile) */
+.t.live{isolation:isolate}
+.t.live::before,.t.live::after{content:"";position:absolute;z-index:-1;width:520px;height:520px;border-radius:50%;pointer-events:none;will-change:transform}
+.t.live::before{background:radial-gradient(circle,rgba(210,243,91,.16),transparent 62%);top:-260px;right:-200px;animation:lv-drift 19s ease-in-out infinite alternate}
+.t.live::after{background:radial-gradient(circle,rgba(37,65,255,.3),transparent 64%);bottom:-300px;left:-240px;animation:lv-drift 23s ease-in-out -7s infinite alternate-reverse}
+@keyframes lv-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-60px,50px,0) scale(1.12)}100%{transform:translate3d(40px,-30px,0) scale(.94)}}
+.lv-badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:5px 11px 5px 9px;font-size:11px;font-weight:700;letter-spacing:.08em;background:rgba(255,255,255,.1)}
+.lv-badge{margin-left:auto}.lab:has(.lv-badge) .hq{margin-left:0}
+.lv-dot{position:relative;width:8px;height:8px;border-radius:50%;background:#FF3B3B;flex:none}
+.lv-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#FF3B3B;animation:lv-ping 1.8s cubic-bezier(0,0,.2,1) infinite}
+@keyframes lv-ping{0%{transform:scale(1);opacity:.7}80%,100%{transform:scale(3.2);opacity:0}}
+.odo-wrap{position:relative;margin-top:4px}
+.odo{display:flex;align-items:center;font-weight:600;letter-spacing:-.02em;font-size:84px;line-height:1;white-space:nowrap;font-variant-numeric:tabular-nums}
+.odo .dg{position:relative;display:inline-block;width:.6em;height:1.16em;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent);mask-image:linear-gradient(transparent,#000 16%,#000 84%,transparent)}
+.odo .reel{position:absolute;left:0;top:0;width:100%;will-change:transform;transition:transform .62s cubic-bezier(.2,1.25,.35,1)}
+.odo .reel.fast{transition-duration:.28s;transition-timing-function:cubic-bezier(.3,.9,.4,1)}
+.odo .reel.snap{transition:none}
+.odo .reel span{display:block;height:1.16em;line-height:1.16em;text-align:center}
+.odo .dg.fl span{animation:lv-flash 1.1s ease-out}
+@keyframes lv-flash{0%{color:var(--lime)}100%{color:#fff}}
+.odo .sp{display:inline-block;width:.24em}
+.lv-pop{position:absolute;right:0;top:30%;font-size:15px;font-weight:700;color:var(--lime);pointer-events:none;animation:lv-pop 1.6s cubic-bezier(.2,.8,.3,1) forwards;font-variant-numeric:tabular-nums}
+@keyframes lv-pop{0%{opacity:0;transform:translate3d(0,10px,0) scale(.7)}15%{opacity:1;transform:translate3d(0,-6px,0) scale(1)}100%{opacity:0;transform:translate3d(var(--dx,8px),-46px,0) scale(.9)}}
+.lv-rate b{font-weight:600;color:var(--lime)}
+.lv-ms{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.lv-ms .row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;opacity:.82}
+.lv-ms .row b{font-weight:600}
+.lv-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.lv-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--blue),var(--lime));transform-origin:0 50%;transition:transform 1.2s cubic-bezier(.2,.8,.2,1);position:relative;overflow:hidden}
+.lv-bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(-100%);animation:lv-shine 3.2s ease-in-out infinite}
+@keyframes lv-shine{0%,40%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.lv-chart{position:relative;flex:1 1 200px;min-height:190px;margin:6px -24px -22px}
+.t.live .lv-chart .netchart{position:absolute;inset:0;margin:0;min-height:0}
+.t.live .netchart .chartbox,.t.live .netchart svg{position:absolute;inset:0;width:100%;height:100%;min-height:0}
+.lv-cap{position:absolute;top:2px;left:24px;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;opacity:.5}
+@media (max-width:640px){.lv-chart{margin:6px -18px -18px}.lv-cap{left:18px}.lv-foot{left:18px!important}}
+.t.live .netchart circle{display:none}
+.lv-end{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.18)}
+.lv-end::after{content:"";position:absolute;inset:0;border-radius:50%;background:#fff;animation:lv-ping 2.4s cubic-bezier(0,0,.2,1) infinite}
+.lv-end.bump{animation:lv-bump .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes lv-bump{0%{transform:scale(1)}40%{transform:scale(1.7)}100%{transform:scale(1)}}
+.lv-foot{position:absolute;left:24px;right:24px;bottom:14px;font-size:11px;opacity:.6;z-index:1}
+
 /* insight section tiles */
 .ilist{display:flex;flex-direction:column}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border:0;border-top:1px solid rgba(0,0,0,.09);background:none;text-align:left;width:100%}
@@ -768,6 +811,146 @@ function clipsTile() {
   return C.length ? `<section class="t s12"><div class="lab">Нарезки, которые залетают <span class="tag">подкасты, стримы, интервью · референсы для клиппинга</span></div>${cards(C)}</section>` : "";
 }
 const hugeNum = n => n >= 1e6 ? `${(n / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 })}<small>млн</small>` : n >= 1e3 ? `${(n / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 })}<small>тыс</small>` : fmt(n);
+/* ---------- live counter ----------
+   Между реальными замерами число сетки считается по модели: у каждой страницы последний замер (число, время)
+   и темп в сутки; темп распределяется по часам суточным профилем. Отображаемое число ведёт регулятор:
+   «подписчики» приходят случайными тиками (пуассоновский поток) со скоростью = темп + разрыв/τ, поэтому
+   новые данные догоняются плавно; если оценка ушла вперёд — счётчик ждёт, а не отматывает назад;
+   большой разрыв (вкладка была скрыта, пришёл свежий замер) докручивается барабанами за пару секунд. */
+const LV = { model: null, D: null, mood: 1, acc: 0, tw: null, timer: null, at: 0, lastPop: 0 };
+const LV_TAU = 45, LV_FS = 84, LV_H = 1.16;
+const lvHour = t => new Date((t + 3 * 3600) * 1000).getUTCHours();
+function lvW(a, b, prof) { // часы между a и b (сек), взвешенные суточным профилем; экстраполяция не дальше 48 ч
+  b = Math.min(b, a + 48 * 3600); let s = 0, t = a;
+  while (t < b) { const next = (Math.floor((t + 3 * 3600) / 3600) + 1) * 3600 - 3 * 3600, seg = Math.min(b, next) - t; s += seg / 3600 * (prof[lvHour(t)] ?? 1); t += seg; }
+  return s;
+}
+function lvEst(t) {
+  const m = LV.model; if (!m) return null;
+  return m.acc.reduce((s, [, f, ti, r]) => s + f + (t > ti ? r / 24 * lvW(ti, t, m.prof) : 0), 0);
+}
+function lvRate(t) { // подписчиков в секунду сейчас
+  const m = LV.model; if (!m) return 0;
+  return m.acc.reduce((s, [, , ti, r]) => s + (t - ti < 48 * 3600 ? r / 86400 * (m.prof[lvHour(t)] ?? 1) : 0), 0);
+}
+function lvFromDays() { // артефакт без live.json: модель из дневных данных
+  const A = S.M?.accounts || [], last = S.days.map(d => d.collectedAt).filter(Boolean).sort().pop();
+  const t = last ? Date.parse(last) / 1000 : Date.now() / 1000;
+  return { at: t, prof: Array(24).fill(1), acc: A.filter(a => (a.cur ?? a.lastOk?.followers) != null).map(a => [a.u, a.cur ?? a.lastOk.followers, t, (a.w1 ?? 0) / 7]) };
+}
+const lvSep = n => Math.round(n).toLocaleString("ru-RU").replace(/\s/g, " ");
+function lvBuild(odo, str) {
+  const cells = "01234567890123456789".split("").map(x => `<span>${x}</span>`).join("");
+  odo.innerHTML = [...str].map(c => c === " " ? `<span class="sp"></span>` : `<span class="dg"><span class="reel snap" data-d="${c}" style="transform:translateY(${-c * LV_H}em)">${cells}</span></span>`).join("");
+  odo.dataset.s = str; lvFit();
+  requestAnimationFrame(() => odo.querySelectorAll(".reel").forEach(r => r.classList.remove("snap")));
+}
+function lvFit() {
+  const odo = $("odo"), tile = $("liveTile"); if (!odo || !tile) return;
+  const str = odo.dataset.s || "", nd = str.replace(/ /g, "").length, ns = str.length - nd;
+  const w = tile.clientWidth - parseFloat(getComputedStyle(tile).paddingLeft) * 2;
+  odo.style.fontSize = Math.max(34, Math.min(LV_FS, w / (nd * .6 + ns * .24) * .97)) + "px";
+}
+function lvShow(v, dir, fast) {
+  const odo = $("odo"); if (!odo) return;
+  const str = lvSep(v);
+  if (odo.dataset.s?.length !== str.length) { lvBuild(odo, str); return; }
+  const reels = odo.querySelectorAll(".reel"), digits = str.replace(/ /g, "");
+  reels.forEach((r, i) => {
+    const nd = +digits[i], cd = +r.dataset.d; if (nd === cd) return;
+    // вперёд крутим через вторую десятку (9 → 0 едет дальше вверх, а не назад), потом тихо возвращаем в первую
+    const pos = dir >= 0 ? (nd > cd ? nd : nd + 10) : nd;
+    r.classList.toggle("fast", !!fast); r.dataset.d = nd;
+    r.style.transform = `translateY(${-pos * LV_H}em)`;
+    if (!fast && !reduce) { const g = r.parentNode; g.classList.remove("fl"); void g.offsetWidth; g.classList.add("fl"); }
+    clearTimeout(r._t);
+    if (pos >= 10) r._t = setTimeout(() => {
+      if (+r.dataset.d !== nd) return;
+      r.classList.add("snap"); r.style.transform = `translateY(${-nd * LV_H}em)`; void r.offsetWidth; r.classList.remove("snap");
+    }, fast ? 320 : 700);
+  });
+  odo.dataset.s = str;
+  odo.setAttribute("aria-label", str + " подписчиков");
+}
+function lvPop(k) {
+  const now = performance.now(); if (reduce || now - LV.lastPop < 260) return; LV.lastPop = now;
+  const w = $("odo")?.parentNode; if (!w || w.querySelectorAll(".lv-pop").length > 3) return;
+  const p = document.createElement("span"); p.className = "lv-pop"; p.textContent = "+" + k;
+  p.style.setProperty("--dx", (Math.random() * 28 - 6).toFixed(0) + "px"); p.style.right = (Math.random() * 18).toFixed(0) + "px";
+  w.appendChild(p); p.addEventListener("animationend", () => p.remove());
+  const e = document.querySelector("#liveTile .lv-end"); if (e) { e.classList.remove("bump"); void e.offsetWidth; e.classList.add("bump"); }
+}
+function lvSide(t) {
+  const D = LV.D, r = lvRate(t) * 3600, rate = $("lvRate"), ms = $("lvMs"), foot = $("lvFoot");
+  if (rate) rate.innerHTML = `подписчиков в ${LV.model.acc.length} аккаунтах · сейчас <b>${r >= 0 ? "+" : "−"}${fmt(Math.abs(Math.round(r)))} в час</b>`;
+  if (ms) {
+    const step = D >= 1e7 ? 1e6 : D >= 1e6 ? 1e5 : 1e4, goal = (Math.floor(D / step) + 1) * step, left = goal - D, frac = (D % step) / step;
+    const perDay = LV.model.acc.reduce((s, a) => s + a[3], 0), days = perDay > 0 ? left / perDay : null;
+    const eta = days == null ? "" : days < 1 ? `≈ ${Math.max(1, Math.round(days * 24))} ч` : `≈ ${(days < 10 ? Math.round(days * 10) / 10 : Math.round(days)).toLocaleString("ru-RU")} дн.`;
+    const goalTxt = goal >= 1e6 ? `${(goal / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} млн` : `${goal / 1e3} тыс`;
+    const row = `<span>до <b>${goalTxt}</b> осталось ${fmt(Math.round(left))}</span><span>${eta}</span>`;
+    if (ms.dataset.g !== String(goal)) { ms.innerHTML = `<div class="row">${row}</div><div class="lv-bar"><i style="transform:scaleX(0)"></i></div>`; ms.dataset.g = goal; void ms.offsetWidth; }
+    else ms.querySelector(".row").innerHTML = row;
+    ms.querySelector(".lv-bar i").style.transform = `scaleX(${frac.toFixed(4)})`;
+  }
+  if (foot) {
+    const lastT = Math.max(...LV.model.acc.map(a => a[2]));
+    foot.textContent = `замер ${new Date((lastT + 3 * 3600) * 1000).toISOString().slice(11, 16)} МСК · дальше — расчёт по темпу`;
+  }
+}
+function lvStep() {
+  if (!LV.model || LV.D == null) return;
+  const t = Date.now() / 1000, dt = Math.min(1, t - (LV.t ?? t)); LV.t = t;
+  const E = lvEst(t), r = lvRate(t), gap = E - LV.D, big = Math.max(60, Math.abs(r) * 600); // меньше ~10 мин роста — догоняем учащёнными тиками
+  if (LV.tw) { // докрутка большого разрыва: цель живая — оценка продолжает расти
+    const p = Math.min(1, (performance.now() - LV.tw.t0) / LV.tw.dur), e = LV.tw.io ? (p < .5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2) : 1 - Math.pow(1 - p, 3);
+    const v = Math.round(LV.tw.from + (E - LV.tw.from) * e);
+    if (v !== LV.D) { lvShow(v, v - LV.D, p < .85); LV.D = v; }
+    if (p >= 1) LV.tw = null;
+  } else if (gap > big || gap < -Math.max(400, Math.abs(r) * 900)) {
+    LV.tw = { from: LV.D, t0: performance.now(), io: true, dur: 1000 * Math.min(6, 2.4 + Math.log10(Math.abs(gap)) * .8) }; // разгон и торможение
+  } else {
+    LV.mood += (.4 + Math.random() * 1.5 - LV.mood) * .04; // медленно плавающая «активность»: пачки и затишья
+    const lam = Math.max(0, r + gap / LV_TAU) * LV.mood;
+    LV.acc += lam * dt;
+    let k = 0;
+    if (LV.acc >= 1) { k = Math.floor(LV.acc); LV.acc -= k; }
+    else if (Math.random() < lam * dt * .35) { k = 1; LV.acc = Math.max(0, LV.acc - .65); } // случайный ранний тик
+    if (k) { LV.D += k; lvShow(LV.D, 1, false); lvPop(k); }
+  }
+  if (!LV.sideT || t - LV.sideT > 2) { LV.sideT = t; lvSide(t); }
+}
+async function lvFetch() {
+  if (!window.__PUBLIC_DATA) return;
+  try {
+    const m = await fetch("data/live.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
+    if (m?.acc?.length && m.at !== LV.at) { LV.model = m; LV.at = m.at; }
+  } catch { /* офлайн — продолжаем на старой модели */ }
+}
+function liveMount(total) {
+  if (!LV.model) { const m = S.extra?.live; LV.model = m?.acc?.length ? m : lvFromDays(); LV.at = LV.model.at; }
+  const odo = $("odo"); if (!odo) return;
+  const t = Date.now() / 1000, E = Math.round(lvEst(t) ?? total);
+  if (LV.D == null) { // первый показ: число докручивается до текущего
+    LV.D = reduce ? E : Math.round(E - Math.max(250, lvRate(t) * 400));
+    lvBuild(odo, lvSep(LV.D));
+    if (!reduce) setTimeout(() => { LV.tw = { from: LV.D, t0: performance.now(), dur: 2600 }; }, 450);
+  } else lvBuild(odo, lvSep(LV.D));
+  // точка «сейчас» на конце графика
+  const nc = $("netChart"), c = nc?.querySelector("circle"), svg = nc?.querySelector("svg");
+  if (c && svg) {
+    const vb = svg.viewBox.baseVal, e = document.createElement("span"); e.className = "lv-end";
+    e.style.left = "calc(100% - 16px)"; e.style.top = (+c.getAttribute("cy") / vb.height * 100) + "%";
+    nc.appendChild(e);
+  }
+  LV.sideT = 0; lvSide(t);
+  if (!LV.timer) {
+    LV.timer = setInterval(lvStep, 100);
+    setInterval(lvFetch, 60000);
+    addEventListener("resize", lvFit);
+    document.fonts?.ready.then(lvFit);
+  }
+}
 function renderBento() {
   const M = S.M, A = M.accounts, T = [];
   if (!M.latest) { $("bento").innerHTML = `<section class="t s12"><div class="lab">Сетка</div><div class="headline">Данные появятся после первого сбора.</div></section>`; return; }
@@ -777,9 +960,11 @@ function renderBento() {
   const crit = A.filter(a => a.level === 3).length, warn = A.filter(a => a.level === 2).length;
   const daily = daySums(A);
 
-  T.push(`<section class="t ink s5 r2"><div class="lab">Аудитория сетки <span class="tag">${A.length} аккаунтов</span></div>
-    <div class="huge" data-n="${total}" data-fmt="huge">${hugeNum(total)}</div><div class="sub">${fmt(total)} подписчиков в ${M.groups.length} группах</div>
-    <div class="grow"></div><div class="lab" style="opacity:.5;font-size:11px">30 дней</div><div class="netchart" id="netChart"></div></section>`);
+  T.push(`<section class="t ink s5 r2 live" id="liveTile"><div class="lab">Сетка АКМ <span class="lv-badge" title="Между реальными замерами число считается по темпу роста каждой страницы и плавно догоняет новые данные"><span class="lv-dot"></span>LIVE</span></div>
+    <div class="odo-wrap"><div class="odo" id="odo" role="img" aria-label="${fmt(total)} подписчиков"></div></div>
+    <div class="sub lv-rate" id="lvRate">подписчиков в ${A.length} аккаунтах</div>
+    <div class="lv-ms" id="lvMs"></div>
+    <div class="lv-chart"><div class="netchart" id="netChart"></div><span class="lv-cap">30 дней</span><div class="lv-foot" id="lvFoot"></div></div></section>`);
   T.push(`<section class="t orange s4"><div class="lab">За неделю <span class="tag">${pct(total ? w1 / (total - w1) * 100 : null)}</span></div>
     <div class="big" data-n="${w1}" data-fmt="signed">${signed(w1, compact)}</div><div class="sub">${prevW ? `неделей раньше ${signed(prevW, compact)}` : "&nbsp;"}</div>
     <div class="grow"></div><div class="minibars">${miniBars(daily)}</div><div class="sub" style="font-size:11px;opacity:.75">прирост сетки по дням, 14 дней</div></section>`);
@@ -796,7 +981,7 @@ function renderBento() {
     // plain-text fallback: first sentence becomes the headline, the rest become rows
     const sents = (ins.summary || "").replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z@«"])/).map(x => x.trim()).filter(Boolean);
     const headline = ins.headline || (sents[0] || "").slice(0, 180);
-    T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · ${S.insTab === "day" ? "разбор за " + esc(dLong(ins.date)) : "итоги недели"}
+    T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · ${S.insTab === "day" ? "разбор за " + esc(dLong(ins.date)) + (ins.asof ? " · на " + esc(ins.asof) : "") : "итоги недели"}
       <span class="segd" role="group" aria-label="Период"><button type="button" data-t="day" aria-pressed="${S.insTab === "day"}" ${day ? "" : "disabled"}>День</button><button type="button" data-t="week" aria-pressed="${S.insTab === "week"}" ${week ? "" : "disabled"}>Неделя</button></span></div>
       <div class="headline" title="${esc(headline)}">${esc(headline)}</div>
       ${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${tone(m.tone)}"><span>${esc(m.label)}</span><b>${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}</section>`);
@@ -828,6 +1013,7 @@ function renderBento() {
   $("bento").innerHTML = T.join("");
   chart($("netChart"), M.net.filter(p => p.d >= shift(M.latest, -30)), { w: 600, h: 150, bare: true, color: "#fff", fill: .12 });
   $("netChart").querySelector("svg")?.setAttribute("preserveAspectRatio", "none");
+  liveMount(total);
 }
 
 function cols() {
@@ -1318,7 +1504,7 @@ fetch("data/network.json?t=" + Date.now()).then(r => r.json()).then(d => {
 const SRC = "Источник: наш скрейпер Instagram (без логина) — страницы профилей, постов и вкладки Reels; собирается на ПК, пока открыто окно «IG scraper».";
 const H = {
   // ---------- Сетка ----------
-  "Аудитория сетки": "Сумма подписчиков всех наших страниц на последний замер.\n\nГрафик — эта сумма по дням за 30 дней. До 13.10 — данные Socialblade, дальше — наш скрейпер (наши страницы обновляются минимум раз в сутки).",
+  "Сетка АКМ": "Живой счётчик: сумма подписчиков всех наших страниц. Каждая страница — последний реальный замер скрейпера (точное число и время) плюс расчёт по её темпу роста за последние 7 дней. Темп распределяется по часам суток по почасовым замерам. Свежие замеры приходят на сайт раз в час; счётчик плавно догоняет их, а если расчёт обогнал реальность, ждёт, а не отматывает назад.\n\nПолоса — путь до следующего миллиона, срок — при текущем темпе.\n\nСумма подписчиков всех наших страниц на последний замер.\n\nГрафик — эта сумма по дням за 30 дней. До 13.10 — данные Socialblade, дальше — наш скрейпер (наши страницы обновляются минимум раз в сутки).",
   "За неделю": "Прирост подписчиков всей сетки за 7 дней и сравнение с предыдущей неделей.\n\nСтолбики — прирост по дням за 14 дней. Если какой-то день пропущен (ПК был выключен), прирост считается от последнего известного дня.",
   "Требуют внимания": "Страницы с тревожными сигналами: отток подписчиков, остановка роста, массовое удаление постов, падение вовлечённости (ER) при регулярных постах — возможный теневой бан.\n\nКритично — резкая отписка или удаление публикаций; внимание — медленный отток, рост встал, ER ниже обычного.",
   "ИИ-аналитик": "Текстовый разбор дня/недели от ИИ по цифрам дашборда. Пишется по расписанию; опирается только на цифры и подписи постов, видео не смотрит.",
