@@ -607,9 +607,9 @@ function build(days0 = S.days, groups0 = S.groups) {
 }
 
 /* ---------- charts ---------- */
-function chart(el, pts, { w = 640, h = 200, fmtY = compact, bare = false, color = "var(--blue)", fill = .1, grid = "var(--line)", text = "var(--muted)" } = {}) {
+function chart(el, pts, { w = 640, h = 200, fmtY = compact, bare = false, color = "var(--blue)", fill = .1, grid = "var(--line)", text = "var(--muted)", padR = 0 } = {}) {
   if (pts.length < 2) { el.innerHTML = `<div class="muted" style="font-size:12px">Мало данных для графика</div>`; return; }
-  const W = w, H = h, L = bare ? 0 : 74, R = bare ? 0 : 10, T = bare ? 10 : 6, B = bare ? 0 : 22;
+  const W = w, H = h, L = bare ? 0 : 74, R = bare ? padR : 10, T = bare ? 10 : 6, B = bare ? 0 : 22;
   const xs = pts.map(p => dms(p.d)), ys = pts.map(p => p.y);
   let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
   const pad = (y1 - y0) * .12; y0 -= bare ? pad * 3 : pad; y1 += pad;
@@ -620,9 +620,9 @@ function chart(el, pts, { w = 640, h = 200, fmtY = compact, bare = false, color 
   el.innerHTML = `<div class="chartbox"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true">
     ${ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="${grid}"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" font-size="11" fill="${text}" font-family="var(--f-mono)">${esc(fmtY(t))}</text>`).join("")}
     ${xl.map(i => `<text x="${X(xs[i])}" y="${H - 5}" text-anchor="${i ? "end" : "start"}" font-size="11" fill="${text}">${dShort(pts[i].d)}</text>`).join("")}
-    <path class="ar" d="${line}L${X(xs[xs.length - 1])},${H - B}L${L},${H - B}Z" fill="${color}" fill-opacity="${fill}"/>
+    <path class="ar" d="${line}${padR ? `L${W},${Y(ys[ys.length - 1])}` : ""}L${padR ? W : X(xs[xs.length - 1])},${H - B}L${L},${H - B}Z" fill="${color}" fill-opacity="${fill}"/>
     <path class="ln" pathLength="1" d="${line}" fill="none" stroke="${color}" stroke-width="${bare ? 2.5 : 2.5}" stroke-linejoin="round" stroke-linecap="round"/>
-    <circle cx="${X(xs[xs.length - 1]) - (bare ? 6 : 0)}" cy="${Y(ys[ys.length - 1])}" r="5" fill="${color}"/>
+    <circle cx="${X(xs[xs.length - 1]) - (bare && !padR ? 6 : 0)}" cy="${Y(ys[ys.length - 1])}" r="5" fill="${color}"/>
   </svg>${bare ? "" : '<div class="tip" hidden></div>'}</div>`;
   if (bare) return;
   const svg = el.querySelector("svg"), tip = el.querySelector(".tip");
@@ -927,6 +927,16 @@ async function lvFetch() {
     if (m?.acc?.length && m.at !== LV.at) { LV.model = m; LV.at = m.at; }
   } catch { /* офлайн — продолжаем на старой модели */ }
 }
+function lvChart() { // график сетки во всю высоту; линия кончается точкой «сейчас» в 16 px от края
+  const nc = $("netChart"); if (!nc || !LV.pts) return;
+  const W = 600, H = 150;
+  chart(nc, LV.pts, { w: W, h: H, bare: true, color: "#fff", fill: .12, padR: 16 * W / (nc.clientWidth || 500) });
+  const svg = nc.querySelector("svg"), c = nc.querySelector("circle"); if (!svg || !c) return;
+  svg.setAttribute("preserveAspectRatio", "none");
+  const e = document.createElement("span"); e.className = "lv-end";
+  e.style.left = (+c.getAttribute("cx") / W * 100) + "%"; e.style.top = (+c.getAttribute("cy") / H * 100) + "%";
+  nc.appendChild(e);
+}
 function liveMount(total) {
   if (!LV.model) { const m = S.extra?.live; LV.model = m?.acc?.length ? m : lvFromDays(); LV.at = LV.model.at; }
   const odo = $("odo"); if (!odo) return;
@@ -936,18 +946,11 @@ function liveMount(total) {
     lvBuild(odo, lvSep(LV.D));
     if (!reduce) setTimeout(() => { LV.tw = { from: LV.D, t0: performance.now(), dur: 2600 }; }, 450);
   } else lvBuild(odo, lvSep(LV.D));
-  // точка «сейчас» на конце графика
-  const nc = $("netChart"), c = nc?.querySelector("circle"), svg = nc?.querySelector("svg");
-  if (c && svg) {
-    const vb = svg.viewBox.baseVal, e = document.createElement("span"); e.className = "lv-end";
-    e.style.left = "calc(100% - 16px)"; e.style.top = (+c.getAttribute("cy") / vb.height * 100) + "%";
-    nc.appendChild(e);
-  }
   LV.sideT = 0; lvSide(t);
   if (!LV.timer) {
     LV.timer = setInterval(lvStep, 100);
     setInterval(lvFetch, 60000);
-    addEventListener("resize", lvFit);
+    addEventListener("resize", () => { lvFit(); clearTimeout(LV.rz); LV.rz = setTimeout(lvChart, 120); });
     document.fonts?.ready.then(lvFit);
   }
 }
@@ -1011,8 +1014,8 @@ function renderBento() {
   T.push(viralTile((S.viral || []).filter(p => p.own), "наши страницы · посты до 72 ч, ≥3× к обычному"));
   T.push(growthTiles());
   $("bento").innerHTML = T.join("");
-  chart($("netChart"), M.net.filter(p => p.d >= shift(M.latest, -30)), { w: 600, h: 150, bare: true, color: "#fff", fill: .12 });
-  $("netChart").querySelector("svg")?.setAttribute("preserveAspectRatio", "none");
+  LV.pts = M.net.filter(p => p.d >= shift(M.latest, -30));
+  lvChart();
   liveMount(total);
 }
 

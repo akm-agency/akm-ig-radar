@@ -466,6 +466,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .pcard .tag2{font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px}
 .tag2.explicit{background:var(--ink);color:#fff} .tag2.native{background:var(--orange);color:#fff}
 .empty-big{padding:28px 0;color:var(--muted);font-size:14px;line-height:1.5;max-width:70ch}
+.hasc{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;background:var(--blue);color:#fff;white-space:nowrap;vertical-align:2px}
 .own{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;background:var(--lime);color:var(--ink);white-space:nowrap}
 .hrow.own-row b{color:var(--ink)}
 .hrow .own-tag{font-size:10.5px;font-weight:700;color:var(--ink);background:var(--lime);border-radius:999px;padding:1px 7px;margin-left:6px}
@@ -619,7 +620,7 @@ function renderTable() {
   $("btbody").innerHTML = L.map(b => {
     const s = statusOf(b), tot = b.explicitN + b.nativeN || 1;
     return `<tr class="acc" data-b="${esc(b.key)}" tabindex="0">
-      <td><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span></div></td>
+      <td><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}${b.email || b.emails?.length || b.contact ? ' <span class="hasc" title="Есть почта или страница для партнёров — откройте бренд">есть контакт!</span>' : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span></div></td>
       <td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
       <td class="c-wk0"><span class="mix" title="явная ${b.explicitN} · нативная ${b.nativeN}"><i class="ex" style="width:${b.explicitN / tot * 100}%"></i><i class="na" style="width:${b.nativeN / tot * 100}%"></i></span></td>
       <td class="n"><span class="rx ${rcls(b.ratio)}">${xr(b.ratio)}</span></td><td class="n c-w4">${compact(b.reach)}</td>
