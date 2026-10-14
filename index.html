@@ -1328,7 +1328,7 @@ function renderComp() {
   const spikes = A.flatMap(a => spikesOf(a, M.latest)).sort((x, y) => y.k * cW(y.u) - x.k * cW(x.u));
   const sp = spikes[0];
   const plinks2 = list => list.map(p => `<a class="lnk" href="https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/" target="_blank" rel="noopener">${esc(p.t)}${p.l != null ? " · ♥ " + compact(p.l) : ""} ↗</a>`).join("");
-  T.push(sp ? `<section class="t orange s4"><div class="lab">Залёт за 14 дней <span class="tag">×${sp.k.toFixed(1)} к обычному дню</span></div>
+  T.push(sp ? `<section class="t orange s4"><div class="lab">Залёт за 14 дней <span class="tag">×${sp.k.toLocaleString("ru-RU", { maximumFractionDigits: 1 })} к обычному дню</span></div>
       <div class="big" data-n="${sp.g}" data-fmt="signed">${signed(sp.g, compact)}</div>
       <div class="spk-who">@${esc(sp.u)}</div><div class="sub">${esc(sp.group)} · ${dLong(sp.d)}</div><div class="grow"></div>
       <div class="lnks">${sp.x.posts.length ? plinks2(sp.x.posts.slice(0, 3)) : `<span class="sub">в этот день вышло ${sp.x.n} публ.${sp.prev?.n ? `, накануне ${sp.prev.n}` : ""}</span>`}</div>
