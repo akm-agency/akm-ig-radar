@@ -1368,7 +1368,6 @@ function renderComp() {
     <button type="button" class="srow" data-cu="${esc(x.u)}"><span class="k">×${x.k.toFixed(1)}</span><span class="w"><b>@${esc(x.u)}</b><span>${dShort(x.d)} · ${esc(x.group)} · ${x.x.n ? x.x.n + " публ." : "без публикаций"}</span></span><span class="g">${signed(x.g, compact)}</span></button>`).join("") || `<div class="empty-t">Всплесков нет.</div>`}</div></section>`);
   const cset = new Set(A.map(a => a.u));
   T.push(viralTile((S.viral || []).filter(p => cset.has(p.u)).sort((x, y) => (y.r || 0) * cW(y.u) - (x.r || 0) * cW(x.u)), "конкуренты · посты до 72 ч, ≥3× к обычному · сортировка: залёт × сходство"));
-  T.push(clipsTile());
   el.innerHTML = T.join("");
 }
 
