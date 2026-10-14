@@ -658,7 +658,7 @@ function scope(el, B, latest) {
   let acc = 0;
   const sect = groups.map((g, k) => { const a0 = acc / tot * 360; acc += weight[k]; return [a0, acc / tot * 360]; });
   // размер точки в % сцены: площадь ∝ числу площадок (4 площадки ≈ 3%, 30 ≈ 8%)
-  const rad = b => 2.4 + 2.9 * Math.sqrt((b.hostsN || 1) / mx);   // радиус в % сцены: ~24–53 px на 500 px
+  const rad = b => 1.2 + 1.9 * Math.sqrt((b.hostsN || 1) / mx);   // радиус в % сцены: ~12–31 px в диаметре на 500 px
   const P = (r, a) => [50 + r * Math.sin(a * Math.PI / 180), 50 - r * Math.cos(a * Math.PI / 180)];
   SC.blips = [];
   groups.forEach((g, k) => {
