@@ -433,6 +433,8 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .vp-svg{width:100%;height:auto;display:block;margin-top:8px}.vp-empty{color:var(--muted);font-size:13px;padding:18px 0}
 </style></head><body><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
 <style>
+.pcard .lk .ic{font-size:.46em;margin-right:7px;vertical-align:.32em;opacity:.5;letter-spacing:0}.kpis{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 2px}.kpis span{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;background:#fff;border-radius:999px;padding:3px 9px;white-space:nowrap}.kpis .good{color:var(--up)}.kpis .bad{color:var(--down)}
+
 mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
 
 /* radar-specific */
@@ -558,6 +560,17 @@ const updLabel = iso => {
 // ники в заголовке разбора — маркером; наши страницы кликабельны (открывают карточку)
 const markHandles = (text, known = new Set()) => esc(text).replace(/@([A-Za-z0-9._]+[A-Za-z0-9_])/g, (m, u) =>
   known.has(u.toLowerCase()) ? `<mark class="hl" data-u="${u}" role="button" tabindex="0">${m}</mark>` : `<mark class="hl">${m}</mark>`);
+// карточка поста: крупно — главная цифра с иконкой (▶ просмотры, ♥ лайки, 💬 комментарии), ниже — плашки
+function postHead(p) {
+  const main = p.pl != null ? ["▶", p.pl, "просмотры"] : p.l != null ? ["♥", p.l, "лайки"] : p.le ? ["♥", p.le, "лайки (оценка по комментариям)", "≈"] : p.cm != null ? ["💬", p.cm, "комментарии"] : null;
+  const chips = [
+    p.r != null ? `<span class="${rcls(p.r)}" title="к обычному посту площадки${p.lh ? ", по комментариям" : ""}">${xr(p.r)}</span>` : "",
+    p.growth?.per_h ? `<span class="good" title="прирост между двумя последними замерами">+${compact(p.growth.per_h)}/ч</span>` : "",
+    p.pl != null && p.l != null ? `<span title="лайки">♥ ${compact(p.l)}</span>` : p.pl != null && p.le ? `<span title="лайки скрыты — оценка">♥ ≈${compact(p.le)}</span>` : "",
+    main && main[0] !== "💬" && p.cm != null ? `<span title="комментарии">💬 ${compact(p.cm)}</span>` : "",
+  ].filter(Boolean).join("");
+  return `<div class="lk" title="${main ? main[2] : ""}">${main ? `<span class="ic">${main[0]}</span>${main[3] || ""}${compact(main[1])}` : "—"}</div>${chips ? `<div class="kpis">${chips}</div>` : ""}`;
+}
 const xr = r => r == null ? "—" : "×" + r.toLocaleString("ru-RU", { maximumFractionDigits: r < 1 ? 2 : 1 });
 const rcls = r => r == null ? "" : r >= 1 ? "good" : r < .5 ? "bad" : "";
 const today = new Date().toISOString().slice(0, 10);
@@ -609,10 +622,10 @@ function render() {
   const V = (S.viral || []).slice(0, 12);
   if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час 14–23 МСК</span></div>
     <div class="pcards">${V.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
-      <div class="lk">${p.pl != null ? compact(p.pl) : p.l != null ? compact(p.l) : p.cm != null ? compact(p.cm) : "—"}<small>${p.pl != null ? "просмотров" : p.l != null ? "лайков" : "комментариев"}${p.r != null ? " · " + xr(p.r) : ""}${p.growth?.per_h ? ` · +${compact(p.growth.per_h)}/ч` : ""}</small></div>
+      ${postHead(p)}
       <div class="muted" style="font-size:12px">@${esc(p.u)}${p.brand ? " → @" + esc(p.brand) : ""} · ${dShort(p.d)} ${esc(p.t)}</div>
       <div style="font-size:13px;line-height:1.35">${esc((p.x || "").slice(0, 140))}</div></a>`).join("")}</div>
-    <div class="foot">× — лайки к медиане обычных постов площадки; /ч — прирост между двумя последними замерами.</div></section>`);
+    <div class="foot">▶ просмотры · ♥ лайки · 💬 комментарии · × — к обычному посту площадки · /ч — прирост за последний час замеров.</div></section>`);
   // hosts selling ads
   const hs =S.hosts.filter(h => h.checked >= 3 && !h.group?.startsWith("Наши · ")).map(h => ({ ...h, share: h.ads / h.checked })).sort((a, b) => b.share - a.share || b.ads - a.ads).slice(0, 8);
   T.push(`<section class="t s7"><div class="lab">Кто продаёт рекламу <span class="tag">доля рекламы · чужие площадки</span></div>
@@ -685,7 +698,7 @@ async function openBrand(key) {
       <div class="sub" style="opacity:1;color:var(--muted)">Бренд платит за охват прямо сейчас — тёплый лид для размещений.</div></section>` : ""}
     <section class="t d6"><div class="lab">Рекламные посты</div><div class="pcards">${b.posts.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
       <div class="top"><span class="who">@${esc(p.u)}</span><span class="tag2 ${p.cls}">${p.cls === "explicit" ? "явная" : "нативная"}</span></div>
-      <div class="lk">${p.l != null ? compact(p.l) : p.le ? "≈" + compact(p.le) : "—"}<small>${p.l != null ? "лайков" : p.le ? "лайков · оценка по комм." : "лайки скрыты"}${p.r != null ? " · " + xr(p.r) + (p.lh ? " по комм." : "") : ""}</small></div>
+      ${postHead(p)}
       <div class="cap">${esc(p.x)}</div><div class="meta2"><span>${p.k === "reel" ? "Reels" : "Пост"}</span><span>${dShort(p.d)}, ${esc(p.t)} ↗</span></div></a>`).join("")}</div></section>
   </div>`;
   $("accBody").dataset.key = key;
