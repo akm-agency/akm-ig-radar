@@ -406,6 +406,51 @@ button.srow:hover b{text-decoration:underline}
 table.trk th .ts{border:0;background:none;padding:0;font:inherit;color:inherit;white-space:nowrap}
 table.trk th .ts:hover{color:var(--ink)}
 @media (max-width:640px){.nav{max-width:calc(100vw - 32px);overflow-x:auto;scrollbar-width:none}.nav a{padding:0 14px;flex:none}}
+/* «Конкуренты»: переключатель режимов + бенто отслеживаемых */
+.cm-row{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
+.cmode{position:relative;display:inline-flex;background:var(--tile);border-radius:999px;padding:5px;gap:2px}
+.cmode button{position:relative;z-index:1;border:0;background:none;height:46px;padding:0 22px;border-radius:999px;font-weight:600;font-size:15px;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:color .35s}
+.cmode button:hover{color:var(--ink)}
+.cmode button[aria-selected="true"]{color:#fff}
+.cmode .cnt{font-size:11px;font-weight:700;background:var(--tile-2);border-radius:999px;padding:2px 7px;color:var(--muted);transition:background .35s,color .35s}
+.cmode button[aria-selected="true"] .cnt{background:rgba(255,255,255,.16);color:#fff}
+.cm-ind{position:absolute;left:0;top:5px;bottom:5px;width:0;border-radius:999px;background:var(--ink);transition:transform .6s cubic-bezier(.16,1,.3,1),width .6s cubic-bezier(.16,1,.3,1)}
+.cm-ind.no-anim{transition:none}
+.cm-note{margin:0;font-size:13px;color:var(--muted);max-width:56ch}
+.sub-page{display:flex;flex-direction:column;gap:var(--gap)}
+.tk-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);display:inline-block;animation:tk-pulse 2s ease-out infinite}
+@keyframes tk-pulse{0%{box-shadow:0 0 0 0 rgba(210,243,91,.6)}70%,100%{box-shadow:0 0 0 8px rgba(210,243,91,0)}}
+.tk-niches{display:flex;flex-direction:column;gap:2px;margin-top:auto}
+.tk-n{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;border:0;background:none;color:inherit;text-align:left;padding:8px 10px;margin:0 -10px;border-radius:14px;transition:background .2s}
+.tk-n:hover{background:rgba(255,255,255,.07)}.tk-n.on{background:rgba(255,255,255,.13)}
+.tk-n .nm{font-size:13px;font-weight:500}.tk-n .nm i{font-style:normal;opacity:.5;margin-left:4px;font-size:12px}
+.tk-n .v{font-family:var(--f-mono);font-size:12.5px;opacity:.8}
+.tk-n .bar2{grid-column:1/-1;height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
+.tk-n .bar2 i{display:block;height:100%;border-radius:999px;background:var(--lime)}
+.tk-n.on .bar2 i{background:#fff}
+.tk-hero{padding:0;border:0;text-align:left;color:#fff;background:var(--ink-2);min-height:340px;isolation:isolate}
+.tk-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
+.tk-hero:hover img{transform:scale(1.07)}
+.tk-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(13,13,15,.6) 0%,rgba(13,13,15,0) 30%,rgba(13,13,15,0) 40%,rgba(13,13,15,.92) 100%)}
+.tk-hero .in{flex:1;display:flex;flex-direction:column;gap:8px;padding:22px 24px}
+.tk-hero .lab{opacity:.95}
+.tk-hook{font-size:clamp(18px,1.6vw,22px);font-weight:600;letter-spacing:-.02em;line-height:1.18;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tk-by{font-size:12.5px;opacity:.8}
+.enter .tk-hero img{animation:tk-kb 1.9s cubic-bezier(.16,1,.3,1) both}
+@keyframes tk-kb{from{transform:scale(1.22)}}
+.tk-sum .big small{font-size:.36em;letter-spacing:-.02em;font-weight:500;margin-left:6px}
+.tk-fit{font-size:clamp(34px,3.1vw,50px);white-space:nowrap}
+.tk-list{display:flex;flex-direction:column}
+.tk-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:5px 12px;align-items:center;border:0;background:none;text-align:left;padding:9px 8px;margin:0 -8px;border-radius:14px;transition:background .2s}
+.tk-row:hover{background:var(--tile-2)}.on-lav .tk-row:hover{background:rgba(255,255,255,.4)}
+.tk-k{font-family:var(--f-mono);font-size:12px;color:var(--faint);grid-row:span 2}.on-lav .tk-k{color:rgba(13,13,15,.45)}
+.tk-w{min-width:0;display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden}
+.tk-w b{font-weight:600;overflow:hidden;text-overflow:ellipsis}.tk-w span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}.on-lav .tk-w span{color:rgba(13,13,15,.55)}
+.tk-v{font-family:var(--f-mono);font-size:13px;font-weight:600}
+.tk-row .bar2{grid-column:2/4;height:5px;border-radius:999px;background:var(--tile-2);overflow:hidden}.on-lav .tk-row .bar2{background:rgba(255,255,255,.45)}
+.tk-row .bar2 i{display:block;height:100%;border-radius:999px;background:var(--ink)}
+.cmode button{white-space:nowrap}
+@media (max-width:640px){.cmode{width:100%}.cmode button{flex:1;padding:0 8px;font-size:14px}.cmode .cnt{display:none}.tk-hero{min-height:300px}}
 .pc-src,.pc-pages{font-size:12px;color:var(--muted)}
 .pc-up{color:var(--up);font-weight:600}
 /* идеи: вкладки-ниши + поиск страницы */
@@ -446,7 +491,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
       <div><h1 id="pTitle">Статистика сетки</h1><div class="meta" id="meta">Загрузка данных…</div></div>
     </div>
-    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#tracked" data-p="trk">Отслеживаемые <span class="cnt" id="trkCnt"></span></a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
+    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
       <button class="pill" type="button" id="repBtn" data-only="net">Недельный отчёт <span class="arrow">↗</span></button>
       <button class="pill dark" type="button" id="aiOpen">Спросить ИИ <span class="arrow">↗</span></button>
@@ -467,14 +512,19 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
   </section>
   </main>
 
-  <main class="page" id="pageTrk" hidden>
-    <div class="chips2" id="tchips" role="group" aria-label="Ниши"></div>
-    <div class="bento" id="tbento"></div>
-  </main>
-
   <main class="page" id="pageComp" hidden>
-    <div class="chips2" id="cchips" role="group" aria-label="Ниши"></div>
-    <div class="bento" id="cbento"></div>
+    <div class="cm-row">
+      <div class="cmode" id="cmode" role="tablist" aria-label="Режим раздела"><span class="cm-ind" id="cmInd"></span><button type="button" role="tab" data-cmode="trk">Отслеживаемые <span class="cnt" id="trkCnt"></span></button><button type="button" role="tab" data-cmode="all">Все конкуренты <span class="cnt" id="allCnt"></span></button></div>
+      <p class="cm-note" id="cmNote"></p>
+    </div>
+    <section class="sub-page" id="cTrk">
+      <div class="chips2" id="tchips" role="group" aria-label="Ниши"></div>
+      <div class="bento" id="tbento"></div>
+    </section>
+    <section class="sub-page" id="cAll" hidden>
+      <div class="chips2" id="cchips" role="group" aria-label="Ниши"></div>
+      <div class="bento" id="cbento"></div>
+    </section>
   </main>
 </div>
 
@@ -502,7 +552,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 <script type="text/x-main" id="main-js">
 (() => {
 const $ = id => document.getElementById(id);
-const S = { groups: [], days: [], cgroups: [], cdays: [], cM: null, cFilter: "all", tFilter: "all", tSort: { k: "d1", dir: -1 }, page: null, insights: [], filter: "all", mode: "week", insTab: null, showAllSig: false, chat: [], sample: null, ctl: null, M: null };
+const S = { groups: [], days: [], cgroups: [], cdays: [], cM: null, cFilter: "all", tFilter: "all", tSort: { k: "rate", dir: -1 }, cMode: "trk", page: null, insights: [], filter: "all", mode: "week", insTab: null, showAllSig: false, chat: [], sample: null, ctl: null, M: null };
 try { if (localStorage.getItem("net.mode") === "day") S.mode = "day"; } catch (e) {}
 const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 
@@ -1325,6 +1375,7 @@ const wMedian = (items) => { const v = items.filter(x => x.v != null).sort((a, b
 function renderComp() {
   const M = S.cM = build(S.cdays, S.cgroups);
   if ($("compCnt").textContent !== String(M.accounts.length || "")) { $("compCnt").textContent = M.accounts.length || ""; placeInd(false); }
+  $("allCnt").textContent = M.accounts.length || ""; placeCm(false);
   const el = $("cbento");
   if (!M.latest) { el.innerHTML = `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">Данные по конкурентам появятся после первого сбора.</div></section>`; $("cchips").innerHTML = ""; return; }
   $("cchips").innerHTML = [["all", "Все ниши"], ...M.groups.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-cg="${esc(k)}" aria-pressed="${S.cFilter === k}">${esc(l)}</button>`).join("");
@@ -1380,11 +1431,19 @@ function renderComp() {
   el.innerHTML = T.join("");
 }
 
-/* ---------- отслеживаемые конкуренты (tracked.json): замер каждый час ---------- */
+/* ---------- отслеживаемые конкуренты (tracked.json): режим раздела «Конкуренты», замер каждый час ---------- */
 const TK = () => S.extra?.tracked || {};
 const tPost = c => (TK().posts || []).find(p => p.c === c);
 const tSeries = a => { const st = Date.parse(TK().start + ":00+03:00"); return (a.h || []).map((f, i) => [new Date(st + i * 36e5 + 3 * 36e5).toISOString().slice(0, 13) + ":00", f]); };
 const tWhen = ts => { if (!ts) return "—"; const today = new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10); return ts.slice(0, 10) === today ? ts.slice(11, 16) : `${dShort(ts.slice(0, 10))} ${ts.slice(11, 16)}`; };
+// темп за сутки: точный прирост за 24 ч, а пока суток замеров нет — по тем часам, что есть (≥4 ч), с пометкой «≈»
+function tRate(a) {
+  if (a.d1 != null) return { v: a.d1, est: false };
+  const h = a.h || []; let li = h.length - 1; while (li >= 0 && h[li] == null) li--;
+  if (li < 0) return null;
+  let j = Math.max(0, li - 24); while (j < li && h[j] == null) j++;
+  return li - j >= 4 ? { v: (h[li] - h[j]) / (li - j) * 24, est: true, hrs: li - j } : null;
+}
 function tSpark(a) {
   const ys = (a.h || []).filter(v => v != null);
   if (ys.length < 2) return `<span class="muted" style="font-size:12px">${a.f == null ? "ждёт замера" : "копится"}</span>`;
@@ -1393,78 +1452,79 @@ function tSpark(a) {
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" style="width:120px;height:28px" aria-hidden="true"><path d="${d}" fill="none" stroke="${ys[ys.length - 1] >= ys[0] ? "var(--up)" : "var(--down)"}" stroke-width="2" stroke-linecap="round"/></svg>`;
 }
 const gainLine = p => p.ga ? `<div class="pc-gain"><b>${signed(p.ga.gain, compact)}</b> подп. за ${p.ga.hours} ч${p.ga.usual != null ? ` <span>· обычно ${signed(p.ga.usual, compact)}</span>` : ""}${p.ga.near ? ` <span>· рядом ещё ${p.ga.near}</span>` : ""}</div>` : "";
-function tPulse(A) {
-  // суммарный прирост по часам за 48 ч (час считается, если у аккаунта есть оба соседних замера)
-  const n = 48, L = (A[0]?.h || []).length; if (!L) return "";
-  const v = Array(n).fill(0), has = Array(n).fill(false);
-  for (const a of A) for (let k = 0; k < n; k++) { const i = L - n + k, x = a.h[i], y = a.h[i - 1]; if (x != null && y != null) { v[k] += x - y; has[k] = true; } }
-  if (has.filter(Boolean).length < 3) return `<div class="empty-t">Почасовой прирост появится, когда наберётся несколько замеров подряд — замеры идут каждый час.</div>`;
-  const W = 640, H = 150, B = 22, up = Math.max(0, ...v), dn = Math.max(0, -Math.min(...v)), span = Math.max(up + dn, 1), bw = W / n;
-  const y0 = (H - B) * up / span;
-  const st = Date.parse(TK().start + ":00+03:00") + (L - n) * 36e5;
-  const lab = k => { const d = new Date(st + k * 36e5 + 3 * 36e5); return String(d.getUTCHours()).padStart(2, "0") + ":00"; };
-  return `<svg class="vp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Прирост подписчиков по часам">
-    <line x1="0" x2="${W}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="var(--line)"/>
-    ${v.map((x, k) => { if (!has[k]) return ""; const hgt = Math.max(1.5, Math.abs(x) / span * (H - B)); return `<rect x="${(k * bw + 1.5).toFixed(1)}" y="${(x >= 0 ? y0 - hgt : y0).toFixed(1)}" width="${(bw - 3).toFixed(1)}" height="${hgt.toFixed(1)}" rx="2" fill="${x >= 0 ? "var(--ink)" : "var(--down)"}"><title>${lab(k)} · ${signed(x)}</title></rect>`; }).join("")}
-    ${[0, 12, 24, 36, 47].map(k => `<text x="${(k * bw + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${lab(k)}</text>`).join("")}
-  </svg>`;
-}
-const addGain = root => root.querySelectorAll("[data-vp]").forEach(b => { const p = tPost(b.dataset.vp), h = b.querySelector(".pc-hook"); if (p?.ga && h && !b.querySelector(".pc-gain")) h.insertAdjacentHTML("afterend", gainLine(p)); });
+const addGain = root => root?.querySelectorAll("[data-vp]").forEach(b => { const p = tPost(b.dataset.vp), h = b.querySelector(".pc-hook"); if (p?.ga && h && !b.querySelector(".pc-gain")) h.insertAdjacentHTML("afterend", gainLine(p)); });
+// список с полосками: [{u, sub, v, txt}] → строки-кнопки, полоски растут при появлении
+const tBars = (rows, cls = "") => `<div class="tk-list ${cls}">${rows.map((r, i) => `<button type="button" class="tk-row" data-tu="${esc(r.u)}" style="--j:${i}">
+    <span class="tk-k">${i + 1}</span><span class="tk-w"><b>@${esc(r.u)}</b><span>${esc(r.sub)}</span></span><span class="tk-v">${r.txt}</span>
+    <span class="bar2"><i style="width:${Math.max(4, r.w * 100).toFixed(1)}%"></i></span></button>`).join("")}</div>`;
 function renderTracked() {
   const T = TK(), el = $("tbento"), all = T.acc || [];
-  if ($("trkCnt").textContent !== String(all.length || "")) { $("trkCnt").textContent = all.length || ""; placeInd(false); }
+  $("trkCnt").textContent = all.length || ""; placeCm(false);
   if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">Список пуст — добавьте аккаунты в tracked.json.</div></section>`; return; }
   const G = T.groups || [];
   if (S.tFilter !== "all" && !G.some(g => g.name === S.tFilter)) S.tFilter = "all";
-  $("tchips").innerHTML = [["all", `Все · ${all.length}`], ...G.map(g => [g.name, `${g.name} · ${g.accounts.length}`])].map(([k, l]) => `<button type="button" class="chip" data-tg="${esc(k)}" aria-pressed="${S.tFilter === k}">${esc(l)}</button>`).join("");
+  $("tchips").innerHTML = [["all", "Все ниши"], ...G.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-tg="${esc(k)}" aria-pressed="${S.tFilter === k}">${esc(l)}</button>`).join("");
   const A = all.filter(a => S.tFilter === "all" || a.g === S.tFilter), U = new Set(A.map(a => a.u));
-  const measured = A.filter(a => a.f != null), total = measured.reduce((s, x) => s + x.f, 0);
-  const withD1 = A.filter(a => a.d1 != null), d1 = withD1.reduce((s, x) => s + x.d1, 0);
+  const total = A.reduce((s, a) => s + (a.f || 0), 0), measured = A.filter(a => a.f != null).length;
   const hot = (T.hot || []).map(tPost).filter(p => p && U.has(p.u));
   const inflow = (T.inflow || []).map(tPost).filter(p => p && U.has(p.u));
-  const lead = [...withD1].sort((x, y) => y.d1 - x.d1)[0], best = inflow[0];
   const X = [];
-  X.push(`<section class="t ink s5 r2"><div class="lab">Отслеживаемые конкуренты <span class="tag">замер каждый час</span></div>
-    <div class="huge" data-n="${A.length}" data-fmt="int">${A.length}</div><div class="sub">аккаунтов${S.tFilter === "all" ? ` в ${G.length} ${plu(G.length, "нише", "нишах", "нишах")}` : ` · ${esc(S.tFilter)}`} · суммарно ${compact(total)} подписчиков</div>
-    <div class="grow"></div>
-    <div class="kvs">
-      <div class="kv"><span>За 24 часа</span><b>${withD1.length ? signed(d1, compact) : "—"}</b></div>
-      <div class="kv"><span>Постов за 7 дней</span><b>${fmt(A.reduce((s, a) => s + (a.p7 || 0), 0))}</b></div>
-      <div class="kv"><span>Залетело</span><b>${fmt(hot.length)}</b></div>
-      <div class="kv"><span>Замерено</span><b>${measured.length}<small style="font-size:.6em;opacity:.6"> / ${A.length}</small></b></div>
-    </div></section>`);
-  X.push(lead ? `<section class="t orange s4"><div class="lab">Больше всех за 24 ч</div>
-      <div class="big" data-n="${lead.d1}" data-fmt="signed">${signed(lead.d1, compact)}</div>
-      <div class="spk-who">@${esc(lead.u)}</div><div class="sub">${esc(lead.g)} · ${compact(lead.f)} подписчиков</div>
-      <button class="corner" type="button" data-tu="${esc(lead.u)}" aria-label="Открыть @${esc(lead.u)}">↗</button></section>`
-    : `<section class="t orange s4"><div class="lab">Больше всех за 24 ч</div><div class="big">—</div><div class="sub">Появится через сутки почасовых замеров.</div></section>`);
-  X.push(best ? `<section class="t blue s3"><div class="lab">Лучший приток после поста</div>
-      <div class="big" data-n="${best.ga.gain}" data-fmt="signed">${signed(best.ga.gain, compact)}</div>
-      <div class="spk-who" style="font-size:20px">@${esc(best.u)}</div><div class="sub">за ${best.ga.hours} ч после поста ${dShort(best.d)} ${esc(best.t)}${best.ga.usual != null ? ` · обычно ${signed(best.ga.usual, compact)}` : ""}</div>
+  // 1 · сводка: подписчики выборки + ниши полосками (клик — фильтр)
+  const nich = G.map(g => { const as = all.filter(a => a.g === g.name); return { name: g.name, n: as.length, f: as.reduce((s, a) => s + (a.f || 0), 0) }; });
+  const nmax = Math.max(...nich.map(x => x.f), 1);
+  X.push(`<section class="t ink s5 tk-sum"><div class="lab">Отслеживаемые <span class="tag"><i class="tk-dot"></i>замер каждый час</span></div>
+    <div class="big" data-n="${total}" data-fmt="huge">${hugeNum(total)}</div>
+    <div class="sub">подписчиков у ${A.length} ${plu(A.length, "аккаунта", "аккаунтов", "аккаунтов")}${measured < A.length ? ` · замерено ${measured}` : ""} · ${fmt(A.reduce((s, a) => s + (a.p7 || 0), 0))} постов за неделю</div>
+    <div class="tk-niches">${nich.map((x, i) => `<button type="button" class="tk-n${S.tFilter === x.name ? " on" : ""}" data-tg="${esc(S.tFilter === x.name ? "all" : x.name)}" style="--j:${i}">
+      <span class="nm">${esc(x.name)} <i>${x.n}</i></span><span class="v">${compact(x.f)}</span><span class="bar2"><i style="width:${Math.max(3, x.f / nmax * 100).toFixed(1)}%"></i></span></button>`).join("")}</div></section>`);
+  // 2 · залёт недели — обложка во всю плитку
+  const hero = hot.find(p => p.th) || hot[0];
+  X.push(hero ? `<button type="button" class="t s4 tk-hero" data-vp="${esc(hero.c)}" aria-label="Залёт недели: @${esc(hero.u)}">
+      ${hero.th ? `<img src="${esc(hero.th)}" alt="" loading="lazy">` : ""}
+      <span class="in"><span class="lab">Залёт недели <span class="pc-x ${heat(hero.r) || "warm"}" style="position:static">${xx(hero.r)}</span></span><span class="grow"></span>
+        <span class="tk-hook">${esc(hero.hook || (hero.x || "").slice(0, 110))}</span>
+        <span class="tk-by">@${esc(hero.u)} · ${hero.pl != null ? "▶ " + compact(hero.pl) : hero.l != null ? "♥ " + compact(hero.l) : ""} · ${dShort(hero.d)}</span></span></button>`
+    : `<section class="t stone s4"><div class="lab">Залёт недели</div><div class="grow"></div><div class="sub" style="opacity:1;color:var(--muted)">За 7 дней у выборки ничего не залетело (≥3× к обычному посту).</div></section>`);
+  // 3 · лучший приток после поста
+  const best = inflow[0];
+  X.push(best ? `<section class="t blue s3"><div class="lab">Приток после поста</div>
+      <div class="big tk-fit" data-n="${best.ga.gain}" data-fmt="signed">${signed(best.ga.gain, compact)}</div>
+      <div class="sub">подписчиков за ${best.ga.hours} ч${best.ga.usual != null ? ` · обычно ${signed(best.ga.usual, compact)}` : ""}</div><div class="grow"></div>
+      <div class="spk-who" style="font-size:20px">@${esc(best.u)}</div><div class="sub">пост ${dShort(best.d)} ${esc(best.t)}</div>
       <button class="corner" type="button" data-vp="${esc(best.c)}" aria-label="Открыть пост">↗</button></section>`
-    : `<section class="t blue s3"><div class="lab">Лучший приток после поста</div><div class="big">—</div><div class="sub">Нужны замеры до и после поста — появится в течение дня.</div></section>`);
-  X.push(`<section class="t s7"><div class="lab">Прирост по часам · 48 ч <span class="tag" style="background:var(--tile-2)">все аккаунты выборки</span></div>${tPulse(A)}</section>`);
-  X.push(viralTile(hot, "посты за 7 дней, ≥3× к обычному посту аккаунта · клик — почасовой график поста", "trk", "Залетает у отслеживаемых")
-    || `<section class="t s12"><div class="lab">Залетает у отслеживаемых</div><div class="empty-t">За 7 дней залётов (≥3× к обычному посту) пока нет — посты перемеряются каждый час.</div></section>`);
+    : `<section class="t blue s3"><div class="lab">Приток после поста</div><div class="grow"></div><div class="sub">Нужны замеры до и после поста — появится в течение дня.</div></section>`);
+  // 4 · кто растёт · 5 · кто набирает просмотры
+  const rates = A.map(a => ({ a, r: tRate(a) })).filter(x => x.r).sort((x, y) => y.r.v - x.r.v).slice(0, 6);
+  const rmax = Math.max(...rates.map(x => Math.abs(x.r.v)), 1), anyEst = rates.some(x => x.r.est);
+  X.push(`<section class="t s7"><div class="lab">Растут быстрее всех <span class="tag" style="background:var(--tile-2)">подписчиков за сутки${anyEst ? " · ≈ — по неполным суткам" : ""}</span></div>
+    ${rates.length ? tBars(rates.map(({ a, r }) => ({ u: a.u, sub: a.g, w: Math.abs(r.v) / rmax, txt: `<span class="${cls(r.v)}">${r.est ? "≈" : ""}${signed(Math.round(r.v), compact)}</span>` })))
+      : `<div class="empty-t">Появится после нескольких часов замеров.</div>`}</section>`);
+  const views = A.filter(a => a.mv != null).sort((x, y) => y.mv - x.mv).slice(0, 6), vmax = Math.max(...views.map(a => a.mv), 1);
+  X.push(`<section class="t lav s5"><div class="lab">Больше всего просмотров <span class="tag">медиана 12 роликов</span></div>
+    ${views.length ? tBars(views.map(a => ({ u: a.u, sub: a.g, w: a.mv / vmax, txt: "▶ " + compact(a.mv) })), "on-lav") : `<div class="empty-t">Просмотры роликов ещё собираются.</div>`}</section>`);
+  // 6 · залёты · 7 · приток · 8 · таблица
+  X.push(viralTile(hot, "посты за 7 дней, ≥3× к обычному посту аккаунта · клик — почасовой график", "trk", "Залетает у отслеживаемых") || "");
   const n2 = S.vMore?.trkin || 12;
-  X.push(`<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag" style="background:var(--tile-2)">прирост подписчиков за ~6 ч после поста против обычного темпа аккаунта</span></div>
-    ${inflow.length ? cards(inflow.slice(0, n2), { btn: true }) : `<div class="empty-t">Считается по почасовым замерам: подписчики в час публикации и через ~6 ч, против обычного прироста аккаунта за то же время. Первые результаты — в течение дня после начала замеров.</div>`}
-    ${inflow.length > n2 ? `<button type="button" class="pill vmore" data-vmore="trkin">Показать ещё · ${inflow.length - n2}</button>` : ""}</section>`);
-  const k = S.tSort.k, dir = S.tSort.dir, val = a => a[k] ?? (dir < 0 ? -Infinity : Infinity);
-  const rows = [...A].sort((x, y) => k === "u" ? dir * x.u.localeCompare(y.u) : dir * (val(x) - val(y)) || x.u.localeCompare(y.u));
-  const th = (key, label, extra = "") => `<th ${extra} aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" class="ts" data-ts="${key}">${label}${k === key ? (dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
-  X.push(`<section class="t s12"><div class="lab">Все отслеживаемые <span class="tag" style="background:var(--tile-2)">клик по строке — почасовой график и лучшие посты</span></div>
-    <div class="tbl-wrap"><table class="rank trk"><thead><tr><th>#</th>${th("u", "Аккаунт", 'style="text-align:left"')}${th("f", "Подписчики")}${th("d1", "24 ч")}${th("d7", "7 дней")}${th("p7", "Постов · 7 дн", 'class="c-hide"')}${th("mv", "Просмотры", 'class="c-hide" title="Медиана просмотров последних 12 роликов"')}<th class="c-hide">7 дней по часам</th><th class="c-hide">Замер</th></tr></thead><tbody>
-    ${rows.map((a, i) => `<tr class="acc" tabindex="0" data-tu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b><div class="nich">${esc(a.g)}${a.name ? " · " + esc(a.name.slice(0, 40)) : ""}${a.st === "notfound" ? ' · <span class="neg">не найден</span>' : a.st === "private" ? ' · <span class="neg">закрыт</span>' : ""}</div></td>
-      <td class="n">${a.f != null ? compact(a.f) : '<span class="muted">—</span>'}</td><td class="n ${cls(a.d1)}">${signed(a.d1, compact)}</td><td class="n ${cls(a.d7)}">${signed(a.d7, compact)}</td>
-      <td class="n c-hide">${fmt(a.p7)}</td><td class="n c-hide">${a.mv != null ? compact(a.mv) : "—"}</td><td class="c-hide">${tSpark(a)}</td><td class="n c-hide muted">${tWhen(a.last)}</td></tr>`).join("")}
+  X.push(inflow.length ? `<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag" style="background:var(--tile-2)">прирост за ~6 ч после поста против обычного темпа аккаунта</span></div>
+    ${cards(inflow.slice(0, n2), { btn: true })}
+    ${inflow.length > n2 ? `<button type="button" class="pill vmore" data-vmore="trkin">Показать ещё · ${inflow.length - n2}</button>` : ""}</section>`
+    : `<section class="t stone s12"><div class="lab">С каких постов идут подписки</div><div class="empty-t">Считается по почасовым замерам: подписчики в час публикации и через ~6 ч против обычного прироста аккаунта. Первые результаты — в течение дня.</div></section>`);
+  const k = S.tSort.k, dir = S.tSort.dir;
+  const key = a => k === "rate" ? tRate(a)?.v : a[k];
+  const rows = [...A].sort((x, y) => { if (k === "u") return dir * x.u.localeCompare(y.u); const p = key(x), q = key(y); return p == null ? 1 : q == null ? -1 : dir * (p - q) || x.u.localeCompare(y.u); });
+  const th = (kk, label, extra = "") => `<th ${extra} aria-sort="${k === kk ? (dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" class="ts" data-ts="${kk}">${label}${k === kk ? (dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
+  X.push(`<section class="t s12"><div class="lab">Все отслеживаемые · ${A.length} <span class="tag" style="background:var(--tile-2)">клик по строке — почасовой график и лучшие посты</span></div>
+    <div class="tbl-wrap"><table class="rank trk"><thead><tr><th>#</th>${th("u", "Аккаунт", 'style="text-align:left"')}${th("f", "Подписчики")}${th("rate", "За сутки")}${th("d7", "7 дней", 'class="c-hide"')}${th("p7", "Постов · 7 дн", 'class="c-hide"')}${th("mv", "Просмотры", 'class="c-hide" title="Медиана просмотров последних 12 роликов"')}<th class="c-hide">7 дней по часам</th><th class="c-hide">Замер</th></tr></thead><tbody>
+    ${rows.map((a, i) => { const r = tRate(a); return `<tr class="acc" tabindex="0" data-tu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b><div class="nich">${esc(a.g)}${a.name ? " · " + esc(a.name.slice(0, 40)) : ""}${a.st === "notfound" ? ' · <span class="neg">не найден</span>' : a.st === "private" ? ' · <span class="neg">закрыт</span>' : ""}</div></td>
+      <td class="n">${a.f != null ? compact(a.f) : '<span class="muted">—</span>'}</td><td class="n ${cls(r?.v)}">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</td><td class="n c-hide ${cls(a.d7)}">${signed(a.d7, compact)}</td>
+      <td class="n c-hide">${fmt(a.p7)}</td><td class="n c-hide">${a.mv != null ? compact(a.mv) : "—"}</td><td class="c-hide">${tSpark(a)}</td><td class="n c-hide muted">${tWhen(a.last)}</td></tr>`; }).join("")}
     </tbody></table></div></section>`);
   el.innerHTML = X.join("");
   addGain($("vt-trkin"));
 }
 function openTracked(u) {
   const a = (TK().acc || []).find(x => x.u === u); if (!a) return;
-  const mine = (TK().posts || []).filter(p => p.u === u), top = (a.top || []).map(tPost).filter(Boolean);
+  const mine = (TK().posts || []).filter(p => p.u === u), top = (a.top || []).map(tPost).filter(Boolean), r = tRate(a);
   const kv = (l, v) => `<div class="kv"><span>${l}</span><b>${esc(v)}</b></div>`;
   const big = a.f == null ? "—" : a.f >= 1e6 ? (a.f / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + "<small style='font-size:.4em;margin-left:6px'>млн</small>" : (a.f / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + "<small style='font-size:.4em;margin-left:6px'>тыс</small>";
   $("accBody").innerHTML = `<div class="dgrid">
@@ -1474,8 +1534,8 @@ function openTracked(u) {
       ${a.name ? `<div class="sub">${esc(a.name)}</div>` : ""}
       <div class="big" style="margin-top:6px">${big}</div><div class="sub">${a.f != null ? fmt(a.f) + " подписчиков" : "ждёт первого замера"}</div>
       <div class="lnks"><a class="lnk" href="https://www.instagram.com/${encodeURIComponent(a.u)}/" target="_blank" rel="noopener">Instagram ↗</a><a class="lnk" href="https://socialblade.com/instagram/user/${encodeURIComponent(a.u)}" target="_blank" rel="noopener">Socialblade ↗</a></div></section>
-    <section class="t orange d3"><div class="lab">За 24 часа</div>
-      <div class="big">${signed(a.d1, compact)}</div><div class="sub">последний замер ${tWhen(a.last)}</div>
+    <section class="t orange d3"><div class="lab">За сутки</div>
+      <div class="big">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</div><div class="sub">${r?.est ? `по ${r.hrs} ч замеров · ` : ""}последний замер ${tWhen(a.last)}</div>
       <div class="kvs">${kv("За 7 дней", signed(a.d7, compact))}${kv("Постов за 7 дней", fmt(a.p7))}${kv("Просмотры (медиана)", a.mv != null ? compact(a.mv) : "—")}</div></section>
     <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)">оранжевые точки — посты</span></div>${hourlyChart(tSeries(a), { h: 220, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
     ${(a.ds || []).length > 1 ? `<section class="t d6"><div class="lab">Подписчики · 30 дней</div><div id="trkDaily"></div></section>` : ""}
@@ -1485,6 +1545,25 @@ function openTracked(u) {
   addGain($("accBody"));
   openDlg($("accDlg"));
   enter($("accBody"));
+}
+// режим раздела «Конкуренты»: отслеживаемые (контент) ↔ все конкуренты (рынок, для рекламщиков)
+function placeCm(animate = false) {
+  const b = document.querySelector(`#cmode [data-cmode="${S.cMode}"]`), ind = $("cmInd"); if (!b || !b.offsetWidth) return;
+  ind.classList.toggle("no-anim", !animate);
+  ind.style.width = b.offsetWidth + "px"; ind.style.transform = `translateX(${b.offsetLeft}px)`;
+}
+function setCMode(m, animate = true) {
+  const prev = S.cMode; S.cMode = m;
+  try { localStorage.setItem("comp.mode", m); } catch (e) {}
+  document.querySelectorAll("#cmode [data-cmode]").forEach(b => b.setAttribute("aria-selected", b.dataset.cmode === m));
+  $("cmNote").textContent = m === "trk" ? "50 аккаунтов от команды: замер каждый час — что залетает и с каких постов идут подписки" : "Рынок похожих пабликов: рост, залёты, тренды ниш — раз в сутки";
+  placeCm(animate);
+  const show = () => { $("cTrk").hidden = m !== "trk"; $("cAll").hidden = m !== "all"; placeCm(false); };
+  if (!animate || reduce || prev === m) { show(); return; }
+  const from = $(prev === "trk" ? "cTrk" : "cAll"), dir = m === "all" ? "fwd" : "back";
+  from.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translate3d(${dir === "fwd" ? -24 : 24}px,0,0)` }], { duration: 170, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+  clearTimeout(setCMode.t);   // таймер, а не .finished: в фоновой вкладке анимации стоят и обещание не приходит
+  setCMode.t = setTimeout(() => { from.getAnimations().forEach(x => x.cancel()); show(); enter($(m === "trk" ? "cTrk" : "cAll"), dir); }, 180);
 }
 
 /* ---------- router & motion ---------- */
@@ -1515,12 +1594,12 @@ function enter(page, dir = "") {
 }
 // порядок = порядок вкладок (направление анимации); hash — адрес вкладки
 const PAGES = { net: { el: "pageNet", hash: "#network", title: "Статистика сетки" },
-  trk: { el: "pageTrk", hash: "#tracked", title: "Отслеживаемые" },
   comp: { el: "pageComp", hash: "#competitors", title: "Конкуренты" } };
-const pageOf = h => Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
+const pageOf = h => h === "#tracked" ? "comp" : Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
 function showPage(p) {
   S.page = p;
   for (const k in PAGES) $(PAGES[k].el).hidden = p !== k;
+  if (p === "comp") requestAnimationFrame(() => placeCm(false));   // пока раздел скрыт, ширина кнопок = 0
   $("pTitle").textContent = PAGES[p].title;
   document.querySelectorAll("#nav a").forEach(a => a.setAttribute("aria-current", a.dataset.p === p ? "page" : "false"));
   document.querySelectorAll("[data-only]").forEach(b => b.hidden = b.dataset.only !== p);
@@ -1550,7 +1629,9 @@ function go(p) {
 $("nav").addEventListener("click", e => { const a = e.target.closest("a[data-p]"); if (!a) return; e.preventDefault(); history.replaceState(null, "", a.getAttribute("href")); go(a.dataset.p); });
 window.addEventListener("hashchange", () => go(pageOf(location.hash)));
 window.addEventListener("resize", () => placeInd(false));
-$("tchips").addEventListener("click", e => { const b = e.target.closest("[data-tg]"); if (b) { S.tFilter = b.dataset.tg; renderTracked(); enter($("pageTrk")); } });
+$("tchips").addEventListener("click", e => { const b = e.target.closest("[data-tg]"); if (b) { S.tFilter = b.dataset.tg; renderTracked(); enter($("cTrk")); } });
+$("cmode").addEventListener("click", e => { const b = e.target.closest("[data-cmode]"); if (b && b.dataset.cmode !== S.cMode) setCMode(b.dataset.cmode); });
+window.addEventListener("resize", () => placeCm(false));
 $("tbento").addEventListener("click", e => {
   const ts = e.target.closest("[data-ts]");
   if (ts) { const k = ts.dataset.ts; S.tSort = { k, dir: S.tSort.k === k ? -S.tSort.dir : k === "u" ? 1 : -1 }; renderTracked(); return; }
@@ -1559,7 +1640,7 @@ $("tbento").addEventListener("click", e => {
   const r = e.target.closest("[data-tu]"); if (r) openTracked(r.dataset.tu);
 });
 $("tbento").addEventListener("keydown", e => { const r = e.target.closest("tr[data-tu]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openTracked(r.dataset.tu); } });
-$("cchips").addEventListener("click", e => { const b = e.target.closest("[data-cg]"); if (b) { S.cFilter = b.dataset.cg; renderComp(); enter($("pageComp")); } });
+$("cchips").addEventListener("click", e => { const b = e.target.closest("[data-cg]"); if (b) { S.cFilter = b.dataset.cg; renderComp(); enter($("cAll")); } });
 $("cbento").addEventListener("click", e => {
   if (e.target.closest('[data-act="rank"]')) { S.cAllRank = !S.cAllRank; renderComp(); return; }
   const vm = e.target.closest("[data-vmore]");
@@ -1722,6 +1803,9 @@ function dataIn(key) {
   };
   dataIn.t = setTimeout(run, 120);
 }
+try { const m = localStorage.getItem("comp.mode"); if (m === "all" || m === "trk") S.cMode = m; } catch (e) {}
+if (location.hash === "#tracked") S.cMode = "trk";
+setCMode(S.cMode, false);
 showPage(pageOf(location.hash));
 placeInd(false);
 document.fonts?.ready.then(() => placeInd(false));
