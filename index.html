@@ -453,7 +453,7 @@ table.trk th .ts:hover{color:var(--ink)}
 .tk-n .bar2{grid-column:1/-1;height:6px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden}
 .tk-n .bar2 i{display:block;height:100%;border-radius:999px;background:var(--lime)}
 .tk-n.on .bar2 i{background:#fff}
-.tk-hero{padding:0;border:0;text-align:left;color:#fff;background:var(--ink-2);min-height:340px;isolation:isolate}
+.tk-hero{padding:0;border:0;text-align:left;color:#fff;background:var(--ink-2);min-height:340px;isolation:isolate;cursor:pointer}
 .tk-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
 .tk-hero:hover img{transform:scale(1.07)}
 .tk-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(13,13,15,.6) 0%,rgba(13,13,15,0) 30%,rgba(13,13,15,0) 40%,rgba(13,13,15,.92) 100%)}
@@ -1509,11 +1509,11 @@ function renderTracked() {
       <span class="nm">${esc(x.name)} <i>${x.n}</i></span><span class="v">${compact(x.f)}</span><span class="bar2"><i style="width:${Math.max(3, x.f / nmax * 100).toFixed(1)}%"></i></span></button>`).join("")}</div></section>`);
   // 2 · залёт недели — обложка во всю плитку
   const hero = hot.find(p => p.th) || hot[0];
-  X.push(hero ? `<button type="button" class="t s4 tk-hero" data-vp="${esc(hero.c)}" aria-label="Залёт недели: @${esc(hero.u)}">
+  X.push(hero ? `<section class="t s4 tk-hero" data-vp="${esc(hero.c)}" role="button" tabindex="0" aria-label="Залёт недели: @${esc(hero.u)}">
       ${hero.th ? `<img src="${esc(hero.th)}" alt="" loading="lazy">` : ""}
       <span class="in"><span class="lab">Залёт недели <span class="pc-x ${heat(hero.r) || "warm"}" style="position:static">${xx(hero.r)}</span></span><span class="grow"></span>
         <span class="tk-hook">${esc(hero.hook || (hero.x || "").slice(0, 110))}</span>
-        <span class="tk-by">@${esc(hero.u)} · ${hero.pl != null ? "▶ " + compact(hero.pl) : hero.l != null ? "♥ " + compact(hero.l) : ""} · ${dShort(hero.d)}</span></span></button>`
+        <span class="tk-by">@${esc(hero.u)} · ${hero.pl != null ? "▶ " + compact(hero.pl) : hero.l != null ? "♥ " + compact(hero.l) : ""} · ${dShort(hero.d)}</span></span></section>`
     : `<section class="t stone s4"><div class="lab">Залёт недели</div><div class="grow"></div><div class="sub" style="opacity:1;color:var(--muted)">За 7 дней у выборки ничего не залетело (≥3× к обычному посту).</div></section>`);
   // 3 · лучший приток после поста
   const best = inflow[0];
@@ -1525,17 +1525,17 @@ function renderTracked() {
     : `<section class="t blue s3"><div class="lab">Приток после поста</div><div class="grow"></div><div class="sub">Нужны замеры до и после поста — появится в течение дня.</div></section>`);
   // 4 · кто растёт · 5 · кто набирает просмотры
   const rates = A.map(a => ({ a, r: tRate(a) })).filter(x => x.r).sort((x, y) => y.r.v - x.r.v).slice(0, 6);
-  const rmax = Math.max(...rates.map(x => Math.abs(x.r.v)), 1), anyEst = rates.some(x => x.r.est);
-  X.push(`<section class="t s7"><div class="lab">Растут быстрее всех <span class="tag" style="background:var(--tile-2)">подписчиков за сутки${anyEst ? " · ≈ — по неполным суткам" : ""}</span></div>
+  const rmax = Math.max(...rates.map(x => Math.abs(x.r.v)), 1);
+  X.push(`<section class="t s7"><div class="lab">Растут быстрее всех <span class="tag" style="background:var(--tile-2)">за сутки</span></div>
     ${rates.length ? tBars(rates.map(({ a, r }) => ({ u: a.u, sub: a.g, w: Math.abs(r.v) / rmax, txt: `<span class="${cls(r.v)}">${r.est ? "≈" : ""}${signed(Math.round(r.v), compact)}</span>` })))
       : `<div class="empty-t">Появится после нескольких часов замеров.</div>`}</section>`);
   const views = A.filter(a => a.mv != null).sort((x, y) => y.mv - x.mv).slice(0, 6), vmax = Math.max(...views.map(a => a.mv), 1);
-  X.push(`<section class="t lav s5"><div class="lab">Больше всего просмотров <span class="tag">медиана 12 роликов</span></div>
+  X.push(`<section class="t lav s5"><div class="lab">Больше всего просмотров <span class="tag">медиана</span></div>
     ${views.length ? tBars(views.map(a => ({ u: a.u, sub: a.g, w: a.mv / vmax, txt: "▶ " + compact(a.mv) })), "on-lav") : `<div class="empty-t">Просмотры роликов ещё собираются.</div>`}</section>`);
   // 6 · залёты · 7 · приток · 8 · таблица
-  X.push(viralTile(hot, "посты за 7 дней, ≥3× к обычному посту аккаунта · клик — почасовой график", "trk", "Залетает у отслеживаемых") || "");
+  X.push(viralTile(hot, "≥3× к обычному · 7 дней", "trk", "Залетает у отслеживаемых") || "");
   const n2 = S.vMore?.trkin || 12;
-  X.push(inflow.length ? `<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag" style="background:var(--tile-2)">прирост за ~6 ч после поста против обычного темпа аккаунта</span></div>
+  X.push(inflow.length ? `<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag" style="background:var(--tile-2)">приток за ~6 ч</span></div>
     ${cards(inflow.slice(0, n2), { btn: true })}
     ${inflow.length > n2 ? `<button type="button" class="pill vmore" data-vmore="trkin">Показать ещё · ${inflow.length - n2}</button>` : ""}</section>`
     : `<section class="t stone s12"><div class="lab">С каких постов идут подписки</div><div class="empty-t">Считается по почасовым замерам: подписчики в час публикации и через ~6 ч против обычного прироста аккаунта. Первые результаты — в течение дня.</div></section>`);
@@ -1543,7 +1543,7 @@ function renderTracked() {
   const key = a => k === "rate" ? tRate(a)?.v : a[k];
   const rows = [...A].sort((x, y) => { if (k === "u") return dir * x.u.localeCompare(y.u); const p = key(x), q = key(y); return p == null ? 1 : q == null ? -1 : dir * (p - q) || x.u.localeCompare(y.u); });
   const th = (kk, label, extra = "") => `<th ${extra} aria-sort="${k === kk ? (dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" class="ts" data-ts="${kk}">${label}${k === kk ? (dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
-  X.push(`<section class="t s12"><div class="lab">Все отслеживаемые · ${A.length} <span class="tag" style="background:var(--tile-2)">клик по строке — почасовой график и лучшие посты</span></div>
+  X.push(`<section class="t s12"><div class="lab">Все отслеживаемые · ${A.length}</div>
     <div class="tbl-wrap"><table class="rank trk"><thead><tr><th>#</th>${th("u", "Аккаунт", 'style="text-align:left"')}${th("f", "Подписчики")}${th("rate", "За сутки")}${th("d7", "7 дней", 'class="c-hide"')}${th("p7", "Постов · 7 дн", 'class="c-hide"')}${th("mv", "Просмотры", 'class="c-hide" title="Медиана просмотров последних 12 роликов"')}<th class="c-hide">7 дней по часам</th><th class="c-hide">Замер</th></tr></thead><tbody>
     ${rows.map((a, i) => { const r = tRate(a); return `<tr class="acc" tabindex="0" data-tu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b><div class="nich">${esc(a.g)}${a.name ? " · " + esc(a.name.slice(0, 40)) : ""}${a.st === "notfound" ? ' · <span class="neg">не найден</span>' : a.st === "private" ? ' · <span class="neg">закрыт</span>' : ""}</div></td>
       <td class="n">${a.f != null ? compact(a.f) : '<span class="muted">—</span>'}</td><td class="n ${cls(r?.v)}">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</td><td class="n c-hide ${cls(a.d7)}">${signed(a.d7, compact)}</td>
@@ -1559,7 +1559,7 @@ function openTracked(u) {
   const big = a.f == null ? "—" : a.f >= 1e6 ? (a.f / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + "<small style='font-size:.4em;margin-left:6px'>млн</small>" : (a.f / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + "<small style='font-size:.4em;margin-left:6px'>тыс</small>";
   $("accBody").innerHTML = `<div class="dgrid">
     <section class="t ink d3" style="min-height:230px"><button class="x" type="button" data-close aria-label="Закрыть" style="background:rgba(255,255,255,.14);color:#fff">×</button>
-      <div class="lab">Отслеживаемые · ${esc(a.g)}</div>
+      <div class="lab">${esc(a.g)} · отслеживаемые</div>
       <div id="accTitle" style="font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1.05;padding-right:44px;overflow-wrap:anywhere">@${esc(a.u)}</div>
       ${a.name ? `<div class="sub">${esc(a.name)}</div>` : ""}
       <div class="big" style="margin-top:6px">${big}</div><div class="sub">${a.f != null ? fmt(a.f) + " подписчиков" : "ждёт первого замера"}</div>
@@ -1567,9 +1567,9 @@ function openTracked(u) {
     <section class="t orange d3"><div class="lab">За сутки</div>
       <div class="big">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</div><div class="sub">${r?.est ? `по ${r.hrs} ч замеров · ` : ""}последний замер ${tWhen(a.last)}</div>
       <div class="kvs">${kv("За 7 дней", signed(a.d7, compact))}${kv("Постов за 7 дней", fmt(a.p7))}${kv("Просмотры (медиана)", a.mv != null ? compact(a.mv) : "—")}</div></section>
-    <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)">оранжевые точки — посты</span></div>${hourlyChart(tSeries(a), { h: 220, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
+    <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)"><i style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></i>посты</span></div>${hourlyChart(tSeries(a), { h: 220, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
     ${(a.ds || []).length > 1 ? `<section class="t d6"><div class="lab">Подписчики · 30 дней</div><div id="trkDaily"></div></section>` : ""}
-    <section class="t d6"><div class="lab">Лучшие посты · 7 дней <span class="tag" style="background:var(--tile-2)">клик — почасовой график поста</span></div>${top.length ? cards(top, { btn: true }) : `<div class="empty-t">Постов за 7 дней пока не собрано.</div>`}</section>
+    <section class="t d6"><div class="lab">Лучшие посты · 7 дней</div>${top.length ? cards(top, { btn: true }) : `<div class="empty-t">Постов за 7 дней пока не собрано.</div>`}</section>
   </div>`;
   if ((a.ds || []).length > 1) chart($("trkDaily"), a.ds.map(([d, y]) => ({ d, y })), { w: 820, h: 200 });
   addGain($("accBody"));
@@ -1708,6 +1708,7 @@ function cellWave() {
   tb.classList.add("wave");
 }
 document.addEventListener("click", e => { const b = e.target.closest("[data-vp]"); if (b) openViral(b.dataset.vp); });
+document.addEventListener("keydown", e => { const b = e.target.closest?.('[data-vp][role="button"]'); if (b && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openViral(b.dataset.vp); } });
 $("modeSeg").addEventListener("click", e => { const b = e.target.closest("button"); if (!b || b.dataset.m === S.mode) return; S.mode = b.dataset.m; try { localStorage.setItem("net.mode", S.mode); } catch (x) {} const y = scrollY; renderTable(); scrollTo(0, y); cellWave(); });
 $("chips").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { S.filter = b.dataset.g; render(); } });
 $("tbody").addEventListener("click", e => { const r = e.target.closest("tr.acc"); if (r) openAccount(r.dataset.u); });
@@ -1894,7 +1895,7 @@ const H = {
   "Подписчики по понедельникам": "Число подписчиков на каждый понедельник; «За неделю» — от текущего значения.",
   "Недельный отчёт": "Текст недельного отчёта по подписчикам — для пересылки команде.",
   // ---------- Конкуренты ----------
-  "Конкуренты": "Все страницы-конкуренты одним списком: стартовые списки и найденные «снежным комом» (похожие на наши страницы → их похожие → …). Группы — ниши (определяет ИИ).\n\nВ список попадают только те, кого ИИ считает паблик-площадкой, как наши (не бренд, не человек, не СМИ). Берутся 300 самых похожих.\n\nСкорость роста: наша сетка против медианы конкурентов, взвешенной по сходству.",
+  "Конкуренты": "Все страницы-конкуренты одним списком: стартовые списки и найденные «снежным комом» (похожие на наши страницы → их похожие → …). Группы — ниши (определяет ИИ).\n\nВ список попадают только те, кого ИИ считает паблик-площадкой, как наши (не бренд, не человек, не СМИ). Берутся до 2000 самых похожих.\n\nСкорость роста: наша сетка против медианы конкурентов, взвешенной по сходству.",
   "Самые похожие на нашу сетку": "Сходство 0–100 — насколько страница похожа на наши. Складывается из:\n• ниша совпадает с нишами наших страниц — до 40;\n• Instagram показывает её в «похожих» у нашей страницы — 25 (через одну — 15), стартовый конкурент — 12;\n• публикует тот же контент, что наши (совпадение обложек за 14 дней) — до 15;\n• размер 20 тыс.–5 млн — 10;\n• ИИ подтвердил формат паблика — 10.\n\nПо этому баллу взвешена вся аналитика на странице. Наведите на строку — увидите разбор.",
   "Залёт за 14 дней": "Самый сильный дневной скачок подписчиков у конкурента за 14 дней: прирост ≥3× к его обычному дню (и ≥300). Порядок с учётом сходства с нашей сеткой.",
   "Быстрее всех растёт": "Наибольший рост подписчиков за неделю в % среди конкурентов со сходством ≥50.",
@@ -1904,6 +1905,19 @@ const H = {
   "Нарезки, которые залетают": "Залетевшие посты (≥3× к обычному), которые ИИ определил как нарезки подкастов, стримов и интервью. Референсы для клиппинга: какие моменты и подача цепляют.",
   "Что залетает": "Из еженедельного разбора ИИ-аналитика.", "Кто растёт": "Из еженедельного разбора ИИ-аналитика.",
   "Идеи для сетки": "Из еженедельного разбора ИИ-аналитика.", "Залетевшие посты": "Из еженедельного разбора ИИ-аналитика.",
+  // ---------- Конкуренты · Отслеживаемые ----------
+  "Отслеживаемые": "Конкуренты, которых выбрала команда (список tracked.json, по нишам). Подписчики и свежие посты каждого замеряются каждый час круглосуточно — сразу после наших страниц. Поэтому видно, что у них залетает и после каких постов идёт приток.\n\nБольшое число — сумма подписчиков выборки на последний замер. Полоски — аудитория каждой ниши; клик по нише — фильтр всего раздела.",
+  "Залёт недели": "Самый сильный залёт у отслеживаемых за 7 дней: пост, у которого просмотры или лайки во столько раз (×) выше медианы обычных постов этого же аккаунта за 30 дней. Показываем самый сильный пост, у которого есть обложка.\n\nКлик — почасовой график поста и подписчиков аккаунта.",
+  "Приток после поста": "Пост, после которого аккаунт набрал больше всего подписчиков сверх обычного.\n\nСчитаем по почасовым замерам: подписчики в час публикации и через ~6 ч, минус то, что аккаунт обычно набирает за то же время (медиана его почасового прироста за 3 суток до поста). Если несколько постов вышли подряд, они делят один прирост — берём самый просматриваемый из них.",
+  "Растут быстрее всех": "Прирост подписчиков за последние 24 ч по почасовым замерам.\n\nПока полных суток замеров нет, темп пересчитан на сутки по тем часам, что есть (не меньше 4), — такие значения помечены «≈».",
+  "Больше всего просмотров": "Медиана просмотров 12 последних роликов аккаунта (вкладка Reels) — типичный охват ролика, а не разовый залёт.",
+  "Залетает у отслеживаемых": "Посты отслеживаемых за 7 дней, у которых просмотры или лайки минимум в 3 раза выше медианы обычных постов того же аккаунта за 30 дней.\n\nПосты перемеряются каждый час; «+N/ч» — прирост между двумя последними замерами. Формат и описание — разбор ИИ (локальная модель Qwen).",
+  "С каких постов идут подписки": "Посты, после которых у аккаунта пошёл приток подписчиков. Зелёная плашка — прирост за ~6 ч после публикации и сколько аккаунт обычно набирает за то же время. Порядок — по превышению над обычным.\n\n«Рядом ещё N» — в те же часы вышли другие посты аккаунта, приток делится между ними. Прирост складывается не только из этого поста, но крупный скачок сверх обычного почти всегда связан с ним.",
+  "Все отслеживаемые": "Все аккаунты выборки.\n\nЗа сутки — прирост за 24 ч (≈ — пересчёт по неполным суткам); 7 дней — по дневным замерам; просмотры — медиана 12 последних роликов; «7 дней по часам» — подписчики по почасовым замерам; «Замер» — время последнего замера.\n\nКлик по заголовку столбца — сортировка, по строке — карточка аккаунта.",
+  "За сутки": "Прирост подписчиков за 24 ч по почасовым замерам (≈ — пересчёт на сутки по имеющимся часам). Ниже — прирост за 7 дней по дневным замерам, число постов за неделю и медиана просмотров 12 последних роликов.",
+  "Подписчики по часам · 7 дней": "Подписчики аккаунта по каждому почасовому замеру за 7 дней. Оранжевые точки у оси — время выхода постов: видно, после каких публикаций линия идёт вверх круче. Наведите на точку — время и число.",
+  "Подписчики · 30 дней": "Подписчики по дням за 30 дней (последний замер каждого дня).",
+  "Лучшие посты · 7 дней": "Посты аккаунта за 7 дней: сначала залетевшие (× к обычному посту), затем по просмотрам. Зелёная плашка — приток подписчиков после поста. Клик — почасовой график.",
   // ---------- Радар ----------
   "Рекламодатели": "Бренды, которые платят за рекламу на страницах, похожих на наши, за 45 дней.\n\nКак находим рекламу: явная — #ad, #sponsored, #<бренд>partner, «paid partnership», промокод; по признакам — «link in bio», «use code», отметка аккаунта рядом с призывом — такие посты подтверждает ИИ. Соавторы-коллабы и известные площадки брендом не считаются.\n\nБрендом аккаунт становится, если его отметили в явной рекламе или с рекламными признаками на ≥3 страницах; затем ИИ проверяет, что это компания/продукт, а не человек или СМИ.",
   "Новые за 7 дней": "Бренды, впервые замеченные в рекламе за последние 7 дней.",
