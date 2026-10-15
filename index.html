@@ -407,16 +407,41 @@ table.trk th .ts{border:0;background:none;padding:0;font:inherit;color:inherit;w
 table.trk th .ts:hover{color:var(--ink)}
 @media (max-width:640px){.nav{max-width:calc(100vw - 32px);overflow-x:auto;scrollbar-width:none}.nav a{padding:0 14px;flex:none}}
 /* «Конкуренты»: переключатель режимов + бенто отслеживаемых */
-.cm-row{display:flex;align-items:center;gap:10px 18px;flex-wrap:wrap}
-.cmode{position:relative;display:inline-flex;background:var(--tile);border-radius:999px;padding:5px;gap:2px}
-.cmode button{position:relative;z-index:1;border:0;background:none;height:46px;padding:0 22px;border-radius:999px;font-weight:600;font-size:15px;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:color .35s}
-.cmode button:hover{color:var(--ink)}
-.cmode button[aria-selected="true"]{color:#fff}
-.cmode .cnt{font-size:11px;font-weight:700;background:var(--tile-2);border-radius:999px;padding:2px 7px;color:var(--muted);transition:background .35s,color .35s}
-.cmode button[aria-selected="true"] .cnt{background:rgba(255,255,255,.16);color:#fff}
-.cm-ind{position:absolute;left:0;top:5px;bottom:5px;width:0;border-radius:999px;background:var(--ink);transition:transform .6s cubic-bezier(.16,1,.3,1),width .6s cubic-bezier(.16,1,.3,1)}
-.cm-ind.no-anim{transition:none}
-.cm-note{margin:0;font-size:13px;color:var(--muted);max-width:56ch}
+.cmc-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+.cmc{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:stretch;gap:16px;min-height:150px;padding:22px 24px;border:0;border-radius:var(--r);background:var(--tile);color:var(--ink);text-align:left;
+  transition:background-color .55s cubic-bezier(.16,1,.3,1),color .45s,transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s}
+.cmc:not(.on):hover{transform:translateY(-3px);box-shadow:0 18px 40px -26px rgba(13,13,15,.45)}
+.cmc.on{background:var(--ink);color:#fff;cursor:default}
+.cmc::before,.cmc::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .8s}
+.cmc::before{width:420px;height:420px;top:-230px;right:-150px;background:radial-gradient(circle,rgba(210,243,91,.22),transparent 62%);animation:lv-drift 17s ease-in-out infinite alternate}
+.cmc::after{width:460px;height:460px;bottom:-300px;left:-160px;background:radial-gradient(circle,rgba(37,65,255,.42),transparent 64%);animation:lv-drift 21s ease-in-out -6s infinite alternate-reverse}
+.cmc.on::before,.cmc.on::after{opacity:1}
+.cmc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.cmc-top{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;opacity:.7}
+.cmc-top b{font-family:var(--f-mono);font-weight:600;letter-spacing:0}
+.cmc.on .cmc-top{opacity:.85}
+.cmc-sq{width:7px;height:7px;border-radius:2px;background:currentColor;opacity:.6}
+.cmc-t{margin-top:auto;font-size:clamp(26px,2.6vw,38px);font-weight:600;letter-spacing:-.045em;line-height:1}
+.cmc-d{font-size:13px;line-height:1.35;opacity:.62;max-width:40ch}
+.cmc-art{flex:none;width:150px;position:relative;align-self:center;height:110px}
+.cmc-fan img{position:absolute;top:50%;left:50%;width:66px;height:92px;object-fit:cover;border-radius:12px;border:3px solid var(--tile);box-shadow:0 10px 24px -12px rgba(0,0,0,.5);
+  transform:translate(-50%,-50%) translateX(calc(var(--k) * 34px)) rotate(calc(var(--k) * 9deg));transition:transform .6s cubic-bezier(.16,1,.3,1),border-color .55s}
+.cmc-fan img:nth-child(2){z-index:1}
+.cmc.on .cmc-fan img{border-color:var(--ink)}
+.cmc:hover .cmc-fan img{transform:translate(-50%,-50%) translateX(calc(var(--k) * 46px)) translateY(calc(var(--k) * var(--k) * 6px)) rotate(calc(var(--k) * 15deg))}
+.cmc-ph{position:absolute;inset:18px 30px;border-radius:16px;background:var(--lime)}
+.cmc-bars{display:flex;align-items:flex-end;gap:6px;padding:8px 0}
+.cmc-bars i{flex:1;border-radius:6px 6px 3px 3px;background:var(--ink);opacity:.85;transform-origin:50% 100%;transition:background .55s}
+.cmc.on .cmc-bars i{background:var(--lime);opacity:1}
+.cmc:hover .cmc-bars i{animation:cmc-hop .7s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms)}
+@keyframes cmc-hop{40%{transform:scaleY(1.18)}}
+.enter .cmc-fan img{animation:cmc-deal .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc((var(--k) + 1) * 80ms + .3s)}
+@keyframes cmc-deal{from{opacity:0;transform:translate(-50%,-20%) rotate(0deg) scale(.7)}}
+.enter .cmc-bars i{animation:grow-y .8s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .3s)}
+.enter .cmc{animation:tile-in .72s cubic-bezier(.16,1,.3,1) both}
+.enter .cmc+.cmc{animation-delay:60ms}
+@media (max-width:900px){.cmc-art{width:110px}.cmc-fan img{width:52px;height:72px}}
+@media (max-width:640px){.cmc{min-height:0;padding:16px;gap:0}.cmc-art,.cmc-d{display:none}.cmc-t{font-size:19px;margin-top:10px}.cmc-l{display:none}.cmc-top{white-space:nowrap}.cmc-top{font-size:10.5px;gap:6px}}
 .sub-page{display:flex;flex-direction:column;gap:var(--gap)}
 .tk-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);display:inline-block;animation:tk-pulse 2s ease-out infinite}
 @keyframes tk-pulse{0%{box-shadow:0 0 0 0 rgba(210,243,91,.6)}70%,100%{box-shadow:0 0 0 8px rgba(210,243,91,0)}}
@@ -449,8 +474,7 @@ table.trk th .ts:hover{color:var(--ink)}
 .tk-v{font-family:var(--f-mono);font-size:13px;font-weight:600}
 .tk-row .bar2{grid-column:2/4;height:5px;border-radius:999px;background:var(--tile-2);overflow:hidden}.on-lav .tk-row .bar2{background:rgba(255,255,255,.45)}
 .tk-row .bar2 i{display:block;height:100%;border-radius:999px;background:var(--ink)}
-.cmode button{white-space:nowrap}
-@media (max-width:640px){.cmode{width:100%}.cmode button{flex:1;padding:0 8px;font-size:14px}.cmode .cnt{display:none}.tk-hero{min-height:300px}}
+@media (max-width:640px){.tk-hero{min-height:300px}}
 .pc-src,.pc-pages{font-size:12px;color:var(--muted)}
 .pc-up{color:var(--up);font-weight:600}
 /* идеи: вкладки-ниши + поиск страницы */
@@ -513,9 +537,15 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
   </main>
 
   <main class="page" id="pageComp" hidden>
-    <div class="cm-row">
-      <div class="cmode" id="cmode" role="tablist" aria-label="Режим раздела"><span class="cm-ind" id="cmInd"></span><button type="button" role="tab" data-cmode="trk">Отслеживаемые <span class="cnt" id="trkCnt"></span></button><button type="button" role="tab" data-cmode="all">Все конкуренты <span class="cnt" id="allCnt"></span></button></div>
-      <p class="cm-note" id="cmNote"></p>
+    <div class="cmc-row" id="cmode" role="tablist" aria-label="Режим раздела">
+      <button type="button" class="cmc" role="tab" data-cmode="trk">
+        <span class="cmc-txt"><span class="cmc-top"><i class="tk-dot"></i><b id="trkCnt">50</b><span class="cmc-l"> аккаунтов · замер</span> каждый час</span>
+          <span class="cmc-t">Отслеживаемые</span><span class="cmc-d">Список команды: что залетает и с каких постов идут подписки</span></span>
+        <span class="cmc-art cmc-fan" id="cmArtT" aria-hidden="true"></span></button>
+      <button type="button" class="cmc" role="tab" data-cmode="all">
+        <span class="cmc-txt"><span class="cmc-top"><i class="cmc-sq"></i><b id="allCnt">—</b><span class="cmc-l"> пабликов ·</span> раз в сутки</span>
+          <span class="cmc-t">Все конкуренты</span><span class="cmc-d">Рынок похожих страниц: рост, залёты, тренды ниш, реклама</span></span>
+        <span class="cmc-art cmc-bars" id="cmArtA" aria-hidden="true"></span></button>
     </div>
     <section class="sub-page" id="cTrk">
       <div class="chips2" id="tchips" role="group" aria-label="Ниши"></div>
@@ -1375,7 +1405,7 @@ const wMedian = (items) => { const v = items.filter(x => x.v != null).sort((a, b
 function renderComp() {
   const M = S.cM = build(S.cdays, S.cgroups);
   if ($("compCnt").textContent !== String(M.accounts.length || "")) { $("compCnt").textContent = M.accounts.length || ""; placeInd(false); }
-  $("allCnt").textContent = M.accounts.length || ""; placeCm(false);
+  $("allCnt").textContent = M.accounts.length ? fmt(M.accounts.length) : "—"; cmArt();
   const el = $("cbento");
   if (!M.latest) { el.innerHTML = `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">Данные по конкурентам появятся после первого сбора.</div></section>`; $("cchips").innerHTML = ""; return; }
   $("cchips").innerHTML = [["all", "Все ниши"], ...M.groups.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-cg="${esc(k)}" aria-pressed="${S.cFilter === k}">${esc(l)}</button>`).join("");
@@ -1459,7 +1489,7 @@ const tBars = (rows, cls = "") => `<div class="tk-list ${cls}">${rows.map((r, i)
     <span class="bar2"><i style="width:${Math.max(4, r.w * 100).toFixed(1)}%"></i></span></button>`).join("")}</div>`;
 function renderTracked() {
   const T = TK(), el = $("tbento"), all = T.acc || [];
-  $("trkCnt").textContent = all.length || ""; placeCm(false);
+  $("trkCnt").textContent = all.length || "—";
   if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">Список пуст — добавьте аккаунты в tracked.json.</div></section>`; return; }
   const G = T.groups || [];
   if (S.tFilter !== "all" && !G.some(g => g.name === S.tFilter)) S.tFilter = "all";
@@ -1547,16 +1577,18 @@ function openTracked(u) {
   enter($("accBody"));
 }
 // режим раздела «Конкуренты»: отслеживаемые (контент) ↔ все конкуренты (рынок, для рекламщиков)
-function placeCm(animate = false) {
-  const b = document.querySelector(`#cmode [data-cmode="${S.cMode}"]`), ind = $("cmInd"); if (!b || !b.offsetWidth) return;
-  ind.classList.toggle("no-anim", !animate);
-  ind.style.width = b.offsetWidth + "px"; ind.style.transform = `translateX(${b.offsetLeft}px)`;
+function placeCm() {}   // карточкам режимов замеры не нужны (раньше — бегунок переключателя)
+// витрины карточек: веер обложек свежих залётов и мини-гистограмма ниш рынка
+function cmArt() {
+  const th = (TK().hot || []).map(tPost).filter(p => p?.th).slice(0, 3);
+  $("cmArtT").innerHTML = th.length ? th.map((p, i) => `<img src="${esc(p.th)}" alt="" style="--k:${i - (th.length - 1) / 2}">`).join("") : `<i class="cmc-ph"></i>`;
+  const G = [...(S.cM?.groups || [])].sort((x, y) => y.accounts.length - x.accounts.length).slice(0, 9), mx = Math.sqrt(Math.max(...G.map(g => g.accounts.length), 1));
+  $("cmArtA").innerHTML = G.map((g, i) => `<i style="height:${Math.max(14, Math.sqrt(g.accounts.length) / mx * 100).toFixed(0)}%;--j:${i}" title="${esc(g.name)} · ${g.accounts.length}"></i>`).join("");   // корень: одна крупная ниша не превращает остальные в точки
 }
 function setCMode(m, animate = true) {
   const prev = S.cMode; S.cMode = m;
   try { localStorage.setItem("comp.mode", m); } catch (e) {}
-  document.querySelectorAll("#cmode [data-cmode]").forEach(b => b.setAttribute("aria-selected", b.dataset.cmode === m));
-  $("cmNote").textContent = m === "trk" ? "50 аккаунтов от команды: замер каждый час — что залетает и с каких постов идут подписки" : "Рынок похожих пабликов: рост, залёты, тренды ниш — раз в сутки";
+  document.querySelectorAll("#cmode [data-cmode]").forEach(b => { b.setAttribute("aria-selected", b.dataset.cmode === m); b.classList.toggle("on", b.dataset.cmode === m); });
   placeCm(animate);
   const show = () => { $("cTrk").hidden = m !== "trk"; $("cAll").hidden = m !== "all"; placeCm(false); };
   if (!animate || reduce || prev === m) { show(); return; }
