@@ -401,6 +401,11 @@ button.srow:hover b{text-decoration:underline}
 .pc-body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
 .pc-hook{font-weight:600;font-size:14.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pc-meta{font-size:12.5px;color:var(--ink);margin-top:auto}
+.pc-gain{font-size:12.5px;background:#E6F6EC;color:#0B6E3A;border-radius:10px;padding:6px 9px;line-height:1.3}
+.pc-gain b{font-size:15px;letter-spacing:-.02em}.pc-gain span{color:#3F7A57}
+table.trk th .ts{border:0;background:none;padding:0;font:inherit;color:inherit;white-space:nowrap}
+table.trk th .ts:hover{color:var(--ink)}
+@media (max-width:640px){.nav{max-width:calc(100vw - 32px);overflow-x:auto;scrollbar-width:none}.nav a{padding:0 14px;flex:none}}
 .pc-src,.pc-pages{font-size:12px;color:var(--muted)}
 .pc-up{color:var(--up);font-weight:600}
 /* идеи: вкладки-ниши + поиск страницы */
@@ -441,7 +446,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
       <div><h1 id="pTitle">Статистика сетки</h1><div class="meta" id="meta">Загрузка данных…</div></div>
     </div>
-    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
+    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#tracked" data-p="trk">Отслеживаемые <span class="cnt" id="trkCnt"></span></a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
       <button class="pill" type="button" id="repBtn" data-only="net">Недельный отчёт <span class="arrow">↗</span></button>
       <button class="pill dark" type="button" id="aiOpen">Спросить ИИ <span class="arrow">↗</span></button>
@@ -460,6 +465,11 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
     <div class="tbl-wrap"><table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
     <p class="foot" id="tblFoot"></p>
   </section>
+  </main>
+
+  <main class="page" id="pageTrk" hidden>
+    <div class="chips2" id="tchips" role="group" aria-label="Ниши"></div>
+    <div class="bento" id="tbento"></div>
   </main>
 
   <main class="page" id="pageComp" hidden>
@@ -492,7 +502,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 <script type="text/x-main" id="main-js">
 (() => {
 const $ = id => document.getElementById(id);
-const S = { groups: [], days: [], cgroups: [], cdays: [], cM: null, cFilter: "all", page: null, insights: [], filter: "all", mode: "week", insTab: null, showAllSig: false, chat: [], sample: null, ctl: null, M: null };
+const S = { groups: [], days: [], cgroups: [], cdays: [], cM: null, cFilter: "all", tFilter: "all", tSort: { k: "d1", dir: -1 }, page: null, insights: [], filter: "all", mode: "week", insTab: null, showAllSig: false, chat: [], sample: null, ctl: null, M: null };
 try { if (localStorage.getItem("net.mode") === "day") S.mode = "day"; } catch (e) {}
 const WD = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
 
@@ -716,6 +726,7 @@ function render() {
     .map(([k, l]) => `<button type="button" class="chip" data-g="${esc(k)}" aria-pressed="${S.filter === k}">${esc(l)}</button>`).join("");
   renderTable();
   renderComp();
+  renderTracked();
 }
 
 const has = i => i && (i.summary || i.headline || i.sections?.length);
@@ -752,8 +763,8 @@ function postCard(p, opt = {}) {
 const cards = (list, opt) => `<div class="pc-grid">${list.map(p => postCard(p, opt)).join("")}</div>`;
 
 // ---------- окно поста из «Залетает сейчас»: почасовой рост подписчиков аккаунта и цифры поста ----------
-function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = compact, h = 170 } = {}) {
-  // pts: [[ISO-час, значение], ...]; mark: ISO-время публикации (вертикальная линия)
+function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = compact, h = 170, posts = [] } = {}) {
+  // pts: [[ISO-час, значение], ...]; mark: ISO-время публикации (вертикальная линия); posts: [[ISO-время, подпись]] — точки постов у оси
   const P = pts.filter(p => p[1] != null);
   if (P.length < 2) return `<div class="vp-empty">Мало замеров для графика — точки появляются каждый час.</div>`;
   const W = 640, L = 56, R = 12, T = 12, B = 26;
@@ -767,18 +778,21 @@ function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = compact, 
   const line = P.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
   const area = `${line}L${X(xs[xs.length - 1]).toFixed(1)},${h - B}L${X(xs[0]).toFixed(1)},${h - B}Z`;
   const hh = t => { const d = new Date(t + 3 * 36e5); return `${String(d.getUTCHours()).padStart(2, "0")}:00`; };
+  const dd = t => { const d = new Date(t + 3 * 36e5); return `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")} `; };
   const ticks = [0, .5, 1].map(f => y0 + pad + (y1 - y0 - 2 * pad) * f);
   const xl = P.length > 8 ? [0, Math.floor(P.length / 2), P.length - 1] : P.map((_, i) => i);
   return `<svg class="vp-svg" viewBox="0 0 ${W} ${h}" role="img">
     ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(fmtY(v))}</text>`).join("")}
     ${mt ? `<line x1="${X(mt)}" x2="${X(mt)}" y1="${T}" y2="${h - B}" stroke="var(--orange)" stroke-dasharray="4 4"/><text x="${X(mt) + 4}" y="${T + 10}" font-size="11" fill="var(--orange)">пост</text>` : ""}
     <path d="${area}" fill="${color}" fill-opacity=".1"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round"/>
-    ${P.map((p, i) => `<circle cx="${X(xs[i])}" cy="${Y(p[1])}" r="3.5" fill="${color}"><title>${hh(xs[i])} · ${fmt(p[1])}</title></circle>`).join("")}
-    ${xl.map(i => `<text x="${X(xs[i])}" y="${h - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${hh(xs[i])}</text>`).join("")}
+    ${P.map((p, i) => `<circle cx="${X(xs[i])}" cy="${Y(p[1])}" r="${P.length > 60 ? 2 : 3.5}" fill="${color}"><title>${dd(xs[i])}${hh(xs[i])} · ${fmt(p[1])}</title></circle>`).join("")}
+    ${posts.map(([t, lab]) => { const pt = Date.parse(t + (t.length === 16 ? ":00" : "") + "+03:00"); return pt < x0 || pt > x1 ? "" : `<circle cx="${X(pt).toFixed(1)}" cy="${h - B - 4}" r="4" fill="var(--orange)" stroke="#fff" stroke-width="1.5"><title>пост ${dd(pt)}${hh(pt)}${lab ? " · " + esc(lab) : ""}</title></circle>`; }).join("")}
+    ${xl.map(i => `<text x="${X(xs[i])}" y="${h - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${x1 - x0 > 36 * 36e5 ? dd(xs[i]) : ""}${hh(xs[i])}</text>`).join("")}
   </svg>`;
 }
 function openViral(code) {
-  const p = [...(S.viral || []), ...(S.extra?.clips || []), ...(S.extra?.proven || [])].find(x => x.c === code);
+  const p = [...(S.viral || []), ...(S.extra?.clips || []), ...(S.extra?.proven || []), ...(S.extra?.tracked?.posts || [])].find(x => x.c === code && (x.hist || x.ga))
+    || (S.extra?.tracked?.posts || []).find(x => x.c === code);
   if (!p) return;
   const H = p.hist || {}, f = H.f || [], m = H.m || [];
   const postT = `${p.d}T${p.t}`;
@@ -794,9 +808,10 @@ function openViral(code) {
       <div class="lab">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)}</div>
       <div class="vp-hook">${esc(p.hook || (p.x || "").slice(0, 140))}</div>
       <div class="kvs vp-kvs">
-        <div class="kv"><span>Залёт</span><b>${xx(p.r)}</b></div>
+        <div class="kv"><span>Залёт</span><b>${xx(p.r) || "—"}</b></div>
         <div class="kv"><span>${p.pl != null ? "Просмотры" : "Лайки"}</span><b>${p.pl != null ? compact(p.pl) : p.l != null ? compact(p.l) : p.le ? "≈" + compact(p.le) : "—"}</b></div>
-        <div class="kv"><span>Подписчики аккаунта</span><b class="${gain > 0 ? "pc-up" : ""}">${gain != null ? signed(gain) : "—"}</b>${hrs ? `<small>за ${hrs} ч замеров</small>` : ""}</div>
+        ${p.ga ? `<div class="kv"><span>Приток после поста</span><b class="${p.ga.gain > 0 ? "pc-up" : ""}">${signed(p.ga.gain)}</b><small>за ${p.ga.hours} ч${p.ga.usual != null ? ` · обычно ${signed(p.ga.usual)}` : ""}${p.ga.near ? ` · рядом ещё ${p.ga.near} ${plu(p.ga.near, "пост", "поста", "постов")}` : ""}</small></div>`
+          : `<div class="kv"><span>Подписчики аккаунта</span><b class="${gain > 0 ? "pc-up" : ""}">${gain != null ? signed(gain) : "—"}</b>${hrs ? `<small>за ${hrs} ч замеров</small>` : ""}</div>`}
       </div>
       <a class="pill" href="${igPost(p)}" target="_blank" rel="noopener" style="margin-top:12px">Открыть в Instagram ↗</a></section>
     <section class="t s6" style="grid-column:1/-1"><div class="lab">Подписчики @${esc(p.u)} по часам <span class="tag">пунктир — время поста</span></div>${hourlyChart(f, { mark: postT, color: "var(--blue)" })}</section>
@@ -1365,6 +1380,113 @@ function renderComp() {
   el.innerHTML = T.join("");
 }
 
+/* ---------- отслеживаемые конкуренты (tracked.json): замер каждый час ---------- */
+const TK = () => S.extra?.tracked || {};
+const tPost = c => (TK().posts || []).find(p => p.c === c);
+const tSeries = a => { const st = Date.parse(TK().start + ":00+03:00"); return (a.h || []).map((f, i) => [new Date(st + i * 36e5 + 3 * 36e5).toISOString().slice(0, 13) + ":00", f]); };
+const tWhen = ts => { if (!ts) return "—"; const today = new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10); return ts.slice(0, 10) === today ? ts.slice(11, 16) : `${dShort(ts.slice(0, 10))} ${ts.slice(11, 16)}`; };
+function tSpark(a) {
+  const ys = (a.h || []).filter(v => v != null);
+  if (ys.length < 2) return `<span class="muted" style="font-size:12px">${a.f == null ? "ждёт замера" : "копится"}</span>`;
+  const W = 120, H = 28; let lo = Math.min(...ys), hi = Math.max(...ys); if (lo === hi) { lo--; hi++; }
+  const d = ys.map((v, i) => `${i ? "L" : "M"}${(i / (ys.length - 1) * (W - 4) + 2).toFixed(1)},${(2 + (1 - (v - lo) / (hi - lo)) * (H - 4)).toFixed(1)}`).join("");
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" style="width:120px;height:28px" aria-hidden="true"><path d="${d}" fill="none" stroke="${ys[ys.length - 1] >= ys[0] ? "var(--up)" : "var(--down)"}" stroke-width="2" stroke-linecap="round"/></svg>`;
+}
+const gainLine = p => p.ga ? `<div class="pc-gain"><b>${signed(p.ga.gain, compact)}</b> подп. за ${p.ga.hours} ч${p.ga.usual != null ? ` <span>· обычно ${signed(p.ga.usual, compact)}</span>` : ""}${p.ga.near ? ` <span>· рядом ещё ${p.ga.near}</span>` : ""}</div>` : "";
+function tPulse(A) {
+  // суммарный прирост по часам за 48 ч (час считается, если у аккаунта есть оба соседних замера)
+  const n = 48, L = (A[0]?.h || []).length; if (!L) return "";
+  const v = Array(n).fill(0), has = Array(n).fill(false);
+  for (const a of A) for (let k = 0; k < n; k++) { const i = L - n + k, x = a.h[i], y = a.h[i - 1]; if (x != null && y != null) { v[k] += x - y; has[k] = true; } }
+  if (has.filter(Boolean).length < 3) return `<div class="empty-t">Почасовой прирост появится, когда наберётся несколько замеров подряд — замеры идут каждый час.</div>`;
+  const W = 640, H = 150, B = 22, up = Math.max(0, ...v), dn = Math.max(0, -Math.min(...v)), span = Math.max(up + dn, 1), bw = W / n;
+  const y0 = (H - B) * up / span;
+  const st = Date.parse(TK().start + ":00+03:00") + (L - n) * 36e5;
+  const lab = k => { const d = new Date(st + k * 36e5 + 3 * 36e5); return String(d.getUTCHours()).padStart(2, "0") + ":00"; };
+  return `<svg class="vp-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Прирост подписчиков по часам">
+    <line x1="0" x2="${W}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}" stroke="var(--line)"/>
+    ${v.map((x, k) => { if (!has[k]) return ""; const hgt = Math.max(1.5, Math.abs(x) / span * (H - B)); return `<rect x="${(k * bw + 1.5).toFixed(1)}" y="${(x >= 0 ? y0 - hgt : y0).toFixed(1)}" width="${(bw - 3).toFixed(1)}" height="${hgt.toFixed(1)}" rx="2" fill="${x >= 0 ? "var(--ink)" : "var(--down)"}"><title>${lab(k)} · ${signed(x)}</title></rect>`; }).join("")}
+    ${[0, 12, 24, 36, 47].map(k => `<text x="${(k * bw + bw / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${lab(k)}</text>`).join("")}
+  </svg>`;
+}
+const addGain = root => root.querySelectorAll("[data-vp]").forEach(b => { const p = tPost(b.dataset.vp), h = b.querySelector(".pc-hook"); if (p?.ga && h && !b.querySelector(".pc-gain")) h.insertAdjacentHTML("afterend", gainLine(p)); });
+function renderTracked() {
+  const T = TK(), el = $("tbento"), all = T.acc || [];
+  if ($("trkCnt").textContent !== String(all.length || "")) { $("trkCnt").textContent = all.length || ""; placeInd(false); }
+  if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">Список пуст — добавьте аккаунты в tracked.json.</div></section>`; return; }
+  const G = T.groups || [];
+  if (S.tFilter !== "all" && !G.some(g => g.name === S.tFilter)) S.tFilter = "all";
+  $("tchips").innerHTML = [["all", `Все · ${all.length}`], ...G.map(g => [g.name, `${g.name} · ${g.accounts.length}`])].map(([k, l]) => `<button type="button" class="chip" data-tg="${esc(k)}" aria-pressed="${S.tFilter === k}">${esc(l)}</button>`).join("");
+  const A = all.filter(a => S.tFilter === "all" || a.g === S.tFilter), U = new Set(A.map(a => a.u));
+  const measured = A.filter(a => a.f != null), total = measured.reduce((s, x) => s + x.f, 0);
+  const withD1 = A.filter(a => a.d1 != null), d1 = withD1.reduce((s, x) => s + x.d1, 0);
+  const hot = (T.hot || []).map(tPost).filter(p => p && U.has(p.u));
+  const inflow = (T.inflow || []).map(tPost).filter(p => p && U.has(p.u));
+  const lead = [...withD1].sort((x, y) => y.d1 - x.d1)[0], best = inflow[0];
+  const X = [];
+  X.push(`<section class="t ink s5 r2"><div class="lab">Отслеживаемые конкуренты <span class="tag">замер каждый час</span></div>
+    <div class="huge" data-n="${A.length}" data-fmt="int">${A.length}</div><div class="sub">аккаунтов${S.tFilter === "all" ? ` в ${G.length} ${plu(G.length, "нише", "нишах", "нишах")}` : ` · ${esc(S.tFilter)}`} · суммарно ${compact(total)} подписчиков</div>
+    <div class="grow"></div>
+    <div class="kvs">
+      <div class="kv"><span>За 24 часа</span><b>${withD1.length ? signed(d1, compact) : "—"}</b></div>
+      <div class="kv"><span>Постов за 7 дней</span><b>${fmt(A.reduce((s, a) => s + (a.p7 || 0), 0))}</b></div>
+      <div class="kv"><span>Залетело</span><b>${fmt(hot.length)}</b></div>
+      <div class="kv"><span>Замерено</span><b>${measured.length}<small style="font-size:.6em;opacity:.6"> / ${A.length}</small></b></div>
+    </div></section>`);
+  X.push(lead ? `<section class="t orange s4"><div class="lab">Больше всех за 24 ч</div>
+      <div class="big" data-n="${lead.d1}" data-fmt="signed">${signed(lead.d1, compact)}</div>
+      <div class="spk-who">@${esc(lead.u)}</div><div class="sub">${esc(lead.g)} · ${compact(lead.f)} подписчиков</div>
+      <button class="corner" type="button" data-tu="${esc(lead.u)}" aria-label="Открыть @${esc(lead.u)}">↗</button></section>`
+    : `<section class="t orange s4"><div class="lab">Больше всех за 24 ч</div><div class="big">—</div><div class="sub">Появится через сутки почасовых замеров.</div></section>`);
+  X.push(best ? `<section class="t blue s3"><div class="lab">Лучший приток после поста</div>
+      <div class="big" data-n="${best.ga.gain}" data-fmt="signed">${signed(best.ga.gain, compact)}</div>
+      <div class="spk-who" style="font-size:20px">@${esc(best.u)}</div><div class="sub">за ${best.ga.hours} ч после поста ${dShort(best.d)} ${esc(best.t)}${best.ga.usual != null ? ` · обычно ${signed(best.ga.usual, compact)}` : ""}</div>
+      <button class="corner" type="button" data-vp="${esc(best.c)}" aria-label="Открыть пост">↗</button></section>`
+    : `<section class="t blue s3"><div class="lab">Лучший приток после поста</div><div class="big">—</div><div class="sub">Нужны замеры до и после поста — появится в течение дня.</div></section>`);
+  X.push(`<section class="t s7"><div class="lab">Прирост по часам · 48 ч <span class="tag" style="background:var(--tile-2)">все аккаунты выборки</span></div>${tPulse(A)}</section>`);
+  X.push(viralTile(hot, "посты за 7 дней, ≥3× к обычному посту аккаунта · клик — почасовой график поста", "trk", "Залетает у отслеживаемых")
+    || `<section class="t s12"><div class="lab">Залетает у отслеживаемых</div><div class="empty-t">За 7 дней залётов (≥3× к обычному посту) пока нет — посты перемеряются каждый час.</div></section>`);
+  const n2 = S.vMore?.trkin || 12;
+  X.push(`<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag" style="background:var(--tile-2)">прирост подписчиков за ~6 ч после поста против обычного темпа аккаунта</span></div>
+    ${inflow.length ? cards(inflow.slice(0, n2), { btn: true }) : `<div class="empty-t">Считается по почасовым замерам: подписчики в час публикации и через ~6 ч, против обычного прироста аккаунта за то же время. Первые результаты — в течение дня после начала замеров.</div>`}
+    ${inflow.length > n2 ? `<button type="button" class="pill vmore" data-vmore="trkin">Показать ещё · ${inflow.length - n2}</button>` : ""}</section>`);
+  const k = S.tSort.k, dir = S.tSort.dir, val = a => a[k] ?? (dir < 0 ? -Infinity : Infinity);
+  const rows = [...A].sort((x, y) => k === "u" ? dir * x.u.localeCompare(y.u) : dir * (val(x) - val(y)) || x.u.localeCompare(y.u));
+  const th = (key, label, extra = "") => `<th ${extra} aria-sort="${k === key ? (dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" class="ts" data-ts="${key}">${label}${k === key ? (dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
+  X.push(`<section class="t s12"><div class="lab">Все отслеживаемые <span class="tag" style="background:var(--tile-2)">клик по строке — почасовой график и лучшие посты</span></div>
+    <div class="tbl-wrap"><table class="rank trk"><thead><tr><th>#</th>${th("u", "Аккаунт", 'style="text-align:left"')}${th("f", "Подписчики")}${th("d1", "24 ч")}${th("d7", "7 дней")}${th("p7", "Постов · 7 дн", 'class="c-hide"')}${th("mv", "Просмотры", 'class="c-hide" title="Медиана просмотров последних 12 роликов"')}<th class="c-hide">7 дней по часам</th><th class="c-hide">Замер</th></tr></thead><tbody>
+    ${rows.map((a, i) => `<tr class="acc" tabindex="0" data-tu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b><div class="nich">${esc(a.g)}${a.name ? " · " + esc(a.name.slice(0, 40)) : ""}${a.st === "notfound" ? ' · <span class="neg">не найден</span>' : a.st === "private" ? ' · <span class="neg">закрыт</span>' : ""}</div></td>
+      <td class="n">${a.f != null ? compact(a.f) : '<span class="muted">—</span>'}</td><td class="n ${cls(a.d1)}">${signed(a.d1, compact)}</td><td class="n ${cls(a.d7)}">${signed(a.d7, compact)}</td>
+      <td class="n c-hide">${fmt(a.p7)}</td><td class="n c-hide">${a.mv != null ? compact(a.mv) : "—"}</td><td class="c-hide">${tSpark(a)}</td><td class="n c-hide muted">${tWhen(a.last)}</td></tr>`).join("")}
+    </tbody></table></div></section>`);
+  el.innerHTML = X.join("");
+  addGain($("vt-trkin"));
+}
+function openTracked(u) {
+  const a = (TK().acc || []).find(x => x.u === u); if (!a) return;
+  const mine = (TK().posts || []).filter(p => p.u === u), top = (a.top || []).map(tPost).filter(Boolean);
+  const kv = (l, v) => `<div class="kv"><span>${l}</span><b>${esc(v)}</b></div>`;
+  const big = a.f == null ? "—" : a.f >= 1e6 ? (a.f / 1e6).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + "<small style='font-size:.4em;margin-left:6px'>млн</small>" : (a.f / 1e3).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + "<small style='font-size:.4em;margin-left:6px'>тыс</small>";
+  $("accBody").innerHTML = `<div class="dgrid">
+    <section class="t ink d3" style="min-height:230px"><button class="x" type="button" data-close aria-label="Закрыть" style="background:rgba(255,255,255,.14);color:#fff">×</button>
+      <div class="lab">Отслеживаемые · ${esc(a.g)}</div>
+      <div id="accTitle" style="font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1.05;padding-right:44px;overflow-wrap:anywhere">@${esc(a.u)}</div>
+      ${a.name ? `<div class="sub">${esc(a.name)}</div>` : ""}
+      <div class="big" style="margin-top:6px">${big}</div><div class="sub">${a.f != null ? fmt(a.f) + " подписчиков" : "ждёт первого замера"}</div>
+      <div class="lnks"><a class="lnk" href="https://www.instagram.com/${encodeURIComponent(a.u)}/" target="_blank" rel="noopener">Instagram ↗</a><a class="lnk" href="https://socialblade.com/instagram/user/${encodeURIComponent(a.u)}" target="_blank" rel="noopener">Socialblade ↗</a></div></section>
+    <section class="t orange d3"><div class="lab">За 24 часа</div>
+      <div class="big">${signed(a.d1, compact)}</div><div class="sub">последний замер ${tWhen(a.last)}</div>
+      <div class="kvs">${kv("За 7 дней", signed(a.d7, compact))}${kv("Постов за 7 дней", fmt(a.p7))}${kv("Просмотры (медиана)", a.mv != null ? compact(a.mv) : "—")}</div></section>
+    <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)">оранжевые точки — посты</span></div>${hourlyChart(tSeries(a), { h: 220, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
+    ${(a.ds || []).length > 1 ? `<section class="t d6"><div class="lab">Подписчики · 30 дней</div><div id="trkDaily"></div></section>` : ""}
+    <section class="t d6"><div class="lab">Лучшие посты · 7 дней <span class="tag" style="background:var(--tile-2)">клик — почасовой график поста</span></div>${top.length ? cards(top, { btn: true }) : `<div class="empty-t">Постов за 7 дней пока не собрано.</div>`}</section>
+  </div>`;
+  if ((a.ds || []).length > 1) chart($("trkDaily"), a.ds.map(([d, y]) => ({ d, y })), { w: 820, h: 200 });
+  addGain($("accBody"));
+  openDlg($("accDlg"));
+  enter($("accBody"));
+}
+
 /* ---------- router & motion ---------- */
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function placeInd(animate = true) {
@@ -1372,6 +1494,7 @@ function placeInd(animate = true) {
   if (!a) return;
   $("nav").classList.toggle("no-anim", !animate);
   ind.style.width = a.offsetWidth + "px"; ind.style.transform = `translateX(${a.offsetLeft}px)`;
+  const nav = $("nav"); if (nav.scrollWidth > nav.clientWidth) nav.scrollTo({ left: a.offsetLeft - (nav.clientWidth - a.offsetWidth) / 2, behavior: animate ? "smooth" : "auto" });   // телефон: активная вкладка в центре
   if (!animate) requestAnimationFrame(() => $("nav").classList.remove("no-anim"));
 }
 function countUp(root) {
@@ -1390,15 +1513,20 @@ function enter(page, dir = "") {
   clearTimeout(page._et); page._et = setTimeout(() => page.classList.remove("enter", "fwd", "back"), 2200);
   countUp(page);
 }
+// порядок = порядок вкладок (направление анимации); hash — адрес вкладки
+const PAGES = { net: { el: "pageNet", hash: "#network", title: "Статистика сетки" },
+  trk: { el: "pageTrk", hash: "#tracked", title: "Отслеживаемые" },
+  comp: { el: "pageComp", hash: "#competitors", title: "Конкуренты" } };
+const pageOf = h => Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
 function showPage(p) {
   S.page = p;
-  $("pageNet").hidden = p !== "net"; $("pageComp").hidden = p !== "comp";
-  $("pTitle").textContent = p === "comp" ? "Конкуренты" : "Статистика сетки";
+  for (const k in PAGES) $(PAGES[k].el).hidden = p !== k;
+  $("pTitle").textContent = PAGES[p].title;
   document.querySelectorAll("#nav a").forEach(a => a.setAttribute("aria-current", a.dataset.p === p ? "page" : "false"));
   document.querySelectorAll("[data-only]").forEach(b => b.hidden = b.dataset.only !== p);
   if (p === "net") { lvFit(); lvChart(); } // пока страница была скрыта, ширина плитки = 0 — счётчик и график мерились неправильно
 }
-const pageEl = p => p === "comp" ? $("pageComp") : $("pageNet");
+const pageEl = p => $(PAGES[p].el);
 function go(p) {
   if (p === S.page || S.busy) return;
   if (reduce) { showPage(p); placeInd(false); window.scrollTo(0, 0); return; }
@@ -1408,7 +1536,7 @@ function go(p) {
   document.querySelectorAll("#nav a").forEach(a => a.setAttribute("aria-current", a.dataset.p === p ? "page" : "false"));
   const prev = S.page; S.page = p; placeInd(true); S.page = prev;
   title.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translate3d(0,-10px,0)" }], { duration: 180, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
-  const dir = p === "comp" ? "fwd" : "back";
+  const order = Object.keys(PAGES), dir = order.indexOf(p) > order.indexOf(prev) ? "fwd" : "back";
   from.classList.add("leave", dir);
   setTimeout(() => {
     from.classList.remove("leave", "fwd", "back");
@@ -1420,8 +1548,17 @@ function go(p) {
   }, 190);
 }
 $("nav").addEventListener("click", e => { const a = e.target.closest("a[data-p]"); if (!a) return; e.preventDefault(); history.replaceState(null, "", a.getAttribute("href")); go(a.dataset.p); });
-window.addEventListener("hashchange", () => go(location.hash === "#competitors" ? "comp" : "net"));
+window.addEventListener("hashchange", () => go(pageOf(location.hash)));
 window.addEventListener("resize", () => placeInd(false));
+$("tchips").addEventListener("click", e => { const b = e.target.closest("[data-tg]"); if (b) { S.tFilter = b.dataset.tg; renderTracked(); enter($("pageTrk")); } });
+$("tbento").addEventListener("click", e => {
+  const ts = e.target.closest("[data-ts]");
+  if (ts) { const k = ts.dataset.ts; S.tSort = { k, dir: S.tSort.k === k ? -S.tSort.dir : k === "u" ? 1 : -1 }; renderTracked(); return; }
+  const vm = e.target.closest("[data-vmore]");
+  if (vm) { S.vMore = S.vMore || {}; S.vMore[vm.dataset.vmore] = (S.vMore[vm.dataset.vmore] || 12) + 24; renderTracked(); return; }
+  const r = e.target.closest("[data-tu]"); if (r) openTracked(r.dataset.tu);
+});
+$("tbento").addEventListener("keydown", e => { const r = e.target.closest("tr[data-tu]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openTracked(r.dataset.tu); } });
 $("cchips").addEventListener("click", e => { const b = e.target.closest("[data-cg]"); if (b) { S.cFilter = b.dataset.cg; renderComp(); enter($("pageComp")); } });
 $("cbento").addEventListener("click", e => {
   if (e.target.closest('[data-act="rank"]')) { S.cAllRank = !S.cAllRank; renderComp(); return; }
@@ -1585,7 +1722,7 @@ function dataIn(key) {
   };
   dataIn.t = setTimeout(run, 120);
 }
-showPage(location.hash === "#competitors" ? "comp" : "net");
+showPage(pageOf(location.hash));
 placeInd(false);
 document.fonts?.ready.then(() => placeInd(false));
 reveal.t = setTimeout(reveal, 2500); // fallback if some collection is slow or empty
