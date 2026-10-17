@@ -735,7 +735,8 @@ function build(days0 = S.days, groups0 = S.groups) {
 /* ---------- charts ---------- */
 function chart(el, pts, { w = 640, h = 200, fmtY = compact, bare = false, color = "var(--blue)", fill = .1, grid = "var(--line)", text = "var(--muted)", padR = 0 } = {}) {
   if (pts.length < 2) { el.innerHTML = `<div class="muted" style="font-size:12px">Мало данных для графика</div>`; return; }
-  const W = w, H = h, L = bare ? 0 : 74, R = bare ? padR : 10, T = bare ? 10 : 6, B = bare ? 0 : 22;
+  const cw = bare ? 0 : Math.round(el.clientWidth || 0);   // окно ещё скрыто → 0 → ширина из параметра
+  const W = cw > 200 ? cw : w, H = h, L = bare ? 0 : 74, R = bare ? padR : 10, T = bare ? 10 : 6, B = bare ? 0 : 22;
   const xs = pts.map(p => dms(p.d)), ys = pts.map(p => p.y);
   let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
   const pad = (y1 - y0) * .12; y0 -= bare ? pad * 3 : pad; y1 += pad;
@@ -843,33 +844,69 @@ function postCard(p, opt = {}) {
 const cards = (list, opt) => `<div class="pc-grid">${list.map(p => postCard(p, opt)).join("")}</div>`;
 
 // ---------- окно поста из «Залетает сейчас»: почасовой рост подписчиков аккаунта и цифры поста ----------
-function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = compact, h = 170, posts = [] } = {}) {
-  // pts: [[ISO-час, значение], ...]; mark: ISO-время публикации (вертикальная линия); posts: [[ISO-время, подпись]] — точки постов у оси
+// подписи оси: точность по размаху (23,612 млн / 23,618 млн, а не три одинаковых «23,6 млн»)
+function axisFmt(lo, hi) {
+  const span = Math.max(1, hi - lo), m = Math.max(Math.abs(lo), Math.abs(hi));
+  if (m < 1e4) return v => fmt(v);
+  const [div, unit] = m >= 1e6 ? [1e6, "млн"] : [1e3, "тыс"];
+  const dec = Math.min(3, Math.max(0, Math.ceil(-Math.log10(span / div / 2))));
+  return v => (v / div).toLocaleString("ru-RU", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + " " + unit;
+}
+function hourlyChart(pts, { color = "var(--blue)", mark = null, fmtY = null, h = 170, posts = [], w = 640 } = {}) {
+  // pts: [[ISO-час, значение], ...]; mark: ISO-время публикации (вертикальная линия); posts: [[ISO-время, подпись]] — полоса постов под графиком
+  // w — реальная ширина блока в px (hcMount): 1 единица = 1 px, шрифт не раздувается и не мельчит
   const P = pts.filter(p => p[1] != null);
   if (P.length < 2) return `<div class="vp-empty">Мало замеров для графика — точки появляются каждый час.</div>`;
-  const W = 640, L = 56, R = 12, T = 12, B = 26;
-  const xs = P.map(p => Date.parse(p[0] + (p[0].length === 16 ? ":00" : "") + "+03:00")), ys = P.map(p => p[1]);
+  const tms = s => Date.parse(s + (s.length === 16 ? ":00" : "") + "+03:00");
+  const xs = P.map(p => tms(p[0])), ys = P.map(p => p[1]);
   let x0 = Math.min(...xs), x1 = Math.max(...xs);
-  const mt = mark ? Date.parse(mark + (mark.length === 16 ? ":00" : "") + "+03:00") : null;
+  const mt = mark ? tms(mark) : null;
   if (mt && mt < x0) x0 = mt;
   let y0 = Math.min(...ys), y1 = Math.max(...ys); if (y0 === y1) { y0 -= 1; y1 += 1; }
   const pad = (y1 - y0) * .15; y0 -= pad; y1 += pad;
-  const X = t => L + (t - x0) / Math.max(1, x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (h - T - B);
-  const line = P.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
-  const area = `${line}L${X(xs[xs.length - 1]).toFixed(1)},${h - B}L${X(xs[0]).toFixed(1)},${h - B}Z`;
+  const ticks = [0, .5, 1].map(f => y0 + pad + (y1 - y0 - 2 * pad) * f), fy = fmtY || axisFmt(ticks[0], ticks[2]);
+  const W = Math.max(280, w), L = Math.max(...ticks.map(v => fy(v).length)) * 6.4 + 16, R = 14, T = 12, B = 24;
+  const PS = posts.filter(([t]) => { const x = tms(t); return x >= x0 && x <= x1; }), lane = PS.length ? 18 : 0;
+  const bot = h - B - lane;   // низ области графика; ниже — полоса постов, ещё ниже — подписи времени
+  const X = t => L + (t - x0) / Math.max(1, x1 - x0) * (W - L - R), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (bot - T);
+  // разрывы: соседние замеры дальше 3 ч — пунктир (замеров не было), а не сплошная линия
+  let solid = "", gaps = "";
+  P.forEach((p, i) => {
+    const pt = `${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`;
+    if (!i) { solid += `M${pt}`; return; }
+    const prev = `${X(xs[i - 1]).toFixed(1)},${Y(P[i - 1][1]).toFixed(1)}`;
+    if (xs[i] - xs[i - 1] > 3 * 36e5) { gaps += `M${prev}L${pt}`; solid += `M${pt}`; } else solid += `L${pt}`;
+  });
+  const all = P.map((p, i) => `${i ? "L" : "M"}${X(xs[i]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("");
+  const area = `${all}L${X(xs[xs.length - 1]).toFixed(1)},${bot}L${X(xs[0]).toFixed(1)},${bot}Z`;
   const hh = t => { const d = new Date(t + 3 * 36e5); return `${String(d.getUTCHours()).padStart(2, "0")}:00`; };
   const dd = t => { const d = new Date(t + 3 * 36e5); return `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")} `; };
-  const ticks = [0, .5, 1].map(f => y0 + pad + (y1 - y0 - 2 * pad) * f);
-  const xl = P.length > 8 ? [0, Math.floor(P.length / 2), P.length - 1] : P.map((_, i) => i);
-  return `<svg class="vp-svg" viewBox="0 0 ${W} ${h}" role="img">
-    ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(fmtY(v))}</text>`).join("")}
-    ${mt ? `<line x1="${X(mt)}" x2="${X(mt)}" y1="${T}" y2="${h - B}" stroke="var(--orange)" stroke-dasharray="4 4"/><text x="${X(mt) + 4}" y="${T + 10}" font-size="11" fill="var(--orange)">пост</text>` : ""}
-    <path d="${area}" fill="${color}" fill-opacity=".1"/><path d="${line}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round"/>
-    ${P.map((p, i) => `<circle cx="${X(xs[i])}" cy="${Y(p[1])}" r="${P.length > 60 ? 2 : 3.5}" fill="${color}"><title>${dd(xs[i])}${hh(xs[i])} · ${fmt(p[1])}</title></circle>`).join("")}
-    ${posts.map(([t, lab]) => { const pt = Date.parse(t + (t.length === 16 ? ":00" : "") + "+03:00"); return pt < x0 || pt > x1 ? "" : `<circle cx="${X(pt).toFixed(1)}" cy="${h - B - 4}" r="4" fill="var(--orange)" stroke="#fff" stroke-width="1.5"><title>пост ${dd(pt)}${hh(pt)}${lab ? " · " + esc(lab) : ""}</title></circle>`; }).join("")}
-    ${xl.map(i => `<text x="${X(xs[i])}" y="${h - 6}" text-anchor="middle" font-size="11" fill="var(--muted)">${x1 - x0 > 36 * 36e5 ? dd(xs[i]) : ""}${hh(xs[i])}</text>`).join("")}
+  const long = x1 - x0 > 20 * 36e5, xt = t => (long ? dd(t) : "") + hh(t);
+  const xl = [x0, (x0 + x1) / 2, x1].filter((t, i, a) => W > 420 || i !== 1 || a.length < 3);
+  const r = P.length > 60 ? 2.2 : 3.5;
+  return `<svg class="vp-svg" viewBox="0 0 ${W} ${h}" width="${W}" height="${h}" role="img">
+    ${ticks.map(v => `<line x1="${L}" x2="${W - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)"/><text x="${L - 10}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--muted)">${esc(fy(v))}</text>`).join("")}
+    ${mt ? `<line x1="${X(mt)}" x2="${X(mt)}" y1="${T}" y2="${bot}" stroke="var(--orange)" stroke-dasharray="4 4"/><text x="${X(mt) + 5}" y="${T + 10}" font-size="11" fill="var(--orange)">пост</text>` : ""}
+    <path d="${area}" fill="${color}" fill-opacity=".08"/>
+    ${gaps ? `<path d="${gaps}" fill="none" stroke="${color}" stroke-width="1.6" stroke-dasharray="3 5" opacity=".55"><title>замеров не было</title></path>` : ""}
+    <path d="${solid}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    ${P.map((p, i) => `<circle cx="${X(xs[i]).toFixed(1)}" cy="${Y(p[1]).toFixed(1)}" r="${r}" fill="${color}"><title>${dd(xs[i])}${hh(xs[i])} · ${fmt(p[1])}</title></circle>`).join("")}
+    ${lane ? `<line x1="${L}" x2="${W - R}" y1="${bot + lane / 2}" y2="${bot + lane / 2}" stroke="var(--line)" stroke-dasharray="2 4"/>` : ""}
+    ${PS.map(([t, lab]) => { const pt = tms(t); return `<circle cx="${X(pt).toFixed(1)}" cy="${bot + lane / 2}" r="4.5" fill="var(--orange)" stroke="var(--tile)" stroke-width="1.5"><title>пост ${dd(pt)}${hh(pt)}${lab ? " · " + esc(lab) : ""}</title></circle>`; }).join("")}
+    ${xl.map((t, i) => `<text x="${X(t).toFixed(1)}" y="${h - 6}" text-anchor="${i === 0 ? "start" : i === xl.length - 1 ? "end" : "middle"}" font-size="11" fill="var(--muted)">${xt(t)}</text>`).join("")}
   </svg>`;
 }
+// график рисуется по реальной ширине блока: в разметку кладём заглушку, после показа окна — hcMount
+const HC = new Map();
+let hcN = 0;
+function hcSlot(pts, opt = {}) { const k = "hc" + (++hcN); HC.set(k, [pts, opt]); return `<div class="hc" data-hc="${k}"></div>`; }
+function hcMount(root) {
+  root.querySelectorAll("[data-hc]").forEach(el => {
+    const a = HC.get(el.dataset.hc); if (!a) return;
+    el.innerHTML = hourlyChart(a[0], { ...a[1], w: Math.round(el.clientWidth || 640) });
+  });
+}
+addEventListener("resize", () => { clearTimeout(hcMount.t); hcMount.t = setTimeout(() => document.querySelectorAll("dialog[open]").forEach(hcMount), 150); });
 function openViral(code) {
   const p = [...(S.viral || []), ...(S.extra?.clips || []), ...(S.extra?.proven || []), ...(S.extra?.tracked?.posts || [])].find(x => x.c === code && (x.hist || x.ga))
     || (S.extra?.tracked?.posts || []).find(x => x.c === code);
@@ -894,10 +931,11 @@ function openViral(code) {
           : `<div class="kv"><span>Подписчики аккаунта</span><b class="${gain > 0 ? "pc-up" : ""}">${gain != null ? signed(gain) : "—"}</b>${hrs ? `<small>за ${hrs} ч замеров</small>` : ""}</div>`}
       </div>
       <a class="pill" href="${igPost(p)}" target="_blank" rel="noopener" style="margin-top:12px">Открыть в Instagram ↗</a></section>
-    <section class="t s6" style="grid-column:1/-1"><div class="lab">Подписчики @${esc(p.u)} по часам <span class="tag">пунктир — время поста</span></div>${hourlyChart(f, { mark: postT, color: "var(--blue)" })}</section>
-    <section class="t s6" style="grid-column:1/-1"><div class="lab">${metric.n} по часам</div>${hourlyChart(m.map(x => [x[0], x[metric.i]]), { color: "var(--orange)" })}</section>
+    <section class="t s6" style="grid-column:1/-1"><div class="lab">Подписчики @${esc(p.u)} по часам <span class="tag">оранжевая линия — время поста</span></div>${hcSlot(f, { mark: postT, color: "var(--blue)" })}</section>
+    <section class="t s6" style="grid-column:1/-1"><div class="lab">${metric.n} по часам</div>${hcSlot(m.map(x => [x[0], x[metric.i]]), { color: "var(--orange)" })}</section>
   </div></div>`;
   dlg.showModal();
+  hcMount(dlg);
 }
 
 // «Залетает сейчас»: свежие посты (до 72 ч) с лайками/просмотрами ≥3× к обычному посту аккаунта; замеры каждый час
@@ -1567,13 +1605,14 @@ function openTracked(u) {
     <section class="t orange d3"><div class="lab">За сутки</div>
       <div class="big">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</div><div class="sub">${r?.est ? `по ${r.hrs} ч замеров · ` : ""}последний замер ${tWhen(a.last)}</div>
       <div class="kvs">${kv("За 7 дней", signed(a.d7, compact))}${kv("Постов за 7 дней", fmt(a.p7))}${kv("Просмотры (медиана)", a.mv != null ? compact(a.mv) : "—")}</div></section>
-    <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)"><i style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></i>посты</span></div>${hourlyChart(tSeries(a), { h: 220, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
+    <section class="t d6"><div class="lab">Подписчики по часам · 7 дней <span class="tag" style="background:var(--tile-2)"><i style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></i>посты</span></div>${hcSlot(tSeries(a), { h: 230, posts: mine.map(p => [`${p.d}T${p.t}`, p.hook || (p.x || "").slice(0, 60)]) })}</section>
     ${(a.ds || []).length > 1 ? `<section class="t d6"><div class="lab">Подписчики · 30 дней</div><div id="trkDaily"></div></section>` : ""}
     <section class="t d6"><div class="lab">Лучшие посты · 7 дней</div>${top.length ? cards(top, { btn: true }) : `<div class="empty-t">Постов за 7 дней пока не собрано.</div>`}</section>
   </div>`;
-  if ((a.ds || []).length > 1) chart($("trkDaily"), a.ds.map(([d, y]) => ({ d, y })), { w: 820, h: 200 });
   addGain($("accBody"));
   openDlg($("accDlg"));
+  hcMount($("accBody"));
+  if ((a.ds || []).length > 1) chart($("trkDaily"), a.ds.map(([d, y]) => ({ d, y })), { w: 820, h: 200 });
   enter($("accBody"));
 }
 // режим раздела «Конкуренты»: отслеживаемые (контент) ↔ все конкуренты (рынок, для рекламщиков)
