@@ -899,7 +899,8 @@ async function openBrand(key) {
   if (lead.by && S.user) { try { const ps = await S.user.profiles([lead.by]); who = ps[lead.by]?.name || ""; } catch (e) {} }
   const contacts = [b.site && `<a href="${esc(b.site)}" target="_blank" rel="noopener">${esc(b.site.replace(/^https?:\/\//, ""))} ↗</a>`,
     b.email && `<a href="mailto:${esc(b.email)}">${esc(b.email)}</a>`, ...(b.emails || []).map(e => `<span class="muted">${esc(e)}</span>`),
-    b.contact && `<a href="${esc(b.contact)}" target="_blank" rel="noopener">страница для партнёров ↗</a>`].filter(Boolean);
+    b.contact && `<a href="${esc(b.contact)}" target="_blank" rel="noopener">страница для партнёров ↗</a>`,
+    b.handle && `<a href="https://ig.me/m/${encodeURIComponent(b.handle)}" target="_blank" rel="noopener">написать в Instagram ↗</a>`].filter(Boolean);
   $("accBody").innerHTML = `<div class="dgrid">
     <section class="t ink d4" style="min-height:250px"><button class="x" type="button" data-close aria-label="Закрыть" style="background:rgba(255,255,255,.14);color:#fff">×</button>
       <div class="lab">${esc(b.category || "Рекламодатель")}</div>
@@ -911,7 +912,7 @@ async function openBrand(key) {
       <div class="who">${lead.updatedAt ? `Обновлено ${new Date(lead.updatedAt).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}${who ? " · " + esc(who) : ""}` : ""}</div></section>
     <section class="t orange d2"><div class="lab">Размещения</div><div class="big">${b.n}</div><div class="sub">постов на ${b.hostsN} площадках</div>
       <div class="kvs"><div class="kv"><span>Отклик</span><b>${xr(b.ratio)}</b></div><div class="kv"><span>Охват</span><b>${compact(b.reach)}</b></div></div></section>
-    <section class="t d6"><div class="lab">Контакты</div><div class="contacts">${contacts.length ? contacts.join("") : '<span class="muted">Агент ищет контакты новых брендов раз в неделю: сайт, почта для партнёрств.</span>'}</div>
+    <section class="t d6"><div class="lab">Контакты</div><div class="contacts">${contacts.length ? contacts.join("") : '<span class="muted">Контакты ищутся каждый час: био и «ссылка в био», сайт бренда (контакты, партнёрам, пресса), не нашли — повтор через 4 дня.</span>'}</div>
       <div class="sub" style="opacity:1;color:var(--muted)">Площадки: ${b.hosts.map(h => `<a href="${igLink(h)}" target="_blank" rel="noopener">@${esc(h)}</a>`).join(", ")}</div></section>
     ${b.fitOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить</div><div class="sub" style="opacity:1">Рекламируется в нишах: ${esc((b.fitNiches || []).join(", "))}</div>
       <div class="sub" style="opacity:1">Наши страницы в этих нишах: ${b.fitOwn.map(u => `<a href="${igLink(u)}" target="_blank" rel="noopener">@${esc(u)}</a>`).join(", ")}</div></section>` : ""}
@@ -1101,7 +1102,7 @@ const H = {
   "Новые рекламодатели": "Из разбора ИИ-аналитика рекламного рынка.", "Кто тратит больше всех": "Из разбора ИИ-аналитика рекламного рынка.",
   "Кому предложить сетку": "Из разбора ИИ-аналитика рекламного рынка.", "Что работает": "Из разбора ИИ-аналитика рекламного рынка.",
   "Размещения": "Сколько рекламных постов бренда мы видели и на скольких площадках. Отклик — медиана «лайки ÷ обычный пост площадки». Охват — сумма подписчиков этих площадок.",
-  "Контакты": "Сайт и почта бренда: из био и ссылок профиля Instagram, затем скрейпер заходит на сайт бренда и ищет почту для партнёрств/рекламы/маркетинга на главной и страницах контактов.",
+  "Контакты": "Как связаться с брендом. Почта: из био, со страницы «ссылка в био» (linktr.ee и т.п.) и с сайта бренда — главная, меню, карта сайта (sitemap) и типовые страницы контактов, партнёрств, прессы, инфлюенсеров. Сайты с защитой от ботов открываются браузером, спрятанные почты расшифровываются. Берём только почты на домене бренда; выше всего — partnerships/marketing/press, ниже — support/info.\n\n«Страница для партнёров» — форма для коллабораций/рекламы/прессы, если почты нет. «Написать в Instagram» — личные сообщения бренду: у крупных компаний (Netflix, Target…) почты для рекламы на сайте обычно нет, они работают через формы и директ.\n\nКонтакты ищутся каждый час; не нашли — повтор через 4 дня, нашли — через 14.",
   "Рекламные посты": "Посты с рекламой бренда; «×» — лайки к обычному посту той же площадки.",
   "Кому предложить": "Ниши площадок, где бренд уже рекламируется, и наши страницы в тех же нишах (ниши определяет ИИ) — кому логично предложить размещение.",
   "Запускает клиппинг": "Совпадение бренда с кампаниями из нашего монитора клиппинга (Content Rewards, promote.fun, Spade, Vyro, Vues и др.) за 60 дней — бренд прямо сейчас платит за охват.",
