@@ -1445,7 +1445,7 @@ function renderComp() {
   if ($("compCnt").textContent !== String(M.accounts.length || "")) { $("compCnt").textContent = M.accounts.length || ""; placeInd(false); }
   $("allCnt").textContent = M.accounts.length ? fmt(M.accounts.length) : "—"; cmArt();
   const el = $("cbento");
-  if (!M.latest) { el.innerHTML = `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">Данные по конкурентам появятся после первого сбора.</div></section>`; $("cchips").innerHTML = ""; return; }
+  if (!M.latest) { el.innerHTML = `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">${S.compLoading ? "Загружаю данные конкурентов…" : "Данные по конкурентам появятся после первого сбора."}</div></section>`; $("cchips").innerHTML = ""; return; }
   $("cchips").innerHTML = [["all", "Все ниши"], ...M.groups.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-cg="${esc(k)}" aria-pressed="${S.cFilter === k}">${esc(l)}</button>`).join("");
   const A = M.accounts.filter(a => S.cFilter === "all" || a.group === S.cFilter);
   const T = [];
@@ -1888,7 +1888,13 @@ if (window.__PUBLIC_DATA) {
   S.groups = D.groups || []; S.days = D.days || []; S.cgroups = D.cgroups || []; S.cdays = D.cdays || []; S.insights = D.insights || []; S.viral = D.viral || []; S.extra = D;
   document.body.classList.add("public");
   $("aiTitle").textContent = "Недельный отчёт";
+  S.compLoading = !D.cdays;
   reveal();
+  // конкуренты — отдельный файл, догружается после показа страницы
+  if (!D.cdays) fetch("data/comp.json?t=" + Date.now()).then(r => r.json()).then(C => {
+    S.cdays = C.cdays || []; S.extra.cscore = C.cscore || {}; S.extra.tracked = C.tracked || S.extra.tracked;
+    S.compLoading = false; renderComp();
+  }).catch(() => { S.compLoading = false; renderComp(); });
 } else (async () => {
   if (!window.claude?.use) { $("meta").textContent = "Откройте страницу в Claude, чтобы увидеть данные."; reveal(); return; }
   window.claude.use("sample").then(s => { if (s) S.sample = s; });
