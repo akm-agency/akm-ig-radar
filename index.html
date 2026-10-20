@@ -1528,7 +1528,7 @@ const tBars = (rows, cls = "") => `<div class="tk-list ${cls}">${rows.map((r, i)
 function renderTracked() {
   const T = TK(), el = $("tbento"), all = T.acc || [];
   $("trkCnt").textContent = all.length || "—";
-  if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">Список пуст — добавьте аккаунты в tracked.json.</div></section>`; return; }
+  if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">${S.compLoading ? "Загружаю отслеживаемых конкурентов…" : "Список пуст — добавьте аккаунты в tracked.json."}</div></section>`; return; }
   const G = T.groups || [];
   if (S.tFilter !== "all" && !G.some(g => g.name === S.tFilter)) S.tFilter = "all";
   $("tchips").innerHTML = [["all", "Все ниши"], ...G.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-tg="${esc(k)}" aria-pressed="${S.tFilter === k}">${esc(l)}</button>`).join("");
@@ -1893,8 +1893,8 @@ if (window.__PUBLIC_DATA) {
   // конкуренты — отдельный файл, догружается после показа страницы
   if (!D.cdays) fetch("data/comp.json?t=" + Date.now()).then(r => r.json()).then(C => {
     S.cdays = C.cdays || []; S.extra.cscore = C.cscore || {}; S.extra.tracked = C.tracked || S.extra.tracked;
-    S.compLoading = false; renderComp();
-  }).catch(() => { S.compLoading = false; renderComp(); });
+    S.compLoading = false; renderComp(); renderTracked();
+  }).catch(() => { S.compLoading = false; renderComp(); renderTracked(); });
 } else (async () => {
   if (!window.claude?.use) { $("meta").textContent = "Откройте страницу в Claude, чтобы увидеть данные."; reveal(); return; }
   window.claude.use("sample").then(s => { if (s) S.sample = s; });
