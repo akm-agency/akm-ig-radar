@@ -1,4 +1,4 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Статистика сетки AKM</title></head><body>
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Статистика сетки AKM</title></head><body class="public">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -147,6 +147,25 @@ a{color:inherit}
 #tblLab{justify-content:flex-start}#tblLab .hq{margin-left:8px}
 .h48{display:block;width:100%;height:auto}
 mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
+/* скелетоны на время загрузки (как на YouTube): плитки той же сетки, серые полосы и бегущий блик */
+.skt{position:relative;overflow:hidden;gap:14px;pointer-events:none}
+.skt::after,.sk-shine::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.65) 50%,transparent 80%);animation:skShine 1.5s cubic-bezier(.4,0,.2,1) infinite}
+.skt.ink::after{background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.08) 50%,transparent 80%)}
+@keyframes skShine{100%{transform:translateX(100%)}}
+.skt .b{display:block;height:13px;border-radius:8px;background:rgba(13,13,15,.07);flex:none}
+.skt.ink .b{background:rgba(255,255,255,.09)}
+.skt .b.h1{height:30px}.skt .b.h2{height:64px}.skt .b.grow{flex:1;min-height:110px}
+.skt .w30{width:30%}.skt .w45{width:45%}.skt .w60{width:60%}.skt .w75{width:75%}.skt .w90{width:90%}
+.skt .row{display:flex;gap:10px}.skt .row .b{flex:1}
+.skm{display:inline-block;width:170px;height:10px;border-radius:6px;background:rgba(13,13,15,.08);vertical-align:middle;position:relative;overflow:hidden}
+.skm::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);animation:skShine 1.5s infinite}
+.skrows{display:flex;flex-direction:column;gap:12px;padding:8px 0 4px;position:relative;overflow:hidden}
+.skrows i{display:block;height:16px;border-radius:8px;background:rgba(13,13,15,.06)}
+.skrows i:nth-child(3n+2){width:92%}.skrows i:nth-child(3n){width:84%}
+.skw{display:inline-block;width:34px;height:.9em;border-radius:6px;background:rgba(255,255,255,.2);vertical-align:-1px}
+.cmc-all .skw,.cmc:not(.on) .skw{background:rgba(13,13,15,.1)}
+.cmc-ph{overflow:hidden}.cmc-ph::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:skShine 1.5s infinite}
 /* insight section tiles */
 .ilist{display:flex;flex-direction:column}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border:0;border-top:1px solid rgba(0,0,0,.09);background:none;text-align:left;width:100%}
@@ -513,7 +532,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
   <header class="bar">
     <div class="brand">
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
-      <div><h1 id="pTitle">Статистика сетки</h1><div class="meta" id="meta">Загрузка данных…</div></div>
+      <div><h1 id="pTitle">Статистика сетки</h1><div class="meta" id="meta"><i class="skm" aria-label="Загрузка"></i></div></div>
     </div>
     <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
@@ -523,7 +542,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
   </header>
 
   <main class="page" id="pageNet">
-  <div class="bento top" id="bento"></div>
+  <div class="bento top" id="bento"><section class="t ink s5 r2 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w75"></i><i class="b w60"></i><i class="b grow"></i></section><section class="t s4 skt" aria-hidden="true"><i class="b w30"></i><i class="b h1 w45"></i><i class="b w60"></i><i class="b grow"></i></section><section class="t s3 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w30"></i><i class="b w60"></i></section><section class="t s7 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w90"></i><i class="b h1 w60"></i><span class="row"><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i></span></section><section class="t s5 skt" aria-hidden="true"><i class="b w30"></i><i class="b w90"></i><i class="b w75"></i><i class="b w90"></i><i class="b w60"></i></section><section class="t s7 skt" aria-hidden="true"><i class="b w30"></i><i class="b w90"></i><i class="b w75"></i><i class="b w90"></i><i class="b w60"></i></section></div>
 
   <section class="t s12" id="tableTile">
     <div class="tt-head">
@@ -531,7 +550,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
       <div class="seg" id="modeSeg" role="group" aria-label="Режим таблицы"><button type="button" data-m="week">По неделям</button><button type="button" data-m="day">По дням</button></div>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Группы"></div>
-    <div class="tbl-wrap"><table id="tbl"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
+    <div class="tbl-wrap"><table id="tbl"><thead id="thead"></thead><tbody id="tbody"><tr><td><div class="skrows sk-shine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></td></tr></tbody></table></div>
     <p class="foot" id="tblFoot"></p>
   </section>
   </main>
@@ -1443,9 +1462,9 @@ const wMedian = (items) => { const v = items.filter(x => x.v != null).sort((a, b
 function renderComp() {
   const M = S.cM = build(S.cdays, S.cgroups);
   if ($("compCnt").textContent !== String(M.accounts.length || "")) { $("compCnt").textContent = M.accounts.length || ""; placeInd(false); }
-  $("allCnt").textContent = M.accounts.length ? fmt(M.accounts.length) : "—"; cmArt();
+  if (S.compLoading && !M.latest) $("allCnt").innerHTML = '<i class="skw"></i>'; else $("allCnt").textContent = M.accounts.length ? fmt(M.accounts.length) : "—"; cmArt();
   const el = $("cbento");
-  if (!M.latest) { el.innerHTML = `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">${S.compLoading ? "Загружаю данные конкурентов…" : "Данные по конкурентам появятся после первого сбора."}</div></section>`; $("cchips").innerHTML = ""; return; }
+  if (!M.latest) { el.innerHTML = S.compLoading ? skelComp() : `<section class="t s12"><div class="lab">Конкуренты</div><div class="headline">Данные по конкурентам появятся после первого сбора.</div></section>`; $("cchips").innerHTML = ""; return; }
   $("cchips").innerHTML = [["all", "Все ниши"], ...M.groups.map(g => [g.name, g.name])].map(([k, l]) => `<button type="button" class="chip" data-cg="${esc(k)}" aria-pressed="${S.cFilter === k}">${esc(l)}</button>`).join("");
   const A = M.accounts.filter(a => S.cFilter === "all" || a.group === S.cFilter);
   const T = [];
@@ -1525,9 +1544,18 @@ const addGain = root => root?.querySelectorAll("[data-vp]").forEach(b => { const
 const tBars = (rows, cls = "") => `<div class="tk-list ${cls}">${rows.map((r, i) => `<button type="button" class="tk-row" data-tu="${esc(r.u)}" style="--j:${i}">
     <span class="tk-k">${i + 1}</span><span class="tk-w"><b>@${esc(r.u)}</b><span>${esc(r.sub)}</span></span><span class="tk-v">${r.txt}</span>
     <span class="bar2"><i style="width:${Math.max(4, r.w * 100).toFixed(1)}%"></i></span></button>`).join("")}</div>`;
+// скелетоны раздела «Конкуренты», пока догружается comp.json
+const skB = c => `<i class="b ${c}"></i>`;
+const skT = (cls, inner) => `<section class="t ${cls} skt" aria-hidden="true">${inner}</section>`;
+function skelComp() {
+  return skT("ink s5", skB("w30") + skB("h2 w60") + skB("w75")) + skT("s4", skB("w45") + skB("h1 w30") + skB("w60")) + skT("s3", skB("w45") + skB("h1 w30"))
+    + skT("s12", skB("w30") + `<span class="row">${skB("h2").repeat(6)}</span>`) + skT("s7", skB("w30") + skB("w90") + skB("w75") + skB("w90") + skB("w60"))
+    + skT("s5", skB("w45") + skB("w75") + skB("w60") + skB("w90"));
+}
 function renderTracked() {
   const T = TK(), el = $("tbento"), all = T.acc || [];
-  $("trkCnt").textContent = all.length || "—";
+  if (S.compLoading && !all.length) $("trkCnt").innerHTML = '<i class="skw"></i>'; else $("trkCnt").textContent = all.length || "—";
+  if (!all.length && S.compLoading) { $("tchips").innerHTML = ""; el.innerHTML = skelComp(); return; }
   if (!all.length) { $("tchips").innerHTML = ""; el.innerHTML = `<section class="t s12"><div class="lab">Отслеживаемые конкуренты</div><div class="headline">${S.compLoading ? "Загружаю отслеживаемых конкурентов…" : "Список пуст — добавьте аккаунты в tracked.json."}</div></section>`; return; }
   const G = T.groups || [];
   if (S.tFilter !== "all" && !G.some(g => g.name === S.tFilter)) S.tFilter = "all";

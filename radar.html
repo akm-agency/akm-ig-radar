@@ -147,6 +147,25 @@ a{color:inherit}
 #tblLab{justify-content:flex-start}#tblLab .hq{margin-left:8px}
 .h48{display:block;width:100%;height:auto}
 mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
+/* скелетоны на время загрузки (как на YouTube): плитки той же сетки, серые полосы и бегущий блик */
+.skt{position:relative;overflow:hidden;gap:14px;pointer-events:none}
+.skt::after,.sk-shine::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
+  background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.65) 50%,transparent 80%);animation:skShine 1.5s cubic-bezier(.4,0,.2,1) infinite}
+.skt.ink::after{background:linear-gradient(100deg,transparent 20%,rgba(255,255,255,.08) 50%,transparent 80%)}
+@keyframes skShine{100%{transform:translateX(100%)}}
+.skt .b{display:block;height:13px;border-radius:8px;background:rgba(13,13,15,.07);flex:none}
+.skt.ink .b{background:rgba(255,255,255,.09)}
+.skt .b.h1{height:30px}.skt .b.h2{height:64px}.skt .b.grow{flex:1;min-height:110px}
+.skt .w30{width:30%}.skt .w45{width:45%}.skt .w60{width:60%}.skt .w75{width:75%}.skt .w90{width:90%}
+.skt .row{display:flex;gap:10px}.skt .row .b{flex:1}
+.skm{display:inline-block;width:170px;height:10px;border-radius:6px;background:rgba(13,13,15,.08);vertical-align:middle;position:relative;overflow:hidden}
+.skm::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.7),transparent);animation:skShine 1.5s infinite}
+.skrows{display:flex;flex-direction:column;gap:12px;padding:8px 0 4px;position:relative;overflow:hidden}
+.skrows i{display:block;height:16px;border-radius:8px;background:rgba(13,13,15,.06)}
+.skrows i:nth-child(3n+2){width:92%}.skrows i:nth-child(3n){width:84%}
+.skw{display:inline-block;width:34px;height:.9em;border-radius:6px;background:rgba(255,255,255,.2);vertical-align:-1px}
+.cmc-all .skw,.cmc:not(.on) .skw{background:rgba(13,13,15,.1)}
+.cmc-ph{overflow:hidden}.cmc-ph::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);animation:skShine 1.5s infinite}
 /* insight section tiles */
 .ilist{display:flex;flex-direction:column}
 .irow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;border:0;border-top:1px solid rgba(0,0,0,.09);background:none;text-align:left;width:100%}
@@ -507,7 +526,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .vp-hook{font-size:clamp(20px,2.2vw,26px);font-weight:600;letter-spacing:-.02em;line-height:1.2;margin:10px 40px 14px 0}
 .vp-kvs{display:flex;gap:10px;flex-wrap:wrap}.vp-kvs .kv{flex:1;min-width:130px}.vp-kvs small{display:block;font-size:11px;color:var(--muted)}
 .vp-svg{width:100%;height:auto;display:block;margin-top:8px}.vp-empty{color:var(--muted);font-size:13px;padding:18px 0}
-</style></head><body><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
+</style></head><body class="public"><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
 <style>
 .own-l{background:var(--lime)!important;color:var(--ink)!important;font-weight:600}
 
@@ -626,7 +645,7 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
   <header class="bar">
     <div class="brand">
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
-      <div><h1 id="pTitle">Радар рекламодателей</h1><div class="meta" id="meta">Загрузка данных…</div></div>
+      <div><h1 id="pTitle">Радар рекламодателей</h1><div class="meta" id="meta"><i class="skm" aria-label="Загрузка"></i></div></div>
     </div>
     <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a class="ext" href="index.html" target="_blank" rel="noopener">Сетка ↗</a><a href="#ads" data-p="ads" aria-current="page">Рекламодатели <span class="cnt" id="brandCnt"></span></a></nav>
     <div class="pills">
@@ -635,7 +654,7 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
   </header>
 
   <main class="page" id="pageAds">
-    <div class="bento" id="abento"></div>
+    <div class="bento" id="abento"><section class="t ink s5 r2 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w45"></i><i class="b w60"></i><i class="b grow"></i></section><section class="t s4 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w30"></i><i class="b w90"></i><i class="b w90"></i><i class="b w90"></i></section><section class="t s3 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w60"></i><i class="b w30"></i></section><section class="t s7 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w90"></i><i class="b h1 w60"></i><span class="row"><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i></span></section></div>
     <section class="t s12" id="brandTile">
       <div class="tt-head">
         <div><div class="lab" style="opacity:.6;margin-bottom:6px">Лиды для продаж</div><h2>Рекламодатели</h2></div>
