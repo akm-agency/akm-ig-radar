@@ -727,7 +727,8 @@ function postHead(p) {
 const xr = r => r == null ? "—" : "×" + r.toLocaleString("ru-RU", { maximumFractionDigits: r < 1 ? 2 : 1 });
 const rcls = r => r == null ? "" : r >= 1 ? "good" : r < .5 ? "bad" : "";
 const today = new Date().toISOString().slice(0, 10);
-const STATUS = { new: "Новый", work: "В работе", deal: "Сделка", no: "Отказ" };
+const STATUS = { new: "Не разобран", work: "В работе", deal: "Сделка", no: "Отказ" };
+const isFresh = b => b.first >= shift(today, -2);   // «новый» — впервые в рекламе за последние 3 дня
 const statusOf = b => S.leads[b.key]?.status || "new";
 const ownHosts = () => new Set(S.hosts.filter(h => h.group?.startsWith("Наши · ")).map(h => h.u));
 const isOwn = b => { const own = ownHosts(); return b.hosts.some(h => own.has(h)); };
@@ -895,7 +896,8 @@ function filtered() {
   const q = S.q.toLowerCase();
   return S.brands.filter(b => (S.st === "all" || statusOf(b) === S.st) && (S.cat === "all" || (b.category || "Другое") === S.cat)
     && (!q || (b.brand + " " + (b.handle || "") + " " + (b.category || "")).toLowerCase().includes(q)))
-    .sort((a, b) => (statusOf(a) === "new" ? 0 : 1) - (statusOf(b) === "new" ? 0 : 1) || (b.hostsN || 0) - (a.hostsN || 0) || b.n - a.n || b.reach - a.reach);
+    .sort((a, b) => (isFresh(b) - isFresh(a)) || (isFresh(a) && isFresh(b) && b.first.localeCompare(a.first))
+      || (statusOf(a) === "new" ? 0 : 1) - (statusOf(b) === "new" ? 0 : 1) || (b.hostsN || 0) - (a.hostsN || 0) || b.n - a.n || b.reach - a.reach);
 }
 function renderTable() {
   const L = filtered();
@@ -906,7 +908,7 @@ function renderTable() {
       <td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
       <td class="c-wk0"><span class="mix" title="явная ${b.explicitN} · нативная ${b.nativeN}"><i class="ex" style="width:${b.explicitN / tot * 100}%"></i><i class="na" style="width:${b.nativeN / tot * 100}%"></i></span></td>
       <td class="n"><span class="rx ${rcls(b.ratio)}">${xr(b.ratio)}</span></td><td class="n c-w4">${compact(b.reach)}</td>
-      <td><span class="st ${s}">${STATUS[s]}</span></td></tr>`;
+      <td>${s !== "new" ? `<span class="st ${s}">${STATUS[s]}</span>` : isFresh(b) ? `<span class="st new" title="впервые в рекламе ${dShort(b.first)}">новый</span>` : ""}</td></tr>`;
   }).join("") || `<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">Нет брендов под этот фильтр</td></tr>`;
 }
 
