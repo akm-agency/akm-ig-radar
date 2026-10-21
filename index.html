@@ -2053,4 +2053,113 @@ function scan() {
 new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
 scan();
 })();
+</script><script>/* «Что нового» — окно по центру при первых NEWS_SHOWS открытиях сайта (счётчик в localStorage, у каждого зрителя свой).
+   Новость — в NEWS ниже; для следующей новости поменять id — счётчик начнётся заново. Вставляется в обе страницы. */
+(() => {
+const NEWS = {
+  id: "leads-fresh-2026-10-21",
+  date: "21 октября",
+  title: "Новые рекламодатели — сразу наверху",
+  text: "Кто впервые появился в рекламе за последние 3 дня, теперь стоит в начале списка на радаре с плашкой «новый». Не нужно листать — свежие лиды видно сразу.",
+  cta: "Показать новых",
+  href: "radar.html#leads",
+};
+const NEWS_SHOWS = 2;
+const KEY = "akm_news_" + NEWS.id;
+let shown = 0;
+try { shown = +localStorage.getItem(KEY) || 0; } catch { /* приватный режим — покажем, но не запомним */ }
+if (shown >= NEWS_SHOWS) return;
+
+const css = document.createElement("style");
+css.textContent = `
+.nw-back{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:16px;background:rgba(13,13,15,.32);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:nwFade .35s ease both}
+.nw-back.out{animation:nwFade .25s ease reverse both}
+@keyframes nwFade{from{opacity:0}}
+.nw-card{position:relative;width:min(440px,100%);background:#fff;color:#0D0D0F;border-radius:30px;padding:26px 26px 22px;overflow:hidden;
+  box-shadow:0 30px 80px -20px rgba(13,13,15,.45);animation:nwPop .6s cubic-bezier(.2,1.35,.35,1) both}
+.nw-back.out .nw-card{animation:nwPop .25s ease reverse both}
+@keyframes nwPop{from{opacity:0;transform:translateY(18px) scale(.94)}}
+.nw-top{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#6B6B72}
+.nw-tag{display:inline-flex;align-items:center;gap:6px;background:#D2F35B;color:#0D0D0F;border-radius:999px;padding:5px 11px;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.nw-tag i{width:6px;height:6px;border-radius:50%;background:#0D0D0F;animation:nwBlink 1.6s ease-in-out infinite}
+@keyframes nwBlink{50%{opacity:.25}}
+.nw-x{position:absolute;top:18px;right:18px;width:36px;height:36px;border:0;border-radius:50%;background:#F2F1EC;color:#0D0D0F;font-size:18px;cursor:pointer;transition:transform .25s}
+.nw-x:hover{transform:rotate(90deg)}
+.nw-card h3{margin:16px 0 8px;font-size:27px;line-height:1.08;letter-spacing:-.04em;font-weight:600;max-width:15ch}
+.nw-card p{margin:0;font-size:14px;line-height:1.45;color:#3A3A40}
+/* мини-превью списка: новые всплывают наверх */
+.nw-demo{margin:18px 0 20px;background:#F2F1EC;border-radius:20px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.nw-row{display:flex;align-items:center;gap:10px;background:#fff;border-radius:13px;padding:9px 12px;font-size:13px;font-weight:600;
+  animation:nwRow .7s cubic-bezier(.2,1.3,.35,1) both;animation-delay:calc(.25s + var(--i) * 110ms)}
+@keyframes nwRow{from{opacity:0;transform:translateY(-14px) scale(.96)}}
+.nw-row .bar{flex:1;height:7px;border-radius:5px;background:#ECEBE6}
+.nw-row .nw-pill{font-size:11px;font-weight:700;border-radius:999px;padding:3px 9px;background:#D2F35B;position:relative;overflow:hidden}
+.nw-row .nw-pill::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(100deg,transparent,rgba(255,255,255,.8),transparent);animation:nwShine 2.2s ease-in-out infinite;animation-delay:calc(1s + var(--i) * 200ms)}
+@keyframes nwShine{60%,100%{transform:translateX(100%)}}
+.nw-row.old{opacity:.55;font-weight:500}
+.nw-btns{display:flex;gap:8px}
+.nw-btns a,.nw-btns button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:10px;height:50px;border-radius:999px;border:0;font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none}
+.nw-go{background:#0D0D0F;color:#fff}.nw-go span{width:28px;height:28px;border-radius:50%;background:#D2F35B;color:#0D0D0F;display:inline-grid;place-items:center;font-size:13px}
+.nw-go:hover span{transform:rotate(45deg);transition:transform .25s}
+.nw-ok{background:#F2F1EC;color:#0D0D0F}
+@media (prefers-reduced-motion:reduce){.nw-back,.nw-card,.nw-row,.nw-row .nw-pill::after,.nw-tag i{animation:none!important}}
+/* подсветка новых строк после перехода по кнопке */
+tr.nw-flash td{animation:nwFlash 2.4s ease-out}
+@keyframes nwFlash{0%,35%{background:rgba(210,243,91,.55)}100%{background:transparent}}`;
+document.head.appendChild(css);
+
+const onRadar = /radar\.html/.test(location.pathname);
+function jumpToNew() {
+  const t = document.getElementById("brandTile");
+  if (!t) return false;
+  const top = () => t.getBoundingClientRect().top + scrollY - 16;
+  window.scrollTo({ top: top(), behavior: "smooth" });
+  setTimeout(() => { if (Math.abs(t.getBoundingClientRect().top - 16) > 40) window.scrollTo(0, top()); }, 1000);   // плавная не сработала — сразу
+  setTimeout(() => document.querySelectorAll("#btbody tr").forEach(r => { if (r.querySelector(".st.new")) { r.classList.remove("nw-flash"); void r.offsetWidth; r.classList.add("nw-flash"); } }), 650);
+  return true;
+}
+// пришли по ссылке «radar.html#leads» — дождаться списка и прокрутить к новым
+if (onRadar && location.hash === "#leads") {
+  let n = 0;
+  const wait = setInterval(() => { if (document.querySelector("#btbody tr .bname") || ++n > 60) { clearInterval(wait); jumpToNew(); } }, 150);
+}
+
+function close(back) {
+  back.classList.add("out");
+  setTimeout(() => back.remove(), 260);
+  document.removeEventListener("keydown", onKey);
+}
+function onKey(e) { if (e.key === "Escape") { const b = document.querySelector(".nw-back"); if (b) close(b); } }
+
+function show() {
+  try { localStorage.setItem(KEY, String(shown + 1)); } catch { /* ничего */ }
+  const back = document.createElement("div");
+  back.className = "nw-back";
+  back.innerHTML = `<div class="nw-card" role="dialog" aria-modal="true" aria-labelledby="nwT">
+    <button class="nw-x" type="button" aria-label="Закрыть">×</button>
+    <div class="nw-top"><span class="nw-tag"><i></i>Новое</span>${NEWS.date}</div>
+    <h3 id="nwT">${NEWS.title}</h3><p>${NEWS.text}</p>
+    <div class="nw-demo" aria-hidden="true">
+      <div class="nw-row" style="--i:0">Viome<span class="bar"></span><span class="nw-pill">новый</span></div>
+      <div class="nw-row" style="--i:1">Jetpac<span class="bar"></span><span class="nw-pill">новый</span></div>
+      <div class="nw-row old" style="--i:2">Call of Duty<span class="bar"></span></div>
+    </div>
+    <div class="nw-btns"><a class="nw-go" href="${NEWS.href}">${NEWS.cta}<span>↗</span></a><button class="nw-ok" type="button">Понятно</button></div></div>`;
+  document.body.appendChild(back);
+  back.addEventListener("click", e => {
+    if (e.target === back || e.target.closest(".nw-x, .nw-ok")) { close(back); return; }
+    if (e.target.closest(".nw-go") && onRadar) { e.preventDefault(); close(back); history.replaceState(null, "", "#leads"); jumpToNew(); }
+  });
+  document.addEventListener("keydown", onKey);
+  setTimeout(() => back.querySelector(".nw-go")?.focus({ preventScroll: true }), 400);
+}
+// показать, когда страница уже загрузилась (после скелетонов), а не поверх пустого экрана
+let tries = 0;
+const ready = setInterval(() => {
+  const loaded = !document.querySelector(".skt") && !document.body.classList.contains("booting");
+  if ((loaded && ++tries > 3) || tries > 40) { clearInterval(ready); if (!(onRadar && location.hash === "#leads")) show(); }
+  else if (!loaded) tries += 0.25;
+}, 250);
+})();
 </script></body></html>
