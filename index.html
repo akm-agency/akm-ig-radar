@@ -52,6 +52,9 @@ a{color:inherit}
 
 /* bento grid */
 .bento{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--gap)}
+/* плитки и блоки страницы не сжимаются ниже содержимого (Safari на Mac сжимал всю страницу в высоту окна) */
+.wrap>*,.page>*,.sub-page>*,:where(.t)>*{flex-shrink:0}
+.bento{grid-auto-rows:minmax(min-content,auto)}
 .t{background:var(--tile);border-radius:var(--r);padding:22px 24px;display:flex;flex-direction:column;gap:12px;min-width:0;position:relative;overflow:hidden}
 .t.ink{background:var(--ink);color:#fff}
 .t.orange{background:var(--orange);color:#fff}
