@@ -899,7 +899,7 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
     </div>
   </header>
 
-  <main class="page" id="pageAds">
+  <main class="page" id="pageRadar">
     <div class="bento" id="abento"><section class="t ink s5 r2 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w45"></i><i class="b w60"></i><i class="b grow"></i></section><section class="t s4 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w30"></i><i class="b w90"></i><i class="b w90"></i><i class="b w90"></i></section><section class="t s3 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w60"></i><i class="b w30"></i></section><section class="t s7 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w90"></i><i class="b h1 w60"></i><span class="row"><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i></span></section></div>
     <section class="t s12" id="brandTile">
       <div class="tt-head">
@@ -1302,12 +1302,12 @@ $("aiClose").addEventListener("click", () => closeDlg($("aiDlg")));
 const NEED = ["brands", "hosts", "insights", "leads"]; const seen = new Set(); let ready = false, sig = "";
 document.body.classList.add("booting");
 const dataSig = () => JSON.stringify([S.brands.map(b => b.key + b.n + b.last), S.hosts.length, S.hostsAt, S.insights.map(i => i.date + i.type)]);
-function reveal() { if (ready) return; ready = true; render(); sig = dataSig(); document.body.classList.remove("booting"); placeInd(); enter($("pageAds")); }
+function reveal() { if (ready) return; ready = true; render(); sig = dataSig(); document.body.classList.remove("booting"); placeInd(); enter($("pageRadar")); }
 function dataIn(k) {
   seen.add(k);
   if (!ready) { if (NEED.every(x => seen.has(x))) setTimeout(reveal, 60); return; }
   clearTimeout(dataIn.t);
-  dataIn.t = setTimeout(function run() { if ($("pageAds").classList.contains("enter")) { dataIn.t = setTimeout(run, 400); return; } const s2 = dataSig(); if (k === "leads") { renderChips(); renderTable(); return; } if (s2 !== sig) { sig = s2; render(); } }, 120);
+  dataIn.t = setTimeout(function run() { if ($("pageRadar").classList.contains("enter")) { dataIn.t = setTimeout(run, 400); return; } const s2 = dataSig(); if (k === "leads") { renderChips(); renderTable(); return; } if (s2 !== sig) { sig = s2; render(); } }, 120);
 }
 setTimeout(reveal, 2500);
 placeInd(); document.fonts?.ready.then(placeInd); window.addEventListener("resize", placeInd);
