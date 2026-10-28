@@ -908,6 +908,51 @@ dialog.ai{max-width:min(620px,calc(100vw - 24px))}
   header.bar.stuck::before{opacity:1}
 }
 .t.rv-wait{opacity:0;transform:translate3d(0,34px,0) scale(.985)}
+/* ===== шапка v2: одна «парящая» стеклянная капсула — логотип и название, разделы, действия ===== */
+header.bar{display:flex!important;align-items:center;gap:12px;padding:7px 7px 7px 8px;margin:2px 0 6px;border-radius:30px;
+  background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 1px 0 rgba(13,13,15,.04),0 22px 44px -32px rgba(13,13,15,.45);top:10px!important}
+header.bar::before{display:none!important}
+header.bar .brand{flex:1;min-width:0;min-height:0!important;gap:12px}
+header.bar .logo{height:46px;padding:0 15px;background:#F4F3EF}
+header.bar .logo .akm{height:19px}
+header.bar h1{font-size:clamp(18px,1.7vw,23px)!important;letter-spacing:-.03em}
+header.bar .meta{font-size:11.5px;margin-top:3px}
+header.bar .nav{height:46px;margin:0;flex:none;box-shadow:none}
+header.bar .nav a{height:38px;font-size:13.5px;padding:0 16px}
+header.bar .pills{min-height:0;flex:none;gap:6px}
+header.bar .pill{height:46px;font-size:13.5px}
+header.bar .pill:not(.dark){background:#F4F3EF}header.bar .pill:not(.dark):hover{background:#fff}
+header.bar.stuck{background:rgba(255,255,255,.82)}
+@media (max-width:1180px){header.bar{flex-wrap:wrap;border-radius:26px}header.bar .brand{flex:1 1 100%}header.bar .nav{order:2}header.bar .pills{order:3;margin-left:auto}}
+@media (max-width:640px){header.bar{padding:6px;gap:8px;border-radius:24px}header.bar .logo{height:40px;padding:0 12px}header.bar .logo .akm{height:16px}
+  header.bar .nav{flex:1 1 100%;max-width:none;height:42px}header.bar .nav a{height:34px;padding:0 10px;font-size:12.5px}
+  header.bar .pills{flex:1 1 100%;margin:0}header.bar .pill{height:40px;flex:1;justify-content:center;font-size:13px}}
+/* ===== «Apple»-плитки: главные блоки сетки в стиле панели босса ===== */
+.t.ink.apple{background:radial-gradient(120% 90% at 100% 0%,rgba(210,243,91,.10),transparent 55%),var(--ink)}
+.t.ink.apple .big{color:var(--lime)}
+.t.ink.apple .minibars rect{fill:var(--lime)}
+.t.lime.attn .tag{background:var(--ink)!important;color:#fff!important}
+/* ===== слои «песок»: прирост групп нарастающим итогом за 14 дней ===== */
+.sand{position:relative;width:100%}.sand svg{display:block;width:100%;height:150px;overflow:visible}
+.sand path{transform-origin:0 100%;animation:sandIn 1.2s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j) * 120ms + .2s)}
+@keyframes sandIn{from{transform:scaleY(0);opacity:0}}
+.sand-leg{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.sand-leg div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px}
+.sand-leg i{width:12px;height:12px;border-radius:4px}.sand-leg b{font:600 13px var(--f-mono)}.sand-leg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sand-leg small{grid-column:2/4;font-size:11.5px;color:var(--muted);margin-top:-5px}
+/* ===== чат в окне ИИ: поле, микрофон, отправить ===== */
+.aiq{display:flex;gap:6px;align-items:center;background:#fff;border-radius:999px;padding:5px;box-shadow:inset 0 0 0 1px var(--line)}
+.aiq input{flex:1;min-width:0;border:0;outline:none;background:none;font:inherit;font-size:14px;padding:0 12px;height:40px}
+.aiq button{flex:none;border:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--tile-2);color:var(--ink);font-size:16px;transition:background .2s,transform .2s}
+.aiq .aiq-go{background:var(--ink);color:#fff}.aiq button:hover{transform:scale(1.06)}
+.aiq-mic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.aiq-mic.rec{background:var(--orange);color:#fff;animation:recPulse 1.2s ease-in-out infinite}
+@keyframes recPulse{50%{box-shadow:0 0 0 8px rgba(255,79,31,.18)}}
+.aia-note{font-size:11.5px;color:var(--muted);padding:0 4px}
+.sugg .chip{background:#fff}
+html.embed-root,html.embed-root body{background:#fff!important}
+
 .enter .t.rv-wait{animation:none}
 .t.rv-in{animation:tile-in .8s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--rv,0) * 60ms)!important}
 .rv-in .track i,.rv-in .bar2 i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}
@@ -953,12 +998,114 @@ dialog.ai{max-width:min(620px,calc(100vw - 24px))}
 .sl-kit:hover{transform:translateY(-2px)}
 .enter .sl-row,.rv-in .sl-row{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms + .25s)}
 @media (max-width:820px){.sl-row{grid-template-columns:minmax(0,1fr) auto}.sl-bs{grid-column:1/-1;grid-row:2}}
-</style></head><body class="public"><style>
+</style></head><body class="public"><script>/* Окно «ИИ-аналитик» на сетке и в радаре: готовые разборы Gemini (content_ai.py) — карточками и ответом-раскладкой.
+   Разбор = {id, who, t (вопрос), d (о чём), s: {headline, metric {value,label}, lead?, points [{title,text,tone,u}], actions []}, a (текст)}.
+   Вставляется в обе страницы (export_pages.py, как help.js); стили — в dashboard.html (блок «ИИ-аналитик»). */
+(() => {
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// @ники — плашками, числа с % / × / тыс / млн — жирным: глаз сразу цепляется за цифры
+const rich = t => esc(t).replace(/@([A-Za-z0-9._]*[A-Za-z0-9_])/g, '<b class="aih">@$1</b>')
+  .replace(/([+−\-]?\d[\d\s ]*(?:[.,]\d+)?\s?(?:%|п\.п\.|тыс|млн)|×\s?\d+(?:[.,]\d+)?|x\s?\d+(?:[.,]\d+)?)/g, '<b class="ain">$1</b>');
+const DEP = {   // отдел → цвет карточки и значок
+  "Руководству": ["ink", '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>'],
+  "Контенту": ["lav", '<path d="M12 3c.7 4.3 2.7 6.3 7 7-4.3.7-6.3 2.7-7 7-.7-4.3-2.7-6.3-7-7 4.3-.7 6.3-2.7 7-7z"/>'],
+  "Продажам": ["lime", '<path d="M3 12h4l3 7 4-14 3 7h4"/>'],
+  "Страница": ["peach", '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/>'],
+};
+const ico = who => `<span class="aic-ic"><svg viewBox="0 0 24 24" aria-hidden="true">${(DEP[who] || DEP["Страница"])[1]}</svg></span>`;
+// старый текстовый разбор: **жирный**, списки «- », нумерация — без звёздочек
+const mdLite = t => esc(t || "").split("\n").map(l => l.trim()).filter(Boolean).map(l => { l = l.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  return /^[-•*]\s+/.test(l) ? `<p class="li">• ${l.replace(/^[-•*]\s+/, "")}</p>` : `<p>${l}</p>`; }).join("");
+const TONE = { up: ["up", "▲"], down: ["down", "▼"], info: ["info", "●"] };
+
+// свободный вопрос без сервера: ищем ответ в данных страницы и готовых разборах.
+// ctx: { cards, entities: [{id, names:[...], view: () => разбор}], hint } — страница сама даёт, о ком умеет рассказать
+const STOP = new Set("и в во на по за с со к ко о об от до из у а но что как кто где когда какой какая какие какую ли не ни же бы это этот эта эти мы нас наш наши наша нам вы мне".split(" "));
+const words = t => String(t || "").toLowerCase().replace(/ё/g, "е").match(/[a-zа-я0-9@._]+/g)?.filter(w => w.length > 2 && !STOP.has(w)) || [];
+const stem = w => w.length > 5 ? w.slice(0, -2) : w;
+function local(q, ctx) {
+  const Q = String(q).toLowerCase().replace(/ё/g, "е");
+  // 1) вопрос про конкретную страницу/бренд — по нику или названию
+  for (const e of ctx.entities || []) if (e.names.some(n => n && n.length > 2 && Q.includes(n.toLowerCase()))) return e.view();
+  // 1б) частые вопросы с ответом прямо из данных (кто растёт, кто проседает…)
+  for (const it of ctx.intents || []) if (it.re.test(Q)) { const v = it.view(); if (v) return v; }
+  // 2) ближайший готовый разбор по словам вопроса
+  const qs = words(Q).map(stem);
+  let best = null, bs = 0;
+  for (const c of ctx.cards || []) {
+    const bag = new Set(words([c.t, c.d, c.s?.headline, ...(c.s?.points || []).map(p => p.title)].join(" ")).map(stem));
+    const sc = qs.filter(w => bag.has(w)).length + (qs.some(w => words(c.t).map(stem).includes(w)) ? 1 : 0);
+    if (sc > bs) { bs = sc; best = c; }
+  }
+  if (best && bs >= 1) return { ...best, note: "Ближайший готовый разбор по вашему вопросу" };
+  return { id: "none", who: "", t: q, s: { headline: "Точного ответа в готовых разборах нет", metric: { value: "?", label: "попробуйте спросить иначе" },
+    points: [{ title: "Что я умею", text: ctx.hint || "Рассказать про любую нашу страницу (напишите её ник) или открыть готовый разбор по теме.", tone: "info" }],
+    actions: (ctx.cards || []).slice(0, 3).map(c => c.t) } };
+}
+// голосовой ввод (Chrome, Edge, Safari): распознаём по-русски и отдаём текст
+function voice(btn, onText) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { btn.hidden = true; return; }
+  let rec = null;
+  btn.addEventListener("click", () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = "ru-RU"; rec.interimResults = true; rec.maxAlternatives = 1;
+    btn.classList.add("rec");
+    rec.onresult = e => { const t = [...e.results].map(r => r[0].transcript).join(" "); onText(t, e.results[e.results.length - 1].isFinal); };
+    rec.onend = () => { btn.classList.remove("rec"); rec = null; };
+    rec.onerror = () => { btn.classList.remove("rec"); rec = null; };
+    rec.start();
+  });
+}
+window.akmAI = {
+  rich, local, voice,
+  // панель ввода: поле, микрофон, отправить — одинаково на всех страницах
+  form: (id, ph) => `<form class="aiq" id="${id}"><input name="q" autocomplete="off" placeholder="${esc(ph)}" aria-label="Вопрос"><button type="button" class="aiq-mic" title="Сказать голосом" aria-label="Голосом"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button type="submit" class="aiq-go" aria-label="Спросить">↗</button></form>`,
+  // сетка карточек по отделам: у каждой — значок, вопрос, о чём, и главная цифра ответа (видно до клика)
+  cards(C, extra = []) {
+    const all = [...C, ...extra];
+    if (!all.length) return `<div class="aic-empty">Разборы ИИ появятся после ежедневного прогона на сервере (около 11:00 МСК).</div>`;
+    const by = new Map(); all.forEach(c => { if (!by.has(c.who)) by.set(c.who, []); by.get(c.who).push(c); });
+    let j = 0;
+    return [...by].map(([who, L]) => `<div class="aic-g">${esc(who)}</div><div class="aic-grid">${L.map(c => `
+      <button type="button" class="aic2 ${(DEP[who] || DEP["Страница"])[0]}" data-aic="${esc(c.id)}" style="--j:${j++}">
+        <span class="aic-top">${ico(who)}<i>↗</i></span>
+        <b>${esc(c.t)}</b><span class="aic-d">${esc(c.d)}</span>
+        ${c.s?.metric?.value ? `<span class="aic-m"><em>${esc(c.s.metric.value)}</em>${esc(c.s.metric.label || "")}</span>` : ""}
+      </button>`).join("")}</div>`).join("");
+  },
+  // ответ: назад · вопрос · крупный вывод с главной цифрой · пункты карточками · что сделать · когда обновлено
+  answer(c, at = "") {
+    const s = c.s;
+    const head = `<div class="aia-bar"><button type="button" class="aia-back" data-aic="__all">← Все разборы</button><span>${esc(c.who || "")}</span></div>`;
+    if (!s) return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div></div><div class="aia-md">${c.html || mdLite(c.a)}</div>`;
+    return head + (c.note ? `<div class="aia-note">${esc(c.note)}</div>` : "") + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div>
+        <div class="aia-h">${rich(s.headline)}</div>${s.metric?.value ? `<div class="aia-m"><em>${esc(s.metric.value)}</em><span>${esc(s.metric.label || "")}</span></div>` : ""}
+        ${s.lead ? `<p class="aia-lead">${rich(s.lead)}</p>` : ""}</div>
+      ${(s.groups || [{ points: s.points }]).map(g => `${g.title ? `<div class="aia-gt">${esc(g.title)}</div>` : ""}<div class="aia-pts">${(g.points || []).map((p, j) => { const [cls, mk] = TONE[p.tone] || TONE.info;
+        return `<div class="aia-p ${cls}" style="--j:${j}"><span class="mk">${mk}</span><div><b>${rich(p.title)}</b><span>${rich(p.text)}</span></div>${p.u ? `<button type="button" class="aia-u" data-u="${esc(p.u)}">@${esc(p.u)}</button>` : ""}</div>`; }).join("")}</div>`).join("")}
+      ${s.actions?.length ? `<div class="aia-act"><div class="aia-gt">Что сделать</div><ol>${s.actions.map((a, j) => `<li style="--j:${j}">${rich(a)}</li>`).join("")}</ol></div>` : ""}
+      ${at ? `<div class="aia-at">${esc(at)} · ИИ Gemini</div>` : ""}`;
+  },
+};
+
+const growthIntents = (list, label = "страниц") => {
+  const L = list.filter(a => a.wp != null), up = [...L].sort((a, b) => b.wp - a.wp), dn = [...L].sort((a, b) => a.wp - b.wp);
+  const pts = (A, tone) => A.slice(0, 5).map(a => ({ title: "@" + a.u, text: `${a.w > 0 ? "+" : ""}${Math.round(a.w).toLocaleString("ru-RU")} подписчиков за 7 дней (${a.wp > 0 ? "+" : ""}${a.wp.toFixed(2).replace(".", ",")}%) · ${a.g || ""}`, tone, u: a.u }));
+  const neg = L.filter(a => a.w < 0);
+  return [
+    { re: /раст[её]т|быстре|лидер|лучш|топ/, view: () => up.length && ({ id: "i-up", who: "Руководству", t: "Кто растёт быстрее всех", s: { headline: `Быстрее всех растёт @${up[0].u}`, metric: { value: (up[0].wp > 0 ? "+" : "") + up[0].wp.toFixed(2).replace(".", ",") + "%", label: "за 7 дней" }, points: pts(up, "up"), actions: ["Разобрать, что сработало у лидеров (кнопка «ИИ-разбор» в окне страницы)"] } }) },
+    { re: /проседа|минус|пада|отста|хуже|теря/, view: () => dn.length && ({ id: "i-dn", who: "Руководству", t: "Кто проседает", s: { headline: neg.length ? `${neg.length} ${label} в минусе за неделю` : "В минусе никого — медленнее всех растут эти", metric: { value: String(neg.length), label: "в минусе за 7 дней" }, points: pts(dn, "down"), actions: ["Проверить частоту и время постов у отстающих", "Открыть «Как вести контент» по каждой из них"] } }) },
+  ];
+};
+window.akmAI.growthIntents = growthIntents;
+})();
+</script><style>
 /* Панель босса: все ключевые цифры агентства одним экраном — тёмные виджеты на светлом камне, тонкие графики.
    Отдельная ссылка (boss.html), без переходов на другие страницы. Данные — те же JSON, что у сайта. */
 body{background:var(--stone)}
 .bs-wrap{max-width:1560px;margin:0 auto;padding:18px 18px 40px}
-.bs-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 2px 16px}
+.bs-bar{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;padding:6px 2px 16px;flex-wrap:wrap}
 .bs-bar .brand{display:flex;align-items:center;gap:14px}
 .bs-bar h1{margin:0;font-size:clamp(24px,2.4vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1}
 .bs-bar .meta{font-size:12px;color:var(--muted);margin-top:4px}
@@ -985,7 +1132,22 @@ body{background:var(--stone)}
 .deltas div{display:flex;flex-direction:column;gap:2px}.deltas b{font:600 18px var(--f-mono);letter-spacing:-.02em}.deltas span{font-size:11px;opacity:.55}
 .grow1{flex:1}
 .spark{display:block;width:100%;height:auto;overflow:visible}
-.spark .ln{fill:none;stroke:var(--lime);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 1.6s cubic-bezier(.16,1,.3,1) .2s forwards}
+.spark .ln{fill:none;stroke:var(--lime);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.6s cubic-bezier(.16,1,.3,1) .2s forwards}
+.spark-w{position:relative}.spark-dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(210,243,91,.6);animation:dotPulse 2s ease-out infinite,fadein .4s ease 1.6s both}
+@keyframes dotPulse{0%{box-shadow:0 0 0 0 rgba(210,243,91,.55)}100%{box-shadow:0 0 0 14px rgba(210,243,91,0)}}
+/* живой счётчик: подписчики «капают» по текущему темпу сетки */
+.live{position:relative;display:inline-flex;align-items:baseline;gap:10px}
+.live .lvdot{width:9px;height:9px;border-radius:50%;background:#FF4F1F;align-self:center;animation:recp 1.6s ease-in-out infinite}
+@keyframes recp{50%{opacity:.25}}
+.drop{position:absolute;right:-8px;top:-6px;font:600 15px var(--f-mono);color:var(--lime);pointer-events:none;animation:drop 1.6s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes drop{0%{opacity:0;transform:translateY(10px)}20%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
+.bs-act{display:flex;gap:10px;align-items:center}
+.bs-ai{border:0;border-radius:999px;height:46px;padding:0 10px 0 18px;display:inline-flex;align-items:center;gap:10px;background:var(--blue);color:#fff;font-weight:600;font-size:13.5px;cursor:pointer}
+.bs-ai i{font-style:normal;width:30px;height:30px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center}
+#bsAi{border:0;padding:0;background:transparent;max-width:min(620px,calc(100vw - 24px));width:100%;margin-right:12px;margin-top:12px;height:calc(100dvh - 24px);max-height:none}
+#bsAi::backdrop{background:rgba(13,13,15,.32);backdrop-filter:blur(6px)}
+#bsAi .ai-body{display:flex;flex-direction:column;gap:10px;height:100%;padding:12px;background:var(--stone);border-radius:28px}
+#bsAi .msgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:8px}
 .spark .ar{fill:url(#bsg);opacity:0;animation:fadein 1s ease .8s forwards}
 .spark .dot{fill:var(--lime);opacity:0;animation:fadein .4s ease 1.6s forwards}
 .w.lt .spark .ln{stroke:var(--ink)}.w.lt .spark .dot{fill:var(--ink)}
@@ -1040,15 +1202,17 @@ body{background:var(--stone)}
 #tblFrame{width:100%;height:900px;border:0;display:block;background:transparent}
 .w.tblw{padding-bottom:8px}
 @media (max-width:1180px){.c3{grid-column:span 6}.c4,.c5,.c7,.c8{grid-column:span 12}.c6{grid-column:span 12}}
-@media (max-width:640px){.bs-wrap{padding:12px 12px 30px}.c3{grid-column:span 12}.bs-clock{display:none}.w{padding:16px;border-radius:20px;min-height:0}.lst svg{display:none}.r2{grid-row:auto}
+@media (max-width:640px){.bs-wrap{padding:12px 12px 30px}.c3{grid-column:span 12}.bs-clock{display:none}.bs-act{width:100%}.bs-ai{height:42px;padding:0 8px 0 14px;flex:1;justify-content:center}.bs-bar .meta{display:none}#bsAi{margin:0;max-width:100vw;height:100dvh}.w{padding:16px;border-radius:20px;min-height:0}.lst svg{display:none}.r2{grid-row:auto}
   .bs-bar h1{font-size:24px}.thumbs{grid-template-columns:repeat(4,minmax(0,1fr))}.donut svg{width:96px;height:96px}.k .pill2{display:none}.w.tblw{padding:12px 6px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <div class="bs-wrap">
   <header class="bs-bar">
     <div class="brand"><span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span><div><h1>Панель управления</h1><div class="meta" id="meta">загрузка…</div></div></div>
-    <div class="bs-clock" id="clock"></div>
+    <div class="bs-act"><div class="bs-clock" id="clock"></div><button type="button" class="bs-ai" id="bsAiOpen"><span class="ai-spark" aria-hidden="true"></span>Спросить ИИ<i>↗</i></button></div>
   </header>
+  <dialog id="bsAi" aria-label="ИИ-аналитик"><div class="ai-body"><div class="ai-head"><h2>ИИ-аналитик</h2><p class="ai-sub">Готовые разборы и ответы по данным — спросите словами или голосом.</p><button class="x" type="button" id="bsAiX" aria-label="Закрыть">×</button></div>
+    <div class="msgs" id="bsMsgs"></div><div id="bsQ"></div></div></dialog>
   <main class="bs" id="bs">
     <section class="w c6 r2"><div class="sk" style="width:30%"></div><div class="sk" style="height:60px;width:70%"></div></section>
     <section class="w c3"><div class="sk" style="width:40%"></div></section><section class="w c3 lime"></section>
@@ -1099,8 +1263,8 @@ function spark(vals, w = 600, h = 150, area = true) {
   const pts = vals.map((x, i) => x == null ? null : [X(i), Y(x)]).filter(Boolean), d = "M" + pts.map(p => p.map(n => n.toFixed(1)).join(",")).join("L");
   let len = 0; for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
   const last = pts.at(-1);
-  return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="--len:${len.toFixed(0)}"><defs><linearGradient id="bsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2F35B" stop-opacity=".28"/><stop offset="1" stop-color="#D2F35B" stop-opacity="0"/></linearGradient></defs>
-    ${area ? `<path class="ar" d="${d}L${w},${h}L0,${h}Z"/>` : ""}<path class="ln" d="${d}" vector-effect="non-scaling-stroke"/><circle class="dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="4"/></svg>`;
+  return `<div class="spark-w"><svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="bsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D2F35B" stop-opacity=".28"/><stop offset="1" stop-color="#D2F35B" stop-opacity="0"/></linearGradient></defs>
+    ${area ? `<path class="ar" d="${d}L${w},${h}L0,${h}Z"/>` : ""}<path class="ln" d="${d}" pathLength="1" vector-effect="non-scaling-stroke"/></svg><span class="spark-dot" style="left:${(last[0] / w * 100).toFixed(2)}%;top:${(last[1] / h * 100).toFixed(2)}%"></span></div>`;
 }
 const mini = (vals, col) => { const v = vals.filter(x => x != null); if (v.length < 2) return ""; const lo = Math.min(...v), hi = Math.max(...v) || 1, w = 84, h = 22;
   const d = vals.map((x, i) => x == null ? null : `${(i / (vals.length - 1) * w).toFixed(1)},${(h - 2 - (x - lo) / ((hi - lo) || 1) * (h - 4)).toFixed(1)}`).filter(Boolean).join("L");
@@ -1111,7 +1275,7 @@ function render(C, R) {
   const T = []; let i = 0;
   // 1 · аудитория сетки
   T.push(W("c6 r2", i++, `<div class="k">Аудитория сетки<span class="pill2">${own.size} ${plu(own.size, "страница", "страницы", "страниц")}</span></div>
-    <div class="num" data-n="${total}">${fmt(total)}</div>
+    <div class="live"><div class="num" id="liveN">${fmt(total)}</div><span class="lvdot" title="считается по темпу роста каждой страницы"></span></div>
     <div class="deltas"><div><b class="${cl(w7)}">${signed(w7, compact)}</b><span>за 7 дней · ${pct(total - w7 ? w7 / (total - w7) * 100 : null)}</span></div>
       <div><b class="${cl(m30)}">${signed(m30, compact)}</b><span>за 30 дней</span></div><div><b class="${cl(perDay)}">${signed(perDay / 24, compact)}</b><span>в час сейчас</span></div></div>
     <div class="grow1"></div>${spark(netS.map(x => x.v))}<div class="sub">${netS.length} ${plu(netS.length, "день", "дня", "дней")} · ${netS[0] ? netS[0].d.split("-").reverse().slice(0, 2).join(".") : ""} — сегодня</div>`));
@@ -1164,7 +1328,7 @@ function render(C, R) {
   // 10 · залёты — обложки
   if (vOwn.some(p => p.th)) T.push(W("c12", i++, `<div class="k">Что залетает у нас сейчас</div><div class="thumbs">${vOwn.filter(p => p.th).slice(0, 12).map((p, j) => `<a href="https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/" target="_blank" rel="noopener" style="--j:${j}"><img src="${esc(p.th)}" alt="" loading="lazy"><em>@${esc(p.u)}</em><span>×${Math.round(p.r)}</span></a>`).join("")}</div>`));
   // 11 · та же таблица, что на «Статистике сетки» (тот же код: index.html#embed-table во фрейме)
-  T.push(W("c12 lt tblw", i++, `<div class="k">Подписчики по понедельникам и по дням<span class="pill2">та же таблица, что в «Статистике сетки»</span></div>
+  T.push(W("c12 lt tblw", i++, `
     <iframe id="tblFrame" src="index.html#embed-table" title="Таблица подписчиков" loading="lazy"></iframe>`));
   const keepFrame = $("tblFrame");
   $("bs").innerHTML = T.join("");
@@ -1179,6 +1343,32 @@ tick(); setInterval(tick, 15000);
 const get = f => fetch("data/" + f + "?t=" + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null);
 let shown = false; const fb = setTimeout(() => { shown = true; render(null, null); }, 1800);
 Promise.all([get("comp.json"), get("radar.json")]).then(([C, R]) => { clearTimeout(fb); if (!shown || C || R) render(C, R); shown = true; });
+// живой счётчик: темп каждой страницы (подписчиков в сутки) → прибавка в секунду; целое прибавилось — «+N» всплывает
+(() => {
+  const rate = (D.live?.acc || []).reduce((s, x) => s + (x[3] || 0), 0) / 86400; if (!(rate > 0)) return;
+  const t0 = Date.now(), base = total; let shown = base;
+  setInterval(() => { const el = $("liveN"); if (!el) return; const v = Math.floor(base + rate * (Date.now() - t0) / 1000);
+    if (v > shown) { const d = document.createElement("span"); d.className = "drop"; d.textContent = "+" + (v - shown); el.parentNode.appendChild(d); setTimeout(() => d.remove(), 1700); shown = v; el.textContent = fmt(v); } }, 1000);
+})();
+// ИИ-аналитик: готовые разборы (network.json cards) + свободный вопрос по данным (без сервера) + голос
+const AI = { view: null, cards: D.cards || [] };
+const pageView = u => { const a = acc.find(x => x.u === u), h = (D.howto || {})[u], ai = h?.ai || {};
+  return { id: "p-" + u, who: "Страница", t: "@" + u, s: { headline: ai.headline || `@${u} — ${compact(a?.f)} подписчиков`, metric: { value: compact(a?.f), label: "подписчиков · " + (a?.g || "") }, lead: ai.overview,
+    points: [a?.w7 != null && { title: "За 7 дней", text: `${signed(a.w7)} (${pct(a.w7p)})`, tone: a.w7 >= 0 ? "up" : "down" }, ...(ai.vs_competitors || []).slice(0, 2), ...(ai.when || []).slice(0, 1).map(w => ({ title: "Когда постить: " + w.slot, text: w.why, tone: "up" }))].filter(Boolean),
+    actions: ai.next || [] } }; };
+function aiRender() {
+  $("bsMsgs").innerHTML = AI.view ? window.akmAI.answer(AI.view, "") : window.akmAI.cards(AI.cards);
+  $("bsMsgs").scrollTop = 0;
+}
+function aiAsk(q) { q = q.trim(); if (!q) return; AI.view = { ...window.akmAI.local(q, { cards: AI.cards, entities: acc.map(a => ({ names: ["@" + a.u, a.u], view: () => pageView(a.u) })), intents: window.akmAI.growthIntents(acc.map(a => ({ u: a.u, w: a.w7, wp: a.w7p, g: a.g }))) }), t: q }; aiRender(); }
+if (window.akmAI) {
+  $("bsQ").innerHTML = window.akmAI.form("bsForm", "Спросите: как @cookskillchief? кто проседает?");
+  $("bsForm").addEventListener("submit", e => { e.preventDefault(); const i = e.target.q; aiAsk(i.value); i.value = ""; });
+  window.akmAI.voice($("bsForm").querySelector(".aiq-mic"), (t, fin) => { $("bsForm").q.value = t; if (fin) { aiAsk(t); $("bsForm").q.value = ""; } });
+  $("bsMsgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (!b) return; const id = b.dataset.aic; AI.view = id === "__all" ? null : AI.cards.find(c => c.id === id) || null; aiRender(); });
+  $("bsAiOpen").addEventListener("click", () => { aiRender(); $("bsAi").showModal(); });
+  $("bsAiX").addEventListener("click", () => $("bsAi").close());
+} else $("bsAiOpen").hidden = true;
 // высота встроенной таблицы — по сообщению из фрейма
 addEventListener("message", e => { const h = e.data?.akmTableH; const f = $("tblFrame"); if (h && f) f.style.height = h + "px"; });
 // подсветка за курсором

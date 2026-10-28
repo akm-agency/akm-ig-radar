@@ -908,6 +908,51 @@ dialog.ai{max-width:min(620px,calc(100vw - 24px))}
   header.bar.stuck::before{opacity:1}
 }
 .t.rv-wait{opacity:0;transform:translate3d(0,34px,0) scale(.985)}
+/* ===== шапка v2: одна «парящая» стеклянная капсула — логотип и название, разделы, действия ===== */
+header.bar{display:flex!important;align-items:center;gap:12px;padding:7px 7px 7px 8px;margin:2px 0 6px;border-radius:30px;
+  background:rgba(255,255,255,.66);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 1px 0 rgba(13,13,15,.04),0 22px 44px -32px rgba(13,13,15,.45);top:10px!important}
+header.bar::before{display:none!important}
+header.bar .brand{flex:1;min-width:0;min-height:0!important;gap:12px}
+header.bar .logo{height:46px;padding:0 15px;background:#F4F3EF}
+header.bar .logo .akm{height:19px}
+header.bar h1{font-size:clamp(18px,1.7vw,23px)!important;letter-spacing:-.03em}
+header.bar .meta{font-size:11.5px;margin-top:3px}
+header.bar .nav{height:46px;margin:0;flex:none;box-shadow:none}
+header.bar .nav a{height:38px;font-size:13.5px;padding:0 16px}
+header.bar .pills{min-height:0;flex:none;gap:6px}
+header.bar .pill{height:46px;font-size:13.5px}
+header.bar .pill:not(.dark){background:#F4F3EF}header.bar .pill:not(.dark):hover{background:#fff}
+header.bar.stuck{background:rgba(255,255,255,.82)}
+@media (max-width:1180px){header.bar{flex-wrap:wrap;border-radius:26px}header.bar .brand{flex:1 1 100%}header.bar .nav{order:2}header.bar .pills{order:3;margin-left:auto}}
+@media (max-width:640px){header.bar{padding:6px;gap:8px;border-radius:24px}header.bar .logo{height:40px;padding:0 12px}header.bar .logo .akm{height:16px}
+  header.bar .nav{flex:1 1 100%;max-width:none;height:42px}header.bar .nav a{height:34px;padding:0 10px;font-size:12.5px}
+  header.bar .pills{flex:1 1 100%;margin:0}header.bar .pill{height:40px;flex:1;justify-content:center;font-size:13px}}
+/* ===== «Apple»-плитки: главные блоки сетки в стиле панели босса ===== */
+.t.ink.apple{background:radial-gradient(120% 90% at 100% 0%,rgba(210,243,91,.10),transparent 55%),var(--ink)}
+.t.ink.apple .big{color:var(--lime)}
+.t.ink.apple .minibars rect{fill:var(--lime)}
+.t.lime.attn .tag{background:var(--ink)!important;color:#fff!important}
+/* ===== слои «песок»: прирост групп нарастающим итогом за 14 дней ===== */
+.sand{position:relative;width:100%}.sand svg{display:block;width:100%;height:150px;overflow:visible}
+.sand path{transform-origin:0 100%;animation:sandIn 1.2s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j) * 120ms + .2s)}
+@keyframes sandIn{from{transform:scaleY(0);opacity:0}}
+.sand-leg{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+.sand-leg div{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px}
+.sand-leg i{width:12px;height:12px;border-radius:4px}.sand-leg b{font:600 13px var(--f-mono)}.sand-leg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sand-leg small{grid-column:2/4;font-size:11.5px;color:var(--muted);margin-top:-5px}
+/* ===== чат в окне ИИ: поле, микрофон, отправить ===== */
+.aiq{display:flex;gap:6px;align-items:center;background:#fff;border-radius:999px;padding:5px;box-shadow:inset 0 0 0 1px var(--line)}
+.aiq input{flex:1;min-width:0;border:0;outline:none;background:none;font:inherit;font-size:14px;padding:0 12px;height:40px}
+.aiq button{flex:none;border:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--tile-2);color:var(--ink);font-size:16px;transition:background .2s,transform .2s}
+.aiq .aiq-go{background:var(--ink);color:#fff}.aiq button:hover{transform:scale(1.06)}
+.aiq-mic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.aiq-mic.rec{background:var(--orange);color:#fff;animation:recPulse 1.2s ease-in-out infinite}
+@keyframes recPulse{50%{box-shadow:0 0 0 8px rgba(255,79,31,.18)}}
+.aia-note{font-size:11.5px;color:var(--muted);padding:0 4px}
+.sugg .chip{background:#fff}
+html.embed-root,html.embed-root body{background:#fff!important}
+
 .enter .t.rv-wait{animation:none}
 .t.rv-in{animation:tile-in .8s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--rv,0) * 60ms)!important}
 .rv-in .track i,.rv-in .bar2 i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}
@@ -1208,11 +1253,9 @@ tr.acc.fresh td{background:color-mix(in srgb,var(--lime) 9%,#fff)}
     </div>
     <div class="msgs" id="msgs"></div>
     <div class="sugg" id="sugg"></div>
-    <form class="ai-form" id="aiForm">
-      <textarea id="aiInput" placeholder="Например: кому из рекламодателей предложить наши спортивные аккаунты?" aria-label="Вопрос"></textarea>
-      <button class="pill dark" type="submit" id="aiSend">Спросить <span class="arrow">↗</span></button>
-      <button class="pill" type="button" id="aiStop" hidden>Стоп</button>
-    </form>
+    <form class="ai-form aiq on" id="aiForm"><input id="aiInput" autocomplete="off" placeholder="Спросите: что за бренд Kalshi? кого обработать первым?" aria-label="Вопрос">
+      <button type="button" class="aiq-mic" id="aiMic" title="Сказать голосом" aria-label="Голосом"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button type="submit" class="aiq-go" id="aiSend" aria-label="Спросить">↗</button><button type="button" id="aiStop" hidden>■</button></form>
   </div>
 </dialog>
 
@@ -1457,20 +1500,20 @@ function render() {
     <div class="scope" id="scope"></div>
     <div class="scope-leg"><span>Сектор — категория, в карточке — главный бренд группы · размер точки — число площадок</span><span>наведите на точку — бренд · белая обводка — новый · клик — карточка бренда</span></div></section>`);
   const fresh = B.filter(b => b.first >= shift(latest, -6)).sort((x, y) => y.reach - x.reach);
-  T.push(`<section class="t orange s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
+  T.push(`<section class="t ink apple s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
     <div class="sub">${fresh.length ? "впервые замечены в рекламе" : "новых рекламодателей нет"}</div>
     <div class="newb">${fresh.slice(0, 3).map(b => `<button type="button" data-b="${esc(b.key)}"><b>${esc(b.brand)}</b><span>${esc(b.category || "")} · ${b.hostsN} пл.</span></button>`).join("")}</div></section>`);
   const cats = {}; B.forEach(b => { const c = b.category || "Другое"; cats[c] = (cats[c] || 0) + 1; });
   const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
-  T.push(`<section class="t blue s3"><div class="lab">Главная категория</div><div class="spk-who" style="font-size:clamp(24px,2.6vw,34px)">${esc(topCat?.[0] || "—")}</div>
+  T.push(`<section class="t lime s3"><div class="lab">Главная категория</div><div class="spk-who" style="font-size:clamp(24px,2.6vw,34px)">${esc(topCat?.[0] || "—")}</div>
     <div class="sub">${topCat ? `${topCat[1]} из ${B.length} рекламодателей` : ""}</div><div class="grow"></div>
     ${topCat ? `<button class="corner" type="button" data-cat="${esc(topCat[0])}" aria-label="Показать категорию">↗</button>` : ""}</section>`);
   const ins = S.insights.find(i => i.type === "ads" && (i.headline || i.summary));
   T.push(`<section class="t lav s7"><div class="lab">ИИ-аналитик · рекламный рынок</div>
-    ${ins ? `<div class="headline">${markHandles(ins.headline || ins.summary)}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
+    ${ins ? `<div class="headline">${markHandles(ins.headline || ins.summary)}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.slice(0, 3).map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
       : `<div class="headline">Сводка по рекламному рынку появится после первого разбора агента.</div>`}</section>`);
   if (ins?.sections?.length) {
-    const color = { up: "lime", down: "", warn: "peach", info: "stone" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];
+    const color = { up: "", down: "", warn: "", info: "" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];
     for (const sec of ins.sections.slice(0, 4)) T.push(`<section class="t ${color[sec.tone] ?? ""} ${span}"><div class="lab">${esc(sec.title)}</div><div class="ilist">${(sec.items || []).map(it => {
       const key = it.key || (it.u && S.brands.find(b => b.handle === it.u || b.key === it.u)?.key);
       const inner = `<span class="u">${it.u ? "@" + esc(it.u) : esc(it.title || "")}</span><span class="v">${esc(it.value || "")}</span>${it.text ? `<span class="x2">${esc(it.text)}</span>` : ""}`;
@@ -1723,9 +1766,24 @@ function aiPick(id) {
 $("sugg").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) aiPick(b.dataset.aic); });
 $("msgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) { aiPick(b.dataset.aic); return; }
   const u = e.target.closest(".aia-u"); if (u) { const k = S.brands.find(x => x.handle === u.dataset.u || x.key === u.dataset.u)?.key; if (k) { closeDlg($("aiDlg")); setTimeout(() => openBrand(k), 230); } } });
+// бренд для чата: кто это (ИИ), размах, сходство с нашими, кому предложить
+function brandView(b) {
+  const to = (b.simOwn || []).slice(0, 3).map(([u, p]) => `@${u} (${p}%)`).concat((b.fitOwn || []).slice(0, 3).map(u => "@" + u)).slice(0, 3);
+  return { id: "b-" + b.key, who: "Продажам", t: b.brand, s: { headline: b.ai?.about || `${b.brand} — ${b.category || "рекламодатель"}`, metric: { value: String(b.hostsN), label: plu(b.hostsN, "площадка", "площадки", "площадок") + " · " + b.n + " " + plu(b.n, "пост", "поста", "постов") },
+    lead: b.ai?.sells ? "Продаёт: " + b.ai.sells + (b.ai.audience ? ". Для кого: " + b.ai.audience : "") : "",
+    points: [b.sim && { title: "Сходство с нашими", text: `${b.sim.p}% — площадка @${b.sim.host} похожа на нашу @${b.sim.own}${b.simDirect ? `; платит ${b.simDirect} нашим прямым конкурентам` : ""}`, tone: "up" },
+      { title: "Подача", text: `прямая ${b.explicitN} · нативная ${b.nativeN}; отклик ${xr(b.ratio)} к обычному посту`, tone: (b.ratio || 0) >= 1 ? "up" : "info" },
+      { title: "Статус", text: STATUS[statusOf(b)] + (isFresh(b) ? " · новый в рекламе с " + dShort(b.first) : ""), tone: "info" }].filter(Boolean),
+    actions: [b.ai?.pitch, to.length ? "Предложить: " + to.join(", ") : ""].filter(Boolean) } };
+}
 async function ask(q) {
   q = q.trim(); if (!q || S.ctl) return;
-  if (!S.sample) { S.chat.push({ role: "user", content: q }, { role: "assistant", content: "Свободные вопросы появятся позже — пока готовые разборы." }); $("aiInput").value = ""; return renderChat(); }
+  if (!S.sample) {   // без сервера: про конкретный бренд — его карточка; иначе ближайший готовый разбор
+    $("aiInput").value = "";
+    const ents = S.brands.map(b => ({ names: [b.brand, b.handle, "@" + b.handle], view: () => brandView(b) }));
+    S.aiView = { ...window.akmAI.local(q, { cards: S.cards || [], entities: ents, hint: "Назовите бренд (например Kalshi) — расскажу, кто это и кому из наших его предложить; или спросите, кого обработать первым, кто новый, у кого бюджеты." }), t: q };
+    return renderChat();
+  }
   S.chat.push({ role: "user", content: q });
   const turns = [{ role: "user", content: RULES + "\n\nДАННЫЕ:\n" + brief() }, { role: "assistant", content: "Данные получил." }, ...S.chat.slice(-10)];
   if (turns[2]?.role === "assistant") turns.splice(2, 1);
@@ -1735,7 +1793,7 @@ async function ask(q) {
   finally { S.ctl = null; $("aiSend").disabled = false; $("aiStop").hidden = true; renderChat(); }
 }
 $("aiForm").addEventListener("submit", e => { e.preventDefault(); ask($("aiInput").value); });
-$("aiInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask($("aiInput").value); } });
+window.akmAI.voice($("aiMic"), (t, fin) => { $("aiInput").value = t; if (fin) ask(t); });
 $("aiStop").addEventListener("click", () => S.ctl?.abort());
 $("aiOpen").addEventListener("click", () => { renderChat(); openDlg($("aiDlg")); });
 $("aiClose").addEventListener("click", () => closeDlg($("aiDlg")));
@@ -2109,10 +2167,54 @@ const DEP = {   // отдел → цвет карточки и значок
   "Страница": ["peach", '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/>'],
 };
 const ico = who => `<span class="aic-ic"><svg viewBox="0 0 24 24" aria-hidden="true">${(DEP[who] || DEP["Страница"])[1]}</svg></span>`;
+// старый текстовый разбор: **жирный**, списки «- », нумерация — без звёздочек
+const mdLite = t => esc(t || "").split("\n").map(l => l.trim()).filter(Boolean).map(l => { l = l.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  return /^[-•*]\s+/.test(l) ? `<p class="li">• ${l.replace(/^[-•*]\s+/, "")}</p>` : `<p>${l}</p>`; }).join("");
 const TONE = { up: ["up", "▲"], down: ["down", "▼"], info: ["info", "●"] };
 
+// свободный вопрос без сервера: ищем ответ в данных страницы и готовых разборах.
+// ctx: { cards, entities: [{id, names:[...], view: () => разбор}], hint } — страница сама даёт, о ком умеет рассказать
+const STOP = new Set("и в во на по за с со к ко о об от до из у а но что как кто где когда какой какая какие какую ли не ни же бы это этот эта эти мы нас наш наши наша нам вы мне".split(" "));
+const words = t => String(t || "").toLowerCase().replace(/ё/g, "е").match(/[a-zа-я0-9@._]+/g)?.filter(w => w.length > 2 && !STOP.has(w)) || [];
+const stem = w => w.length > 5 ? w.slice(0, -2) : w;
+function local(q, ctx) {
+  const Q = String(q).toLowerCase().replace(/ё/g, "е");
+  // 1) вопрос про конкретную страницу/бренд — по нику или названию
+  for (const e of ctx.entities || []) if (e.names.some(n => n && n.length > 2 && Q.includes(n.toLowerCase()))) return e.view();
+  // 1б) частые вопросы с ответом прямо из данных (кто растёт, кто проседает…)
+  for (const it of ctx.intents || []) if (it.re.test(Q)) { const v = it.view(); if (v) return v; }
+  // 2) ближайший готовый разбор по словам вопроса
+  const qs = words(Q).map(stem);
+  let best = null, bs = 0;
+  for (const c of ctx.cards || []) {
+    const bag = new Set(words([c.t, c.d, c.s?.headline, ...(c.s?.points || []).map(p => p.title)].join(" ")).map(stem));
+    const sc = qs.filter(w => bag.has(w)).length + (qs.some(w => words(c.t).map(stem).includes(w)) ? 1 : 0);
+    if (sc > bs) { bs = sc; best = c; }
+  }
+  if (best && bs >= 1) return { ...best, note: "Ближайший готовый разбор по вашему вопросу" };
+  return { id: "none", who: "", t: q, s: { headline: "Точного ответа в готовых разборах нет", metric: { value: "?", label: "попробуйте спросить иначе" },
+    points: [{ title: "Что я умею", text: ctx.hint || "Рассказать про любую нашу страницу (напишите её ник) или открыть готовый разбор по теме.", tone: "info" }],
+    actions: (ctx.cards || []).slice(0, 3).map(c => c.t) } };
+}
+// голосовой ввод (Chrome, Edge, Safari): распознаём по-русски и отдаём текст
+function voice(btn, onText) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { btn.hidden = true; return; }
+  let rec = null;
+  btn.addEventListener("click", () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = "ru-RU"; rec.interimResults = true; rec.maxAlternatives = 1;
+    btn.classList.add("rec");
+    rec.onresult = e => { const t = [...e.results].map(r => r[0].transcript).join(" "); onText(t, e.results[e.results.length - 1].isFinal); };
+    rec.onend = () => { btn.classList.remove("rec"); rec = null; };
+    rec.onerror = () => { btn.classList.remove("rec"); rec = null; };
+    rec.start();
+  });
+}
 window.akmAI = {
-  rich,
+  rich, local, voice,
+  // панель ввода: поле, микрофон, отправить — одинаково на всех страницах
+  form: (id, ph) => `<form class="aiq" id="${id}"><input name="q" autocomplete="off" placeholder="${esc(ph)}" aria-label="Вопрос"><button type="button" class="aiq-mic" title="Сказать голосом" aria-label="Голосом"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button type="submit" class="aiq-go" aria-label="Спросить">↗</button></form>`,
   // сетка карточек по отделам: у каждой — значок, вопрос, о чём, и главная цифра ответа (видно до клика)
   cards(C, extra = []) {
     const all = [...C, ...extra];
@@ -2130,8 +2232,8 @@ window.akmAI = {
   answer(c, at = "") {
     const s = c.s;
     const head = `<div class="aia-bar"><button type="button" class="aia-back" data-aic="__all">← Все разборы</button><span>${esc(c.who || "")}</span></div>`;
-    if (!s) return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div></div><div class="aia-md">${c.html || esc(c.a)}</div>`;
-    return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div>
+    if (!s) return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div></div><div class="aia-md">${c.html || mdLite(c.a)}</div>`;
+    return head + (c.note ? `<div class="aia-note">${esc(c.note)}</div>` : "") + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div>
         <div class="aia-h">${rich(s.headline)}</div>${s.metric?.value ? `<div class="aia-m"><em>${esc(s.metric.value)}</em><span>${esc(s.metric.label || "")}</span></div>` : ""}
         ${s.lead ? `<p class="aia-lead">${rich(s.lead)}</p>` : ""}</div>
       ${(s.groups || [{ points: s.points }]).map(g => `${g.title ? `<div class="aia-gt">${esc(g.title)}</div>` : ""}<div class="aia-pts">${(g.points || []).map((p, j) => { const [cls, mk] = TONE[p.tone] || TONE.info;
@@ -2140,5 +2242,16 @@ window.akmAI = {
       ${at ? `<div class="aia-at">${esc(at)} · ИИ Gemini</div>` : ""}`;
   },
 };
+
+const growthIntents = (list, label = "страниц") => {
+  const L = list.filter(a => a.wp != null), up = [...L].sort((a, b) => b.wp - a.wp), dn = [...L].sort((a, b) => a.wp - b.wp);
+  const pts = (A, tone) => A.slice(0, 5).map(a => ({ title: "@" + a.u, text: `${a.w > 0 ? "+" : ""}${Math.round(a.w).toLocaleString("ru-RU")} подписчиков за 7 дней (${a.wp > 0 ? "+" : ""}${a.wp.toFixed(2).replace(".", ",")}%) · ${a.g || ""}`, tone, u: a.u }));
+  const neg = L.filter(a => a.w < 0);
+  return [
+    { re: /раст[её]т|быстре|лидер|лучш|топ/, view: () => up.length && ({ id: "i-up", who: "Руководству", t: "Кто растёт быстрее всех", s: { headline: `Быстрее всех растёт @${up[0].u}`, metric: { value: (up[0].wp > 0 ? "+" : "") + up[0].wp.toFixed(2).replace(".", ",") + "%", label: "за 7 дней" }, points: pts(up, "up"), actions: ["Разобрать, что сработало у лидеров (кнопка «ИИ-разбор» в окне страницы)"] } }) },
+    { re: /проседа|минус|пада|отста|хуже|теря/, view: () => dn.length && ({ id: "i-dn", who: "Руководству", t: "Кто проседает", s: { headline: neg.length ? `${neg.length} ${label} в минусе за неделю` : "В минусе никого — медленнее всех растут эти", metric: { value: String(neg.length), label: "в минусе за 7 дней" }, points: pts(dn, "down"), actions: ["Проверить частоту и время постов у отстающих", "Открыть «Как вести контент» по каждой из них"] } }) },
+  ];
+};
+window.akmAI.growthIntents = growthIntents;
 })();
 </script></body></html>
