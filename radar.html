@@ -529,6 +529,90 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .vp-hook{font-size:clamp(20px,2.2vw,26px);font-weight:600;letter-spacing:-.02em;line-height:1.2;margin:10px 40px 14px 0}
 .vp-kvs{display:flex;gap:10px;flex-wrap:wrap}.vp-kvs .kv{flex:1;min-width:130px}.vp-kvs small{display:block;font-size:11px;color:var(--muted)}
 .vp-svg{width:100%;height:auto;display:block;margin-top:8px}.vp-empty{color:var(--muted);font-size:13px;padding:18px 0}
+/* «Прямые конкуренты» — модель близости competitor_ai: кольцо балла, оценки ИИ, обложки */
+@property --pp{syntax:"<number>";inherits:false;initial-value:0}
+.dx-ring{--c:var(--lime);--tr:rgba(255,255,255,.14);--sz:64px;--pp:var(--v,0);position:relative;flex:none;width:var(--sz);height:var(--sz);border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--c) calc(var(--pp) * 1%),var(--tr) 0);font-weight:600;letter-spacing:-.04em;font-size:calc(var(--sz) * .3);line-height:1}
+.dx-ring::before{content:"";position:absolute;inset:calc(var(--sz) * .1);border-radius:50%;background:var(--rb,var(--ink))}
+.dx-ring b{position:relative;font-weight:600}.dx-ring b small{font-size:.5em;opacity:.7;margin-left:1px}
+.dx-ring.lt{--tr:rgba(0,0,0,.08);--rb:var(--tile);--c:var(--ink)}
+.enter .dx-ring{animation:dx-fill 1.5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .35s)}
+@keyframes dx-fill{from{--pp:0}}
+.t.dx{isolation:isolate}
+.t.dx::before,.t.dx::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none;will-change:transform}
+.t.dx::before{width:520px;height:520px;top:-280px;right:-220px;background:radial-gradient(circle,rgba(255,79,31,.32),transparent 62%);animation:lv-drift 18s ease-in-out infinite alternate}
+.t.dx::after{width:560px;height:560px;bottom:-320px;left:-260px;background:radial-gradient(circle,rgba(210,243,91,.2),transparent 64%);animation:lv-drift 24s ease-in-out -8s infinite alternate-reverse}
+.dx-hist{display:flex;align-items:flex-end;gap:6px;height:92px;margin-top:auto}
+.dx-hist>span{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
+.dx-hist i{width:100%;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--lime),rgba(210,243,91,.55));transform-origin:50% 100%;min-height:4px}
+.dx-hist em{font-style:normal;font-size:11px;opacity:.6;font-family:var(--f-mono)}
+.dx-hist b{font-size:11.5px;font-weight:600;opacity:.9}
+.enter .dx-hist i{animation:grow-y .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 60ms + .3s)}
+.dx-kpi{display:flex;gap:18px;flex-wrap:wrap}.dx-kpi div{display:flex;flex-direction:column;gap:2px}.dx-kpi b{font-size:22px;letter-spacing:-.03em;font-weight:600}.dx-kpi span{font-size:12px;opacity:.6}
+/* оценки ИИ: тема / формат / аудитория, 0–3 */
+.dx-m{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;align-items:center;font-size:12px}
+.dx-m>span{opacity:.62}
+.dx-m>i{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;height:6px}
+.dx-m>i>u{border-radius:99px;background:rgba(0,0,0,.09);text-decoration:none;transform-origin:0 50%}
+.dx-m>i>u.on{background:var(--mc,var(--ink))}
+.t.ink .dx-m>i>u,.t.dx .dx-m>i>u{background:rgba(255,255,255,.14)}.t.ink .dx-m>i>u.on,.t.dx .dx-m>i>u.on{background:var(--lime)}
+.enter .dx-m>i>u.on{animation:grow-x .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + var(--k,0) * 90ms + .45s)}
+.dx-why{font-size:13.5px;line-height:1.38;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dx-why::before{content:"«"}.dx-why::after{content:"»"}
+.dx-own{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px 4px 4px;font-size:12px;font-weight:600;background:var(--lime);color:var(--ink);max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.dx-own::before{content:"≈";display:grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--ink);color:var(--lime);font-size:12px;flex:none}
+/* «Ближе всех» — витрина лучшего совпадения */
+.dx-top{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;flex:1}
+.dx-fan{position:relative;min-height:250px}
+.dx-fan>*{position:absolute;top:50%;left:50%;width:44%;aspect-ratio:4/5;border-radius:18px;object-fit:cover;border:4px solid var(--tile);box-shadow:0 22px 44px -22px rgba(0,0,0,.55);
+  transform:translate(-50%,-50%) translateX(calc(var(--k) * 58%)) rotate(calc(var(--k) * 8deg));transition:transform .7s cubic-bezier(.16,1,.3,1)}
+.dx-fan>:nth-child(2){z-index:1}
+.t:hover .dx-fan>*{transform:translate(-50%,-50%) translateX(calc(var(--k) * 72%)) translateY(calc(var(--k) * var(--k) * 10px)) rotate(calc(var(--k) * 13deg))}
+.enter .dx-fan>*{animation:cmc-deal 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc((var(--k) + 1) * 90ms + .3s)}
+.dx-ph{background:linear-gradient(140deg,hsl(var(--h) 85% 72%),hsl(calc(var(--h) + 40) 80% 58%));display:grid;place-items:center;color:rgba(255,255,255,.92);font-weight:700;font-size:28px;letter-spacing:-.04em}
+.dx-tinfo{display:flex;flex-direction:column;gap:12px;min-width:0}
+.dx-tu{font-size:clamp(24px,2.6vw,36px);font-weight:600;letter-spacing:-.045em;line-height:1;overflow-wrap:anywhere}
+.dx-tring{display:flex;align-items:center;gap:14px}
+/* сетка карточек */
+.dx-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.dx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.dx-card{position:relative;display:flex;flex-direction:column;border:0;padding:0;text-align:left;background:var(--tile-2);border-radius:20px;overflow:hidden;color:var(--ink);
+  transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s,background .3s}
+.dx-card:hover{transform:translateY(-4px);box-shadow:0 22px 40px -26px rgba(13,13,15,.5);background:#fff}
+.dx-cov{position:relative;height:118px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;background:var(--ink);overflow:hidden}
+.dx-cov>*{width:100%;height:100%;min-width:0;transition:transform .8s cubic-bezier(.16,1,.3,1)}
+.dx-cov>img{object-fit:cover;display:block}
+.dx-cov .dx-ph{font-size:30px;grid-column:span var(--n,1)}
+.dx-card:hover .dx-cov>*{transform:scale(1.07)}
+.dx-cov::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(13,13,15,.55))}
+.dx-card .dx-ring{position:absolute;right:12px;top:84px;z-index:1;--sz:58px;--rb:var(--ink);color:#fff;box-shadow:0 0 0 4px var(--tile-2);transition:box-shadow .3s}
+.dx-card:hover .dx-ring{box-shadow:0 0 0 4px #fff}
+.dx-cb{display:flex;flex-direction:column;gap:9px;padding:14px 16px 16px;flex:1}
+.dx-cu{padding-right:64px}.dx-cu b{display:block;font-size:16px;font-weight:600;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dx-cu span{font-size:12px;color:var(--muted)}
+.dx-card .dx-why{font-size:12.5px;color:#3A3A40;-webkit-line-clamp:2}
+.dx-cf{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+.dx-nic{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.enter .dx-card{animation:tile-in .7s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 40ms + .2s)}
+/* кого поджимают: наши страницы по числу прямых конкурентов */
+.dx-ol{display:flex;flex-direction:column;gap:2px}
+.dx-or{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 10px;align-items:center;border:0;background:none;color:inherit;text-align:left;padding:8px 10px;margin:0 -10px;border-radius:14px;transition:background .2s}
+.dx-or:hover,.dx-or.on{background:rgba(0,0,0,.07)}
+.dx-or b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dx-or .v{font-family:var(--f-mono);font-size:12.5px;font-weight:600}
+.dx-or .bar2{grid-column:1/-1;height:5px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}.dx-or .bar2 i{display:block;height:100%;border-radius:inherit;background:var(--ink)}
+.dx-or small{font-weight:400;opacity:.6;margin-left:6px}
+/* как считается балл */
+.dx-wbar{display:flex;height:34px;border-radius:12px;overflow:hidden;gap:2px}
+.dx-wbar>i{display:flex;align-items:center;padding:0 10px;font-style:normal;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;transform-origin:0 50%}
+.enter .dx-wbar>i{animation:grow-x .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 80ms + .35s)}
+.dx-wl{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:#3A3A40}.dx-wl span{display:inline-flex;align-items:center;gap:6px}.dx-wl i{width:9px;height:9px;border-radius:3px}.dx-wl b{color:var(--ink);font-weight:600}
+.dx-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 14px;font-size:12px;color:#3A3A40}
+.dx-legend b{display:block;color:var(--ink);font-size:13px}
+.lab .seg button{text-transform:none;letter-spacing:0;padding:5px 12px}
+.sim-src{display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:6px;vertical-align:middle;background:var(--faint)}
+.sim-src.ai{background:var(--up)}.sim-src.model{background:var(--blue)}
+@media (max-width:900px){.dx-top{grid-template-columns:minmax(0,1fr)}.dx-fan{min-height:210px}}
+@media (max-width:640px){.dx-grid{grid-template-columns:minmax(0,1fr)}.dx-fan>*{width:38%}.dx-hist{height:72px}}
 </style></head><body class="public"><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
 <style>
 .own-l{background:var(--lime)!important;color:var(--ink)!important;font-weight:600}
@@ -642,6 +726,23 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
 .own{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;background:var(--lime);color:var(--ink);white-space:nowrap}
 .hrow.own-row b{color:var(--ink)}
 .hrow .own-tag{font-size:10.5px;font-weight:700;color:var(--ink);background:var(--lime);border-radius:999px;padding:1px 7px;margin-left:6px}
+/* похожесть площадок, где бренд рекламировался, на наши страницы (competitor_ai) */
+.simv{font-family:var(--f-mono);font-weight:600}
+.simv.hi{color:var(--up)}
+.simd{display:inline-block;font-size:10.5px;font-weight:700;border-radius:999px;padding:2px 7px;margin-left:6px;background:var(--ink);color:var(--lime);vertical-align:1px;white-space:nowrap}
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.wl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;border:0;text-align:left;background:var(--tile-2);border-radius:20px;padding:14px 16px;color:var(--ink);
+  transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s,background .3s}
+.wl:hover{transform:translateY(-3px);background:#fff;box-shadow:0 18px 36px -24px rgba(13,13,15,.5)}
+.wl .dx-ring{grid-row:span 3;--sz:60px}
+.wl b{font-size:15.5px;font-weight:600;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl .dx-own{justify-self:start}
+.enter .wl{animation:tile-in .7s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .25s)}
+.offer{display:flex;flex-direction:column;gap:8px}
+.offer a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;text-decoration:none;color:inherit;background:rgba(255,255,255,.55);border-radius:14px;padding:9px 12px}
+.offer a:hover{background:#fff}
+.offer b{font-weight:600}.offer span{font-size:12px;color:#3A3A40}.offer .simv{grid-row:span 2;font-size:18px}
 </style>
 
 <div class="wrap">
@@ -661,12 +762,13 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
     <section class="t s12" id="brandTile">
       <div class="tt-head">
         <div><div class="lab" style="opacity:.6;margin-bottom:6px">Лиды для продаж</div><h2>Рекламодатели</h2></div>
-        <input class="search" id="q" type="search" placeholder="Поиск бренда" aria-label="Поиск бренда">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="seg" id="bSort" role="group" aria-label="Порядок"><button type="button" data-bs="sim" aria-pressed="true">Похожие площадки</button><button type="button" data-bs="new" aria-pressed="false">Новые и размах</button></div>
+        <input class="search" id="q" type="search" placeholder="Поиск бренда" aria-label="Поиск бренда"></div>
       </div>
       <div class="chips" id="stChips" role="group" aria-label="Статус"></div>
       <div class="chips" id="catChips" role="group" aria-label="Категория"></div>
-      <div class="tbl-wrap"><table class="ad-tbl"><thead><tr><th>Бренд</th><th>Постов</th><th class="c-wk">Площадок</th><th class="c-wk">Последний</th><th class="c-wk0">Подача</th><th>Отклик</th><th class="c-w4">Охват</th><th>Статус</th></tr></thead><tbody id="btbody"></tbody></table></div>
-      <p class="foot">Отклик — лайки рекламного поста к обычному посту той же площадки (медиана за 45 дней). Охват — суммарные подписчики площадок, где бренд размещался. Подача: чёрный — явная реклама (#ad, #partner), оранжевый — нативная (бренд вшит в контент без пометки).</p>
+      <div class="tbl-wrap"><table class="ad-tbl"><thead><tr><th>Бренд</th><th title="Насколько площадки, где бренд рекламировался, похожи на наши страницы (модель близости, 0–100)">Похожесть</th><th>Постов</th><th class="c-wk">Площадок</th><th class="c-wk">Последний</th><th class="c-wk0">Подача</th><th>Отклик</th><th class="c-w4">Охват</th><th>Статус</th></tr></thead><tbody id="btbody"></tbody></table></div>
+      <p class="foot">Похожесть — лучший балл модели близости среди площадок, где бренд рекламировался: насколько эта площадка похожа на одну из наших страниц по теме, формату и аудитории («прямой» — от 65 и проверено ИИ). Отклик — лайки рекламного поста к обычному посту той же площадки (медиана за 45 дней). Охват — суммарные подписчики площадок, где бренд размещался. Подача: чёрный — явная реклама (#ad, #partner), оранжевый — нативная (бренд вшит в контент без пометки).</p>
     </section>
   </main>
 </div>
@@ -693,7 +795,11 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
 <script type="text/x-main" id="main-js">
 (() => {
 const $ = id => document.getElementById(id);
-const S = { brands: [], hosts: [], hostsAt: null, insights: [], leads: {}, st: "all", cat: "all", q: "", chat: [], sample: null, ctl: null, db: null, user: null, canWrite: false, names: {} };
+const S = { brands: [], hosts: [], hostsAt: null, insights: [], leads: {}, st: "all", cat: "all", q: "", bSort: "sim", chat: [], sample: null, ctl: null, db: null, user: null, canWrite: false, names: {} };
+// похожесть площадки бренда на наши страницы (export_pages.brand_sim): b.sim = {p, host, own, chk}, b.simDirect, b.simOwn = [[наша, балл, через площадку]]
+const simOf = b => b.sim?.p ?? null;
+const dxRingR = p => `<span class="dx-ring lt" style="--v:${p};--rb:var(--tile-2)" aria-label="похожесть ${p}%"><b>${p}<small>%</small></b></span>`;
+const simCell = b => b.sim ? `<span class="simv ${b.simDirect ? "hi" : ""}" title="@${esc(b.sim.host)} похожа на нашу @${esc(b.sim.own)}${b.sim.chk ? " · проверено ИИ" : ""}">${b.sim.p}</span>${b.simDirect ? `<span class="simd">прямой${b.simDirect > 1 ? " ×" + b.simDirect : ""}</span>` : ""}` : '<span class="muted">—</span>';
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const nf = new Intl.NumberFormat("ru-RU");
 const fmt = n => n == null ? "—" : nf.format(Math.round(n));
@@ -861,6 +967,13 @@ function render() {
       return key ? `<button type="button" class="irow" data-b="${esc(key)}">${inner}</button>` : `<div class="irow">${inner}</div>`;
     }).join("")}</div></section>`);
   }
+  // тёплые лиды: рекламируются на площадках, почти таких же, как наши (модель близости competitor_ai)
+  const W = B.filter(b => b.simDirect).sort((x, y) => simOf(y) - simOf(x) || y.simDirect - x.simDirect).slice(0, 8);
+  if (W.length) T.push(`<section class="t s12"><div class="lab">Рекламируются у наших прямых конкурентов <span class="tag">${B.filter(b => b.simDirect).length} ${plu(B.filter(b => b.simDirect).length, "бренд", "бренда", "брендов")} · площадка от 65% похожа на нашу</span></div>
+    <div class="wl-grid">${W.map((b, j) => `<button type="button" class="wl" data-b="${esc(b.key)}" style="--j:${j}">${dxRingR(b.sim.p)}
+      <b>${esc(b.brand)}</b><span>на @${esc(b.sim.host)}${b.simDirect > 1 ? ` и ещё ${b.simDirect - 1} ${plu(b.simDirect - 1, "прямом", "прямых", "прямых")}` : ""} · ${esc(b.category || "")}</span>
+      <span class="dx-own" title="Предложить нашу @${esc(b.sim.own)}">@${esc(b.sim.own)}</span></button>`).join("")}</div>
+    <div class="foot">≈ — какую нашу страницу предложить: она почти такая же, как площадка, где бренд уже платит за рекламу.</div></section>`);
   // viral: fresh ads, ratio to the host's usual post + growth per hour from hourly checks
   const V = (S.viral || []).slice(0, 12);
   if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час</span></div>
@@ -899,7 +1012,10 @@ function filtered() {
   const q = S.q.toLowerCase();
   return S.brands.filter(b => (S.st === "all" || statusOf(b) === S.st) && (S.cat === "all" || (b.category || "Другое") === S.cat)
     && (!q || (b.brand + " " + (b.handle || "") + " " + (b.category || "")).toLowerCase().includes(q)))
-    .sort((a, b) => (isFresh(b) - isFresh(a)) || (isFresh(a) && isFresh(b) && b.first.localeCompare(a.first))
+    .sort(S.bSort === "sim"
+      // сначала бренды, которые рекламируются на площадках, максимально похожих на наши (там им проще продать наши)
+      ? (a, b) => (statusOf(a) === "no") - (statusOf(b) === "no") || (simOf(b) ?? -1) - (simOf(a) ?? -1) || (b.simDirect || 0) - (a.simDirect || 0) || (b.hostsN || 0) - (a.hostsN || 0)
+      : (a, b) => (isFresh(b) - isFresh(a)) || (isFresh(a) && isFresh(b) && b.first.localeCompare(a.first))
       || (statusOf(a) === "new" ? 0 : 1) - (statusOf(b) === "new" ? 0 : 1) || (b.hostsN || 0) - (a.hostsN || 0) || b.n - a.n || b.reach - a.reach);
 }
 function renderTable() {
@@ -908,11 +1024,12 @@ function renderTable() {
     const s = statusOf(b), tot = b.explicitN + b.nativeN || 1;
     return `<tr class="acc" data-b="${esc(b.key)}" tabindex="0">
       <td><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}${b.email || b.emails?.length || b.contact ? ' <span class="hasc" title="Есть почта или страница для партнёров — откройте бренд">есть контакт!</span>' : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span></div></td>
-      <td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
+      <td class="n">${simCell(b)}</td><td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
       <td class="c-wk0"><span class="mix" title="явная ${b.explicitN} · нативная ${b.nativeN}"><i class="ex" style="width:${b.explicitN / tot * 100}%"></i><i class="na" style="width:${b.nativeN / tot * 100}%"></i></span></td>
       <td class="n"><span class="rx ${rcls(b.ratio)}">${xr(b.ratio)}</span></td><td class="n c-w4">${compact(b.reach)}</td>
       <td>${s !== "new" ? `<span class="st ${s}">${STATUS[s]}</span>` : isFresh(b) ? `<span class="st new" title="впервые в рекламе ${dShort(b.first)}">новый</span>` : ""}</td></tr>`;
-  }).join("") || `<tr><td colspan="8" class="muted" style="text-align:center;padding:28px">Нет брендов под этот фильтр</td></tr>`;
+  }).join("") || `<tr><td colspan="9" class="muted" style="text-align:center;padding:28px">Нет брендов под этот фильтр</td></tr>`;
+  $("bSort").querySelectorAll("[data-bs]").forEach(x => x.setAttribute("aria-pressed", x.dataset.bs === S.bSort));
 }
 
 /* ---------- brand card ---------- */
@@ -938,7 +1055,11 @@ async function openBrand(key) {
       <div class="kvs"><div class="kv"><span>Отклик</span><b>${xr(b.ratio)}</b></div><div class="kv"><span>Охват</span><b>${compact(b.reach)}</b></div></div></section>
     <section class="t d6"><div class="lab">Контакты</div><div class="contacts">${contacts.length ? contacts.join("") : '<span class="muted">Контакты ищутся каждый час: био и «ссылка в био», сайт бренда (контакты, партнёрам, пресса), не нашли — повтор через 4 дня.</span>'}</div>
       <div class="sub" style="opacity:1;color:var(--muted)">Площадки: ${b.hosts.map(h => `<a href="${igLink(h)}" target="_blank" rel="noopener">@${esc(h)}</a>`).join(", ")}</div></section>
-    ${b.fitOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить</div><div class="sub" style="opacity:1">Рекламируется в нишах: ${esc((b.fitNiches || []).join(", "))}</div>
+    ${b.simOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить <span class="tag">по похожести площадок · модель близости</span></div>
+      <div class="sub" style="opacity:1">Бренд уже платит площадкам, почти таким же, как эти наши страницы — тема, формат и аудитория совпадают:</div>
+      <div class="offer">${b.simOwn.map(([o, p, via]) => `<a href="${igLink(o)}" target="_blank" rel="noopener"><b>@${esc(o)}</b><span class="simv">${p}%</span><span>похожа на @${esc(via)}, где бренд рекламировался</span></a>`).join("")}</div>
+      ${b.fitNiches?.length ? `<div class="sub" style="opacity:1;color:#3A3A40">Ниши размещений: ${esc(b.fitNiches.join(", "))}</div>` : ""}</section>`
+    : b.fitOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить</div><div class="sub" style="opacity:1">Рекламируется в нишах: ${esc((b.fitNiches || []).join(", "))}</div>
       <div class="sub" style="opacity:1">Наши страницы в этих нишах: ${b.fitOwn.map(u => `<a href="${igLink(u)}" target="_blank" rel="noopener">@${esc(u)}</a>`).join(", ")}</div></section>` : ""}
     ${b.clipping?.length ? `<section class="t peach d6"><div class="lab">Запускает клиппинг</div>${b.clipping.map(c => `<div class="sub" style="opacity:1"><a href="${esc(c.url || "#")}" target="_blank" rel="noopener">${esc(c.title)}</a> · ${esc(c.org || "")}${c.budget ? ` · $${fmt(c.budget)}` : ""} · ${esc(c.at)}</div>`).join("")}
       <div class="sub" style="opacity:1;color:var(--muted)">Бренд платит за охват прямо сейчас — тёплый лид для размещений.</div></section>` : ""}
@@ -986,7 +1107,8 @@ function placeInd() { const a = document.querySelector('#nav a[data-p="ads"]'); 
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-b]"); if (b && !e.target.closest("#accDlg")) { openBrand(b.dataset.b); return; }
   const c = e.target.closest("[data-cat]"); if (c && !e.target.closest("#accDlg")) { S.cat = S.cat === c.dataset.cat && c.classList.contains("chip") ? "all" : c.dataset.cat; renderChips(); renderTable(); if (!c.classList.contains("chip")) $("brandTile").scrollIntoView({ behavior: "smooth" }); return; }
-  const st = e.target.closest("[data-st]"); if (st) { S.st = st.dataset.st; renderChips(); renderTable(); }
+  const st = e.target.closest("[data-st]"); if (st) { S.st = st.dataset.st; renderChips(); renderTable(); return; }
+  const bs = e.target.closest("[data-bs]"); if (bs) { S.bSort = bs.dataset.bs; renderTable(); }
 });
 $("btbody").addEventListener("keydown", e => { const r = e.target.closest("tr.acc"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openBrand(r.dataset.b); } });
 $("q").addEventListener("input", e => { S.q = e.target.value.trim(); renderTable(); });
