@@ -1165,7 +1165,7 @@ const b64e = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))), b64
 async function crmLoad() {
   if (!CRM.key) { crmUi(); return; }
   try {
-    const r = await gh(CRM_FILE); if (!r.ok) throw new Error(r.status === 404 ? "нет файла leads.json в " + CRM_REPO : r.status === 401 ? "ключ не подходит" : "GitHub " + r.status);
+    const r = await gh(CRM_FILE); if (!r.ok) throw new Error(r.status === 404 ? "ключ не видит репозиторий " + CRM_REPO + " (владелец ключа — akm-agency, доступ к akm-crm, Contents: Read and write)" : r.status === 401 ? "ключ не подходит" : "GitHub " + r.status);
     const j = await r.json(); CRM.sha = j.sha; S.leads = JSON.parse(b64d(j.content) || "{}"); CRM.ok = true;
   } catch (e) { CRM.ok = false; toast("CRM: " + e.message); }
   crmUi(); renderChips(); renderTable(); render5();
