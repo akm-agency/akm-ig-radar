@@ -663,6 +663,72 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 /* встроенная таблица (панель босса): только «Подписчики по понедельникам», без шапки и плиток */
 body.embed{background:transparent}body.embed header.bar,body.embed #bento,body.embed #pageCont,body.embed #pageComp,body.embed .toast{display:none!important}
 body.embed .wrap{max-width:none;padding:0}body.embed #pageNet{padding:0}body.embed #tableTile{margin:0;border-radius:0;box-shadow:none;background:transparent;padding:0}
+.pc-kind{position:absolute;left:8px;bottom:8px;z-index:2;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:3px 9px;background:rgba(13,13,15,.78);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pc-kind.k-car{background:var(--lime);color:var(--ink)}.pc-kind.k-reel{background:rgba(37,65,255,.9)}
+
+/* ИИ-аналитик v2: объёмные карточки-разборы и ответ-раскладка (ai_ui.js) */
+dialog.ai{max-width:min(620px,calc(100vw - 24px))}
+.aic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.aic2{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;border:0;border-radius:22px;padding:14px 16px 16px;color:var(--ink);background:#fff;min-height:148px;overflow:hidden;isolation:isolate;
+  box-shadow:0 1px 0 rgba(13,13,15,.04),0 10px 24px -18px rgba(13,13,15,.45);transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s;animation:tile-in .55s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms)}
+.aic2::after{content:"";position:absolute;z-index:-1;right:-40px;bottom:-60px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),transparent 65%);opacity:.6;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.aic2:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 26px 40px -24px rgba(13,13,15,.5)}.aic2:hover::after{transform:scale(1.3)}
+.aic2.ink{background:var(--ink);color:#fff}.aic2.ink::after{background:radial-gradient(circle,rgba(210,243,91,.35),transparent 65%)}
+.aic2.lav{background:var(--lavender)}.aic2.lime{background:var(--lime)}.aic2.peach{background:var(--peach)}
+.aic-top{display:flex;justify-content:space-between;align-items:center}
+.aic-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.55)}.aic2.ink .aic-ic{background:rgba(255,255,255,.12)}
+.aic-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.aic-top i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(13,13,15,.08);transition:transform .35s,background .2s}
+.aic2.ink .aic-top i{background:rgba(255,255,255,.14)}.aic2:hover .aic-top i{transform:rotate(-45deg);background:var(--ink);color:#fff}.aic2.ink:hover .aic-top i{background:var(--lime);color:var(--ink)}
+.aic2 b{font-size:16px;letter-spacing:-.02em;line-height:1.15}.aic-d{font-size:12px;line-height:1.35;opacity:.65}
+.aic-m{margin-top:auto;display:flex;flex-direction:column;gap:2px;font-size:11.5px;opacity:.85;line-height:1.3}.aic-m em{font-style:normal;font:600 22px var(--f-mono);letter-spacing:-.03em;white-space:nowrap}
+.aic-empty{padding:20px;border-radius:18px;background:#fff;color:var(--muted)}
+.aia-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2;padding:2px 0 6px;background:linear-gradient(#E9E8E3 70%,transparent)}
+.aia-back{border:0;border-radius:999px;padding:9px 14px;background:var(--ink);color:#fff;font-weight:600;font-size:13px;transition:transform .2s}.aia-back:hover{transform:translateX(-3px)}
+.aia-bar span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.aia-hero{border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;background:#fff;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both}
+.aia-hero.ink{background:var(--ink);color:#fff}.aia-hero.lav{background:var(--lavender)}.aia-hero.lime{background:var(--lime)}.aia-hero.peach{background:var(--peach)}
+.aia-q{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6}
+.aia-h{font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.2}
+.aia-m{display:flex;align-items:baseline;gap:10px}.aia-m em{font-style:normal;font:600 40px var(--f-mono);letter-spacing:-.05em;line-height:1}.aia-m span{font-size:12.5px;opacity:.7}
+.aia-hero.ink .aia-m em{color:var(--lime)}
+.aia-lead{margin:0;font-size:13.5px;line-height:1.45;opacity:.85}
+.aia-gt{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:6px 4px 0}
+.aia-pts{display:flex;flex-direction:column;gap:6px}
+.aia-p{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;background:#fff;border-radius:18px;padding:12px 14px;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 60ms + .15s)}
+.aia-p .mk{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:11px;background:var(--tile-2)}
+.aia-p.up .mk{background:#DDF6C4;color:var(--up)}.aia-p.down .mk{background:#FFE1D6;color:var(--down)}
+.aia-p div>b{display:block;font-size:14px;letter-spacing:-.01em}.aia-p div>span{font-size:13px;line-height:1.42;color:#3A3A40}
+.aia-u{border:0;border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:600;background:var(--tile-2);color:var(--ink);white-space:nowrap}.aia-u:hover{background:var(--ink);color:#fff}
+.aih{font-weight:600;background:var(--tile-2);border-radius:6px;padding:0 4px;white-space:nowrap}.aia-hero .aih{background:rgba(255,255,255,.18)}.aia-hero.lime .aih,.aia-hero.lav .aih,.aia-hero.peach .aih{background:rgba(255,255,255,.55)}
+.ain{font-family:var(--f-mono);font-weight:600;font-size:.94em;white-space:nowrap}
+.aia-act ol{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:a}
+.aia-act li{counter-increment:a;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;font-size:13.5px;line-height:1.4;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .45s)}
+.aia-act li::before{content:counter(a);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);font-weight:700;font-size:13px}
+.aia-act .aih{background:rgba(255,255,255,.16)}
+.aia-at{font-size:11px;color:var(--muted);text-align:center;padding:8px 0 4px}
+.aia-md{background:#fff;border-radius:18px;padding:14px 16px;font-size:13.5px;line-height:1.45}
+@media (max-width:640px){.aic-grid{grid-template-columns:1fr}.aic2{min-height:0}.aia-m em{font-size:32px}.aia-p{grid-template-columns:auto minmax(0,1fr)}.aia-u{grid-column:2;justify-self:start}}
+.sp-wide{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--tile-2)}
+.sp-wide .k{font-size:12.5px;color:var(--muted);margin-right:4px}
+.sp-wide a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--ink);text-decoration:none;background:#fff;border-radius:999px;padding:3px 10px 3px 4px}
+.sp-wide a .ci{background:none;width:20px;height:20px}.sp-wide a .ci svg{stroke:var(--muted)}
+.sp-wide em{font-style:normal;font:600 10.5px var(--f-mono);color:var(--muted)}.sp-wide a:hover{background:var(--ink);color:#fff}
+.sp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sp-c{display:flex;flex-direction:column;gap:8px;border-radius:20px;padding:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 40ms + .2s)}
+.sp-h{display:flex;gap:10px;align-items:center;border:0;background:none;padding:0;text-align:left;min-width:0}
+.sp-h .w{display:flex;flex-direction:column;min-width:0}.sp-h b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sp-h .w span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-h:hover b{text-decoration:underline}
+.sp-k{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.sp-b{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;gap:4px 10px;align-items:center;text-decoration:none;color:var(--ink);padding:8px 10px;border-radius:14px;background:var(--tile-2);transition:background .2s,transform .3s cubic-bezier(.16,1,.3,1)}
+.sp-b:hover{background:#ECEBE6;transform:translateX(3px)}
+.sp-b .ci{grid-row:1/3;background:#fff}.sp-b .ci svg{stroke:var(--ink)}
+.sp-b .w{display:flex;flex-direction:column;min-width:0}.sp-b b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sp-b .w span{font-size:11.5px;color:var(--muted)}
+.sp-b b i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);vertical-align:2px}
+.sp-b .bar2{grid-column:2;height:4px;border-radius:9px;background:#fff;overflow:hidden}.sp-b .bar2 i{display:block;height:100%;background:var(--ink);border-radius:9px}
+.sp-more{font-size:12px;color:var(--muted);line-height:1.4}
+@media (max-width:1100px){.sp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.sp-grid{grid-template-columns:1fr}.sp-wide .k{width:100%}}
 /* «Кому продавать»: иконки категорий, аватары страниц, разбивка по категориям */
 .ci{flex:none;display:inline-grid;place-items:center;width:calc(var(--cs) + 12px);height:calc(var(--cs) + 12px);border-radius:calc((var(--cs) + 12px) * .32);background:color-mix(in srgb,var(--cc) 40%,#fff)}
 .ci svg{width:var(--cs);height:var(--cs);fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1582,31 +1648,24 @@ function brief() {
 const RULES = `Ты — аналитик рекламного рынка Instagram для агентства AKM. Агентство владеет сетью из ~40 крупных страниц (мемы, хоррор, спорт, фейлы, кулинария, знаменитости, гороскопы, фитнес) и продаёт в них рекламу. Ниже — рекламодатели, которых радар нашёл на чужих площадках. Помогай продажникам: кому и что предлагать, у кого большие бюджеты, какая подача работает. Отвечай по-русски, коротко, с конкретными брендами и цифрами. Используй только эти данные; чего нет — так и скажи. Формат: обычный текст, короткие списки через «- ».`;
 function md(t) { let out = "", ul = false; for (const l of esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split("\n")) { const m = l.match(/^\s*[-•*]\s+(.*)/); if (m) { if (!ul) { out += "<ul>"; ul = true; } out += `<li>${m[1]}</li>`; } else { if (ul) { out += "</ul>"; ul = false; } if (l.trim()) out += `<p>${l}</p>`; } } return out + (ul ? "</ul>" : ""); }
 // готовые разборы Gemini по радару (content_ai.py, раз в сутки): нажал карточку — получил ответ
-function aiCardsHtml() {
-  const C = S.cards || [];
-  if (!C.length) return `<div class="msg bot"><p>Разборы ИИ появятся после первого ежедневного прогона на сервере (около 11:00 МСК).</p></div>`;
-  const by = new Map(); C.forEach(c => { if (!by.has(c.who)) by.set(c.who, []); by.get(c.who).push(c); }); let j = 0;
-  return [...by].map(([who, L]) => `<div class="aic-g">${esc(who)}</div>${L.map(c => `<button type="button" class="aic" data-aic="${esc(c.id)}" style="--j:${j++}"><b>${esc(c.t)}</b><span>${esc(c.d)}</span><i>↗</i></button>`).join("")}`).join("");
-}
+function aiCardsHtml() { return window.akmAI.cards(S.cards || []); }
 function renderChat(stream) {
   const m = S.chat.map(x => `<div class="msg ${x.role === "user" ? "user" : "bot ai-a"}">${x.role === "user" ? esc(x.content) : md(x.content)}</div>`);
   if (stream !== undefined) m.push(`<div class="msg bot ai-a">${stream ? md(stream) : '<span class="muted">Думаю…</span>'}</div>`);
+  if (S.aiView) { $("msgs").innerHTML = window.akmAI.answer(S.aiView, S.cardsAt ? updLabel(S.cardsAt) : ""); $("msgs").scrollTop = 0; $("sugg").innerHTML = ""; return; }
   if (!m.length) { $("msgs").innerHTML = aiCardsHtml(); $("sugg").innerHTML = ""; return; }
   $("msgs").innerHTML = m.join(""); $("msgs").scrollTop = $("msgs").scrollHeight;
   const asked = new Set(S.chat.filter(x => x.aic).map(x => x.aic));
   $("sugg").innerHTML = [`<button type="button" class="chip" data-aic="__all">Все разборы</button>`, ...(S.cards || []).filter(c => !asked.has(c.id)).map(c => `<button type="button" class="chip" data-aic="${esc(c.id)}">${esc(c.t)}</button>`)].join("");
 }
 function aiPick(id) {
-  if (id === "__all") { S.chat = []; renderChat(); return; }
-  const c = (S.cards || []).find(x => x.id === id); if (!c || S.typing) return;
-  S.chat.push({ role: "user", content: c.t, aic: id }); S.typing = true;
-  const words = c.a.split(/(\s+)/); let i = 0;
-  const done = () => { S.typing = false; S.chat.push({ role: "assistant", content: c.a + (S.cardsAt ? "\n\n" + updLabel(S.cardsAt) + " · ИИ Gemini" : "") }); renderChat(); };
-  if (reduce) { done(); return; }
-  const t = setInterval(() => { i = Math.min(words.length, i + 3 + (i >> 4)); renderChat(words.slice(0, i).join("")); if (i >= words.length) { clearInterval(t); done(); } }, 28);
+  if (id === "__all") { S.chat = []; S.aiView = null; renderChat(); return; }
+  const c = (S.cards || []).find(x => x.id === id); if (!c) return;
+  S.aiView = { ...c, html: md(c.a) }; renderChat();
 }
 $("sugg").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) aiPick(b.dataset.aic); });
-$("msgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) aiPick(b.dataset.aic); });
+$("msgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) { aiPick(b.dataset.aic); return; }
+  const u = e.target.closest(".aia-u"); if (u) { const k = S.brands.find(x => x.handle === u.dataset.u || x.key === u.dataset.u)?.key; if (k) { closeDlg($("aiDlg")); setTimeout(() => openBrand(k), 230); } } });
 async function ask(q) {
   q = q.trim(); if (!q || S.ctl) return;
   if (!S.sample) { S.chat.push({ role: "user", content: q }, { role: "assistant", content: "Свободные вопросы появятся позже — пока готовые разборы." }); $("aiInput").value = ""; return renderChat(); }
@@ -1977,5 +2036,52 @@ if (!reduce && matchMedia("(hover: hover)").matches) {
   }, { passive: true });
   document.addEventListener("pointerleave", () => { if (el) { el.style.removeProperty("--mx"); el.style.removeProperty("--my"); el = null; } });
 }
+})();
+</script><script>/* Окно «ИИ-аналитик» на сетке и в радаре: готовые разборы Gemini (content_ai.py) — карточками и ответом-раскладкой.
+   Разбор = {id, who, t (вопрос), d (о чём), s: {headline, metric {value,label}, lead?, points [{title,text,tone,u}], actions []}, a (текст)}.
+   Вставляется в обе страницы (export_pages.py, как help.js); стили — в dashboard.html (блок «ИИ-аналитик»). */
+(() => {
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// @ники — плашками, числа с % / × / тыс / млн — жирным: глаз сразу цепляется за цифры
+const rich = t => esc(t).replace(/@([A-Za-z0-9._]*[A-Za-z0-9_])/g, '<b class="aih">@$1</b>')
+  .replace(/([+−\-]?\d[\d\s ]*(?:[.,]\d+)?\s?(?:%|п\.п\.|тыс|млн)|×\s?\d+(?:[.,]\d+)?|x\s?\d+(?:[.,]\d+)?)/g, '<b class="ain">$1</b>');
+const DEP = {   // отдел → цвет карточки и значок
+  "Руководству": ["ink", '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>'],
+  "Контенту": ["lav", '<path d="M12 3c.7 4.3 2.7 6.3 7 7-4.3.7-6.3 2.7-7 7-.7-4.3-2.7-6.3-7-7 4.3-.7 6.3-2.7 7-7z"/>'],
+  "Продажам": ["lime", '<path d="M3 12h4l3 7 4-14 3 7h4"/>'],
+  "Страница": ["peach", '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/>'],
+};
+const ico = who => `<span class="aic-ic"><svg viewBox="0 0 24 24" aria-hidden="true">${(DEP[who] || DEP["Страница"])[1]}</svg></span>`;
+const TONE = { up: ["up", "▲"], down: ["down", "▼"], info: ["info", "●"] };
+
+window.akmAI = {
+  rich,
+  // сетка карточек по отделам: у каждой — значок, вопрос, о чём, и главная цифра ответа (видно до клика)
+  cards(C, extra = []) {
+    const all = [...C, ...extra];
+    if (!all.length) return `<div class="aic-empty">Разборы ИИ появятся после ежедневного прогона на сервере (около 11:00 МСК).</div>`;
+    const by = new Map(); all.forEach(c => { if (!by.has(c.who)) by.set(c.who, []); by.get(c.who).push(c); });
+    let j = 0;
+    return [...by].map(([who, L]) => `<div class="aic-g">${esc(who)}</div><div class="aic-grid">${L.map(c => `
+      <button type="button" class="aic2 ${(DEP[who] || DEP["Страница"])[0]}" data-aic="${esc(c.id)}" style="--j:${j++}">
+        <span class="aic-top">${ico(who)}<i>↗</i></span>
+        <b>${esc(c.t)}</b><span class="aic-d">${esc(c.d)}</span>
+        ${c.s?.metric?.value ? `<span class="aic-m"><em>${esc(c.s.metric.value)}</em>${esc(c.s.metric.label || "")}</span>` : ""}
+      </button>`).join("")}</div>`).join("");
+  },
+  // ответ: назад · вопрос · крупный вывод с главной цифрой · пункты карточками · что сделать · когда обновлено
+  answer(c, at = "") {
+    const s = c.s;
+    const head = `<div class="aia-bar"><button type="button" class="aia-back" data-aic="__all">← Все разборы</button><span>${esc(c.who || "")}</span></div>`;
+    if (!s) return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div></div><div class="aia-md">${c.html || esc(c.a)}</div>`;
+    return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div>
+        <div class="aia-h">${rich(s.headline)}</div>${s.metric?.value ? `<div class="aia-m"><em>${esc(s.metric.value)}</em><span>${esc(s.metric.label || "")}</span></div>` : ""}
+        ${s.lead ? `<p class="aia-lead">${rich(s.lead)}</p>` : ""}</div>
+      ${(s.groups || [{ points: s.points }]).map(g => `${g.title ? `<div class="aia-gt">${esc(g.title)}</div>` : ""}<div class="aia-pts">${(g.points || []).map((p, j) => { const [cls, mk] = TONE[p.tone] || TONE.info;
+        return `<div class="aia-p ${cls}" style="--j:${j}"><span class="mk">${mk}</span><div><b>${rich(p.title)}</b><span>${rich(p.text)}</span></div>${p.u ? `<button type="button" class="aia-u" data-u="${esc(p.u)}">@${esc(p.u)}</button>` : ""}</div>`; }).join("")}</div>`).join("")}
+      ${s.actions?.length ? `<div class="aia-act"><div class="aia-gt">Что сделать</div><ol>${s.actions.map((a, j) => `<li style="--j:${j}">${rich(a)}</li>`).join("")}</ol></div>` : ""}
+      ${at ? `<div class="aia-at">${esc(at)} · ИИ Gemini</div>` : ""}`;
+  },
+};
 })();
 </script></body></html>

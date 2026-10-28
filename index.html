@@ -663,6 +663,72 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 /* встроенная таблица (панель босса): только «Подписчики по понедельникам», без шапки и плиток */
 body.embed{background:transparent}body.embed header.bar,body.embed #bento,body.embed #pageCont,body.embed #pageComp,body.embed .toast{display:none!important}
 body.embed .wrap{max-width:none;padding:0}body.embed #pageNet{padding:0}body.embed #tableTile{margin:0;border-radius:0;box-shadow:none;background:transparent;padding:0}
+.pc-kind{position:absolute;left:8px;bottom:8px;z-index:2;font-size:10.5px;font-weight:700;letter-spacing:.02em;border-radius:999px;padding:3px 9px;background:rgba(13,13,15,.78);color:#fff;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.pc-kind.k-car{background:var(--lime);color:var(--ink)}.pc-kind.k-reel{background:rgba(37,65,255,.9)}
+
+/* ИИ-аналитик v2: объёмные карточки-разборы и ответ-раскладка (ai_ui.js) */
+dialog.ai{max-width:min(620px,calc(100vw - 24px))}
+.aic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.aic2{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;border:0;border-radius:22px;padding:14px 16px 16px;color:var(--ink);background:#fff;min-height:148px;overflow:hidden;isolation:isolate;
+  box-shadow:0 1px 0 rgba(13,13,15,.04),0 10px 24px -18px rgba(13,13,15,.45);transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s;animation:tile-in .55s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms)}
+.aic2::after{content:"";position:absolute;z-index:-1;right:-40px;bottom:-60px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),transparent 65%);opacity:.6;transition:transform .6s cubic-bezier(.16,1,.3,1)}
+.aic2:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 26px 40px -24px rgba(13,13,15,.5)}.aic2:hover::after{transform:scale(1.3)}
+.aic2.ink{background:var(--ink);color:#fff}.aic2.ink::after{background:radial-gradient(circle,rgba(210,243,91,.35),transparent 65%)}
+.aic2.lav{background:var(--lavender)}.aic2.lime{background:var(--lime)}.aic2.peach{background:var(--peach)}
+.aic-top{display:flex;justify-content:space-between;align-items:center}
+.aic-ic{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;background:rgba(255,255,255,.55)}.aic2.ink .aic-ic{background:rgba(255,255,255,.12)}
+.aic-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.aic-top i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(13,13,15,.08);transition:transform .35s,background .2s}
+.aic2.ink .aic-top i{background:rgba(255,255,255,.14)}.aic2:hover .aic-top i{transform:rotate(-45deg);background:var(--ink);color:#fff}.aic2.ink:hover .aic-top i{background:var(--lime);color:var(--ink)}
+.aic2 b{font-size:16px;letter-spacing:-.02em;line-height:1.15}.aic-d{font-size:12px;line-height:1.35;opacity:.65}
+.aic-m{margin-top:auto;display:flex;flex-direction:column;gap:2px;font-size:11.5px;opacity:.85;line-height:1.3}.aic-m em{font-style:normal;font:600 22px var(--f-mono);letter-spacing:-.03em;white-space:nowrap}
+.aic-empty{padding:20px;border-radius:18px;background:#fff;color:var(--muted)}
+.aia-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2;padding:2px 0 6px;background:linear-gradient(#E9E8E3 70%,transparent)}
+.aia-back{border:0;border-radius:999px;padding:9px 14px;background:var(--ink);color:#fff;font-weight:600;font-size:13px;transition:transform .2s}.aia-back:hover{transform:translateX(-3px)}
+.aia-bar span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.aia-hero{border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;background:#fff;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both}
+.aia-hero.ink{background:var(--ink);color:#fff}.aia-hero.lav{background:var(--lavender)}.aia-hero.lime{background:var(--lime)}.aia-hero.peach{background:var(--peach)}
+.aia-q{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.6}
+.aia-h{font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.2}
+.aia-m{display:flex;align-items:baseline;gap:10px}.aia-m em{font-style:normal;font:600 40px var(--f-mono);letter-spacing:-.05em;line-height:1}.aia-m span{font-size:12.5px;opacity:.7}
+.aia-hero.ink .aia-m em{color:var(--lime)}
+.aia-lead{margin:0;font-size:13.5px;line-height:1.45;opacity:.85}
+.aia-gt{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:6px 4px 0}
+.aia-pts{display:flex;flex-direction:column;gap:6px}
+.aia-p{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;background:#fff;border-radius:18px;padding:12px 14px;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 60ms + .15s)}
+.aia-p .mk{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;font-size:11px;background:var(--tile-2)}
+.aia-p.up .mk{background:#DDF6C4;color:var(--up)}.aia-p.down .mk{background:#FFE1D6;color:var(--down)}
+.aia-p div>b{display:block;font-size:14px;letter-spacing:-.01em}.aia-p div>span{font-size:13px;line-height:1.42;color:#3A3A40}
+.aia-u{border:0;border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:600;background:var(--tile-2);color:var(--ink);white-space:nowrap}.aia-u:hover{background:var(--ink);color:#fff}
+.aih{font-weight:600;background:var(--tile-2);border-radius:6px;padding:0 4px;white-space:nowrap}.aia-hero .aih{background:rgba(255,255,255,.18)}.aia-hero.lime .aih,.aia-hero.lav .aih,.aia-hero.peach .aih{background:rgba(255,255,255,.55)}
+.ain{font-family:var(--f-mono);font-weight:600;font-size:.94em;white-space:nowrap}
+.aia-act ol{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:a}
+.aia-act li{counter-increment:a;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;font-size:13.5px;line-height:1.4;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .45s)}
+.aia-act li::before{content:counter(a);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);font-weight:700;font-size:13px}
+.aia-act .aih{background:rgba(255,255,255,.16)}
+.aia-at{font-size:11px;color:var(--muted);text-align:center;padding:8px 0 4px}
+.aia-md{background:#fff;border-radius:18px;padding:14px 16px;font-size:13.5px;line-height:1.45}
+@media (max-width:640px){.aic-grid{grid-template-columns:1fr}.aic2{min-height:0}.aia-m em{font-size:32px}.aia-p{grid-template-columns:auto minmax(0,1fr)}.aia-u{grid-column:2;justify-self:start}}
+.sp-wide{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:12px 14px;border-radius:18px;background:var(--tile-2)}
+.sp-wide .k{font-size:12.5px;color:var(--muted);margin-right:4px}
+.sp-wide a{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:var(--ink);text-decoration:none;background:#fff;border-radius:999px;padding:3px 10px 3px 4px}
+.sp-wide a .ci{background:none;width:20px;height:20px}.sp-wide a .ci svg{stroke:var(--muted)}
+.sp-wide em{font-style:normal;font:600 10.5px var(--f-mono);color:var(--muted)}.sp-wide a:hover{background:var(--ink);color:#fff}
+.sp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sp-c{display:flex;flex-direction:column;gap:8px;border-radius:20px;padding:14px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 40ms + .2s)}
+.sp-h{display:flex;gap:10px;align-items:center;border:0;background:none;padding:0;text-align:left;min-width:0}
+.sp-h .w{display:flex;flex-direction:column;min-width:0}.sp-h b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sp-h .w span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-h:hover b{text-decoration:underline}
+.sp-k{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.sp-b{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;gap:4px 10px;align-items:center;text-decoration:none;color:var(--ink);padding:8px 10px;border-radius:14px;background:var(--tile-2);transition:background .2s,transform .3s cubic-bezier(.16,1,.3,1)}
+.sp-b:hover{background:#ECEBE6;transform:translateX(3px)}
+.sp-b .ci{grid-row:1/3;background:#fff}.sp-b .ci svg{stroke:var(--ink)}
+.sp-b .w{display:flex;flex-direction:column;min-width:0}.sp-b b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sp-b .w span{font-size:11.5px;color:var(--muted)}
+.sp-b b i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--orange);vertical-align:2px}
+.sp-b .bar2{grid-column:2;height:4px;border-radius:9px;background:#fff;overflow:hidden}.sp-b .bar2 i{display:block;height:100%;background:var(--ink);border-radius:9px}
+.sp-more{font-size:12px;color:var(--muted);line-height:1.4}
+@media (max-width:1100px){.sp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.sp-grid{grid-template-columns:1fr}.sp-wide .k{width:100%}}
 /* «Кому продавать»: иконки категорий, аватары страниц, разбивка по категориям */
 .ci{flex:none;display:inline-grid;place-items:center;width:calc(var(--cs) + 12px);height:calc(var(--cs) + 12px);border-radius:calc((var(--cs) + 12px) * .32);background:color-mix(in srgb,var(--cc) 40%,#fff)}
 .ci svg{width:var(--cs);height:var(--cs);fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -1214,7 +1280,7 @@ function postCard(p, opt = {}) {
   const open = opt.btn ? `<button type="button" class="pc2" data-vp="${esc(p.c)}" data-au="${esc(p.u)}" aria-label="Почасовой график поста">` : `<a class="pc2" href="${igPost(p)}" target="_blank" rel="noopener" data-au="${esc(p.u)}">`;
   return `${open}
     <div class="pc-img" style="--fc:${fc}">${p.th ? `<img src="${esc(p.th)}" alt="" loading="lazy">` : `<span class="pc-ph">${p.k === "reel" ? "Reels" : "Пост"}</span>`}
-      ${p.fmt ? `<span class="pc-fmt" style="background:${fc}">${esc(FMT_SHORT[p.fmt] || p.format || "")}</span>` : ""}${top}</div>
+      ${p.fmt ? `<span class="pc-fmt" style="background:${fc}">${esc(FMT_SHORT[p.fmt] || p.format || "")}</span>` : ""}${top}<span class="pc-kind k-${p.k || "post"}">${KIND_RU[p.k] || "Пост"}</span></div>
     <div class="pc-body">
       <div class="pc-hook">${esc(p.hook || (p.x || "").slice(0, 90) || (p.k === "reel" ? "Reels" : "Пост"))}</div>
       ${opt.extra || ""}
@@ -1222,6 +1288,7 @@ function postCard(p, opt = {}) {
       <div class="pc-src">@${esc(p.u)} · ${dShort(p.d)} ${esc(p.t)}${opt.btn ? ' · <span class="pc-chart">график ↗</span>' : ""}</div>
     </div>${opt.btn ? "</button>" : "</a>"}`;
 }
+const KIND_RU = { reel: "Reels", car: "Карусель", post: "Пост" };
 const cards = (list, opt) => `<div class="pc-grid">${list.map(p => postCard(p, opt)).join("")}</div>`;
 
 // ---------- окно поста из «Залетает сейчас»: почасовой рост подписчиков аккаунта и цифры поста ----------
@@ -1386,7 +1453,7 @@ function howtoTile() {
 function renderCont() {
   const el = $("cbento"); if (!S.M?.latest) return;
   const T = [], M = S.M;
-  T.push(viralTile((S.viral || []).filter(p => p.own && p.d >= shift(M.latest, -3)), "наши страницы · посты до 72 ч, ≥3× к обычному"));
+  T.push(viralTile((S.viral || []).filter(p => p.own && p.k !== "reel" && p.d >= shift(M.latest, -3)), "наши страницы · карусели и посты до 72 ч, ≥3× к обычному"));
   T.push(howtoTile());
   T.push(growthTiles());
   el.innerHTML = T.join("");
@@ -1704,7 +1771,7 @@ function renderBento() {
     <div class="sigs">${shown.map(s => s.u ? `<button type="button" class="sg" data-u="${esc(s.u)}"><span class="dt ${s.lvl}"></span><span><b>@${esc(s.u)}</b> — ${esc(s.text)}</span></button>` : `<div class="sg"><span class="dt"></span><span><b>Вся сетка</b> — ${esc(s.text)}</span></div>`).join("") || `<div class="muted">Сигналов нет — всё спокойно.</div>`}</div></section>`);
 
   T.push(hourlyTile());
-  const vOwn = (S.viral || []).filter(p => p.own && p.d >= shift(M.latest, -3));
+  const vOwn = (S.viral || []).filter(p => p.own && p.k !== "reel" && p.d >= shift(M.latest, -3));
   T.push(`<section class="t ink s12 go-cont"><div class="lab">Контент сетки</div>
     <div class="gc-row"><div class="headline" style="color:#fff">Что залетает у нас, идеи, как вести каждую страницу и какие посты приводят подписчиков</div>
       <button type="button" class="pill lime-p" data-goto-p="cont">Открыть раздел «Контент» <span class="arrow">→</span></button></div>
@@ -2192,13 +2259,23 @@ function renderSales() {
       return `<div class="sl-cat" style="--j:${j};--cc:${(CATI[c] || CATI["Другое"])[0]}"><div class="hd">${catIco(c, 18)}<span class="nm">${esc(c)}</span><b>${n}</b></div>
         <div class="scb"><i style="width:${(n / cmx * 100).toFixed(1)}%"></i></div>
         <div class="who">${L.slice(0, 3).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${esc(b.brand)}</a>`).join("")}${L.length > 3 ? `<span>+${L.length - 3}</span>` : ""}</div></div>`; }).join("")}</div></section>`);
-  X.push(`<section class="t s12"><div class="lab">Какую нашу страницу кому предлагать <span class="tag">бренды, которые платят её прямым конкурентам</span></div>
-    <div class="sl-list">${rows.slice(0, lim).map((x, j) => `<div class="sl-row" style="--j:${Math.min(j, 16)}">
-      <button type="button" class="sl-who" data-u="${esc(x.o)}"><span class="sl-av">${esc((x.o.match(/[a-z0-9]/i) || ["@"])[0].toUpperCase())}</span><span class="w"><b>@${esc(x.o)}</b><span>${compact(ownF(x.o))} · ${esc(x.niche)}</span></span><span class="sl-n" title="брендов у её прямых конкурентов">${x.B.length}</span></button>
-      <div class="sl-bs">${x.B.slice(0, 6).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" title="${esc(b.cat)} · у ${b.hosts.length} из ${x.cs.length} её прямых конкурентов">${catIco(b.cat, 14)}${esc(b.brand)}${b.fresh ? "<i></i>" : ""}</a>`).join("")}${x.B.length > 6 ? `<span>+${x.B.length - 6}</span>` : ""}</div>
-</div>`).join("")}</div>
-    ${rows.length > 10 ? `<button type="button" class="linkbtn" data-sall="1" style="align-self:flex-start">${S.sAll ? "Свернуть" : `Все ${rows.length} страниц`}</button>` : ""}
-    <p class="foot">Точка — бренд впервые замечен в рекламе за последние 3 дня. Клик по бренду — его карточка в радаре (контакты, посты, статус лида); по странице — её цифры и конкуренты.</p></section>`);
+  // кому какую страницу предлагать: бренды, которые платят почти всем нашим нишам, — одной строкой сверху;
+  // у страницы — только её «свои» бренды: чем большей доле ИМЕННО её конкурентов бренд платит (и чем реже у других), тем выше
+  const share = new Map(); for (const x of rows) for (const b of x.B) share.set(b.key, (share.get(b.key) || 0) + 1);
+  const wide = brands.filter(b => (share.get(b.key) || 0) >= Math.max(3, rows.length * .4)).sort((a, b) => share.get(b.key) - share.get(a.key));
+  const wideK = new Set(wide.map(b => b.key));
+  const cardsP = rows.map(x => { const own = x.B.filter(b => !wideK.has(b.key)).map(b => ({ ...b, sc: b.hosts.length / x.cs.length / ((share.get(b.key) || 1) / rows.length) })).sort((a, b) => b.sc - a.sc);
+    return { ...x, own }; }).filter(x => x.own.length).sort((a, b) => b.own.length - a.own.length || b.B.length - a.B.length);
+  const lim2 = S.sAll ? cardsP.length : 9;
+  X.push(`<section class="t s12"><div class="lab">Какую нашу страницу кому предлагать <span class="tag">по брендам, которые уже платят её прямым конкурентам</span></div>
+    ${wide.length ? `<div class="sp-wide"><span class="k">Платят почти всем нашим нишам — предлагать любую страницу:</span>${wide.slice(0, 8).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${catIco(b.cat, 14)}${esc(b.brand)}<em>${share.get(b.key)}/${rows.length}</em></a>`).join("")}</div>` : ""}
+    <div class="sp-grid">${cardsP.slice(0, lim2).map((x, j) => `<div class="sp-c" style="--j:${Math.min(j, 12)}">
+      <button type="button" class="sp-h" data-u="${esc(x.o)}"><span class="sl-av">${esc((x.o.match(/[a-z0-9]/i) || ["@"])[0].toUpperCase())}</span><span class="w"><b>@${esc(x.o)}</b><span>${compact(ownF(x.o))} · ${esc(x.niche)}</span></span></button>
+      <div class="sp-k">Особенно подходит</div>
+      ${x.own.slice(0, 3).map(b => `<a class="sp-b" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${catIco(b.cat, 16)}<span class="w"><b>${esc(b.brand)}${b.fresh ? ' <i title="новый за 3 дня"></i>' : ""}</b><span>платит ${b.hosts.length} из ${x.cs.length} её прямых конкурентов</span></span><span class="bar2"><i style="width:${Math.min(100, b.hosts.length / x.cs.length * 100).toFixed(0)}%"></i></span></a>`).join("")}
+      ${x.own.length > 3 ? `<div class="sp-more">ещё ${x.own.length - 3}: ${x.own.slice(3, 7).map(b => esc(b.brand)).join(", ")}${x.own.length > 7 ? "…" : ""}</div>` : ""}</div>`).join("")}</div>
+    ${cardsP.length > 9 ? `<button type="button" class="linkbtn" data-sall="1" style="align-self:flex-start">${S.sAll ? "Свернуть" : `Все ${cardsP.length} страниц`}</button>` : ""}
+    <p class="foot">Полоска — какой доле прямых конкурентов этой страницы бренд уже платит. Выше в карточке — бренды, характерные именно для её ниши. Клик по бренду — карточка в радаре, по странице — её цифры и конкуренты.</p></section>`);
   el.innerHTML = X.join("");
 }
 // 4 · Справочник: все конкуренты — карточки прямых, отслеживаемые, общий рейтинг; поиск и ниши
@@ -2625,6 +2702,7 @@ function renderChat(stream) {
     ? `<div class="msg bot report"><div class="rep-h"><div><b>Недельный отчёт</b><span>${S.M.accounts.length} аккаунтов · данные на ${esc(dLong(x.date))}</span></div><button type="button" class="rep-copy" data-copy="${S.chat.indexOf(x)}">Скопировать</button></div><pre>${esc(x.content)}</pre></div>`
     : `<div class="msg ${x.role === "user" ? "user" : "bot"}">${x.role === "user" ? esc(x.content) : md(x.content)}</div>`);
   if (stream !== undefined) m.push(`<div class="msg bot">${stream ? md(stream) : '<span class="muted">Думаю…</span>'}</div>`);
+  if (S.aiView) { $("msgs").innerHTML = window.akmAI.answer(S.aiView, S.aiView.at || ""); $("msgs").scrollTop = 0; $("sugg").innerHTML = ""; return; }
   if (!m.length) { $("msgs").innerHTML = aiCardsHtml(); $("msgs").scrollTop = 0; aiSugg(); return; }
   $("msgs").innerHTML = m.join(""); $("msgs").scrollTop = $("msgs").scrollHeight;
   aiSugg();
@@ -2632,12 +2710,8 @@ function renderChat(stream) {
 // готовые разборы Gemini (content_ai.py, раз в сутки): нажал карточку — получил разбор
 const AIC = () => S.extra?.cards || [];
 function aiCardsHtml() {
-  const C = AIC();
-  if (!C.length) return `<div class="msg bot"><p>Разборы ИИ появятся после первого ежедневного прогона на сервере (около 11:00 МСК).</p></div>`;
-  const by = new Map(); C.forEach(c => { if (!by.has(c.who)) by.set(c.who, []); by.get(c.who).push(c); });
-  let j = 0;
-  return [...by].map(([who, L]) => `<div class="aic-g">${esc(who)}</div>${L.map(c => `<button type="button" class="aic" data-aic="${esc(c.id)}" style="--j:${j++}"><b>${esc(c.t)}</b><span>${esc(c.d)}</span><i>↗</i></button>`).join("")}`).join("")
-    + (S.extra?.howto && Object.keys(S.extra.howto).length ? `<div class="aic-g">Страница</div><button type="button" class="aic" data-aic="howto" style="--j:${j}"><b>Как вести контент конкретной страницы</b><span>Окна публикации, форматы, что сделать на неделе — по каждой нашей странице.</span><i>↗</i></button>` : "");
+  const extra = S.extra?.howto && Object.keys(S.extra.howto).length ? [{ id: "howto", who: "Страница", t: "Как вести контент страницы", d: "Окна публикации, форматы и план на неделю — по каждой нашей странице." }] : [];
+  return window.akmAI.cards(AIC(), extra);
 }
 function aiSugg() {
   const C = AIC(), asked = new Set(S.chat.filter(x => x.aic).map(x => x.aic));
@@ -2665,19 +2739,28 @@ function reviewText(u) {
   return L.join("\n");
 }
 function aiReview(u) {
-  const t = reviewText(u); if (!t) return;
-  closeDlg($("accDlg")); S.chat = [{ role: "user", content: "ИИ-разбор @" + u, aic: "rev-" + u }];
-  setTimeout(() => { renderChat(""); openDlg($("aiDlg")); aiType(t, () => { S.chat.push({ role: "assistant", content: t }); renderChat(); }); }, 230);
+  const h = S.extra?.howto?.[u], a = h?.ai; if (!a) return;
+  const f = S.M?.accounts.find(x => x.u === u);
+  const groups = [
+    a.vs_competitors?.length && { title: "Против прямых конкурентов", points: a.vs_competitors },
+    a.when?.length && { title: "Когда постить · МСК", points: a.when.map(w => ({ title: w.slot, text: w.why, tone: "up" })).concat(a.avoid_when ? [{ title: "Хуже всего", text: a.avoid_when, tone: "down" }] : []) },
+    a.formats?.length && { title: "Что заходит", points: a.formats.map(x => ({ title: `${x.name} — ${x.verdict}`, text: x.why, tone: x.verdict === "больше" ? "up" : x.verdict === "меньше" ? "down" : "info" })) },
+    a.insights?.length && { title: "Наблюдения", points: a.insights },
+  ].filter(Boolean);
+  S.aiView = { id: "rev-" + u, who: "Страница", t: "ИИ-разбор @" + u, at: h.at ? updLabel(h.at) : "",
+    s: { headline: a.headline || "@" + u, metric: { value: f ? compact(f.cur ?? f.lastOk?.followers) : "@" + u, label: f ? `подписчиков · ${h.ppd ?? "—"} пост. в день` : "" }, lead: a.overview, groups, actions: a.next || [] } };
+  closeDlg($("accDlg")); S.chat = [];
+  setTimeout(() => { renderChat(); openDlg($("aiDlg")); }, 230);
 }
 function aiPick(id) {
-  if (id === "__all") { S.chat = []; renderChat(); return; }
+  if (id === "__all") { S.chat = []; S.aiView = null; renderChat(); return; }
   if (id === "howto") { closeDlg($("aiDlg")); history.replaceState(null, "", "#content"); go("cont"); setTimeout(() => $("howto")?.scrollIntoView({ behavior: "smooth", block: "start" }), 500); return; }
-  const c = AIC().find(x => x.id === id); if (!c || S.aiT && S.chat.at(-1)?.role === "user") return;
-  S.chat.push({ role: "user", content: c.t, aic: id });
-  aiType(c.a, () => { S.chat.push({ role: "assistant", content: c.a + (S.extra?.cardsAt ? "\n\n_" + updLabel(S.extra.cardsAt) + " · ИИ Gemini_" : "") }); renderChat(); });
+  const c = AIC().find(x => x.id === id); if (!c) return;
+  S.aiView = { ...c, html: md(c.a), at: S.extra?.cardsAt ? updLabel(S.extra.cardsAt) : "" }; renderChat();
 }
 $("sugg").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) aiPick(b.dataset.aic); else { const c = e.target.closest("button"); if (c) ask(c.textContent); } });
-$("msgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) aiPick(b.dataset.aic); });
+$("msgs").addEventListener("click", e => { const b = e.target.closest("[data-aic]"); if (b) { aiPick(b.dataset.aic); return; }
+  const u = e.target.closest(".aia-u"); if (u && S.M?.accounts.some(a => a.u === u.dataset.u)) { closeDlg($("aiDlg")); setTimeout(() => openAccount(u.dataset.u), 230); } });
 $("accDlg").addEventListener("click", e => { const b = e.target.closest("[data-airev]"); if (b) aiReview(b.dataset.airev); });
 async function ask(q) {
   q = q.trim(); if (!q || S.ctl) return;
@@ -3109,5 +3192,52 @@ if (!reduce && matchMedia("(hover: hover)").matches) {
   }, { passive: true });
   document.addEventListener("pointerleave", () => { if (el) { el.style.removeProperty("--mx"); el.style.removeProperty("--my"); el = null; } });
 }
+})();
+</script><script>/* Окно «ИИ-аналитик» на сетке и в радаре: готовые разборы Gemini (content_ai.py) — карточками и ответом-раскладкой.
+   Разбор = {id, who, t (вопрос), d (о чём), s: {headline, metric {value,label}, lead?, points [{title,text,tone,u}], actions []}, a (текст)}.
+   Вставляется в обе страницы (export_pages.py, как help.js); стили — в dashboard.html (блок «ИИ-аналитик»). */
+(() => {
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// @ники — плашками, числа с % / × / тыс / млн — жирным: глаз сразу цепляется за цифры
+const rich = t => esc(t).replace(/@([A-Za-z0-9._]*[A-Za-z0-9_])/g, '<b class="aih">@$1</b>')
+  .replace(/([+−\-]?\d[\d\s ]*(?:[.,]\d+)?\s?(?:%|п\.п\.|тыс|млн)|×\s?\d+(?:[.,]\d+)?|x\s?\d+(?:[.,]\d+)?)/g, '<b class="ain">$1</b>');
+const DEP = {   // отдел → цвет карточки и значок
+  "Руководству": ["ink", '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>'],
+  "Контенту": ["lav", '<path d="M12 3c.7 4.3 2.7 6.3 7 7-4.3.7-6.3 2.7-7 7-.7-4.3-2.7-6.3-7-7 4.3-.7 6.3-2.7 7-7z"/>'],
+  "Продажам": ["lime", '<path d="M3 12h4l3 7 4-14 3 7h4"/>'],
+  "Страница": ["peach", '<rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/>'],
+};
+const ico = who => `<span class="aic-ic"><svg viewBox="0 0 24 24" aria-hidden="true">${(DEP[who] || DEP["Страница"])[1]}</svg></span>`;
+const TONE = { up: ["up", "▲"], down: ["down", "▼"], info: ["info", "●"] };
+
+window.akmAI = {
+  rich,
+  // сетка карточек по отделам: у каждой — значок, вопрос, о чём, и главная цифра ответа (видно до клика)
+  cards(C, extra = []) {
+    const all = [...C, ...extra];
+    if (!all.length) return `<div class="aic-empty">Разборы ИИ появятся после ежедневного прогона на сервере (около 11:00 МСК).</div>`;
+    const by = new Map(); all.forEach(c => { if (!by.has(c.who)) by.set(c.who, []); by.get(c.who).push(c); });
+    let j = 0;
+    return [...by].map(([who, L]) => `<div class="aic-g">${esc(who)}</div><div class="aic-grid">${L.map(c => `
+      <button type="button" class="aic2 ${(DEP[who] || DEP["Страница"])[0]}" data-aic="${esc(c.id)}" style="--j:${j++}">
+        <span class="aic-top">${ico(who)}<i>↗</i></span>
+        <b>${esc(c.t)}</b><span class="aic-d">${esc(c.d)}</span>
+        ${c.s?.metric?.value ? `<span class="aic-m"><em>${esc(c.s.metric.value)}</em>${esc(c.s.metric.label || "")}</span>` : ""}
+      </button>`).join("")}</div>`).join("");
+  },
+  // ответ: назад · вопрос · крупный вывод с главной цифрой · пункты карточками · что сделать · когда обновлено
+  answer(c, at = "") {
+    const s = c.s;
+    const head = `<div class="aia-bar"><button type="button" class="aia-back" data-aic="__all">← Все разборы</button><span>${esc(c.who || "")}</span></div>`;
+    if (!s) return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div></div><div class="aia-md">${c.html || esc(c.a)}</div>`;
+    return head + `<div class="aia-hero ${(DEP[c.who] || DEP["Страница"])[0]}"><div class="aia-q">${esc(c.t)}</div>
+        <div class="aia-h">${rich(s.headline)}</div>${s.metric?.value ? `<div class="aia-m"><em>${esc(s.metric.value)}</em><span>${esc(s.metric.label || "")}</span></div>` : ""}
+        ${s.lead ? `<p class="aia-lead">${rich(s.lead)}</p>` : ""}</div>
+      ${(s.groups || [{ points: s.points }]).map(g => `${g.title ? `<div class="aia-gt">${esc(g.title)}</div>` : ""}<div class="aia-pts">${(g.points || []).map((p, j) => { const [cls, mk] = TONE[p.tone] || TONE.info;
+        return `<div class="aia-p ${cls}" style="--j:${j}"><span class="mk">${mk}</span><div><b>${rich(p.title)}</b><span>${rich(p.text)}</span></div>${p.u ? `<button type="button" class="aia-u" data-u="${esc(p.u)}">@${esc(p.u)}</button>` : ""}</div>`; }).join("")}</div>`).join("")}
+      ${s.actions?.length ? `<div class="aia-act"><div class="aia-gt">Что сделать</div><ol>${s.actions.map((a, j) => `<li style="--j:${j}">${rich(a)}</li>`).join("")}</ol></div>` : ""}
+      ${at ? `<div class="aia-at">${esc(at)} · ИИ Gemini</div>` : ""}`;
+  },
+};
 })();
 </script></body></html>
