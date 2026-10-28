@@ -40,6 +40,7 @@ a{color:inherit}
 .logo{display:inline-flex;align-items:center;background:var(--tile);border-radius:999px;height:52px;padding:0 20px;flex:none}
 .logo .akm{display:block;height:22px;width:auto}
 .bar h1{margin:0;font-size:clamp(22px,2.6vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1;white-space:nowrap}
+@media (max-width:640px){.bar .brand>div{min-width:0}.bar h1{white-space:normal}}
 .bar .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .pills{display:flex;flex-wrap:nowrap;gap:8px;min-height:52px;align-items:center}
 .bar .nav{margin-inline:6px}
@@ -2462,11 +2463,25 @@ if (window.__PUBLIC_DATA) {
 })();
 </script>
 <script>
-fetch("data/network.json?t=" + Date.now()).then(r => r.json()).then(d => {
+(() => {
+const fail = why => {
+  if (document.getElementById("loadFail")) return;
+  const b = document.createElement("div"); b.id = "loadFail";
+  b.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:999;max-width:min(560px,calc(100vw - 32px));padding:14px 16px 14px 20px;border-radius:18px;background:#0d0d0f;color:#fff;font:500 14px/1.35 system-ui,sans-serif;display:flex;gap:14px;align-items:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6)";
+  b.innerHTML = '<span style="flex:1">Страница не загрузилась: <span style="opacity:.6"></span></span><button type="button" style="border:0;border-radius:999px;padding:9px 16px;background:#d2f35b;color:#0d0d0f;font:600 13px system-ui,sans-serif;cursor:pointer">Обновить</button>';
+  b.querySelector("span span").textContent = String(why).slice(0, 160);
+  b.querySelector("button").onclick = () => location.reload();
+  document.body.appendChild(b);
+};
+addEventListener("error", e => { if (performance.now() < 20000) fail(e.message || "ошибка скрипта"); });   // только пока страница открывается
+const slow = setTimeout(() => { if (!window.__PUBLIC_DATA) fail("данные грузятся слишком долго — проверьте интернет или VPN"); }, 15000);
+fetch("data/network.json?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(d => {
+  clearTimeout(slow); document.getElementById("loadFail")?.remove();
   window.__PUBLIC_DATA = d;
   const s = document.createElement("script"); s.textContent = document.getElementById("main-js").textContent;
   document.body.appendChild(s);
-}).catch(e => { const m = document.getElementById("meta"); if (m) m.textContent = "Не удалось загрузить данные: " + e; });
+}).catch(e => { clearTimeout(slow); fail("данные — " + e.message); });
+})();
 </script><script>/* Подсказки «?» у заголовков блоков: откуда данные, как считается, на чём основано решение.
    Вставляется в обе страницы (export_pages.py). Сам находит заголовки .lab и добавляет кнопку,
    в т.ч. после перерисовок — через MutationObserver. Ключ — начало текста заголовка. */
