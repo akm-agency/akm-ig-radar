@@ -249,7 +249,7 @@ th.we,td.we{border-left:1px dashed #D6D5CF}
 @media (max-width:640px){.bento{grid-template-columns:minmax(0,1fr)}.bento>*{grid-column:1/-1!important}.t{padding:18px}.c-d2,.c-wk0,.c-w4{display:none}td.n{font-size:12px}table.daily td.n{font-size:11px}th,td{padding-inline:5px}th:first-child,td:first-child{max-width:112px}.netchart{margin:auto -18px -18px}}
 
 /* dialogs */
-dialog{border:0;padding:0;background:var(--stone);color:var(--ink);border-radius:30px;width:100%;max-width:min(940px,calc(100vw - 24px));max-height:calc(100dvh - 24px);box-shadow:0 40px 100px -30px rgba(0,0,0,.45)}
+dialog{border:0;padding:0;background:var(--stone);color:var(--ink);border-radius:30px;width:100%;max-width:min(1240px,calc(100vw - 32px));max-height:calc(100dvh - 24px);box-shadow:0 40px 100px -30px rgba(0,0,0,.45)}
 dialog::backdrop{background:rgba(13,13,15,.45)}
 .dlg{padding:12px;overflow:auto;max-height:calc(100dvh - 24px)}
 .dgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--gap)}
@@ -667,7 +667,7 @@ body.embed .wrap{max-width:none;padding:0}body.embed #pageNet{padding:0}body.emb
 .pc-kind.k-car{background:var(--lime);color:var(--ink)}.pc-kind.k-reel{background:rgba(37,65,255,.9)}
 
 /* ИИ-аналитик v2: объёмные карточки-разборы и ответ-раскладка (ai_ui.js) */
-dialog.ai{max-width:min(620px,calc(100vw - 24px))}
+dialog.ai{max-width:min(620px,calc(100vw - 24px))!important}
 .aic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .aic2{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;border:0;border-radius:22px;padding:14px 16px 16px;color:var(--ink);background:#fff;min-height:148px;overflow:hidden;isolation:isolate;
   box-shadow:0 1px 0 rgba(13,13,15,.04),0 10px 24px -18px rgba(13,13,15,.45);transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s;animation:tile-in .55s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms)}
@@ -683,7 +683,7 @@ dialog.ai{max-width:min(620px,calc(100vw - 24px))}
 .aic2 b{font-size:16px;letter-spacing:-.02em;line-height:1.15}.aic-d{font-size:12px;line-height:1.35;opacity:.65}
 .aic-m{margin-top:auto;display:flex;flex-direction:column;gap:2px;font-size:11.5px;opacity:.85;line-height:1.3}.aic-m em{font-style:normal;font:600 22px var(--f-mono);letter-spacing:-.03em;white-space:nowrap}
 .aic-empty{padding:20px;border-radius:18px;background:#fff;color:var(--muted)}
-.aia-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:0;z-index:2;padding:2px 0 6px;background:linear-gradient(#E9E8E3 70%,transparent)}
+.aia-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:-2px;z-index:3;padding:4px 0 8px;background:var(--stone);box-shadow:0 8px 10px -8px rgba(13,13,15,.12)}
 .aia-back{border:0;border-radius:999px;padding:9px 14px;background:var(--ink);color:#fff;font-weight:600;font-size:13px;transition:transform .2s}.aia-back:hover{transform:translateX(-3px)}
 .aia-bar span{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .aia-hero{border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;background:#fff;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both}
@@ -703,7 +703,7 @@ dialog.ai{max-width:min(620px,calc(100vw - 24px))}
 .aih{font-weight:600;background:var(--tile-2);border-radius:6px;padding:0 4px;white-space:nowrap}.aia-hero .aih{background:rgba(255,255,255,.18)}.aia-hero.lime .aih,.aia-hero.lav .aih,.aia-hero.peach .aih{background:rgba(255,255,255,.55)}
 .ain{font-family:var(--f-mono);font-weight:600;font-size:.94em;white-space:nowrap}
 .aia-act ol{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;counter-reset:a}
-.aia-act li{counter-increment:a;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;font-size:13.5px;line-height:1.4;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .45s)}
+.aia-act li{counter-increment:a;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px;align-items:start;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;font-size:13.5px;line-height:1.4;animation:tile-in .5s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .45s)}
 .aia-act li::before{content:counter(a);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--ink);font-weight:700;font-size:13px}
 .aia-act .aih{background:rgba(255,255,255,.16)}
 .aia-at{font-size:11px;color:var(--muted);text-align:center;padding:8px 0 4px}
@@ -952,6 +952,18 @@ header.bar.stuck{background:rgba(255,255,255,.82)}
 .aia-note{font-size:11.5px;color:var(--muted);padding:0 4px}
 .sugg .chip{background:#fff}
 html.embed-root,html.embed-root body{background:#fff!important}
+/* запись голосового вопроса — полоса поверх поля, как в Телеграме */
+.aiq{position:relative}
+.vrec{position:absolute;inset:0;z-index:3;display:flex;align-items:center;gap:10px;padding:5px;border-radius:999px;background:#fff;color:var(--ink);animation:tile-in .25s ease both}
+.vr-x,.vr-ok{flex:none;border:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:15px;cursor:pointer}
+.vr-x{background:var(--tile-2);color:var(--muted)}.vr-ok{background:var(--blue);color:#fff;font-size:18px}
+.vr-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#FF3B30;animation:recp 1s ease-in-out infinite}
+@keyframes recp{50%{opacity:.2}}
+.vr-t{flex:none;font:600 13px var(--f-mono);min-width:34px}
+.vr-w{flex:0 1 150px;min-width:60px;height:28px;color:var(--blue)}
+.vr-txt{flex:1;min-width:0;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vr-msg{position:absolute;left:0;right:0;bottom:calc(100% + 8px);z-index:4;background:var(--ink);color:#fff;font-size:12.5px;border-radius:14px;padding:9px 12px;animation:tile-in .3s ease both}
+
 
 .enter .t.rv-wait{animation:none}
 .t.rv-in{animation:tile-in .8s cubic-bezier(.16,1,.3,1) both!important;animation-delay:calc(var(--rv,0) * 60ms)!important}
@@ -1134,8 +1146,9 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
 #pTitle{white-space:nowrap}@media (max-width:640px){#pTitle{white-space:normal}.t .lab .tag{display:none}.pod-leg small{display:none}}
 /* логотип бренда: иконка сайта, иначе буква на цветном круге */
 .blogo{flex:none;position:relative;display:inline-grid;place-items:center;width:var(--ls,38px);height:var(--ls,38px);border-radius:30%;overflow:hidden;
-  background:linear-gradient(140deg,hsl(var(--h) 80% 72%),hsl(calc(var(--h) + 40) 75% 58%));color:#fff;font-weight:700;font-size:calc(var(--ls,38px) * .42);box-shadow:inset 0 0 0 1px rgba(13,13,15,.06)}
-.blogo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:16%}
+  background:linear-gradient(140deg,color-mix(in srgb,var(--cc) 70%,#fff),var(--cc));color:var(--ink);font-weight:700;font-size:calc(var(--ls,38px) * .42);box-shadow:inset 0 0 0 2px var(--cc)}
+.blogo img{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);border-radius:inherit;object-fit:contain;background:#fff;padding:14%}
+.irow.br{grid-template-columns:auto minmax(0,1fr) auto;align-items:center}.irow.br .blogo{grid-row:1/3;margin-right:2px}.irow.br .x2{grid-column:2/-1}
 .bcell{display:flex;gap:12px;align-items:center;min-width:0}
 .bcell>div{min-width:0}
 /* сходство с нашими страницами */
@@ -1277,9 +1290,13 @@ const simCell = b => b.sim ? `<span class="simv ${b.simDirect ? "hi" : ""}" titl
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // логотип бренда: иконка его сайта (Google favicons), не загрузилась — первая буква на цветном круге
 const hue = s => [...String(s)].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+// цвет категории — тот же, что у иконок категорий на сетке: логотип бренда «одевается» в цвет своей категории
+const CAT_COL = { "Медиа и стриминг": "#8EA0FF", "Товары": "#FFB38A", "Еда и напитки": "#F7C948", "Мода и красота": "#F49AC1", "ИИ и софт": "#B9A8FF",
+  "Спорт": "#7FD9B0", "Приложения": "#C8EB4D", "Игры": "#FF8A65", "Финансы и крипта": "#6FCB9A", "Образование": "#7CC4F5", "Рынки прогнозов и ставки": "#E77FB0", "Другое": "#C9C5BC" };
+const catCol = c => CAT_COL[c] || CAT_COL["Другое"];
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
 const logo = (b, size = 38) => { const d = host(b.site || ""), ch = (b.brand || b.handle || "?").replace(/[^\p{L}\p{N}]/gu, "")[0]?.toUpperCase() || "•";
-  return `<span class="blogo" style="--h:${hue(b.key)};--ls:${size}px">${ch}${d && !/linktr\.ee|instagram|beacons|bio\.link|lnk\.bio|tiktok|youtube|bit\.ly|stan\.store|campsite/.test(d) ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128" alt="" loading="lazy" onerror="this.remove()" onload="if(this.naturalWidth<=16)this.remove()">` : ""}</span>`; };
+  return `<span class="blogo" style="--cc:${catCol(b.category)};--ls:${size}px" title="${esc(b.category || "Другое")}">${ch}${d && !/linktr\.ee|instagram|beacons|bio\.link|lnk\.bio|tiktok|youtube|bit\.ly|stan\.store|campsite/.test(d) ? `<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=128" alt="" loading="lazy" onerror="this.remove()" onload="if(this.naturalWidth<=16)this.remove()">` : ""}</span>`; };
 const simCell2 = b => b.sim ? `<span class="simc" title="Площадка @${esc(b.sim.host)}, где бренд размещался, похожа на нашу @${esc(b.sim.own)} на ${b.sim.p}%${b.sim.chk ? " (проверено ИИ)" : ""}"><b class="${b.simDirect ? "hi" : ""}">${b.sim.p}%</b>${b.simDirect ? `<span class="d">у ${b.simDirect} ${plu(b.simDirect, "прямого конкурента", "прямых конкурентов", "прямых конкурентов")}</span>` : `<span>на @${esc(b.sim.own)}</span>`}</span>` : '<span class="muted">—</span>';
 // ---------- CRM: статусы, закреп, маркер, заметки — файл leads.json в закрытом репозитории GitHub (без своего сервера) ----------
 // Вход: имя + ключ команды (токен GitHub с доступом только к этому репозиторию). Хранится в этом браузере.
@@ -1519,12 +1536,12 @@ function render() {
     <div class="scope" id="scope"></div>
     <div class="scope-leg"><span>Сектор — категория, в карточке — главный бренд группы · размер точки — число площадок</span><span>наведите на точку — бренд · белая обводка — новый · клик — карточка бренда</span></div></section>`);
   const fresh = B.filter(b => b.first >= shift(latest, -6)).sort((x, y) => y.reach - x.reach);
-  T.push(`<section class="t ink apple s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
+  T.push(`<section class="t orange s4"><div class="lab">Новые за 7 дней</div><div class="big" data-n="${fresh.length}" data-fmt="int">${fresh.length}</div>
     <div class="sub">${fresh.length ? "впервые замечены в рекламе" : "новых рекламодателей нет"}</div>
     <div class="newb">${fresh.slice(0, 3).map(b => `<button type="button" data-b="${esc(b.key)}"><b>${esc(b.brand)}</b><span>${esc(b.category || "")} · ${b.hostsN} пл.</span></button>`).join("")}</div></section>`);
   const cats = {}; B.forEach(b => { const c = b.category || "Другое"; cats[c] = (cats[c] || 0) + 1; });
   const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
-  T.push(`<section class="t lime s3"><div class="lab">Главная категория</div><div class="spk-who" style="font-size:clamp(24px,2.6vw,34px)">${esc(topCat?.[0] || "—")}</div>
+  T.push(`<section class="t blue s3"><div class="lab">Главная категория</div><div class="spk-who" style="font-size:clamp(24px,2.6vw,34px)">${esc(topCat?.[0] || "—")}</div>
     <div class="sub">${topCat ? `${topCat[1]} из ${B.length} рекламодателей` : ""}</div><div class="grow"></div>
     ${topCat ? `<button class="corner" type="button" data-cat="${esc(topCat[0])}" aria-label="Показать категорию">↗</button>` : ""}</section>`);
   const ins = S.insights.find(i => i.type === "ads" && (i.headline || i.summary));
@@ -1532,11 +1549,11 @@ function render() {
     ${ins ? `<div class="headline">${markHandles(ins.headline || ins.summary)}</div>${ins.metrics?.length ? `<div class="mets">${ins.metrics.slice(0, 3).map(m => `<div class="met ${["up", "down", "warn"].includes(m.tone) ? m.tone : ""}"><span>${esc(m.label)}</span><b class="${String(m.value).length > 13 ? "sm" : ""}">${esc(m.value)}</b>${m.note ? `<span>${esc(m.note)}</span>` : ""}</div>`).join("")}</div>` : ""}`
       : `<div class="headline">Сводка по рекламному рынку появится после первого разбора агента.</div>`}</section>`);
   if (ins?.sections?.length) {
-    const color = { up: "", down: "", warn: "", info: "" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];
+    const color = { up: "lime", down: "", warn: "peach", info: "lav" }, span = ["s12", "s12", "s6", "s4", "s3"][Math.min(4, ins.sections.length)];
     for (const sec of ins.sections.slice(0, 4)) T.push(`<section class="t ${color[sec.tone] ?? ""} ${span}"><div class="lab">${esc(sec.title)}</div><div class="ilist">${(sec.items || []).map(it => {
-      const key = it.key || (it.u && S.brands.find(b => b.handle === it.u || b.key === it.u)?.key);
-      const inner = `<span class="u">${it.u ? "@" + esc(it.u) : esc(it.title || "")}</span><span class="v">${esc(it.value || "")}</span>${it.text ? `<span class="x2">${esc(it.text)}</span>` : ""}`;
-      return key ? `<button type="button" class="irow" data-b="${esc(key)}">${inner}</button>` : `<div class="irow">${inner}</div>`;
+      const bb = S.brands.find(b => b.key === it.key || (it.u && (b.handle === it.u || b.key === it.u)) || (it.title && b.brand === it.title)), key = bb?.key;
+      const inner = `${bb ? logo(bb, 34) : ""}<span class="u">${it.u ? "@" + esc(it.u) : esc(it.title || "")}</span><span class="v">${esc(it.value || "")}</span>${it.text ? `<span class="x2">${esc(it.text)}</span>` : ""}`;
+      return key ? `<button type="button" class="irow br" data-b="${esc(key)}">${inner}</button>` : `<div class="irow">${inner}</div>`;
     }).join("")}</div></section>`);
   }
   T.push(`<section class="t ink s12" id="top5"></section>`);
@@ -2219,18 +2236,44 @@ function local(q, ctx) {
     actions: (ctx.cards || []).slice(0, 3).map(c => c.t) } };
 }
 // голосовой ввод (Chrome, Edge, Safari): распознаём по-русски и отдаём текст
+// голосовой вопрос «как в Телеграме»: полоса записи поверх поля — точка, таймер, живая волна, распознанный текст,
+// ✕ отменить / ↑ отправить. Волна — от микрофона (Web Audio), текст — распознавание речи браузера (Chrome, Edge, Safari).
+const VERR = { "not-allowed": "Разрешите доступ к микрофону — значок в адресной строке", "service-not-allowed": "Разрешите доступ к микрофону — значок в адресной строке",
+  "audio-capture": "Микрофон не найден", network: "Распознавание речи недоступно в этом браузере — откройте сайт в Chrome", "no-speech": "Ничего не расслышал — попробуйте ещё раз" };
 function voice(btn, onText) {
+  if (!btn) return;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { btn.hidden = true; return; }
-  let rec = null;
-  btn.addEventListener("click", () => {
-    if (rec) { rec.stop(); return; }
-    rec = new SR(); rec.lang = "ru-RU"; rec.interimResults = true; rec.maxAlternatives = 1;
-    btn.classList.add("rec");
-    rec.onresult = e => { const t = [...e.results].map(r => r[0].transcript).join(" "); onText(t, e.results[e.results.length - 1].isFinal); };
-    rec.onend = () => { btn.classList.remove("rec"); rec = null; };
-    rec.onerror = () => { btn.classList.remove("rec"); rec = null; };
-    rec.start();
+  const form = btn.closest("form");
+  const say = t => { const n = document.createElement("div"); n.className = "vr-msg"; n.textContent = t; form.appendChild(n); setTimeout(() => n.remove(), 4200); };
+  btn.addEventListener("click", async () => {
+    if (!SR) { say("Голосовой ввод работает в Chrome, Edge и Safari"); return; }
+    if (form.querySelector(".vrec")) return;
+    const ui = document.createElement("div"); ui.className = "vrec";
+    ui.innerHTML = `<button type="button" class="vr-x" aria-label="Отменить">✕</button><span class="vr-dot"></span><span class="vr-t">0:00</span>
+      <canvas class="vr-w" width="300" height="40"></canvas><span class="vr-txt">Говорите…</span><button type="button" class="vr-ok" aria-label="Отправить">↑</button>`;
+    form.appendChild(ui);
+    let text = "", done = false, stream = null, ac = null, raf = 0, rec = null;
+    const t0 = Date.now(), tick = setInterval(() => { const s = Math.floor((Date.now() - t0) / 1000); ui.querySelector(".vr-t").textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 250);
+    // волна: громкость микрофона → столбики, бегущие справа налево
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      ac = new (window.AudioContext || window.webkitAudioContext)(); const an = ac.createAnalyser(); an.fftSize = 512;
+      ac.createMediaStreamSource(stream).connect(an);
+      const buf = new Uint8Array(an.fftSize), cv = ui.querySelector(".vr-w"), g = cv.getContext("2d"), bars = new Array(50).fill(.04);
+      const draw = () => { an.getByteTimeDomainData(buf); let peak = 0; for (const v of buf) peak = Math.max(peak, Math.abs(v - 128)); bars.push(Math.min(1, peak / 64 + .04)); bars.shift();
+        g.clearRect(0, 0, cv.width, cv.height); g.fillStyle = getComputedStyle(ui).color;
+        bars.forEach((h, k) => { const bh = Math.max(3, h * cv.height); g.fillRect(k * 6, (cv.height - bh) / 2, 3.4, bh); }); raf = requestAnimationFrame(draw); };
+      draw();
+    } catch (e) { stop(); say(VERR["not-allowed"]); return; }
+    rec = new SR(); rec.lang = "ru-RU"; rec.interimResults = true; rec.continuous = true;
+    rec.onresult = e => { text = [...e.results].map(r => r[0].transcript).join(" ").trim(); ui.querySelector(".vr-txt").textContent = text || "Говорите…"; };
+    rec.onerror = e => { if (e.error !== "aborted") { say(VERR[e.error] || "Не получилось распознать: " + e.error); stop(); } };
+    rec.onend = () => { if (!done) finish(); };
+    function stop() { done = true; clearInterval(tick); cancelAnimationFrame(raf); try { rec?.abort(); } catch (x) {} stream?.getTracks().forEach(t => t.stop()); ac?.close(); ui.remove(); }
+    function finish() { const t = text; stop(); if (t) onText(t, true); }
+    ui.querySelector(".vr-x").onclick = stop;
+    ui.querySelector(".vr-ok").onclick = () => { done = true; try { rec.stop(); } catch (x) {} setTimeout(finish, 350); };
+    try { rec.start(); } catch (e) { stop(); say("Не получилось включить распознавание речи"); }
   });
 }
 window.akmAI = {
@@ -2260,7 +2303,7 @@ window.akmAI = {
         ${s.lead ? `<p class="aia-lead">${rich(s.lead)}</p>` : ""}</div>
       ${(s.groups || [{ points: s.points }]).map(g => `${g.title ? `<div class="aia-gt">${esc(g.title)}</div>` : ""}<div class="aia-pts">${(g.points || []).map((p, j) => { const [cls, mk] = TONE[p.tone] || TONE.info;
         return `<div class="aia-p ${cls}" style="--j:${j}"><span class="mk">${mk}</span><div><b>${rich(p.title)}</b><span>${rich(p.text)}</span></div>${p.u ? `<button type="button" class="aia-u" data-u="${esc(p.u)}">@${esc(p.u)}</button>` : ""}</div>`; }).join("")}</div>`).join("")}
-      ${s.actions?.length ? `<div class="aia-act"><div class="aia-gt">Что сделать</div><ol>${s.actions.map((a, j) => `<li style="--j:${j}">${rich(a)}</li>`).join("")}</ol></div>` : ""}
+      ${s.actions?.length ? `<div class="aia-act"><div class="aia-gt">Что сделать</div><ol>${s.actions.map((a, j) => `<li style="--j:${j}"><span>${rich(a)}</span></li>`).join("")}</ol></div>` : ""}
       ${at ? `<div class="aia-at">${esc(at)} · ИИ Gemini</div>` : ""}`;
   },
 };
