@@ -1121,7 +1121,17 @@ tr.acc.st-no td{opacity:.45}
 .crm select.s-wait{background-color:#FFE1D6}.crm select.s-work{background-color:#D9DFFF}.crm select.s-deal{background-color:var(--lime)}.crm select.s-no{background-color:#ECEBE6;color:var(--muted)}
 .ad-tbl td:first-child{max-width:340px}
 .bsub>span:not(.cat){max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crm select{max-width:118px}
+.crm select{max-width:112px}.crm{flex-wrap:nowrap}.crm button{padding:0 6px;min-width:26px}
+.crm-h{margin:0;font-size:26px;letter-spacing:-.03em}.crm-s{opacity:1!important;color:var(--muted);max-width:58ch}
+.crm-alt{font-size:12.5px;color:var(--muted)}.crm-out{width:100%;min-height:96px;border:0;border-radius:14px;background:var(--tile-2);padding:10px 12px;font:12px var(--f-mono)}
+/* новые рекламодатели — отдельно над таблицей и подсветка строки */
+.nw-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.nw-c{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:center;text-align:left;border:0;border-radius:18px;padding:12px 14px;background:color-mix(in srgb,var(--lime) 30%,#fff);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--lime);transition:transform .35s cubic-bezier(.16,1,.3,1),background .2s}
+.nw-c:hover{transform:translateY(-3px);background:var(--lime)}
+.nw-c .blogo{grid-row:1/3}.nw-c b{font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nw-c span{font-size:12px;color:#3A3A40}
+.nw-c em{font-style:normal;font-weight:700;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--ink);color:var(--lime);border-radius:999px;padding:2px 7px;margin-right:6px}
+tr.acc.fresh td:first-child{box-shadow:inset 4px 0 0 var(--lime)}
+tr.acc.fresh td{background:color-mix(in srgb,var(--lime) 9%,#fff)}
 @media (max-width:1600px){.ad-tbl th:nth-child(5),.ad-tbl td:nth-child(5){display:none}}
 .ad-tbl .c-wk0,.ad-tbl td.n{white-space:nowrap}
 .crm-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
@@ -1177,6 +1187,7 @@ tr.acc.st-no td{opacity:.45}
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div class="seg" id="bSort" role="group" aria-label="Порядок"><button type="button" data-bs="sim" aria-pressed="true">Похожие площадки</button><button type="button" data-bs="new" aria-pressed="false">Новые и размах</button></div>
         <input class="search" id="q" type="search" placeholder="Поиск бренда" aria-label="Поиск бренда"></div>
       </div>
+      <div id="newStrip"></div>
       <div class="chips" id="stChips" role="group" aria-label="Статус"></div>
       <div class="chips" id="catChips" role="group" aria-label="Категория"></div>
       <div class="pod-leg"><span class="ex"><i></i><b>Прямая реклама</b><small>#ad, «оплачено», партнёрская метка</small></span><span class="na"><i></i><b>Нативная</b><small>бренд вшит в контент без пометки</small></span><span id="crmBar" class="crm-bar"></span></div>
@@ -1258,15 +1269,45 @@ function crmUi() {
   const n = Object.values(S.leads).filter(l => l.status && l.status !== "new").length, pins = Object.values(S.leads).filter(l => l.pin).length;
   $("crmBar").innerHTML = CRM.ok ? `<span>CRM: <b>${esc(CRM.name)}</b> · в работе ${n} · закреплено ${pins}</span>` : `<span>Статусы, закрепы и маркер — <button type="button" class="linkbtn" data-crm-login>войдите в CRM</button></span>`;
 }
-function crmLogin() {
+// ключ GitHub зашифрован PIN-ом команды (PBKDF2 → AES-GCM): на сайте лежит только шифр, PIN знает команда
+const b64 = u => btoa(String.fromCharCode(...new Uint8Array(u))), ub64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function pinKey(pin, salt, iter) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({ name: "PBKDF2", salt, iterations: iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+}
+async function pinOpen(pin) {
+  const L = S.crmLock; if (!L) throw new Error("вход по PIN ещё не настроен");
+  const k = await pinKey(pin, ub64(L.s), L.n);
+  try { return new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: ub64(L.i) }, k, ub64(L.c))); }
+  catch (e) { throw new Error("неверный PIN"); }
+}
+async function pinSeal(key, pin) {
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), n = 600000;
+  const c = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, await pinKey(pin, salt, n), new TextEncoder().encode(key));
+  return JSON.stringify({ s: b64(salt), i: b64(iv), c: b64(c), n });
+}
+function crmLogin(mode = "pin") {
   $("accBody").dataset.key = "";
-  $("accBody").innerHTML = `<div class="dgrid"><section class="t d6"><button class="x" type="button" data-close aria-label="Закрыть">×</button>
-    <div class="lab">CRM рекламодателей</div><h2 style="margin:0;font-size:26px;letter-spacing:-.03em">Вход для команды</h2>
-    <div class="sub" style="opacity:1;color:var(--muted);max-width:56ch">Статусы, закрепы, маркер и заметки видит вся команда. Имя — чтобы было видно, кто взял лида. Ключ команды выдаёт руководитель, он запоминается в этом браузере.</div>
-    <form class="crm-login" id="crmForm"><input id="crmName" placeholder="Ваше имя" value="${esc(CRM.name)}" autocomplete="name" required>
-      <input id="crmKey" type="password" placeholder="Ключ команды" value="${esc(CRM.key)}" autocomplete="off" required>
-      <div style="display:flex;gap:8px"><button class="pill dark" type="submit">Войти <span class="arrow">↗</span></button>${CRM.key ? `<button class="pill" type="button" data-crm-out>Выйти</button>` : ""}</div></form></section></div>`;
-  openDlg($("accDlg")); $("crmName").focus();
+  const head = `<button class="x" type="button" data-close aria-label="Закрыть">×</button><div class="lab">CRM рекламодателей</div>`;
+  const body = mode === "setup" ? `<h2 class="crm-h">Настройка входа по PIN</h2>
+      <div class="sub crm-s">Для руководителя, один раз. Вставьте ключ GitHub и придумайте PIN команды — 6 и больше символов, лучше буквы и цифры. Ключ зашифруется прямо здесь, в браузере. Получится код: пришлите его в чат — ключ в нём не виден, расшифровать можно только PIN-ом.</div>
+      <form class="crm-login" id="crmSetup"><input id="setKey" type="password" placeholder="Ключ GitHub (github_pat_…)" autocomplete="off" required>
+        <input id="setPin" type="password" placeholder="PIN команды" minlength="6" autocomplete="off" required>
+        <div style="display:flex;gap:8px"><button class="pill dark" type="submit">Зашифровать <span class="arrow">↗</span></button><button class="pill" type="button" data-crm-mode="pin">Назад</button></div>
+        <textarea id="setOut" class="crm-out" readonly hidden></textarea></form>`
+    : mode === "key" ? `<h2 class="crm-h">Вход по ключу</h2>
+      <form class="crm-login" id="crmForm"><input id="crmName" placeholder="Ваше имя" value="${esc(CRM.name)}" autocomplete="name" required>
+        <input id="crmKey" type="password" placeholder="Ключ GitHub (github_pat_…)" autocomplete="off" required>
+        <div style="display:flex;gap:8px"><button class="pill dark" type="submit">Войти <span class="arrow">↗</span></button><button class="pill" type="button" data-crm-mode="pin">Назад</button></div></form>`
+    : `<h2 class="crm-h">Вход для команды</h2>
+      <div class="sub crm-s">Статусы, закрепы, маркер и заметки видит вся команда. Имя — чтобы было видно, кто взял лида.</div>
+      <form class="crm-login" id="crmPin"><input id="crmName" placeholder="Ваше имя" value="${esc(CRM.name)}" autocomplete="name" required>
+        <input id="crmPinIn" type="password" inputmode="text" placeholder="PIN команды" autocomplete="off" required ${S.crmLock ? "" : "disabled"}>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="pill dark" type="submit" ${S.crmLock ? "" : "disabled"}>Войти <span class="arrow">↗</span></button>${CRM.ok ? `<button class="pill" type="button" data-crm-out>Выйти</button>` : ""}</div>
+        <div class="crm-alt">${S.crmLock ? "" : "Вход по PIN ещё не настроен. "}<button type="button" class="linkbtn" data-crm-mode="setup">Настроить PIN (руководителю)</button> · <button type="button" class="linkbtn" data-crm-mode="key">Войти по ключу</button></div></form>`;
+  $("accBody").innerHTML = `<div class="dgrid"><section class="t d6">${head}${body}</section></div>`;
+  if (!$("accDlg").open) openDlg($("accDlg"));
+  ($("crmName") || $("setKey"))?.focus();
 }
 const STATUS_C = { new: "", wait: "s-wait", work: "s-work", deal: "s-deal", no: "s-no" };
 const nf = new Intl.NumberFormat("ru-RU");
@@ -1304,8 +1345,9 @@ function postHead(p) {
 const xr = r => r == null ? "—" : "×" + r.toLocaleString("ru-RU", { maximumFractionDigits: r < 1 ? 2 : 1 });
 const rcls = r => r == null ? "" : r >= 1 ? "good" : r < .5 ? "bad" : "";
 const today = new Date().toISOString().slice(0, 10);
-const STATUS = { new: "Новый", wait: "Ждёт обработки", work: "В работе", deal: "Сделка", no: "Не интересно" };
+const STATUS = { new: "Не разобран", wait: "Ждёт обработки", work: "В работе", deal: "Сделка", no: "Не интересно" };
 const isFresh = b => b.first >= shift(today, -2);   // «новый» — впервые в рекламе за последние 3 дня
+const isNew7 = b => b.first >= shift(today, -6);    // новые за неделю — отдельный блок над таблицей и подсветка строки
 const statusOf = b => S.leads[b.key]?.status || "new";
 const ownHosts = () => new Set(S.hosts.filter(h => h.group?.startsWith("Наши · ")).map(h => h.u));
 const isOwn = b => { const own = ownHosts(); return b.hosts.some(h => own.has(h)); };
@@ -1493,7 +1535,13 @@ function render5() {
       <span class="to"><em>можно разместить у нас:</em>${to(b).map(([u, p]) => `<span>@${esc(u)}${p ? " · " + p + "%" : ""}</span>`).join("") || "<em>подберите по нише</em>"}</span></button>`).join("")}</div>`;
 }
 
+function renderNew() {
+  const L = S.brands.filter(isNew7).sort((a, b) => b.first.localeCompare(a.first) || (b.hostsN || 0) - (a.hostsN || 0));
+  $("newStrip").innerHTML = L.length ? `<div class="lab" style="margin:4px 0 8px">Новые рекламодатели · 7 дней <span class="tag">${L.length} · впервые замечены в рекламе</span></div>
+    <div class="nw-strip">${L.slice(0, 8).map(b => `<button type="button" class="nw-c" data-b="${esc(b.key)}">${logo(b, 40)}<b>${esc(b.brand)}</b><span><em>с ${dShort(b.first)}</em>${esc(b.category || "Другое")} · ${b.hostsN} ${plu(b.hostsN, "площадка", "площадки", "площадок")}${b.sim ? " · " + b.sim.p + "%" : ""}</span></button>`).join("")}</div>` : "";
+}
 function renderChips() {
+  renderNew();
   const counts = { all: S.brands.length }; S.brands.forEach(b => { const s = statusOf(b); counts[s] = (counts[s] || 0) + 1; });
   $("stChips").innerHTML = [["all", "Все"], ...Object.entries(STATUS)].map(([k, l]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${S.st === k}">${l} <span class="muted">${counts[k] || 0}</span></button>`).join("");
   const cats = [...new Set(S.brands.map(b => b.category || "Другое"))].sort();
@@ -1516,7 +1564,7 @@ function renderTable() {
   const L = filtered();
   $("btbody").innerHTML = L.map(b => {
     const s = statusOf(b), tot = b.explicitN + b.nativeN || 1, lead = S.leads[b.key] || {};
-    return `<tr class="acc${lead.pin ? " pinned" : ""}${lead.mark ? " marked" : ""}${s === "no" ? " st-no" : ""}" data-b="${esc(b.key)}" tabindex="0">
+    return `<tr class="acc${lead.pin ? " pinned" : ""}${lead.mark ? " marked" : ""}${s === "no" ? " st-no" : ""}${isNew7(b) ? " fresh" : ""}" data-b="${esc(b.key)}" tabindex="0">
       <td><div class="bcell">${logo(b)}<div><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}${b.email || b.emails?.length || b.contact ? ' <span class="hasc" title="Есть почта или страница для партнёров — откройте бренд">есть контакт!</span>' : ""}${isFresh(b) ? ` <span class="st new" title="впервые в рекламе ${dShort(b.first)}">новый</span>` : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span>${b.ai?.sells ? `<span>${esc(b.ai.sells)}</span>` : ""}</div></div></div></td>
       <td class="n">${simCell2(b)}</td><td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
       <td class="c-wk0"><span class="mixw"><span class="mix" title="прямая ${b.explicitN} · нативная ${b.nativeN}"><i class="ex" style="width:${b.explicitN / tot * 100}%"></i><i class="na" style="width:${b.nativeN / tot * 100}%"></i></span><small><b>${b.explicitN}</b> прям · <em>${b.nativeN}</em> натив</small></span></td>
@@ -1626,12 +1674,21 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-crm-out]")) { CRM.key = ""; CRM.ok = false; try { localStorage.removeItem("akm.crm"); } catch (x) {} closeDlg($("accDlg")); crmUi(); return; }
 }, true);
 $("crmBtn").addEventListener("click", crmLogin);
-$("accDlg").addEventListener("submit", e => {
-  if (e.target.id !== "crmForm") return; e.preventDefault();
-  CRM.name = $("crmName").value.trim(); CRM.key = $("crmKey").value.trim();
+$("accDlg").addEventListener("submit", async e => {
+  const id = e.target.id; if (!["crmForm", "crmPin", "crmSetup"].includes(id)) return; e.preventDefault();
+  if (id === "crmSetup") {
+    const out = $("setOut"); out.hidden = false; out.value = "шифрую…";
+    out.value = await pinSeal($("setKey").value.trim(), $("setPin").value); $("setKey").value = ""; out.select();
+    toast("Код готов — скопируйте и пришлите в чат"); return;
+  }
+  const name = $("crmName").value.trim();
+  try { CRM.key = id === "crmPin" ? await pinOpen($("crmPinIn").value) : $("crmKey").value.trim(); }
+  catch (x) { toast("CRM: " + x.message); return; }
+  CRM.name = name;
   try { localStorage.setItem("akm.crm", JSON.stringify({ name: CRM.name, key: CRM.key })); } catch (x) {}
   closeDlg($("accDlg")); crmLoad();
 });
+$("accDlg").addEventListener("click", e => { const m = e.target.closest("[data-crm-mode]"); if (m) crmLogin(m.dataset.crmMode); });
 $("accDlg").addEventListener("click", e => {
   if (e.target.closest("[data-close]") || e.target === $("accDlg")) { closeDlg($("accDlg")); return; }
   const set = e.target.closest("[data-set]"); if (set && !set.disabled) { const key = $("accBody").dataset.key; saveLead(key, { status: set.dataset.set }); $("stBtns").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === set))); }
@@ -1698,7 +1755,7 @@ setTimeout(reveal, 2500);
 placeInd(); document.fonts?.ready.then(placeInd); window.addEventListener("resize", placeInd);
 if (window.__PUBLIC_DATA) {
   const D = window.__PUBLIC_DATA; S.brands = D.brands || []; S.hosts = D.hosts || []; S.hostsAt = D.hostsAt; S.insights = D.insights || []; S.viral = D.viral || [];
-  S.cards = D.cards || []; S.cardsAt = D.cardsAt;
+  S.cards = D.cards || []; S.cardsAt = D.cardsAt; S.crmLock = D.crmLock || null;
   document.body.classList.add("public"); reveal(); crmLoad();
   // ссылка radar.html#b=<бренд> (из «Прямых конкурентов» на сетке) сразу открывает карточку бренда
   const hb = (location.hash.match(/^#b=(.+)/) || [])[1];
