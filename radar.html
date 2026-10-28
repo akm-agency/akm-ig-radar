@@ -1166,7 +1166,9 @@ tr.acc.st-no td{opacity:.45}
 .crm select.s-wait{background-color:#FFE1D6}.crm select.s-work{background-color:#D9DFFF}.crm select.s-deal{background-color:var(--lime)}.crm select.s-no{background-color:#ECEBE6;color:var(--muted)}
 .ad-tbl td:first-child{max-width:340px}
 .bsub>span:not(.cat){max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crm select{max-width:112px}.crm{flex-wrap:nowrap}.crm button{padding:0 6px;min-width:26px}
+.crm select{max-width:118px}.crm{flex-wrap:wrap;justify-content:flex-end;max-width:124px;margin-left:auto}.crm button{padding:0 6px;min-width:26px;height:24px}
+@media (max-width:1500px){.ad-tbl th:nth-child(3),.ad-tbl td:nth-child(3){display:none}}
+@media (max-width:1300px){.ad-tbl th:nth-child(8),.ad-tbl td:nth-child(8){display:none}.ad-tbl td:first-child{max-width:260px}}
 .crm-h{margin:0;font-size:26px;letter-spacing:-.03em}.crm-s{opacity:1!important;color:var(--muted);max-width:58ch}
 .crm-alt{font-size:12.5px;color:var(--muted)}.crm-out{width:100%;min-height:96px;border:0;border-radius:14px;background:var(--tile-2);padding:10px 12px;font:12px var(--f-mono)}
 /* новые рекламодатели — отдельно над таблицей и подсветка строки */
@@ -1291,21 +1293,33 @@ async function crmLoad() {
   crmUi(); renderChips(); renderTable(); render5();
 }
 // запись: свежая версия файла → наша правка поверх → сохранение; конфликт (кто-то успел раньше) — повтор
+// запись: правка сразу на экране; сохранения — по очереди одним потоком. Перед записью читаем свежий файл
+// (по последнему известному sha — без минутного кэша GitHub), накладываем ВСЕ ещё не сохранённые правки и пишем.
+const PENDING = new Map(); let saving = null;
 async function crmSave(key, patch) {
   if (!CRM.ok) { crmLogin(); return; }
   const doc = { ...(S.leads[key] || {}), ...patch, by: CRM.name, at: new Date().toISOString() };
-  S.leads[key] = doc; renderChips(); renderTable(); render5();
-  for (let i = 0; i < 3; i++) {
+  S.leads[key] = doc; PENDING.set(key, doc); renderChips(); renderTable(); render5();
+  if (!saving) saving = crmFlush().finally(() => { saving = null; if (PENDING.size) crmSave2(); });
+}
+const crmSave2 = () => { if (!saving) saving = crmFlush().finally(() => { saving = null; if (PENDING.size) crmSave2(); }); };
+async function crmFlush() {
+  for (let i = 0; i < 4 && PENDING.size; i++) {
     try {
-      const r0 = await gh(CRM_FILE), j0 = await r0.json(), cur = JSON.parse(b64d(j0.content) || "{}");
-      cur[key] = doc;
-      const r = await gh(CRM_FILE, { method: "PUT", body: JSON.stringify({ message: `CRM: ${key} — ${STATUS[doc.status || "new"]} (${CRM.name})`, content: b64e(JSON.stringify(cur, null, 1)), sha: j0.sha }) });
-      if (r.status === 409 || r.status === 422) continue;
+      const r0 = await gh(CRM_FILE + "?t=" + Date.now()), j0 = await r0.json();
+      const cur = JSON.parse(b64d(j0.content) || "{}"), batch = new Map(PENDING);
+      for (const [k, d] of batch) cur[k] = d;
+      const keys = [...batch.keys()], msg = keys.length === 1 ? `CRM: ${keys[0]} — ${STATUS[batch.get(keys[0]).status || "new"]} (${CRM.name})` : `CRM: ${keys.length} правок (${CRM.name})`;
+      const r = await gh(CRM_FILE, { method: "PUT", body: JSON.stringify({ message: msg, content: b64e(JSON.stringify(cur, null, 1)), sha: j0.sha }) });
+      if (r.status === 409 || r.status === 422) { await new Promise(x => setTimeout(x, 700)); continue; }
       if (!r.ok) throw new Error("GitHub " + r.status);
-      CRM.sha = (await r.json()).content.sha; S.leads = cur; return;
+      CRM.sha = (await r.json()).content.sha;
+      for (const [k, d] of batch) if (PENDING.get(k) === d) PENDING.delete(k);   // сохранено; новые правки поверх остаются в очереди
+      for (const [k, d] of Object.entries(cur)) if (!PENDING.has(k)) S.leads[k] = d;   // чужие правки — подтягиваем, свои несохранённые не трогаем
+      crmUi(); renderChips(); renderTable(); render5();
     } catch (e) { toast("CRM не сохранилось: " + e.message); return; }
   }
-  toast("CRM: не удалось сохранить — обновите страницу");
+  if (PENDING.size) toast("CRM: часть правок ещё сохраняется…");
 }
 function crmUi() {
   $("crmWho").textContent = CRM.ok ? CRM.name : "войти";
