@@ -18,7 +18,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body.public #aiForm:not(.on){display:none!important}
-html,body{background:var(--stone);overflow-x:clip}
+html,body{background:var(--stone)}
 body{margin:0;color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.4;font-variant-numeric:tabular-nums}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
@@ -428,7 +428,9 @@ button.srow:hover b{text-decoration:underline}
 .pc-gain b{font-size:15px;letter-spacing:-.02em}.pc-gain span{color:#3F7A57}
 table.trk th .ts{border:0;background:none;padding:0;font:inherit;color:inherit;white-space:nowrap}
 table.trk th .ts:hover{color:var(--ink)}
-@media (max-width:640px){.nav{max-width:calc(100vw - 32px);overflow-x:auto;scrollbar-width:none}.nav a{padding:0 14px;flex:none}}
+@media (max-width:640px){.nav{max-width:calc(100vw - 32px);overflow-x:auto;scrollbar-width:none;height:46px}.nav a{padding:0 11px;flex:none;font-size:13px;height:38px}.nav .cnt{display:none}
+  .t .lab .tag{display:none}.hw-heat{grid-template-columns:repeat(4,minmax(0,1fr))}.hw-heat.d7{grid-template-columns:repeat(7,minmax(0,1fr))}.hw-heat.d7 .hw-c span{font-size:10px}
+  .hw-pick{width:100%}.hw-pick select{flex:1}.sl-sum{gap:6px}.gc-strip button{width:70px;height:92px}.go-cont .pill{width:100%;justify-content:center}}
 /* «Конкуренты»: переключатель режимов + бенто отслеживаемых */
 .cmc-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
 .cmc{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:stretch;gap:16px;min-height:150px;padding:22px 24px;border:0;border-radius:var(--r);background:var(--tile);color:var(--ink);text-align:left;
@@ -477,7 +479,7 @@ table.trk th .ts:hover{color:var(--ink)}
 .tk-n .bar2 i{display:block;height:100%;border-radius:999px;background:var(--lime)}
 .tk-n.on .bar2 i{background:#fff}
 .tk-hero{padding:0;border:0;text-align:left;color:#fff;background:var(--ink-2);min-height:340px;isolation:isolate;cursor:pointer}
-.tk-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
+.tk-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;z-index:-2;transition:transform 1.4s cubic-bezier(.16,1,.3,1)}
 .tk-hero:hover img{transform:scale(1.07)}
 .tk-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(13,13,15,.6) 0%,rgba(13,13,15,0) 30%,rgba(13,13,15,0) 40%,rgba(13,13,15,.92) 100%)}
 .tk-hero .in{flex:1;display:flex;flex-direction:column;gap:8px;padding:22px 24px}
@@ -655,6 +657,12 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .lnk.ai-rev{border:0;background:var(--lime);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .lnk.ai-rev .ai-spark{background:var(--ink)}
 .ai-more{display:flex;gap:6px;flex-wrap:wrap}
+.sl-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:auto}
+.sl-sum div{background:rgba(255,255,255,.08);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.sl-sum b{font:600 26px var(--f-mono);letter-spacing:-.03em;color:var(--lime)}.sl-sum span{font-size:12px;opacity:.65}
+/* встроенная таблица (панель босса): только «Подписчики по понедельникам», без шапки и плиток */
+body.embed{background:transparent}body.embed header.bar,body.embed #bento,body.embed #pageCont,body.embed #pageComp,body.embed .toast{display:none!important}
+body.embed .wrap{max-width:none;padding:0}body.embed #pageNet{padding:0}body.embed #tableTile{margin:0;border-radius:0;box-shadow:none;background:transparent;padding:0}
 /* «Кому продавать»: иконки категорий, аватары страниц, разбивка по категориям */
 .ci{flex:none;display:inline-grid;place-items:center;width:calc(var(--cs) + 12px);height:calc(var(--cs) + 12px);border-radius:calc((var(--cs) + 12px) * .32);background:color-mix(in srgb,var(--cc) 40%,#fff)}
 .ci svg{width:var(--cs);height:var(--cs);fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -829,7 +837,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 @media (min-width:1421px){
   /* фон «липкой» шапки — отдельный слой во всю ширину: меняется только его прозрачность (без перерисовки и моргания) */
   header.bar{position:sticky;top:0;z-index:30;isolation:isolate}
-  header.bar::before{content:"";position:absolute;z-index:-1;top:0;bottom:0;left:-50vw;right:-50vw;background:var(--stone);box-shadow:0 1px 0 rgba(13,13,15,.07);opacity:0;transition:opacity .3s ease;pointer-events:none}
+  header.bar::before{content:"";position:fixed;z-index:-1;top:0;left:0;right:0;height:var(--barh,84px);background:var(--stone);box-shadow:0 1px 0 rgba(13,13,15,.07);opacity:0;transition:opacity .3s ease;pointer-events:none}
   .t,#tableTile{scroll-margin-top:86px}
   header.bar.stuck::before{opacity:1}
 }
@@ -1012,7 +1020,7 @@ mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C
 
 /* ---------- радар v3: шапка, логотипы, понятные колонки, CRM, топ-5, ИИ-разборы ---------- */
 .bar .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46ch}
-#pTitle{white-space:nowrap}
+#pTitle{white-space:nowrap}@media (max-width:640px){#pTitle{white-space:normal}.t .lab .tag{display:none}.pod-leg small{display:none}}
 /* логотип бренда: иконка сайта, иначе буква на цветном круге */
 .blogo{flex:none;position:relative;display:inline-grid;place-items:center;width:var(--ls,38px);height:var(--ls,38px);border-radius:30%;overflow:hidden;
   background:linear-gradient(140deg,hsl(var(--h) 80% 72%),hsl(calc(var(--h) + 40) 75% 58%));color:#fff;font-weight:700;font-size:calc(var(--ls,38px) * .42);box-shadow:inset 0 0 0 1px rgba(13,13,15,.06)}
@@ -1056,7 +1064,7 @@ tr.acc.st-no td{opacity:.45}
 .t5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .t5c{display:flex;flex-direction:column;gap:10px;text-align:left;border:0;border-radius:20px;padding:16px;background:rgba(255,255,255,.08);color:#fff;min-width:0;transition:background .3s,transform .4s cubic-bezier(.16,1,.3,1)}
 .t5c:hover{background:rgba(255,255,255,.14);transform:translateY(-3px)}
-.t5c .hd{display:flex;gap:10px;align-items:center;min-width:0}.t5c .hd b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.t5c .hd{display:flex;gap:10px;align-items:center;min-width:0}.t5c .hd>span:last-child{flex:1;min-width:0}.t5c .hd b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .t5c .hd span{font-size:11.5px;opacity:.6}
 .t5c .n{font:700 11px var(--f-mono);color:var(--ink);background:var(--lime);border-radius:999px;padding:2px 8px;align-self:flex-start}
 .t5c .why{font-size:12.5px;line-height:1.4;opacity:.8}
@@ -1363,14 +1371,16 @@ function render() {
   }
   T.push(`<section class="t ink s12" id="top5"></section>`);
   // тёплые лиды: рекламируются на площадках, почти таких же, как наши (модель близости competitor_ai)
-  const W = B.filter(b => b.simDirect).sort((x, y) => simOf(y) - simOf(x) || y.simDirect - x.simDirect).slice(0, 8);
+  // без тех, кто уже в топ-5 сверху (не повторяемся)
+  const T5 = new Set(top5().map(b => b.key));
+  const W = B.filter(b => b.simDirect && !T5.has(b.key)).sort((x, y) => simOf(y) - simOf(x) || y.simDirect - x.simDirect).slice(0, 8);
   if (W.length) T.push(`<section class="t s12"><div class="lab">Рекламируются у наших прямых конкурентов <span class="tag">${B.filter(b => b.simDirect).length} ${plu(B.filter(b => b.simDirect).length, "бренд", "бренда", "брендов")} · площадка от 65% похожа на нашу</span></div>
     <div class="wl-grid">${W.map((b, j) => `<button type="button" class="wl" data-b="${esc(b.key)}" style="--j:${j}">${dxRingR(b.sim.p)}
       <b>${esc(b.brand)}</b><span>на @${esc(b.sim.host)}${b.simDirect > 1 ? ` и ещё ${b.simDirect - 1} ${plu(b.simDirect - 1, "прямом", "прямых", "прямых")}` : ""} · ${esc(b.category || "")}</span>
       <span class="dx-own" title="Предложить нашу @${esc(b.sim.own)}">@${esc(b.sim.own)}</span></button>`).join("")}</div>
     <div class="foot">≈ — какую нашу страницу предложить: она почти такая же, как площадка, где бренд уже платит за рекламу.</div></section>`);
   // viral: fresh ads, ratio to the host's usual post + growth per hour from hourly checks
-  const V = (S.viral || []).slice(0, 12);
+  const V = (S.viral || []).slice(0, 10);
   if (V.length) T.push(`<section class="t s12"><div class="lab">Залетает сейчас <span class="tag">реклама за 72 ч · замеры каждый час</span></div>
     <div class="pcards">${V.map(p => `<a class="pcard" href="${postLink(p)}" target="_blank" rel="noopener">
       ${postHead(p)}
@@ -1398,10 +1408,13 @@ function render() {
 }
 // топ-5, кого обработать первым: сходство площадок с нашими, у скольких прямых конкурентов, свежесть, контакт, размах;
 // уже в работе / сделка / не интересно — не показываем. По каждому — на каких наших страницах разместить.
+function top5() {
+  const score = b => (simOf(b) || 0) + 12 * Math.min(b.simDirect || 0, 4) + (isFresh(b) ? 15 : 0) + (b.email || b.emails?.length || b.contact ? 10 : 0) + 2 * Math.min(b.hostsN || 0, 10) + (S.leads[b.key]?.pin ? 30 : 0);
+  return S.brands.filter(b => ["new", "wait"].includes(statusOf(b)) && !isOwn(b)).sort((a, b) => score(b) - score(a)).slice(0, 5);
+}
 function render5() {
   const el = $("top5"); if (!el) return;
-  const score = b => (simOf(b) || 0) + 12 * Math.min(b.simDirect || 0, 4) + (isFresh(b) ? 15 : 0) + (b.email || b.emails?.length || b.contact ? 10 : 0) + 2 * Math.min(b.hostsN || 0, 10) + (S.leads[b.key]?.pin ? 30 : 0);
-  const L = S.brands.filter(b => ["new", "wait"].includes(statusOf(b)) && !isOwn(b)).sort((a, b) => score(b) - score(a)).slice(0, 5);
+  const L = top5();
   if (!L.length) { el.hidden = true; return; }
   el.hidden = false;
   const why = b => [b.simDirect ? `платит ${b.simDirect} ${plu(b.simDirect, "нашему прямому конкуренту", "нашим прямым конкурентам", "нашим прямым конкурентам")}` : b.sim ? `площадка похожа на нашу на ${b.sim.p}%` : "",
@@ -1804,7 +1817,7 @@ const NEWS_SHOWS = 2;
 const KEY = "akm_news_" + NEWS.id;
 let shown = 0;
 try { shown = +localStorage.getItem(KEY) || 0; } catch { /* приватный режим — покажем, но не запомним */ }
-if (shown >= NEWS_SHOWS) return;
+if (shown >= NEWS_SHOWS || location.hash === "#embed-table") return;
 
 const css = document.createElement("style");
 css.textContent = `
@@ -1912,6 +1925,9 @@ if (bar) {
   // с запасом: включаем после 24 px, выключаем у самого верха — у края страницы класс не дёргается туда-сюда
   const upd = () => { const y = scrollY, s = on ? y > 4 : y > 24; if (s !== on) { on = s; bar.classList.toggle("stuck", s); } };
   addEventListener("scroll", upd, { passive: true }); upd();
+  // высота подложки шапки = высоте шапки (подложка fixed — не выходит за края страницы)
+  const bh = () => document.documentElement.style.setProperty("--barh", bar.getBoundingClientRect().bottom + "px");
+  addEventListener("resize", bh, { passive: true }); bh(); document.fonts?.ready.then(bh);
 }
 
 // появление при прокрутке
