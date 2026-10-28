@@ -1169,7 +1169,12 @@ tr.acc.st-no td{opacity:.45}
 .crm select{max-width:118px}.crm{flex-wrap:wrap;justify-content:flex-end;max-width:124px;margin-left:auto}.crm button{padding:0 6px;min-width:26px;height:24px}
 @media (max-width:1500px){.ad-tbl th:nth-child(3),.ad-tbl td:nth-child(3){display:none}}
 @media (max-width:1300px){.ad-tbl th:nth-child(8),.ad-tbl td:nth-child(8){display:none}.ad-tbl td:first-child{max-width:260px}}
-.crm-h{margin:0;font-size:26px;letter-spacing:-.03em}.crm-s{opacity:1!important;color:var(--muted);max-width:58ch}
+.crm-h{margin:0;font-size:26px;letter-spacing:-.03em}
+.ppl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.ppl-i{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:center;background:var(--tile-2);border-radius:16px;padding:10px 12px}
+.ppl-av{grid-row:1/3;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--lime);font-weight:700}
+.ppl-i b{display:block;font-size:14px}.ppl-i div>span{font-size:12px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ppl-l{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}.ppl-l a{font-size:12px;font-weight:600;color:var(--ink);background:#fff;border-radius:999px;padding:3px 10px;text-decoration:none}.ppl-l a:hover{background:var(--ink);color:#fff}.crm-s{opacity:1!important;color:var(--muted);max-width:58ch}
 .crm-alt{font-size:12.5px;color:var(--muted)}.crm-out{width:100%;min-height:96px;border:0;border-radius:14px;background:var(--tile-2);padding:10px 12px;font:12px var(--f-mono)}
 /* новые рекламодатели — отдельно над таблицей и подсветка строки */
 .nw-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
@@ -1622,7 +1627,7 @@ function renderTable() {
   $("btbody").innerHTML = L.map(b => {
     const s = statusOf(b), tot = b.explicitN + b.nativeN || 1, lead = S.leads[b.key] || {};
     return `<tr class="acc${lead.pin ? " pinned" : ""}${lead.mark ? " marked" : ""}${s === "no" ? " st-no" : ""}${isNew7(b) ? " fresh" : ""}" data-b="${esc(b.key)}" tabindex="0">
-      <td><div class="bcell">${logo(b)}<div><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}${b.email || b.emails?.length || b.contact ? ' <span class="hasc" title="Есть почта или страница для партнёров — откройте бренд">есть контакт!</span>' : ""}${isFresh(b) ? ` <span class="st new" title="впервые в рекламе ${dShort(b.first)}">новый</span>` : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span>${b.ai?.sells ? `<span>${esc(b.ai.sells)}</span>` : ""}</div></div></div></td>
+      <td><div class="bcell">${logo(b)}<div><div class="bname">${esc(b.brand)}${isOwn(b) ? ' <span class="own">уже у нас</span>' : ""}${b.email || b.emails?.length || b.contact || b.phones?.length || b.people?.length ? ` <span class="hasc" title="Есть почта, телефон, люди или страница для партнёров — откройте бренд">${b.people?.length ? "есть люди!" : "есть контакт!"}</span>` : ""}${isFresh(b) ? ` <span class="st new" title="впервые в рекламе ${dShort(b.first)}">новый</span>` : ""}</div><div class="bsub">${b.handle ? "@" + esc(b.handle) : ""}<span class="cat">${esc(b.category || "Другое")}</span>${b.ai?.sells ? `<span>${esc(b.ai.sells)}</span>` : ""}</div></div></div></td>
       <td class="n">${simCell2(b)}</td><td class="n">${b.n}</td><td class="n c-wk">${b.hostsN}</td><td class="n c-wk">${dShort(b.last)}</td>
       <td class="c-wk0"><span class="mixw"><span class="mix" title="прямая ${b.explicitN} · нативная ${b.nativeN}"><i class="ex" style="width:${b.explicitN / tot * 100}%"></i><i class="na" style="width:${b.nativeN / tot * 100}%"></i></span><small><b>${b.explicitN}</b> прям · <em>${b.nativeN}</em> натив</small></span></td>
       <td class="n"><span class="rx ${rcls(b.ratio)}">${xr(b.ratio)}</span></td><td class="n c-w4">${compact(b.reach)}</td>
@@ -1641,6 +1646,7 @@ async function openBrand(key) {
   const contacts = [b.site && `<a href="${esc(b.site)}" target="_blank" rel="noopener">${esc(b.site.replace(/^https?:\/\//, ""))} ↗</a>`,
     b.email && `<a href="mailto:${esc(b.email)}">${esc(b.email)}</a>`, ...(b.emails || []).map(e => `<span class="muted">${esc(e)}</span>`),
     b.contact && `<a href="${esc(b.contact)}" target="_blank" rel="noopener">страница для партнёров ↗</a>`,
+    ...(b.phones || []).map(p => `<a href="tel:${esc(p)}">☎ ${esc(p)}</a>`),
     b.handle && `<a href="https://ig.me/m/${encodeURIComponent(b.handle)}" target="_blank" rel="noopener">написать в Instagram ↗</a>`].filter(Boolean);
   $("accBody").innerHTML = `<div class="dgrid">
     <section class="t ink d4" style="min-height:250px"><button class="x" type="button" data-close aria-label="Закрыть" style="background:rgba(255,255,255,.14);color:#fff">×</button>
@@ -1658,6 +1664,8 @@ async function openBrand(key) {
     ${b.ai?.about ? `<section class="t d6"><div class="lab">Что это за рекламодатель <span class="tag">ИИ Gemini</span></div>
       <div class="bai"><div><b>Кто это</b>${esc(b.ai.about)}</div><div><b>Что продаёт</b>${esc(b.ai.sells || "—")}</div><div><b>Для кого</b>${esc(b.ai.audience || "—")}</div>
         ${b.ai.pitch ? `<div class="pitch"><b>Как зайти с предложением</b>${esc(b.ai.pitch)}</div>` : ""}</div></section>` : ""}
+    ${b.people?.length ? `<section class="t d6"><div class="lab">Люди <span class="tag">кому писать · Instagram и сайт бренда</span></div><div class="ppl">${b.people.map(p => `<div class="ppl-i"><span class="ppl-av">${esc((p.name || "?")[0].toUpperCase())}</span><div><b>${esc(p.name)}</b><span>${esc(p.role || "")}</span></div>
+      <div class="ppl-l">${p.instagram ? `<a href="https://www.instagram.com/${encodeURIComponent(String(p.instagram).replace(/^@/, ""))}/" target="_blank" rel="noopener">@${esc(String(p.instagram).replace(/^@/, ""))}</a><a href="https://ig.me/m/${encodeURIComponent(String(p.instagram).replace(/^@/, ""))}" target="_blank" rel="noopener">написать</a>` : ""}${p.email ? `<a href="mailto:${esc(p.email)}">${esc(p.email)}</a>` : ""}</div></div>`).join("")}</div></section>` : ""}
     <section class="t d6"><div class="lab">Контакты</div><div class="contacts">${contacts.length ? contacts.join("") : '<span class="muted">Контакты ищутся каждый час: био и «ссылка в био», сайт бренда (контакты, партнёрам, пресса), не нашли — повтор через 4 дня.</span>'}</div>
       <div class="sub" style="opacity:1;color:var(--muted)">Площадки: ${b.hosts.map(h => `<a href="${igLink(h)}" target="_blank" rel="noopener">@${esc(h)}</a>`).join(", ")}</div></section>
     ${b.simOwn?.length ? `<section class="t lime d6"><div class="lab">Кому предложить <span class="tag">по похожести площадок · модель близости</span></div>
