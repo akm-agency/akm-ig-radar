@@ -575,6 +575,41 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 /* 2 · наша страница против прямых конкурентов */
 .dx-rail{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:2px 24px 4px;scroll-snap-type:x proximity;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent)}
 .dx-rail::-webkit-scrollbar{display:none}
+/* «Кому продавать»: иконки категорий, аватары страниц, разбивка по категориям */
+.ci{flex:none;display:inline-grid;place-items:center;width:calc(var(--cs) + 12px);height:calc(var(--cs) + 12px);border-radius:calc((var(--cs) + 12px) * .32);background:color-mix(in srgb,var(--cc) 40%,#fff)}
+.ci svg{width:var(--cs);height:var(--cs);fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sl-top{display:flex;flex-direction:column;gap:6px}
+.sl-tb{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 16px 7px 7px;border-radius:16px;background:rgba(255,255,255,.72);text-decoration:none;color:var(--ink);transition:background .25s,transform .35s cubic-bezier(.16,1,.3,1)}
+.sl-tb:hover{background:#fff;transform:translateX(4px)}
+.sl-tb .w{display:flex;flex-direction:column;min-width:0}.sl-tb .w b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-tb .w>span{font-size:12px;color:#55554F}
+.sl-tb .fr{color:#B33A12;font-weight:600}
+.sl-tb .n{display:flex;align-items:baseline;gap:5px;font-size:11.5px;color:#55554F;white-space:nowrap}.sl-tb .n b{font-size:22px;letter-spacing:-.03em;color:var(--ink)}
+.sl-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px 24px}
+.sl-cat{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;gap:5px 10px;align-items:center}
+.sl-cat .ci{grid-row:1/3}.sl-cat .nm{font-size:13.5px;font-weight:500}.sl-cat b{font-family:var(--f-mono);font-size:13px}
+.sl-cat .bar{grid-column:2/4;height:6px;border-radius:9px;background:var(--tile-2);overflow:hidden}.sl-cat .bar i{display:block;height:100%;border-radius:9px;background:color-mix(in srgb,var(--cc),#0d0d0f 30%);transform-origin:0 50%}
+.enter .sl-cat .bar i,.rv-in .sl-cat .bar i{animation:grow-x .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .3s)}
+.enter .sl-tb,.rv-in .sl-tb{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .2s)}
+.sl-who{flex-direction:row!important;align-items:center;gap:10px}
+.sl-who .w{display:flex;flex-direction:column;min-width:0;flex:1}
+.sl-n{flex:none;font-family:var(--f-mono);font-size:11.5px;font-weight:600;min-width:26px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;background:var(--ink);color:var(--lime)}
+.sl-bs a{padding:3px 11px 3px 3px!important}
+.sl-bs a .ci{border-radius:999px}
+.sl-bs a i{order:3}
+.sl-kit{display:inline-flex;align-items:center;gap:6px}.sl-kit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* «Кто нас обгоняет»: поиск + быстрый выбор вместо горизонтальной ленты */
+.dx-findrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dx-find{position:relative;flex:1 1 300px;max-width:420px}
+.dx-find svg{position:absolute;left:14px;top:50%;width:16px;height:16px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.dx-find input{width:100%;height:40px;border:0;border-radius:999px;background:var(--tile-2);padding:0 16px 0 38px;font:inherit;font-size:13.5px;color:var(--ink);outline:none;transition:background .2s,box-shadow .2s}
+.dx-find input:focus{background:#fff;box-shadow:0 0 0 2px var(--ink)}
+.dx-sugg{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);max-height:380px;overflow:auto;background:#fff;border-radius:18px;padding:6px;box-shadow:0 24px 60px -20px rgba(13,13,15,.35),0 0 0 1px var(--line);animation:tile-in .35s cubic-bezier(.16,1,.3,1) both}
+.dx-sugg button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;border:0;background:none;border-radius:12px;padding:7px 10px;text-align:left;color:var(--ink)}
+.dx-sugg button:hover,.dx-sugg button:focus-visible{background:var(--tile-2);outline:none}
+.dx-sugg .w{display:flex;flex-direction:column;min-width:0}.dx-sugg .w b{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dx-sugg .w span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dx-sugg .g{font-family:var(--f-mono);font-size:12px;font-weight:600}
+.dx-sh{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
+.dx-quick{display:flex;flex-wrap:wrap;gap:6px}
 .dx-pick{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 8px 6px 14px;font-size:13px;font-weight:500;background:var(--tile-2);color:var(--ink);transition:background .25s,color .25s,transform .25s}
 .dx-pick:hover{background:#ECEBE6}
 .dx-pick i{font-style:normal;font-family:var(--f-mono);font-size:11.5px;font-weight:600;min-width:24px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:#fff}
@@ -747,10 +782,10 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .sl-who b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-who:hover b{text-decoration:underline}
 .sl-who span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sl-bs{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
-.sl-bs a,.sl-bs span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:5px 11px;background:var(--tile-2);text-decoration:none;color:var(--ink);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;transition:background .2s,color .2s}
+.sl-bs a,.sl-bs>span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:5px 11px;background:var(--tile-2);text-decoration:none;color:var(--ink);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;transition:background .2s,color .2s}
 .sl-bs a:hover{background:var(--ink);color:#fff}
 .sl-bs a i{width:7px;height:7px;border-radius:50%;background:var(--orange);flex:none}
-.sl-bs span{background:none;color:var(--muted)}
+.sl-bs>span{background:none;color:var(--muted)}
 .sl-kit{font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 14px;background:var(--lime);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .3s cubic-bezier(.16,1,.3,1)}
 .sl-kit:hover{transform:translateY(-2px)}
 .enter .sl-row,.rv-in .sl-row{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms + .25s)}
@@ -765,7 +800,6 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
     </div>
     <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
-      <button class="pill" type="button" id="repBtn" data-only="net">Недельный отчёт <span class="arrow">↗</span></button>
       <button class="pill dark" type="button" id="aiOpen">Спросить ИИ <span class="arrow">↗</span></button>
     </div>
   </header>
@@ -788,7 +822,7 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
     <div class="cq-row" id="cmode" role="tablist" aria-label="Что нужно узнать о конкурентах">
       <button type="button" class="cq" role="tab" data-cmode="grow"><span class="cq-who">Руководству</span><span class="cq-t">Кто нас обгоняет</span>
         <b class="cq-n" id="cqGrow"><i class="skw"></i></b><span class="cq-d" id="cqGrowD">наши страницы против их прямых конкурентов</span></button>
-      <button type="button" class="cq" role="tab" data-cmode="content"><span class="cq-who">Контенту</span><span class="cq-t">Что снимать</span>
+      <button type="button" class="cq" role="tab" data-cmode="content"><span class="cq-who">Контенту</span><span class="cq-t">Что залетает у конкурентов</span>
         <span class="cq-art" id="cqArt" aria-hidden="true"></span><span class="cq-d">что залетает у конкурентов и с каких постов к ним идут подписки</span></button>
       <button type="button" class="cq" role="tab" data-cmode="sales"><span class="cq-who">Продажам</span><span class="cq-t">Кому продавать</span>
         <b class="cq-n" id="cqSales"><i class="skw"></i></b><span class="cq-d" id="cqSalesD">бренды, которые платят похожим пабликам</span></button>
@@ -1185,7 +1219,7 @@ function openViral(code) {
 // «Залетает сейчас»: свежие посты (до 72 ч) с лайками/просмотрами ≥3× к обычному посту аккаунта; замеры каждый час
 function viralTile(list, sub, key = "own", title = "Залетает сейчас") {
   S.vMore = S.vMore || {};
-  const n = S.vMore[key] || 12, V = list.slice(0, n);
+  const n = S.vMore[key] || (key === "car" || key === "reel" ? 8 : 12), V = list.slice(0, n);
   if (!V.length) return "";
   return `<section class="t s12" id="vt-${key}"><div class="lab">${esc(title)} <span class="tag">${esc(sub)}</span></div>${cards(V, { btn: true })}
     ${list.length > n ? `<button type="button" class="pill vmore" data-vmore="${key}">Показать ещё · ${list.length - n}</button>` : ""}</section>`;
@@ -1855,7 +1889,7 @@ function markDirect(root = document) {
   const by = new Map(D.map(d => [d.u, d]));
   root.querySelectorAll(".pc2[data-au]").forEach(el => {
     const d = by.get(el.dataset.au), src = el.querySelector(".pc-src");
-    if (d && src && !src.querySelector(".pc-dx")) src.insertAdjacentHTML("beforeend", `<span class="pc-dx" title="Прямой конкурент нашей @${esc(d.o)} (похожесть ${d.p}%)">≈ @${esc(d.o)}</span>`);
+    if (d && src && !src.querySelector(".pc-dx")) src.insertAdjacentHTML("beforeend", `<span class="pc-dx" title="Прямой конкурент нашей @${esc(d.o)} (похожесть ${d.p}%)">похож на нашу @${esc(d.o)}</span>`);
   });
 }
 /* ---------- раздел «Конкуренты»: четыре вопроса — по одному на отдел ----------
@@ -1880,7 +1914,12 @@ function renderGrow() {
   const pick = (k, l, n, lagd) => `<button type="button" class="dx-pick${lagd ? " lag" : ""}" data-dxo="${esc(k)}" aria-pressed="${(o || "") === k}"${lagd ? ' title="растёт медленнее своих прямых конкурентов"' : ""}>${l}${n != null ? `<i>${n}</i>` : ""}</button>`;
   T.push(`<section class="t s12" id="dxDuel"><div class="lab">Наша страница против её прямых конкурентов <span class="tag">${D.length} ${plu(D.length, "прямой конкурент", "прямых конкурента", "прямых конкурентов")} · ИИ Gemini, похожесть от ${C.min}%</span></div>
     <div class="sub" style="opacity:1;color:var(--muted);margin-top:-4px">Прямой конкурент — паблик с той же темой, форматом и аудиторией: с ним мы делим зрителя и рекламодателя. Выберите нашу страницу — увидите её место по росту, что у её конкурентов заходит и кто у них рекламируется.</div>
-    <div class="dx-rail" role="group" aria-label="Наша страница">${pick("", "Вся сетка", P.length)}${P.map(x => pick(x.o, "@" + esc(x.o), x.n, x.gap != null && x.gap < 0)).join("")}</div>
+    <div class="dx-findrow">
+      <div class="dx-find"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5 18 18"/></svg>
+        <input id="dxFind" type="search" autocomplete="off" placeholder="Найти нашу страницу или конкурента" aria-label="Найти страницу" aria-controls="dxSugg">
+        <div class="dx-sugg" id="dxSugg" role="listbox" hidden></div></div>
+      <div class="dx-quick" role="group" aria-label="Быстрый выбор">${pick("", "Вся сетка", P.length)}${o && !lag.slice(0, 5).some(x => x.o === o) ? pick(o, "@" + esc(o), cur?.n, cur?.gap != null && cur.gap < 0) : ""}${lag.slice().sort((a, b) => a.gap - b.gap).slice(0, 5).map(x => pick(x.o, "@" + esc(x.o), x.n, true)).join("")}</div>
+    </div>
     <div class="dx-duel">
       <div class="dx-pane">${o ? `<h3>@${esc(o)} — ${place ? `<em class="${place.k > Math.ceil(place.n / 2) ? "lag" : ""}">${place.k}-е место из ${place.n}</em> по росту среди своих прямых конкурентов` : `${cur.n} ${plu(cur.n, "прямой конкурент", "прямых конкурента", "прямых конкурентов")}`}</h3>
           <div class="lab">Рост подписчиков за 7 дней</div>${raceHtml(o, cs)}`
@@ -1937,13 +1976,33 @@ function renderContent() {
       <div class="sub" style="font-size:13.5px">${esc(best.hook || (best.x || "").slice(0, 140))}</div>
       <button class="corner" type="button" data-vp="${esc(best.c)}" aria-label="Открыть пост">↗</button></section>`
     : `<section class="t blue s7"><div class="lab">Пост, который привёл больше всего подписчиков</div><div class="sub">Считается по почасовым замерам отслеживаемых — появится в течение дня.</div></section>`);
-  X.push(viralTile(all.map(p => ({ ...p })), "посты за 7 дней, ≥3× к обычному посту аккаунта · порядок: сила залёта × похожесть на нас", "cont", "Что залетает у конкурентов") || "");
+  // карусели и нарезки (Reels) — отдельно: это разные производства у контент-отдела
+  const car = all.filter(p => p.k === "car"), reels = all.filter(p => p.k === "reel");
+  X.push(viralTile(car, "листают до конца · 7 дней, ≥3× к обычному посту", "car", "Карусели") || "");
+  X.push(viralTile(reels, "Reels · 7 дней, ≥3× к обычному посту", "reel", "Нарезки") || "");
+  const rest = all.filter(p => p.k !== "car" && p.k !== "reel");
+  if (rest.length) X.push(viralTile(rest, "одиночные фото и видео", "cont", "Посты") || "");
   const n2 = S.vMore?.trkin || 12;
   if (inflow.length) X.push(`<section class="t s12" id="vt-trkin"><div class="lab">С каких постов идут подписки <span class="tag">приток за ~6 ч после поста</span></div>
     ${cards(inflow.slice(0, n2), { btn: true })}${inflow.length > n2 ? `<button type="button" class="pill vmore" data-vmore="trkin">Показать ещё · ${inflow.length - n2}</button>` : ""}</section>`);
   el.innerHTML = X.join("");
   addGain($("vt-trkin"));
 }
+// иконки категорий рекламодателей (радар): цвет + линейная иконка 24×24
+const CATI = {
+  "Медиа и стриминг": ["#8EA0FF", '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="m10 9 5 2.5-5 2.5z"/><path d="M8 20h8"/>'],
+  "Товары": ["#FFB38A", '<path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'],
+  "Еда и напитки": ["#F7C948", '<path d="M7 3v8a2 2 0 0 0 2 2V21"/><path d="M11 3v8"/><path d="M17 21V3c-2 1.5-3 4-3 7h3"/>'],
+  "Мода и красота": ["#F49AC1", '<path d="M8 4 4 7l2 4 2-1v10h8V10l2 1 2-4-4-3c-.5 1.5-2 2.5-4 2.5S8.5 5.5 8 4z"/>'],
+  "ИИ и софт": ["#CFC2FF", '<path d="M12 3c.6 3.8 2.2 5.4 6 6-3.8.6-5.4 2.2-6 6-.6-3.8-2.2-5.4-6-6 3.8-.6 5.4-2.2 6-6z"/><path d="M18.5 15c.3 1.6 1 2.2 2.5 2.5-1.6.3-2.2 1-2.5 2.5-.3-1.6-1-2.2-2.5-2.5 1.6-.3 2.2-1 2.5-2.5z"/>'],
+  "Спорт": ["#9BE7C4", '<circle cx="12" cy="12" r="8.5"/><path d="M3.8 9.5c4 .3 7.5 2.5 9.2 11M20.2 9.5c-4 .3-7.5 2.5-9.2 11M7 4.5c3 2 7 2 10 0"/>'],
+  "Приложения": ["#D2F35B", '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/>'],
+  "Игры": ["#FF8A65", '<path d="M7 7h10a4.5 4.5 0 0 1 4.4 5.5l-1 4.4a2.3 2.3 0 0 1-4 1L14.5 16h-5l-1.9 1.9a2.3 2.3 0 0 1-4-1l-1-4.4A4.5 4.5 0 0 1 7 7z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.5" cy="11" r=".6"/><circle cx="17" cy="13" r=".6"/>'],
+  "Финансы и крипта": ["#7DD3A8", '<circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 3 5.6 1.4 5.6 4.3 0 1.3-1.2 2.1-2.8 2.1-1.3 0-2.4-.6-2.9-1.5M12 6.2v1.6M12 16.9v1.6"/>'],
+  "Образование": ["#8ED1FC", '<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/>'],
+  "Другое": ["#D6D3CC", '<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.5 1.5 0 0 1 0 2.1l-6.2 6.2a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.4"/>'],
+};
+const catIco = (c, sz = 18) => { const [col, path] = CATI[c] || CATI["Другое"]; return `<span class="ci" style="--cc:${col};--cs:${sz}px" title="${esc(c || "Другое")}"><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg></span>`; };
 // 3 · Кому продавать: бренды, которые платят прямым конкурентам, — по нашим страницам, с медиакитом
 function renderSales() {
   const X0 = dxData(), el = $("sbento");
@@ -1960,12 +2019,17 @@ function renderSales() {
     <div class="lnks"><a class="lnk" href="radar.html" target="_blank" rel="noopener">Все рекламодатели в радаре ↗</a><a class="lnk" href="kit.html" target="_blank" rel="noopener">Медиакиты наших страниц ↗</a></div></section>`);
   const top = brands.slice(0, 6);
   X.push(`<section class="t lime s7"><div class="lab">Платят сразу нескольким нашим конкурентам</div>
-    <div class="dx-brs">${top.map((b, j) => `<a class="dx-br" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" style="--j:${j}"><b>${esc(b.brand)}</b><span class="n">у ${b.hosts.length}</span><span>${b.fresh ? '<span class="fr">новый · </span>' : ""}${esc(b.cat)}</span></a>`).join("")}</div></section>`);
+    <div class="sl-top">${top.map((b, j) => `<a class="sl-tb" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" style="--j:${j}">${catIco(b.cat, 20)}<span class="w"><b>${esc(b.brand)}</b><span>${b.fresh ? '<span class="fr">новый · </span>' : ""}${esc(b.cat)}</span></span><span class="n"><b>${b.hosts.length}</b>${plu(b.hosts.length, "площадка", "площадки", "площадок")}</span></a>`).join("")}</div></section>`);
+  // разбивка тёплых лидов по категориям: с какими рекламодателями говорить в первую очередь
+  const byCat = new Map(); for (const b of brands) byCat.set(b.cat || "Другое", (byCat.get(b.cat || "Другое") || 0) + 1);
+  const CC = [...byCat].sort((a, b) => b[1] - a[1]), cmx = Math.max(1, ...CC.map(x => x[1]));
+  X.push(`<section class="t s12"><div class="lab">Тёплые лиды по категориям <span class="tag">${brands.length} ${plu(brands.length, "бренд", "бренда", "брендов")}</span></div>
+    <div class="sl-cats">${CC.map(([c, n], j) => `<div class="sl-cat" style="--j:${j};--cc:${(CATI[c] || CATI["Другое"])[0]}">${catIco(c, 20)}<span class="nm">${esc(c)}</span><b>${n}</b><span class="bar"><i style="width:${(n / cmx * 100).toFixed(1)}%"></i></span></div>`).join("")}</div></section>`);
   X.push(`<section class="t s12"><div class="lab">Какую нашу страницу кому предлагать <span class="tag">бренды, которые платят её прямым конкурентам</span></div>
     <div class="sl-list">${rows.slice(0, lim).map((x, j) => `<div class="sl-row" style="--j:${Math.min(j, 16)}">
-      <button type="button" class="sl-who" data-u="${esc(x.o)}"><b>@${esc(x.o)}</b><span>${compact(ownF(x.o))} · ${esc(x.niche)}</span></button>
-      <div class="sl-bs">${x.B.slice(0, 6).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" title="${esc(b.cat)} · у ${b.hosts.length} из ${x.cs.length} её прямых конкурентов">${b.fresh ? "<i></i>" : ""}${esc(b.brand)}</a>`).join("")}${x.B.length > 6 ? `<span>+${x.B.length - 6}</span>` : ""}</div>
-      <a class="sl-kit" href="kit.html#${encodeURIComponent(x.o)}" target="_blank" rel="noopener">Медиакит ↗</a></div>`).join("")}</div>
+      <button type="button" class="sl-who" data-u="${esc(x.o)}">${dxPh(x.o, ";--s:38px", "dx-av")}<span class="w"><b>@${esc(x.o)}</b><span>${compact(ownF(x.o))} · ${esc(x.niche)}</span></span><span class="sl-n" title="брендов у её прямых конкурентов">${x.B.length}</span></button>
+      <div class="sl-bs">${x.B.slice(0, 6).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" title="${esc(b.cat)} · у ${b.hosts.length} из ${x.cs.length} её прямых конкурентов">${catIco(b.cat, 14)}${esc(b.brand)}${b.fresh ? "<i></i>" : ""}</a>`).join("")}${x.B.length > 6 ? `<span>+${x.B.length - 6}</span>` : ""}</div>
+      <a class="sl-kit" href="kit.html#${encodeURIComponent(x.o)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5M9.5 13h6M9.5 16.5h4"/></svg>Медиакит</a></div>`).join("")}</div>
     ${rows.length > 10 ? `<button type="button" class="linkbtn" data-sall="1" style="align-self:flex-start">${S.sAll ? "Свернуть" : `Все ${rows.length} страниц`}</button>` : ""}
     <p class="foot">Точка — бренд впервые замечен в рекламе за последние 3 дня. Клик по бренду — его карточка в радаре (контакты, посты, статус лида); по странице — её цифры и конкуренты.</p></section>`);
   el.innerHTML = X.join("");
@@ -2000,7 +2064,7 @@ function renderRef() {
   const Tk = TK(), TA = (Tk.acc || []).filter(a => !inN || inN.has(a.u) || S.cFilter === "all");
   if (TA.length) {
     const k = S.tSort.k, dir = S.tSort.dir, dxBy = new Map((C?.direct || []).map(d => [d.u, d]));
-    const dxTag = u => { const d = dxBy.get(u); return d ? ` <span class="trk-dx" title="Прямой конкурент нашей @${esc(d.o)} · похожесть ${d.p}%">≈ @${esc(d.o)}</span>` : ""; };
+    const dxTag = u => { const d = dxBy.get(u); return d ? ` <span class="trk-dx" title="Прямой конкурент нашей @${esc(d.o)} · похожесть ${d.p}%">похож на нашу @${esc(d.o)}</span>` : ""; };
     const key = a => k === "rate" ? tRate(a)?.v : a[k];
     const rows = [...TA].sort((x, y) => { if (k === "u") return dir * x.u.localeCompare(y.u); const p = key(x), q = key(y); return p == null ? 1 : q == null ? -1 : dir * (p - q) || x.u.localeCompare(y.u); });
     const shown = S.tAll ? rows : rows.slice(0, 15);
@@ -2218,12 +2282,10 @@ compPages.addEventListener("click", e => {
   if (ts) { const k = ts.dataset.ts; keep(() => { S.tSort = { k, dir: S.tSort.k === k ? -S.tSort.dir : k === "u" ? 1 : -1 }; }); return; }
   const dxo = e.target.closest("[data-dxo]");
   if (dxo) {
-    const o = dxo.dataset.dxo || null, railX = $("dxDuel")?.querySelector(".dx-rail")?.scrollLeft || 0;
-    keep(() => { S.dxOwn = S.dxOwn === o ? null : o; });
-    const rail = $("dxDuel")?.querySelector(".dx-rail"), on = rail?.querySelector('[aria-pressed="true"]');
-    if (rail) { rail.scrollLeft = railX; if (on && (on.offsetLeft < rail.scrollLeft || on.offsetLeft + on.offsetWidth > rail.scrollLeft + rail.clientWidth)) rail.scrollTo({ left: on.offsetLeft - 40, behavior: "smooth" }); }
+    const o = dxo.dataset.dxo || null, fromBar = dxo.closest(".dx-findrow");
+    keep(() => { S.dxOwn = S.dxOwn === o && !dxo.closest(".dx-sugg") ? null : o; });
     dxAnim("dxDuel");
-    if (!dxo.closest(".dx-rail")) $("dxDuel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (!fromBar) $("dxDuel")?.scrollIntoView({ behavior: "smooth", block: "start" });
     return;
   }
   if (e.target.closest("[data-dxgap]")) { keep(() => { S.dxGapAll = !S.dxGapAll; }); return; }
@@ -2243,7 +2305,26 @@ compPages.addEventListener("click", e => {
 });
 compPages.addEventListener("keydown", e => { const r = e.target.closest("tr[data-tu]"); if (r && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openTracked(r.dataset.tu); } });
 // поиск по прямым конкурентам: перерисовка с паузой, фокус и курсор остаются в поле
+// поиск в «Кто нас обгоняет»: наши страницы (дуэль) и прямые конкуренты (окно), список под полем
+function dxSuggest(v) {
+  const box = $("dxSugg"), X = dxData(); if (!box || !X) return;
+  const q = v.trim().toLowerCase().replace(/^@/, "");
+  if (!q) { box.hidden = true; box.innerHTML = ""; return; }
+  const own = X.P.filter(x => x.o.toLowerCase().includes(q) || (x.niche || "").toLowerCase().includes(q)).slice(0, 6);
+  const cmp = X.D.filter(d => d.u.toLowerCase().includes(q) || (d.name || "").toLowerCase().includes(q)).sort((a, b) => b.f - a.f).slice(0, 6);
+  box.innerHTML = (own.length ? `<div class="dx-sh">Наши страницы</div>${own.map(x => `<button type="button" role="option" data-dxo="${esc(x.o)}">${dxPh(x.o, ";--s:28px", "dx-av")}<span class="w"><b>@${esc(x.o)}</b><span>${esc(x.niche || "")} · ${x.n} ${plu(x.n, "прямой", "прямых", "прямых")}</span></span>${x.gap != null ? `<span class="g ${cls(x.gap)}">${pp(x.gap)} п.п.</span>` : ""}</button>`).join("")}` : "")
+    + (cmp.length ? `<div class="dx-sh">Прямые конкуренты</div>${cmp.map(d => `<button type="button" role="option" data-dxu="${esc(d.u)}">${dxAv(d, 28)}<span class="w"><b>@${esc(d.u)}</b><span>${compact(d.f)} · похож на нашу @${esc(d.o)}</span></span><span class="g ${cls(dxG(d))}">${pct2(dxG(d))}</span></button>`).join("")}` : "")
+    || `<div class="dx-sh" style="padding:12px 14px">Ничего не нашлось</div>`;
+  box.hidden = false; dxImgFix(box);
+}
+compPages.addEventListener("keydown", e => {
+  if (e.target.id !== "dxFind") return;
+  if (e.key === "Enter") { e.preventDefault(); $("dxSugg")?.querySelector("button")?.click(); }
+  if (e.key === "Escape") { e.target.value = ""; dxSuggest(""); }
+});
+document.addEventListener("click", e => { if (!e.target.closest(".dx-find")) { const b = $("dxSugg"); if (b) b.hidden = true; } });
 compPages.addEventListener("input", e => {
+  if (e.target.id === "dxFind") { dxSuggest(e.target.value); return; }
   if (e.target.id !== "dxQ") return;
   clearTimeout(S.dxQt); const v = e.target.value;
   S.dxQt = setTimeout(() => { S.dxQ = v.trim(); S.dxMore = 12; const y = scrollY; renderComp(); scrollTo(0, y); const q = $("dxQ"); if (q) { q.focus(); q.setSelectionRange(v.length, v.length); } }, 160);
@@ -2390,7 +2471,7 @@ $("aiInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shif
 $("aiStop").addEventListener("click", () => S.ctl?.abort());
 $("aiOpen").addEventListener("click", () => { renderChat(); openDlg($("aiDlg")); $("aiInput").focus(); });
 $("aiClose").addEventListener("click", () => closeDlg($("aiDlg")));
-$("repBtn").addEventListener("click", () => { openDlg($("aiDlg")); runReport("Недельный отчёт"); });
+
 $("msgs").addEventListener("click", e => {
   const b = e.target.closest("[data-copy]"); if (!b) return;
   const text = S.chat[+b.dataset.copy]?.content || "";

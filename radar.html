@@ -575,6 +575,41 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 /* 2 · наша страница против прямых конкурентов */
 .dx-rail{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -24px;padding:2px 24px 4px;scroll-snap-type:x proximity;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 40px),transparent)}
 .dx-rail::-webkit-scrollbar{display:none}
+/* «Кому продавать»: иконки категорий, аватары страниц, разбивка по категориям */
+.ci{flex:none;display:inline-grid;place-items:center;width:calc(var(--cs) + 12px);height:calc(var(--cs) + 12px);border-radius:calc((var(--cs) + 12px) * .32);background:color-mix(in srgb,var(--cc) 40%,#fff)}
+.ci svg{width:var(--cs);height:var(--cs);fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sl-top{display:flex;flex-direction:column;gap:6px}
+.sl-tb{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 16px 7px 7px;border-radius:16px;background:rgba(255,255,255,.72);text-decoration:none;color:var(--ink);transition:background .25s,transform .35s cubic-bezier(.16,1,.3,1)}
+.sl-tb:hover{background:#fff;transform:translateX(4px)}
+.sl-tb .w{display:flex;flex-direction:column;min-width:0}.sl-tb .w b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-tb .w>span{font-size:12px;color:#55554F}
+.sl-tb .fr{color:#B33A12;font-weight:600}
+.sl-tb .n{display:flex;align-items:baseline;gap:5px;font-size:11.5px;color:#55554F;white-space:nowrap}.sl-tb .n b{font-size:22px;letter-spacing:-.03em;color:var(--ink)}
+.sl-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:12px 24px}
+.sl-cat{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto;gap:5px 10px;align-items:center}
+.sl-cat .ci{grid-row:1/3}.sl-cat .nm{font-size:13.5px;font-weight:500}.sl-cat b{font-family:var(--f-mono);font-size:13px}
+.sl-cat .bar{grid-column:2/4;height:6px;border-radius:9px;background:var(--tile-2);overflow:hidden}.sl-cat .bar i{display:block;height:100%;border-radius:9px;background:color-mix(in srgb,var(--cc),#0d0d0f 30%);transform-origin:0 50%}
+.enter .sl-cat .bar i,.rv-in .sl-cat .bar i{animation:grow-x .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .3s)}
+.enter .sl-tb,.rv-in .sl-tb{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 45ms + .2s)}
+.sl-who{flex-direction:row!important;align-items:center;gap:10px}
+.sl-who .w{display:flex;flex-direction:column;min-width:0;flex:1}
+.sl-n{flex:none;font-family:var(--f-mono);font-size:11.5px;font-weight:600;min-width:26px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;background:var(--ink);color:var(--lime)}
+.sl-bs a{padding:3px 11px 3px 3px!important}
+.sl-bs a .ci{border-radius:999px}
+.sl-bs a i{order:3}
+.sl-kit{display:inline-flex;align-items:center;gap:6px}.sl-kit svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* «Кто нас обгоняет»: поиск + быстрый выбор вместо горизонтальной ленты */
+.dx-findrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dx-find{position:relative;flex:1 1 300px;max-width:420px}
+.dx-find svg{position:absolute;left:14px;top:50%;width:16px;height:16px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.dx-find input{width:100%;height:40px;border:0;border-radius:999px;background:var(--tile-2);padding:0 16px 0 38px;font:inherit;font-size:13.5px;color:var(--ink);outline:none;transition:background .2s,box-shadow .2s}
+.dx-find input:focus{background:#fff;box-shadow:0 0 0 2px var(--ink)}
+.dx-sugg{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);max-height:380px;overflow:auto;background:#fff;border-radius:18px;padding:6px;box-shadow:0 24px 60px -20px rgba(13,13,15,.35),0 0 0 1px var(--line);animation:tile-in .35s cubic-bezier(.16,1,.3,1) both}
+.dx-sugg button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;border:0;background:none;border-radius:12px;padding:7px 10px;text-align:left;color:var(--ink)}
+.dx-sugg button:hover,.dx-sugg button:focus-visible{background:var(--tile-2);outline:none}
+.dx-sugg .w{display:flex;flex-direction:column;min-width:0}.dx-sugg .w b{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dx-sugg .w span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dx-sugg .g{font-family:var(--f-mono);font-size:12px;font-weight:600}
+.dx-sh{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px}
+.dx-quick{display:flex;flex-wrap:wrap;gap:6px}
 .dx-pick{flex:none;scroll-snap-align:start;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 8px 6px 14px;font-size:13px;font-weight:500;background:var(--tile-2);color:var(--ink);transition:background .25s,color .25s,transform .25s}
 .dx-pick:hover{background:#ECEBE6}
 .dx-pick i{font-style:normal;font-family:var(--f-mono);font-size:11.5px;font-weight:600;min-width:24px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;background:#fff}
@@ -747,10 +782,10 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .sl-who b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-who:hover b{text-decoration:underline}
 .sl-who span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sl-bs{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
-.sl-bs a,.sl-bs span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:5px 11px;background:var(--tile-2);text-decoration:none;color:var(--ink);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;transition:background .2s,color .2s}
+.sl-bs a,.sl-bs>span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:5px 11px;background:var(--tile-2);text-decoration:none;color:var(--ink);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;transition:background .2s,color .2s}
 .sl-bs a:hover{background:var(--ink);color:#fff}
 .sl-bs a i{width:7px;height:7px;border-radius:50%;background:var(--orange);flex:none}
-.sl-bs span{background:none;color:var(--muted)}
+.sl-bs>span{background:none;color:var(--muted)}
 .sl-kit{font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 14px;background:var(--lime);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .3s cubic-bezier(.16,1,.3,1)}
 .sl-kit:hover{transform:translateY(-2px)}
 .enter .sl-row,.rv-in .sl-row{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms + .25s)}
