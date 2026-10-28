@@ -714,6 +714,46 @@ button.pc2{border:0;padding:0;text-align:left;font:inherit;cursor:pointer;width:
 .rv-in .track i,.rv-in .bar2 i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}
 .rv-in .gb{transform-box:fill-box;transform-origin:50% 100%;animation:grow-y .75s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 22ms + .22s)}
 .rv-in .pc2{animation:tile-in .7s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--k,0) * 40ms + .15s)}
+/* «Конкуренты»: четыре карточки-вопроса — по одной на отдел */
+.cq-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.cq{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto 1fr;gap:4px 12px;min-height:168px;padding:18px 20px;border:0;border-radius:var(--r);background:var(--tile);color:var(--ink);text-align:left;
+  transition:background-color .55s cubic-bezier(.16,1,.3,1),color .45s,transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s}
+.cq:not(.on):hover{transform:translateY(-3px);box-shadow:0 18px 40px -26px rgba(13,13,15,.45)}
+.cq.on{background:var(--ink);color:#fff;cursor:default}
+.cq::before{content:"";position:absolute;z-index:-1;width:380px;height:380px;top:-220px;right:-160px;border-radius:50%;background:radial-gradient(circle,rgba(210,243,91,.25),transparent 62%);opacity:0;transition:opacity .8s;animation:lv-drift 17s ease-in-out infinite alternate}
+.cq.on::before{opacity:1}
+.cq-who{grid-column:1/-1;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.55}
+.cq.on .cq-who{color:var(--lime);opacity:1}
+.cq-t{grid-column:1/-1;font-size:clamp(20px,1.9vw,27px);font-weight:600;letter-spacing:-.04em;line-height:1.02}
+.cq-n{grid-row:3;grid-column:2;align-self:end;font-size:clamp(30px,3vw,46px);font-weight:600;letter-spacing:-.05em;line-height:.9;white-space:nowrap}
+.cq-n small{font-size:.38em;letter-spacing:-.01em;opacity:.55;font-weight:500}
+.cq-d{grid-row:3;grid-column:1;align-self:end;font-size:12.5px;line-height:1.35;opacity:.62;max-width:30ch}
+.cq-art{grid-row:3;grid-column:2;position:relative;width:96px;height:84px;align-self:end}
+.cq-art img{position:absolute;bottom:0;left:50%;width:46px;height:62px;object-fit:cover;border-radius:10px;border:2.5px solid var(--tile);box-shadow:0 10px 20px -10px rgba(0,0,0,.5);
+  transform:translateX(-50%) translateX(calc(var(--k) * 26px)) rotate(calc(var(--k) * 10deg));transition:transform .6s cubic-bezier(.16,1,.3,1),border-color .5s}
+.cq-art img:nth-child(2){z-index:1}
+.cq.on .cq-art img{border-color:var(--ink)}
+.cq:hover .cq-art img{transform:translateX(-50%) translateX(calc(var(--k) * 34px)) translateY(calc(var(--k) * var(--k) * 4px)) rotate(calc(var(--k) * 16deg))}
+.enter .cq{animation:tile-in .72s cubic-bezier(.16,1,.3,1) both}
+.enter .cq:nth-child(2){animation-delay:50ms}.enter .cq:nth-child(3){animation-delay:100ms}.enter .cq:nth-child(4){animation-delay:150ms}
+@media (max-width:1100px){.cq-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.cq{min-height:0;padding:14px;grid-template-rows:auto auto auto}.cq-d,.cq-art{display:none}.cq-t{font-size:17px}.cq-n{font-size:26px}}
+/* «Кому продавать»: наша страница → бренды у её прямых конкурентов → медиакит */
+.sl-list{display:flex;flex-direction:column}
+.sl-row{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) auto;gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--line)}
+.sl-row:first-child{border-top:0}
+.sl-who{border:0;background:none;padding:0;text-align:left;display:flex;flex-direction:column;min-width:0}
+.sl-who b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sl-who:hover b{text-decoration:underline}
+.sl-who span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sl-bs{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+.sl-bs a,.sl-bs span{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:500;border-radius:999px;padding:5px 11px;background:var(--tile-2);text-decoration:none;color:var(--ink);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;transition:background .2s,color .2s}
+.sl-bs a:hover{background:var(--ink);color:#fff}
+.sl-bs a i{width:7px;height:7px;border-radius:50%;background:var(--orange);flex:none}
+.sl-bs span{background:none;color:var(--muted)}
+.sl-kit{font-size:12.5px;font-weight:600;border-radius:999px;padding:8px 14px;background:var(--lime);color:var(--ink);text-decoration:none;white-space:nowrap;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.sl-kit:hover{transform:translateY(-2px)}
+.enter .sl-row,.rv-in .sl-row{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms + .25s)}
+@media (max-width:820px){.sl-row{grid-template-columns:minmax(0,1fr) auto}.sl-bs{grid-column:1/-1;grid-row:2}}
 </style></head><body class="public"><style>.enter .hbar i{transform-origin:0 50%;animation:grow-x 1s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 70ms + .3s)}</style>
 <style>
 .own-l{background:var(--lime)!important;color:var(--ink)!important;font-weight:600}
@@ -1345,6 +1385,17 @@ const H = {
   "Подписчики по часам · 7 дней": "Подписчики аккаунта по каждому почасовому замеру за 7 дней. Оранжевые точки у оси — время выхода постов: видно, после каких публикаций линия идёт вверх круче. Наведите на точку — время и число.",
   "Подписчики · 30 дней": "Подписчики по дням за 30 дней (последний замер каждого дня).",
   "Лучшие посты · 7 дней": "Посты аккаунта за 7 дней: сначала залетевшие (× к обычному посту), затем по просмотрам. Зелёная плашка — приток подписчиков после поста. Клик — почасовой график.",
+  // ---------- Конкуренты · четыре вопроса ----------
+  "Наша страница против её прямых конкурентов": "Прямой конкурент — паблик с той же темой, форматом и аудиторией, что у нашей страницы (ИИ Gemini: сходство описаний, подписей, хэштегов, формата, графа «похожие» + проверка коллажа обложек; похожесть от 65%).\n\n«Вся сетка» — разница роста подписчиков за 7 дней: наша страница минус медиана её прямых конкурентов, в процентных пунктах. Минус — конкуренты растут быстрее.\n\nВыбранная страница — её место по росту среди своих конкурентов, их лучшие посты и бренды, которые у них рекламируются.",
+  "Быстрее всех растут": "Прямые конкуренты с наибольшим ростом подписчиков за 7 дней. «≈ @страница» — у какой нашей страницы этот конкурент.",
+  "Какие форматы залетают": "Сколько залётов (пост ≥3× к обычному посту своего аккаунта, 7 дней) пришлось на каждый формат. Формат размечает локальный ИИ по обложке и подписи, поэтому часть постов без формата. Что чаще залетает у конкурентов — то и стоит снимать.",
+  "Пост, который привёл больше всего подписчиков": "Среди отслеживаемых: пост, после которого аккаунт набрал больше всего подписчиков сверх обычного за ~6 ч (почасовые замеры).",
+  "Что залетает у конкурентов": "Посты конкурентов за 7 дней, у которых просмотры или лайки ≥3× медианы обычных постов этого же аккаунта. Отслеживаемые и прямые конкуренты — первыми, остальные — с весом похожести на нашу сетку.\n\nКлик — почасовой график поста и подписчиков аккаунта.",
+  "Тёплые лиды": "Бренды, которые радар видел в рекламе у наших прямых конкурентов. Им проще всего продать нашу страницу: та же аудитория и формат уже проверены их бюджетом.",
+  "Платят сразу нескольким": "Бренды, которые рекламировались у нескольких наших прямых конкурентов сразу — самые активные покупатели в наших нишах. Клик — карточка бренда в радаре.",
+  "Какую нашу страницу кому предлагать": "Для каждой нашей страницы — бренды, которые платят её прямым конкурентам. Бренд + наша страница + её медиакит = готовое предложение.",
+  "Прямые конкуренты": "Все прямые конкуренты: похожесть (кольцо), на какую нашу страницу похож, рост за неделю, сколько брендов у него рекламируется. Клик — окно конкурента.",
+  "Все конкуренты": "Все паблики, найденные сборщиком «снежным комом» от наших страниц, и стартовые списки. Справочник: найти аккаунт и посмотреть его цифры.",
   // ---------- Радар ----------
   "Рекламодатели": "Бренды, которые платят за рекламу на страницах, похожих на наши, за 45 дней.\n\nКак находим рекламу: явная — #ad, #sponsored, #<бренд>partner, «paid partnership», промокод; по признакам — «link in bio», «use code», отметка аккаунта рядом с призывом — такие посты подтверждает ИИ. Соавторы-коллабы и известные площадки брендом не считаются.\n\nБрендом аккаунт становится, если его отметили в явной рекламе или с рекламными признаками на ≥3 страницах; затем ИИ проверяет, что это компания/продукт, а не человек или СМИ.",
   "Новые за 7 дней": "Бренды, впервые замеченные в рекламе за последние 7 дней.",
@@ -1411,14 +1462,14 @@ scan();
    Новость — в NEWS ниже; для следующей новости поменять id — счётчик начнётся заново. Вставляется в обе страницы. */
 (() => {
 const NEWS = {
-  id: "direct-duel-2026-10-28",
+  id: "comp-questions-2026-10-28",
   date: "28 октября",
-  title: "Прямые конкуренты — по каждой нашей странице",
-  text: "ИИ нашёл паблики с той же темой, форматом и аудиторией, что у наших страниц. Теперь видно, кто обгоняет нас по росту, какие бренды у них рекламируются (кому продавать) и что у них залетает (что снимать). Это есть и в окне каждой нашей страницы.",
+  title: "Конкуренты — по вопросам отделов, и медиакиты",
+  text: "Раздел «Конкуренты» теперь отвечает на четыре вопроса: кто нас обгоняет, что снимать, кому продавать, плюс справочник. У каждой нашей страницы появился медиакит — ссылка для рекламодателя с цифрами, аудиторией и лучшими постами.",
   cta: "Открыть",
   href: "index.html#direct",
   // мини-превью: [подпись, плашка, приглушить]
-  demo: [["Кто обгоняет нас", "дуэль"], ["Кто у них рекламируется", "лиды"], ["Что у них залетает", "идеи", true]],
+  demo: [["Кто нас обгоняет", "руководству"], ["Что снимать", "контенту"], ["Кому продавать", "продажам"], ["Медиакит страницы", "клиенту", true]],
 };
 const NEWS_SHOWS = 2;
 const KEY = "akm_news_" + NEWS.id;
