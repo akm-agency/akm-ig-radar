@@ -1027,7 +1027,30 @@ html.embed-root,html.embed-root body{background:#fff!important}
 @media(max-width:480px){.cc-account{grid-column:1/-1}.cc-caption{padding:11px}.cc-cover{aspect-ratio:3/4}.cc-ratio{font-size:9px;padding:5px 7px}.cc-postgrid{gap:8px}.cc-caption>b{font-size:12px}.cc-poststats{font-size:10px}.cc-summary-row{gap:22px}.cc-mini{top:32px}.cc-hero .headline{font-size:32px}.cc-foot{font-size:10px}.cc-method{gap:12px}}
 @media(prefers-reduced-motion:reduce){.cc-post,.cc-account,.cc-cover img,.cc-mini img,.cc-open{transition:none}}
 
-</style>
+
+/* Curated library: content first, compact navigation, honest data states. */
+.cc-intro{display:flex;justify-content:space-between;gap:28px;padding:26px 30px 30px;background:var(--ink);color:white;border-radius:26px;overflow:hidden}
+.cc-intro .lab{color:#b7b9ae;font-size:10px;letter-spacing:.12em}
+.cc-intro h2{font-size:clamp(32px,4vw,54px);line-height:1.04;letter-spacing:-.055em;margin:18px 0}
+.cc-intro h2 span{color:var(--lime)}.cc-intro p{color:#c0c1bb;font-size:12px;margin:0}
+.cc-intro-side{background:var(--lime);color:var(--ink);border-radius:18px;min-width:235px;padding:20px 24px;display:flex;flex-direction:column;justify-content:space-between;transform:rotate(2deg);margin:0 6px}
+.cc-editorial{font-size:9px;letter-spacing:.12em}.cc-intro-side>b{font:58px var(--f-mono);letter-spacing:-.07em;line-height:1.2}.cc-intro-side small{font:12px var(--f);display:block;letter-spacing:0}.cc-intro-side>span:last-child{font-size:10px;margin-top:18px}
+.cc-workspace{background:white;border-radius:22px;padding:16px 20px;margin-top:10px}.cc-workspace-top{display:flex;justify-content:space-between;gap:16px;align-items:center}
+.cc-views{display:flex;gap:4px;flex-wrap:wrap}.cc-views button{background:none;border:0;padding:11px 14px;border-radius:12px;color:var(--muted);font-weight:500}.cc-views button[aria-pressed=true]{background:var(--ink);color:white}
+.cc-controls input{width:270px}.cc-groups{gap:6px;margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap}.cc-groups .chip{font-size:12px;padding:8px 12px;background:var(--tile-2)}.cc-groups .chip[aria-pressed=true]{background:var(--lime);color:var(--ink)}
+.cc-resultbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 4px 4px;flex-wrap:wrap}.cc-resultbar>div:first-child>b{display:block;font-size:21px;letter-spacing:-.04em}.cc-resultbar>div:first-child>span{display:block;font-size:12px;color:var(--muted);margin-top:4px}.cc-count{font:12px var(--f-mono);background:white;border-radius:6px;padding:4px 7px;margin-left:6px;vertical-align:middle}.cc-resultbar .seg{background:white}.cc-resultbar .cc-controls{align-items:center}
+.cc-quality{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:11px;color:#5e6057;padding:10px 4px 16px}.cc-quality i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#959b84;margin-right:7px}.cc-quality button{background:transparent;border:1px solid #b7b9ad;border-radius:8px;padding:6px 9px;white-space:nowrap;font-size:11px}.cc-quality button[aria-pressed=true]{background:var(--ink);color:white}
+.cc-post{position:relative;background:white;border-radius:18px;transition:transform .18s,box-shadow .18s}.cc-post:hover{transform:translateY(-3px);box-shadow:0 10px 24px #0000000c}.cc-preview{border:0;padding:0;width:100%;text-align:left;background:none}.cc-cover{aspect-ratio:4/4.6;background:#dbdfd3}.cc-cover img{transition:transform .25s}.cc-post:hover img{transform:scale(1.025)}
+.cc-fallback{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:60px 22px 20px;background:linear-gradient(135deg,#e0e4d9,#c7ceba)}.cc-post:nth-child(3n) .cc-fallback{background:linear-gradient(135deg,#e4dfd4,#d8c9b9)}.cc-post:nth-child(3n+2) .cc-fallback{background:linear-gradient(135deg,#dedfe6,#c6cbd9)}.cc-fallback>span{font-size:8px;letter-spacing:.1em;opacity:.6}.cc-fallback>b{font-size:20px;line-height:1.15;letter-spacing:-.035em;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}.cc-fallback>small{font-size:10px;opacity:.7}
+.cc-save{position:absolute;top:10px;right:10px;z-index:3;width:32px;height:32px;border:0;border-radius:50%;background:white;font-size:20px;display:grid;place-items:center;transition:transform .15s}.cc-save:hover{transform:scale(1.1)}.cc-save[aria-pressed=true]{background:var(--lime)}
+.cc-caption{padding:15px;gap:12px}.cc-byline{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:11px}.cc-byline b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cc-byline span{color:var(--muted);flex:none}.cc-posttitle{padding:0;border:0;text-align:left;background:none;font-size:13px;line-height:1.45;height:3em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.cc-poststats{justify-content:flex-start;gap:14px;font-size:11px}.cc-baseline{border-top:1px solid var(--line);padding-top:9px;font-size:10px;color:var(--muted)}
+.cc-account{min-height:230px}.cc-account .cc-spark{height:45px;margin:14px 0}.cc-empty{grid-column:1/-1;text-align:center;padding:60px 24px;background:white;border-radius:20px}.cc-empty>span{font-size:40px}.cc-empty h3{font-size:23px;letter-spacing:-.035em}.cc-empty p{color:var(--muted)}.cc-method-v2{margin-top:16px;border-top:1px solid #cccfc5;padding:20px 4px;color:var(--muted);font-size:12px}.cc-method-v2 summary{cursor:pointer;color:var(--ink);font-weight:500;display:flex;justify-content:space-between}.cc-method-v2 p{max-width:90ch;line-height:1.7}.cc-more{margin-top:20px}
+#ccPostDlg{width:min(920px,calc(100% - 24px));max-height:90dvh;padding:0;border:0;border-radius:24px;background:var(--tile);overflow:auto}#ccPostBody{display:grid;grid-template-columns:1fr 1fr;position:relative}#ccPostBody>.x{position:absolute;right:14px;top:14px;z-index:4;background:var(--tile-2);color:var(--ink)}.cc-detail-media{min-height:450px;background:#dce0d5;display:flex;flex-direction:column;justify-content:center;position:relative}.cc-detail-media img{width:100%;max-height:70dvh;object-fit:contain}.cc-detail-media>span{padding:15px;font-size:12px}.cc-detail-missing{padding:60px;text-align:center;color:#59604d}.cc-detail-copy{padding:48px 28px 28px;min-width:0}.cc-detail-copy h2{font-size:25px;letter-spacing:-.04em;overflow-wrap:anywhere}.cc-detail-copy h3{font-size:12px;margin-top:24px}.cc-detail-metrics{display:flex;gap:24px}.cc-detail-metrics b{font-size:18px}.cc-detail-metrics small{display:block;font-size:10px;color:var(--muted);font-weight:400;margin-top:4px}.cc-detail-status{background:var(--tile-2);padding:14px;border-radius:12px;font-size:12px;margin:22px 0}.cc-full-caption{font-size:13px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.cc-note,.cc-detail-copy>small{font-size:11px;color:var(--muted);line-height:1.6}.cc-detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 12px}.cc-detail-actions .pill{font-size:12px;height:42px}.cc-sr{position:fixed;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:760px){.cc-intro{padding:22px}.cc-intro-side{min-width:170px;padding:16px}.cc-intro-side>b{font-size:44px}.cc-workspace-top{align-items:stretch;flex-direction:column;gap:8px}.cc-controls input{width:100%}.cc-resultbar .cc-controls{width:100%}.cc-quality{align-items:start}.cc-posttitle{font-size:12px}.cc-fallback{padding:54px 16px 16px}.cc-fallback>b{font-size:17px}#ccPostBody{grid-template-columns:1fr}.cc-detail-media{min-height:180px}.cc-detail-media img{max-height:40dvh}.cc-detail-copy{padding:24px}}
+@media(max-width:480px){.cc-intro-side{display:none}.cc-intro h2{font-size:38px}.cc-workspace{padding:12px}.cc-views{gap:0}.cc-views button{font-size:11px;padding:10px}.cc-groups{flex-wrap:nowrap;overflow:auto;padding-bottom:6px}.cc-groups .chip{flex:none}.cc-resultbar .cc-controls{flex-wrap:wrap}.cc-resultbar .cc-controls select{flex:1}.cc-caption{padding:12px;gap:10px}.cc-poststats{gap:8px;font-size:10px;flex-wrap:wrap}.cc-byline{font-size:10px}.cc-fallback>b{font-size:16px}.cc-fallback>span{font-size:7px}.cc-fallback>small{font-size:9px}.cc-baseline{font-size:9px}.cc-quality{font-size:10px}.cc-post{border-radius:14px}}
+@media(prefers-reduced-motion:reduce){.cc-post,.cc-save,.cc-cover img{transition:none!important;transform:none!important}}
+
+</style><link rel="stylesheet" href="design-polish.css">
 
 <div class="wrap">
   <header class="bar">
@@ -1037,7 +1060,6 @@ html.embed-root,html.embed-root body{background:#fff!important}
     </div>
     <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#content" data-p="cont">Контент</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
-      <button class="pill" type="button" id="tblBtn" data-only="net" title="Таблица подписчиков по неделям и дням">Таблица <span class="arrow">↓</span></button>
       <button class="pill dark" type="button" id="aiOpen"><span class="ai-spark" aria-hidden="true"></span>Спросить ИИ <span class="arrow">↗</span></button>
     </div>
   </header>
@@ -1066,7 +1088,7 @@ html.embed-root,html.embed-root body{background:#fff!important}
         <b class="cq-n" id="cqGrow"><i class="skw"></i></b><span class="cq-d" id="cqGrowD">наши страницы против их прямых конкурентов</span></button>
       <button type="button" class="cq" role="tab" data-cmode="content"><span class="cq-who">Контенту</span><span class="cq-t">Что залетает у конкурентов</span>
         <span class="cq-art" id="cqArt" aria-hidden="true"></span><span class="cq-d">что залетает у конкурентов и с каких постов к ним идут подписки</span></button>
-      <button type="button" class="cq" role="tab" data-cmode="curated"><span class="cq-who">Выбранные аккаунты</span><span class="cq-t">Конкуренты Контент Карусели</span>
+      <button type="button" class="cq" role="tab" data-cmode="curated"><span class="cq-who">Выбранные аккаунты</span><span class="cq-t">Карусели конкурентов</span>
         <b class="cq-n" id="cqCurated"><i class="skw"></i></b><span class="cq-d" id="cqCuratedD">подгруппы, рост аудитории и карусели из списка Даниила</span></button>
       <button type="button" class="cq" role="tab" data-cmode="ref"><span class="cq-who">Поиск</span><span class="cq-t">Справочник</span>
         <b class="cq-n" id="cqRef"><i class="skw"></i></b><span class="cq-d">все конкуренты списком: найти аккаунт и его цифры</span></button>
@@ -1078,6 +1100,8 @@ html.embed-root,html.embed-root body{background:#fff!important}
   </main>
 </div>
 
+<div id="ccAnnounce" class="cc-sr" role="status" aria-live="polite"></div>
+<dialog id="ccPostDlg" aria-labelledby="ccPostTitle"><div id="ccPostBody"></div></dialog>
 <dialog id="accDlg" aria-labelledby="accTitle"><div class="dlg" id="accBody"></div></dialog>
 
 <dialog id="aiDlg" class="ai" aria-labelledby="aiTitle">
@@ -2276,8 +2300,20 @@ function curatedPosts() {
   const users = new Set(group === "all" ? (C.acc || []).map(a => a.u) : (C.groups.find(g => g.name === group)?.accounts || []));
   return (C.posts || []).filter(p => users.has(p.u) && (format === "all" || p.k === format));
 }
-function ccPostCard(p) {
-  return `<a class="cc-post" href="${igPost(p)}" target="_blank" rel="noopener"><div class="cc-cover">${p.th ? `<img src="${esc(p.th)}" loading="lazy" alt="Пост @${esc(p.u)}" onerror="this.hidden=true">` : ""}<span class="cc-placeholder">${p.k === "car" ? "▤" : p.k === "reel" ? "▷" : "↗"}</span><span class="cc-format">${p.k === "car" ? "Карусель" : p.k === "reel" ? "Reels" : "Пост"}</span>${p.r >= 3 ? `<span class="cc-ratio">${xx(p.r)} к обычному</span>` : ""}<span class="cc-open">↗</span></div><div class="cc-caption"><b>@${esc(p.u)}</b><span>${dShort(p.d)} · ${p.pl != null ? compact(p.pl) + " просмотров" : fmt(p.l) + " лайков"}</span><p>${esc((p.x || "Без подписи").slice(0, 150))}</p><div class="cc-poststats"><span>♡ ${fmt(p.l)}</span><span>◌ ${fmt(p.cm)}</span></div></div></a>`;
+
+const ccSaved = new Set();
+try { const stored=JSON.parse(localStorage.getItem('akm.curated.saved')||'[]'); if(Array.isArray(stored)) stored.filter(x=>typeof x==='string').forEach(x=>ccSaved.add(x)); } catch {}
+const ccFormatName = p => p.k==='car'?'Карусель':p.k==='reel'?'Reels':'Пост';
+const ccHasRatio = p => typeof p.r==='number' && Number.isFinite(p.r) && p.r>=0;
+const ccTitle = p => p.hook || (p.x || 'Публикация без подписи').replace(/\s+/g,' ').trim();
+function ccSaveButton(p) { return `<button class="cc-save" data-ccsave="${esc(p.c)}" aria-pressed="${ccSaved.has(p.c)}" aria-label="${ccSaved.has(p.c)?'Убрать из сохранённого':'Сохранить идею'}">${ccSaved.has(p.c)?'♥':'♡'}</button>`; }
+function ccPostCard(p, i = 0) {
+  return `<article class="cc-post" style="--cc-i:${Math.min(i,7)}"><button class="cc-preview" data-ccpost="${esc(p.c)}" aria-label="Открыть публикацию @${esc(p.u)}"><div class="cc-cover"><div class="cc-fallback" aria-hidden="true"><span>AKM / CONTENT LIBRARY</span><b>${esc(ccTitle(p).slice(0,125))}</b><small>Превью недоступно · открыть детали ↗</small></div>${p.th?`<img src="${esc(p.th)}" loading="lazy" alt="Обложка публикации @${esc(p.u)}" onerror="this.hidden=true">`:''}<span class="cc-format">${ccFormatName(p)}</span>${ccHasRatio(p)?`<span class="cc-ratio">${xx(p.r)} к обычному</span>`:''}</div></button>${ccSaveButton(p)}<div class="cc-caption"><div class="cc-byline"><b>@${esc(p.u)}</b><span>${dShort(p.d)}</span></div><button class="cc-posttitle" data-ccpost="${esc(p.c)}">${esc(ccTitle(p))}</button><div class="cc-poststats"><span title="Лайки">♡ ${compact(p.l)}</span><span title="Комментарии">◌ ${compact(p.cm)}</span>${p.pl!=null?`<span title="Просмотры">▷ ${compact(p.pl)}</span>`:''}</div><div class="cc-baseline">${ccHasRatio(p)?'Сравнение с обычным результатом':'Нет базы для сравнения'}</div></div></article>`;
+}
+function openCCPost(code) {
+  const p=S.curated?.posts.find(p=>p.c===code); if(!p)return;
+  $('ccPostBody').innerHTML=`<button class="x" data-ccclose aria-label="Закрыть публикацию">×</button><div class="cc-detail-media">${p.th?`<img src="${esc(p.th)}" alt="Обложка @${esc(p.u)}" onerror="this.hidden=true">`:'<div class="cc-detail-missing">Превью недоступно</div>'}<span>${ccFormatName(p)} · ${dShort(p.d)}</span></div><div class="cc-detail-copy"><div class="lab">Библиотека конкурентов</div><h2 id="ccPostTitle">@${esc(p.u)}</h2><div class="cc-detail-metrics"><b>♡ ${fmt(p.l)}<small>лайков</small></b><b>◌ ${fmt(p.cm)}<small>комментариев</small></b></div><div class="cc-detail-status">${ccHasRatio(p)?`${xx(p.r)} к обычному результату`:'Недостаточно данных для сравнения с обычным результатом аккаунта.'}</div><h3>Описание публикации</h3><p class="cc-full-caption">${esc(p.x||'Описание отсутствует в выгрузке.')}</p><p class="cc-note">В выгрузке доступна только обложка. Все слайды и полное описание — в оригинале.</p><div class="cc-detail-actions"><a class="pill dark" href="${igPost(p)}" target="_blank" rel="noopener">Открыть Instagram ↗</a><button class="pill" data-ccsave="${esc(p.c)}" aria-pressed="${ccSaved.has(p.c)}">${ccSaved.has(p.c)?'♥ Сохранено':'♡ Сохранить идею'}</button></div><small>Сохранённое доступно в этом браузере.</small></div>`;
+  if(!$('ccPostDlg').open) $('ccPostDlg').showModal();
 }
 function ccSpark(a) {
   const h = a.h || [], vs = h.filter(x => x != null);
@@ -2286,23 +2322,27 @@ function ccSpark(a) {
   h.forEach((v, i) => { if (v == null) { gap = true; return; } d += `${gap ? "M" : "L"}${(i / Math.max(1, h.length - 1) * 500).toFixed(1)},${(58 - (v - lo) / span * 50).toFixed(1)} `; gap = false; });
   return `<svg class="cc-spark" viewBox="0 0 500 66" preserveAspectRatio="none" aria-label="Подписчики за 7 дней"><path d="${d}" fill="none" stroke="${vs.at(-1) >= vs[0] ? 'var(--up)' : 'var(--down)'}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
 }
+
 function renderCurated() {
-  const el = $("ccbento"), C = S.curated;
-  if (!C) { el.innerHTML = S.ccError ? `<section class="t s12"><div class="lab">Контент Карусели</div><div class="headline">Не удалось загрузить список</div><p class="sub">Основные разделы продолжают работать. Повторите загрузку.</p><button class="pill" data-ccretry>Повторить ↗</button></section>` : skelComp(); return; }
-  const group = S.ccGroup || "all", format = S.ccFormat || "car", query = S.ccQuery || "", sort = S.ccSort || "d1";
-  const users = new Set(group === "all" ? C.acc.map(a => a.u) : (C.groups.find(g => g.name === group)?.accounts || []));
-  const accounts = C.acc.filter(a => users.has(a.u) && (a.u + " " + a.name).toLowerCase().includes(query.toLowerCase())).sort((a,b) => (b[sort] ?? -Infinity) - (a[sort] ?? -Infinity));
-  const posts = curatedPosts().filter(p => !query || accounts.some(a => a.u === p.u)).sort((a,b) => (b.r || 0) - (a.r || 0) || (b.pl ?? b.l ?? 0) - (a.pl ?? a.l ?? 0));
-  const hot = posts.filter(p => p.r >= 3), fresh = accounts.filter(a => a.last && Math.abs(Date.now() - Date.parse(a.last + '+03:00')) < 72e5).length;
-  const previews = posts.filter(p => p.th).slice(0,3);
-  const tile = (a, i) => `<button class="t s4 cc-account" data-ccu="${esc(a.u)}" style="--i:${i}"><div class="lab">${esc(C.groups.filter(g => g.accounts.includes(a.u)).map(g => g.name).join(' · '))}<span class="cc-arrow">↗</span></div><h3>@${esc(a.u)}</h3><div class="cc-name">${esc(a.name || 'Контент-конкурент')}</div><div class="cc-kpis"><div><b>${compact(a.f)}</b><span>подписчиков</span></div><div><b class="${cls(a.d1)}">${signed(a.d1, compact)}</b><span>за сутки</span></div><div><b class="${cls(a.d7)}">${signed(a.d7, compact)}</b><span>за неделю</span></div></div>${ccSpark(a)}<div class="cc-foot"><span>${fmt(a.p7)} собрано постов / 7 дней</span><span>${a.last ? 'замер ' + tWhen(a.last) : 'ждёт замера'}</span></div></button>`;
-  el.innerHTML = `<section class="t ink s7 cc-hero"><div class="lab">Контент-отделу <span class="tag">список Даниила</span></div><div class="headline">Смотреть контент.<br>Находить то, что растёт.</div><p class="sub">${C.acc.length} выбранных аккаунтов, ${C.groups.length} подгрупп. Рост аудитории, карусели и удачные публикации — в одном месте, без рекламных подборок.</p><div class="cc-hero-bottom"><span class="cc-live"><i></i>${fresh} из ${accounts.length} с замером за 2 часа</span><span>${esc(C.at?.includes('T') ? 'Выгрузка ' + tWhen(C.at.slice(0,16)) : 'Новый список · история накапливается')}</span></div></section><section class="t lime s5 cc-summary"><div class="lab">${group === 'all' ? 'Все подгруппы' : esc(group)}</div><div class="cc-summary-n"><span data-n="${accounts.length}" data-fmt="int">${accounts.length}</span><small>аккаунтов</small></div><div class="cc-summary-row"><div><b>${posts.length}</b><span>${format === 'car' ? 'каруселей' : format === 'reel' ? 'Reels' : 'публикаций'} в выборке</span></div><div><b>${hot.length}</b><span>подтверждённых залётов</span></div></div>${previews.length ? `<div class="cc-mini">${previews.map((p,i)=>`<img src="${esc(p.th)}" alt="" style="--k:${i}" loading="lazy">`).join('')}</div>` : ''}</section>
-    <div class="chips2 s12 cc-groups">${[['all','Все подгруппы'],...C.groups.map(g=>[g.name,g.name])].map(([k,n])=>`<button class="chip" data-ccgroup="${esc(k)}" aria-pressed="${group===k}">${esc(n)}${k==='all'?'':` <small>${C.groups.find(g=>g.name===k).accounts.length}</small>`}</button>`).join('')}</div>
-    <section class="t s12 cc-toolbar"><div><div class="lab">Выбранные конкуренты</div><h2>Аудитория и темп роста</h2></div><div class="cc-controls"><input id="ccSearch" aria-label="Найти контент-конкурента" placeholder="Найти аккаунт…" value="${esc(query)}"><select id="ccSort" aria-label="Порядок аккаунтов">${[['d1','Рост за сутки'],['d7','Рост за неделю'],['f','Подписчики'],['p7','Посты за неделю']].map(([k,n])=>`<option value="${k}" ${sort===k?'selected':''}>${n}</option>`).join('')}</select></div></section>
-    ${accounts.slice(0,S.ccLimit||12).map(tile).join('') || '<section class="t s12"><p class="empty-t">По этому запросу аккаунтов нет.</p></section>'}${accounts.length>(S.ccLimit||12)?`<div class="s12 cc-more"><button class="pill" data-ccmore>Все ${accounts.length} аккаунтов <span class="arrow">↓</span></button></div>`:''}
-    <section class="t s12 cc-gallery"><div class="cc-gallery-head"><div><div class="lab">Библиотека контента · 7 дней</div><h2>Что можно взять за основу</h2></div><div class="seg">${[['car','Карусели'],['reel','Reels'],['all','Все посты']].map(([k,n])=>`<button data-ccformat="${k}" aria-pressed="${format===k}">${n}</button>`).join('')}</div></div><p class="cc-explain">Сначала — посты с наибольшим превышением обычного результата, затем по просмотрам или лайкам. Залёт — от 3× к медиане последних 30 публикаций того же формата; минимум 5 постов для сравнения.</p><div class="cc-postgrid">${posts.slice(0,S.ccPostLimit||12).map(ccPostCard).join('') || '<div class="empty-t">В этом формате пока нет собранных публикаций. Выберите «Все посты» или дождитесь следующего обхода.</div>'}</div>${posts.length>(S.ccPostLimit||12)?'<button class="pill cc-load" data-ccpostmore>Ещё публикации ↓</button>':''}</section>
-    <section class="t stone s12 cc-method"><span class="cc-method-icon">↗</span><div><b>Рост виден в цифрах. Причину проверяем по контенту.</b><p>В карточке аккаунта — почасовые замеры и история по дням. Прирост рядом с публикацией не доказывает, что подписки пришли именно с неё. Где замеров нет, оставляем пропуски.</p></div></section>`;
-  window.akmReveal?.(el);
+  const el=$('ccbento'), C=S.curated;
+  if(!C){el.innerHTML=S.ccError?'<section class="t s12"><h2>Не удалось загрузить библиотеку</h2><button class="pill" data-ccretry>Повторить</button></section>':skelComp();return;}
+  const group=S.ccGroup||'all', format=S.ccFormat||'car', query=S.ccQuery||'', view=S.ccView||'posts', sort=S.ccPostSort||'popular';
+  const q=query.toLowerCase().replace(/^@/,'');
+  const users=new Set(group==='all'?C.acc.map(a=>a.u):(C.groups.find(g=>g.name===group)?.accounts||[]));
+  const accounts=C.acc.filter(a=>users.has(a.u)&&(a.u+' '+a.name).toLowerCase().includes(q)).sort((a,b)=>(b[S.ccSort||'d1']??-Infinity)-(a[S.ccSort||'d1']??-Infinity));
+  const base=curatedPosts().filter(p=>(p.u+' '+(p.x||'')+' '+(p.hook||'')).toLowerCase().includes(q));
+  const evaluated=base.filter(ccHasRatio), hot=evaluated.filter(p=>p.r>=3);
+  let posts=base.filter(p=>(view!=='saved'||ccSaved.has(p.c))&&(!S.ccHot||p.r>=3));
+  posts.sort(sort==='new'?(a,b)=>(b.d+' '+(b.t||'')).localeCompare(a.d+' '+(a.t||'')):sort==='ratio'?(a,b)=>(b.r??-1)-(a.r??-1)||(b.l||0)-(a.l||0):(a,b)=>(b.l||0)-(a.l||0));
+  const tabs=[['posts','Публикации'],['accounts','Аккаунты'],['saved',`Сохранённое · ${ccSaved.size}`]];
+  const tile=a=>`<button class="t s4 cc-account" data-ccu="${esc(a.u)}"><div class="lab">${esc(a.g||'Конкурент')}<span>↗</span></div><h3>@${esc(a.u)}</h3><div class="cc-name">${esc(a.name||'')}</div><div class="cc-kpis"><div><b>${compact(a.f)}</b><span>подписчиков</span></div><div><b class="${cls(a.d1)}">${signed(a.d1,compact)}</b><span>за сутки</span></div><div><b class="${cls(a.d7)}">${signed(a.d7,compact)}</b><span>за неделю</span></div></div>${ccSpark(a)}<div class="cc-foot"><span>Постов за 7 дней: ${fmt(a.p7)}</span><span>${a.last?'Замер '+dShort(a.last.slice(0,10))+' · '+a.last.slice(11,16)+' МСК':'Ждёт замера'}</span></div></button>`;
+  el.innerHTML=`<section class="t ink s7 cc-overview"><div class="lab">Контент-отдел</div><h2>Карусели конкурентов</h2><p class="sub">${C.acc.length} аккаунтов · ${C.groups.length} тематик · публикации за 7 дней</p></section><section class="t lime s5 cc-selection"><div class="lab">Текущая выборка</div><div class="big">${view==='accounts'?accounts.length:posts.length} <small>${view==='accounts'?'аккаунтов':'публикаций'}</small></div><p class="sub">С учётом выбранных фильтров</p></section>
+  <div class="t cc-workspace s12"><div class="cc-workspace-top"><div class="cc-views" role="group" aria-label="Вид библиотеки">${tabs.map(([k,n])=>`<button data-ccview="${k}" aria-pressed="${view===k}">${n}</button>`).join('')}</div><div class="cc-controls"><input type="search" id="ccSearch" aria-label="Поиск по аккаунту или описанию" placeholder="Поиск по аккаунту или теме…" value="${esc(query)}"></div></div><div class="chips2 cc-groups" role="group" aria-label="Тематика">${[['all','Все темы'],...C.groups.map(g=>[g.name,g.name])].map(([k,n])=>`<button class="chip" data-ccgroup="${esc(k)}" aria-pressed="${group===k}">${esc(n)}</button>`).join('')}</div></div>
+  ${view==='accounts'?`<section class="t cc-resultbar s12"><div><b>${accounts.length} аккаунтов</b><span>Аудитория и темп роста</span></div><div class="cc-controls"><select id="ccSort" aria-label="Порядок аккаунтов">${[['d1','Рост за сутки'],['d7','Рост за неделю'],['f','Подписчики'],['p7','Посты за неделю']].map(([k,n])=>`<option value="${k}" ${(S.ccSort||'d1')===k?'selected':''}>${n}</option>`).join('')}</select></div></section>${accounts.slice(0,S.ccLimit||12).map(tile).join('')||'<div class="cc-empty s12"><h3>Аккаунты не найдены</h3><p>Измените запрос или выберите другую тему.</p><button class="pill" data-ccreset>Сбросить фильтры</button></div>'}${accounts.length>(S.ccLimit||12)?'<div class="cc-more"><button class="pill" data-ccmore>Показать все аккаунты ↓</button></div>':''}`:
+  `<section class="t cc-resultbar s12"><div><b>${view==='saved'?'Сохранённые идеи':'Лента публикаций'} <span class="cc-count">${posts.length}</span></b><span>${view==='saved'?'Ваша подборка в этом браузере':'Публикации выбранных аккаунтов за 7 дней'}</span></div><div class="cc-controls"><div class="seg" role="group" aria-label="Формат">${[['car','Карусели'],['reel','Reels'],['all','Все']].map(([k,n])=>`<button data-ccformat="${k}" aria-pressed="${format===k}">${n}</button>`).join('')}</div><select id="ccPostSort" aria-label="Порядок публикаций">${[['popular','Больше лайков'],['new','Сначала новые'],['ratio','Выше обычного']].map(([k,n])=>`<option value="${k}" ${sort===k?'selected':''}>${n}</option>`).join('')}</select></div></section>
+  <div class="cc-quality s12"><span><i></i>${evaluated.length?`Сравнение доступно для ${evaluated.length} из ${base.length} публикаций · ${hot.length} выше 3×`:'Сравнение с обычным результатом пока недоступно'}</span><button data-cchot aria-pressed="${!!S.ccHot}">Только ≥3× ${S.ccHot?'✓':''}</button></div>
+  <div class="cc-postgrid s12">${posts.slice(0,S.ccPostLimit||12).map(ccPostCard).join('')||`<div class="cc-empty"><span>↗</span><h3>${view==='saved'?'Здесь будут ваши идеи':S.ccHot?'Пока нет подтверждённых результатов ≥3×':'Ничего не найдено'}</h3><p>${view==='saved'?'Нажмите сердечко на публикации. Сохранённое учитывает выбранные фильтры.':'Попробуйте другую тему, формат или сбросьте фильтры.'}</p><button class="pill" data-ccreset>Сбросить фильтры</button></div>`}</div>${posts.length>(S.ccPostLimit||12)?`<div class="cc-more"><button class="pill" data-ccpostmore>Ещё 12 публикаций ↓</button></div>`:''}`}
+  <details class="cc-method-v2 s12"><summary>Как читать эти данные <span>↗</span></summary><p>Результат ≥3× — отношение к медиане последних 30 публикаций того же формата; необходимо минимум 5 публикаций для сравнения. Отсутствие оценки не означает низкую эффективность. При сортировке «Выше обычного» публикации без оценки идут последними.</p><p>Рост подписчиков рядом с публикацией не доказывает, что подписки пришли именно с неё. Разрывы на графиках означают пропущенные замеры. Время — московское. Тематики могут пересекаться.</p></details>`;
 }
 function loadCurated() {
   if (S.ccLoading) return; S.ccLoading = true; S.ccError = false;
@@ -2468,6 +2508,8 @@ function cqNums() {
 function setCMode(m, animate = true) {
   if (!CMODES[m]) m = "grow";
   const prev = S.cMode; S.cMode = m;
+  clearTimeout(setCMode.t);
+  for (const id of Object.values(CMODES)) $(id).getAnimations().forEach(a => a.cancel());
   if (S.page === "comp") history.replaceState(null, "", m === "curated" ? "#content-carousels" : "#competitors");
   try { localStorage.setItem("comp.mode", m); } catch (e) {}
   document.querySelectorAll("#cmode [data-cmode]").forEach(b => { b.setAttribute("aria-selected", b.dataset.cmode === m); b.classList.toggle("on", b.dataset.cmode === m); });
@@ -2475,7 +2517,7 @@ function setCMode(m, animate = true) {
   if (!animate || reduce || prev === m || !CMODES[prev]) { show(); return; }
   const order = Object.keys(CMODES), from = $(CMODES[prev]), dir = order.indexOf(m) > order.indexOf(prev) ? "fwd" : "back";
   from.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: `translate3d(${dir === "fwd" ? -24 : 24}px,0,0)` }], { duration: 170, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
-  clearTimeout(setCMode.t);   // таймер, а не .finished: в фоновой вкладке анимации стоят и обещание не приходит
+  // Таймер работает и в фоновой вкладке, в отличие от animation.finished.
   setCMode.t = setTimeout(() => { from.getAnimations().forEach(x => x.cancel()); show(); enter($(CMODES[m]), dir); }, 180);
 }
 
@@ -2501,7 +2543,7 @@ function countUp(root) {
 }
 function enter(page, dir = "") {
   if (reduce) return;
-  [...page.querySelectorAll(".chips2, .t")].forEach((t, i) => t.style.setProperty("--i", Math.min(i, 14)));
+  [...page.querySelectorAll(".chips2, .t")].filter(t => !t.closest("[hidden]")).forEach((t, i) => t.style.setProperty("--i", Math.min(i, 8)));
   page.classList.remove("enter", "fwd", "back"); void page.offsetWidth; page.classList.add("enter"); if (dir) page.classList.add(dir);
   clearTimeout(page._et); page._et = setTimeout(() => page.classList.remove("enter", "fwd", "back"), 2200);
   window.akmReveal?.(page);   // плитки ниже экрана появятся при прокрутке
@@ -2551,18 +2593,34 @@ window.addEventListener("hashchange", () => { if (location.hash === "#content-ca
 window.addEventListener("resize", () => placeInd(false));
 $("cmode").addEventListener("click", e => { const b = e.target.closest("[data-cmode]"); if (b && b.dataset.cmode !== S.cMode) setCMode(b.dataset.cmode); });
 
-$('cCurated').addEventListener('click', e => {
-  const b=e.target.closest('[data-ccgroup],[data-ccformat],[data-ccu],[data-ccmore],[data-ccpostmore],[data-ccretry]'); if(!b)return;
-  if(b.hasAttribute('data-ccretry')) { loadCurated(); return; }
-  if(b.dataset.ccu) { openCurated(b.dataset.ccu); return; }
-  if(b.dataset.ccgroup) { S.ccGroup=b.dataset.ccgroup; S.ccLimit=12; S.ccPostLimit=12; }
-  if(b.dataset.ccformat) { S.ccFormat=b.dataset.ccformat; S.ccPostLimit=12; }
-  if(b.hasAttribute('data-ccmore')) S.ccLimit=S.curated.acc.length;
-  if(b.hasAttribute('data-ccpostmore')) S.ccPostLimit=(S.ccPostLimit||12)+12;
-  const y=scrollY; renderCurated(); scrollTo(0,y); if(b.dataset.ccgroup) enter($('cCurated'));
+
+document.addEventListener('click',e=>{
+  const save=e.target.closest('[data-ccsave]');
+  if(save){const code=save.dataset.ccsave; ccSaved.has(code)?ccSaved.delete(code):ccSaved.add(code); let persisted=true;try{localStorage.setItem('akm.curated.saved',JSON.stringify([...ccSaved]));}catch{persisted=false;}
+    document.querySelectorAll('[data-ccsave]').forEach(b=>{if(b.dataset.ccsave===code){const on=ccSaved.has(code);b.setAttribute('aria-pressed',on);b.setAttribute('aria-label',on?'Убрать из сохранённого':'Сохранить идею');b.textContent=b.classList.contains('cc-save')?(on?'♥':'♡'):(on?'♥ Сохранено':'♡ Сохранить идею');}});
+    const savedTab=document.querySelector('[data-ccview="saved"]');if(savedTab)savedTab.textContent='Сохранённое · '+ccSaved.size;
+    $('ccAnnounce').textContent=persisted?(ccSaved.has(code)?'Идея сохранена':'Идея удалена из сохранённого'):'Сохранено только до закрытия страницы: хранилище браузера недоступно';
+    if(S.ccView==='saved')renderCurated();return;}
+  const post=e.target.closest('[data-ccpost]');if(post){openCCPost(post.dataset.ccpost);return;}
 });
-$('cCurated').addEventListener('change',e=>{if(e.target.id==='ccSort'){S.ccSort=e.target.value;renderCurated();}});
-$('cCurated').addEventListener('input',e=>{if(e.target.id!=='ccSearch')return; const v=e.target.value,pos=e.target.selectionStart;S.ccQuery=v;S.ccLimit=12;clearTimeout(S.ccSearchTimer);S.ccSearchTimer=setTimeout(()=>{renderCurated();const q=$('ccSearch');q.focus({preventScroll:true});q.setSelectionRange(pos,pos);},150);});
+$('ccPostDlg').addEventListener('click',e=>{if(e.target===$('ccPostDlg')||e.target.closest('[data-ccclose]'))$('ccPostDlg').close();});
+$('cCurated').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ccgroup],[data-ccformat],[data-ccu],[data-ccmore],[data-ccpostmore],[data-ccretry],[data-ccview],[data-cchot],[data-ccreset]');if(!b)return;
+  if(b.hasAttribute('data-ccretry')){loadCurated();return;}
+  if(b.dataset.ccu){openCurated(b.dataset.ccu);return;}
+  if(b.dataset.ccgroup)S.ccGroup=b.dataset.ccgroup;
+  if(b.dataset.ccformat)S.ccFormat=b.dataset.ccformat;
+  if(b.dataset.ccview)S.ccView=b.dataset.ccview;
+  if(b.hasAttribute('data-cchot'))S.ccHot=!S.ccHot;
+  if(b.hasAttribute('data-ccreset')){S.ccQuery='';S.ccGroup='all';S.ccFormat='all';S.ccHot=false;}
+  if(b.hasAttribute('data-ccmore'))S.ccLimit=S.curated.acc.length;
+  else if(b.hasAttribute('data-ccpostmore'))S.ccPostLimit=(S.ccPostLimit||12)+12;
+  else{S.ccLimit=12;S.ccPostLimit=12;}
+  const attr=[...b.attributes].find(a=>a.name.startsWith('data-cc')), y=scrollY;renderCurated();scrollTo(0,y);
+  if(attr){const target=[...$('cCurated').querySelectorAll('['+attr.name+']')].find(x=>x.getAttribute(attr.name)===attr.value);target?.focus({preventScroll:true});}
+});
+$('cCurated').addEventListener('change',e=>{if(e.target.id==='ccSort'||e.target.id==='ccPostSort'){S[e.target.id]=e.target.value;renderCurated();}});
+$('cCurated').addEventListener('input',e=>{if(e.target.id!=='ccSearch')return; const v=e.target.value;S.ccQuery=v;S.ccLimit=12;S.ccPostLimit=12;clearTimeout(S.ccSearchTimer);S.ccSearchTimer=setTimeout(()=>{renderCurated();$('ccSearch')?.focus({preventScroll:true});},180);});
 
 // все действия внутри раздела «Конкуренты» — один обработчик
 const compPages = $("pageComp");
@@ -2664,7 +2722,6 @@ $("cbento").addEventListener("change", e => {
   if (e.target.id !== "howSel") return;
   S.howU = e.target.value; const y = scrollY; renderCont(); scrollTo(0, y); dxAnim("howto");
 });
-$("tblBtn").addEventListener("click", () => $("tableTile").scrollIntoView({ behavior: "smooth", block: "start" }));
 $("bento").addEventListener("click", e => {
   const gp = e.target.closest("[data-goto-p]"); if (gp) { history.replaceState(null, "", PAGES[gp.dataset.gotoP].hash); go(gp.dataset.gotoP); return; }
   const ib = e.target.closest("[data-niche]");
