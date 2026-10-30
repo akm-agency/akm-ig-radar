@@ -1010,6 +1010,23 @@ html.embed-root,html.embed-root body{background:#fff!important}
 .sl-kit:hover{transform:translateY(-2px)}
 .enter .sl-row,.rv-in .sl-row{animation:tile-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--j,0) * 35ms + .25s)}
 @media (max-width:820px){.sl-row{grid-template-columns:minmax(0,1fr) auto}.sl-bs{grid-column:1/-1;grid-row:2}}
+/* Контент Карусели: родные плитки, типографика и анимации AKM. */
+.cc-hero{min-height:300px;background:radial-gradient(ellipse at 100% 0,rgba(210,243,91,.15),transparent 65%),var(--ink)}
+.cc-hero .headline{font-size:clamp(28px,3vw,46px);line-height:1.05;letter-spacing:-.045em;max-width:20ch;margin:24px 0 14px}.cc-hero .sub{max-width:54ch;font-size:14px}
+.cc-hero-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:24px;font-size:11.5px;color:#aaa}
+.cc-live{display:inline-flex;align-items:center;gap:7px}.cc-live i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 5px rgba(210,243,91,.08)}
+.cc-summary{min-height:300px;position:relative;overflow:hidden}.cc-summary-n{font-size:clamp(62px,7vw,96px);font-family:var(--f-mono);font-weight:500;letter-spacing:-.08em;line-height:1.1;margin-top:18px}.cc-summary-n small{font:14px var(--f);letter-spacing:0;margin-left:12px}
+.cc-summary-row{display:flex;gap:28px;margin-top:auto;padding-top:20px;z-index:1}.cc-summary-row b{display:block;font:28px var(--f-mono);letter-spacing:-.05em}.cc-summary-row span{font-size:12px;display:block;max-width:16ch;opacity:.65}
+.cc-mini{position:absolute;right:30px;top:58px;width:135px;height:110px;pointer-events:none}.cc-mini img{position:absolute;left:30px;top:6px;width:65px;height:90px;object-fit:cover;border:3px solid var(--lime);border-radius:12px;transform:translateX(calc((var(--k) - 1) * 35px)) rotate(calc((var(--k) - 1) * 14deg));box-shadow:0 12px 25px -13px #0008;transition:transform .8s cubic-bezier(.16,1,.3,1)}.cc-summary:hover .cc-mini img{transform:translateX(calc((var(--k) - 1) * 42px)) translateY(-5px) rotate(calc((var(--k) - 1) * 18deg))}
+.cc-groups{padding:8px 0 0}.cc-groups .chip small{margin-left:7px;opacity:.5;font-size:11px}.cc-toolbar{display:flex;flex-direction:row;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;min-height:0!important}.cc-toolbar h2,.cc-gallery h2{font-size:25px;font-weight:600;letter-spacing:-.035em;line-height:1.1;margin:8px 0 0}.cc-controls{display:flex;gap:8px;flex-wrap:wrap}.cc-controls input,.cc-controls select{font:13px var(--f);padding:12px 15px;border:1px solid transparent;border-radius:100px;background:var(--tile-2);color:var(--ink);max-width:100%;min-width:0;outline:none}.cc-controls input:focus-visible,.cc-controls select:focus-visible{border-color:var(--blue);box-shadow:0 0 0 3px #2b45ff15}
+.cc-account{border:0;display:flex;flex-direction:column;text-align:left;cursor:pointer;font:inherit;transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s,background .3s;min-height:250px}.cc-account:hover{transform:translateY(-4px);box-shadow:0 20px 35px -25px #0006}.cc-account:focus-visible,.cc-post:focus-visible{outline:2px solid var(--blue);outline-offset:3px}.cc-account .lab{justify-content:space-between;gap:10px}.cc-arrow{font-size:18px;opacity:.5}.cc-account h3{font-size:21px;letter-spacing:-.04em;margin:14px 0 4px;overflow-wrap:anywhere}.cc-name{font-size:12px;color:var(--muted);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.cc-kpis{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px}.cc-kpis b{font-size:21px;letter-spacing:-.04em;display:block;font-weight:600}.cc-kpis span{font-size:11px;color:var(--muted);display:block;margin-top:4px}.cc-spark{width:100%;height:60px;margin:20px 0 8px}.cc-await{font-size:12px;color:var(--muted);padding:28px 0 20px}.cc-foot{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--muted);margin-top:auto}.cc-more{grid-column:1/-1;display:flex;justify-content:center;margin:2px 0 14px}
+.cc-gallery-head{display:flex;gap:20px;justify-content:space-between;align-items:center;flex-wrap:wrap}.cc-explain{font-size:12.5px;line-height:1.6;color:var(--muted);max-width:85ch;margin:16px 0 22px}.cc-postgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.cc-post{border-radius:22px;overflow:hidden;background:var(--tile-2);color:var(--ink);text-decoration:none;display:flex;flex-direction:column;min-width:0;transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s}.cc-post:hover{transform:translateY(-5px);box-shadow:0 18px 35px -22px #0007}.cc-cover{position:relative;aspect-ratio:4/5;background:linear-gradient(145deg,#dedad1,#cfc2ff);overflow:hidden}.cc-cover img{width:100%;height:100%;object-fit:cover;position:relative;z-index:1;transition:transform .7s cubic-bezier(.16,1,.3,1)}.cc-post:hover img{transform:scale(1.045)}.cc-placeholder{position:absolute;inset:0;display:grid;place-items:center;font:70px var(--f);opacity:.25}.cc-format,.cc-ratio{position:absolute;z-index:2;left:10px;top:10px;border-radius:50px;padding:6px 10px;font-size:10.5px;font-weight:600;background:#ffffffdf;backdrop-filter:blur(10px)}.cc-ratio{top:auto;bottom:10px;background:var(--lime)}.cc-open{position:absolute;z-index:2;right:10px;bottom:10px;border-radius:50%;width:32px;height:32px;display:grid;place-items:center;background:#fff;color:var(--ink);transition:transform .4s}.cc-post:hover .cc-open{transform:rotate(45deg)}.cc-caption{padding:15px;display:flex;flex-direction:column;flex:1;min-width:0}.cc-caption>b{font-size:13.5px;overflow-wrap:anywhere}.cc-caption>span{font-size:11px;color:var(--muted);margin-top:5px}.cc-caption p{font-size:12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;color:var(--muted);overflow-wrap:anywhere}.cc-poststats{display:flex;justify-content:space-between;gap:10px;margin-top:auto;font:12px var(--f-mono)}.cc-load{margin-top:20px;align-self:center}.cc-method{display:flex;flex-direction:row;align-items:center;gap:20px;min-height:0!important}.cc-method-icon{font-size:40px;color:var(--blue)}.cc-method b{font-size:15px;letter-spacing:-.02em}.cc-method p{font-size:12.5px;line-height:1.6;max-width:95ch;margin:8px 0 0;color:var(--muted)}.cc-dialog-head .x{z-index:3}.cc-dialog-head .lab{padding-right:45px}.cc-dialog-title{overflow-wrap:anywhere;font-size:30px;letter-spacing:-.04em;padding-right:36px}
+@media(min-width:1101px){#cmode [data-cmode=curated] .cq-t{max-width:15ch;font-size:clamp(21px,1.7vw,27px)}}
+@media(max-width:1100px){.cc-postgrid{grid-template-columns:repeat(3,minmax(0,1fr))}.cc-mini{opacity:.7;right:10px;transform:scale(.8)}}
+@media(max-width:760px){.cc-postgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.cc-account{grid-column:span 6}.cc-hero,.cc-summary{grid-column:1/-1;min-height:0}.cc-summary{min-height:210px}.cc-summary-n{font-size:66px}.cc-summary-row{padding-top:12px}.cc-toolbar h2,.cc-gallery h2{font-size:23px}.cc-controls{width:100%}.cc-controls input{flex:1;width:130px}.cc-gallery-head .seg{max-width:100%;flex-wrap:wrap}.cc-kpis{gap:14px}.cc-kpis b{font-size:19px}}
+@media(max-width:480px){.cc-account{grid-column:1/-1}.cc-caption{padding:11px}.cc-cover{aspect-ratio:3/4}.cc-ratio{font-size:9px;padding:5px 7px}.cc-postgrid{gap:8px}.cc-caption>b{font-size:12px}.cc-poststats{font-size:10px}.cc-summary-row{gap:22px}.cc-mini{top:32px}.cc-hero .headline{font-size:32px}.cc-foot{font-size:10px}.cc-method{gap:12px}}
+@media(prefers-reduced-motion:reduce){.cc-post,.cc-account,.cc-cover img,.cc-mini img,.cc-open{transition:none}}
+
 </style>
 
 <div class="wrap">
@@ -1020,7 +1037,6 @@ html.embed-root,html.embed-root body{background:#fff!important}
     </div>
     <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#content" data-p="cont">Контент</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
-      <a class="pill" href="content-competitors.html" data-only="cont">Контент конкурентов ↗</a>
       <button class="pill" type="button" id="tblBtn" data-only="net" title="Таблица подписчиков по неделям и дням">Таблица <span class="arrow">↓</span></button>
       <button class="pill dark" type="button" id="aiOpen"><span class="ai-spark" aria-hidden="true"></span>Спросить ИИ <span class="arrow">↗</span></button>
     </div>
@@ -1050,14 +1066,14 @@ html.embed-root,html.embed-root body{background:#fff!important}
         <b class="cq-n" id="cqGrow"><i class="skw"></i></b><span class="cq-d" id="cqGrowD">наши страницы против их прямых конкурентов</span></button>
       <button type="button" class="cq" role="tab" data-cmode="content"><span class="cq-who">Контенту</span><span class="cq-t">Что залетает у конкурентов</span>
         <span class="cq-art" id="cqArt" aria-hidden="true"></span><span class="cq-d">что залетает у конкурентов и с каких постов к ним идут подписки</span></button>
-      <button type="button" class="cq" role="tab" data-cmode="sales"><span class="cq-who">Продажам</span><span class="cq-t">Кому продавать</span>
-        <b class="cq-n" id="cqSales"><i class="skw"></i></b><span class="cq-d" id="cqSalesD">бренды, которые платят похожим пабликам</span></button>
+      <button type="button" class="cq" role="tab" data-cmode="curated"><span class="cq-who">Выбранные аккаунты</span><span class="cq-t">Конкуренты Контент Карусели</span>
+        <b class="cq-n" id="cqCurated"><i class="skw"></i></b><span class="cq-d" id="cqCuratedD">подгруппы, рост аудитории и карусели из списка Даниила</span></button>
       <button type="button" class="cq" role="tab" data-cmode="ref"><span class="cq-who">Поиск</span><span class="cq-t">Справочник</span>
         <b class="cq-n" id="cqRef"><i class="skw"></i></b><span class="cq-d">все конкуренты списком: найти аккаунт и его цифры</span></button>
     </div>
     <section class="sub-page" id="cGrow"><div class="bento" id="gbento"></div></section>
     <section class="sub-page" id="cCont" hidden><div class="bento" id="obento"></div></section>
-    <section class="sub-page" id="cSales" hidden><div class="bento" id="sbento"></div></section>
+    <section class="sub-page" id="cCurated" hidden><div class="bento" id="ccbento"></div></section>
     <section class="sub-page" id="cRef" hidden><div class="chips2" id="cchips" role="group" aria-label="Ниши"></div><div class="bento" id="rbento"></div></section>
   </main>
 </div>
@@ -2047,39 +2063,6 @@ function dxImgFix(root) {
     else img.closest("a,span")?.remove();
   }, { once: true }));
 }
-// радар (бренды на площадках) догружается один раз, когда он нужен: кто у прямого конкурента рекламируется
-function radarIdx() {
-  if (S.radar || !window.__PUBLIC_DATA) return S.radar || null;
-  if (!S.radarP) S.radarP = fetch("data/radar.json?t=" + Date.now()).then(r => r.json()).then(R => {
-    const by = new Map(), fresh = Date.now() - 3 * 864e5;
-    for (const b of R.brands || []) for (const h of b.hosts || []) {
-      if (!by.has(h)) by.set(h, []);
-      by.get(h).push({ key: b.key, brand: b.brand, cat: b.category || "", n: b.n, last: b.last, fresh: Date.parse(b.first) >= fresh });
-    }
-    S.radar = { by };
-    if (S.page === "comp") { const y = scrollY; renderComp(); scrollTo(0, y); }
-    if ($("accDlg").open && $("dxBrands")) $("dxBrands").innerHTML = brandsHtml($("dxBrands").dataset.hosts.split(","), $("dxBrands").dataset.own);
-  }).catch(() => { S.radar = { by: new Map() }; });
-  return null;
-}
-const adsOf = u => S.radar?.by.get(u) || [];
-// бренды на наборе площадок: сколько из них платили, сначала свежие и самые частые
-function brandsAt(hosts) {
-  const m = new Map();
-  for (const h of hosts) for (const b of adsOf(h)) { const x = m.get(b.key) || { ...b, hosts: [] }; x.hosts.push(h); m.set(b.key, x); }
-  return [...m.values()].sort((x, y) => y.hosts.length - x.hosts.length || y.fresh - x.fresh || y.n - x.n);
-}
-function brandsHtml(hosts, own, lim = 6) {
-  if (!window.__PUBLIC_DATA) return `<div class="dx-empty">Рекламодатели видны на опубликованном сайте.</div>`;
-  if (!S.radar) { radarIdx(); return `<div class="skrows sk-shine" aria-hidden="true"><i></i><i></i><i></i></div>`; }
-  const B = brandsAt(hosts);
-  if (!B.length) return `<div class="dx-empty">Радар пока не видел рекламы у ${hosts.length > 1 ? "этих конкурентов" : "этого конкурента"}. Рекламу ищем на каждой площадке раз в сутки.</div>`;
-  return `<div class="dx-brs">${B.slice(0, lim).map((b, j) => `<a class="dx-br" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" style="--j:${j}" title="${hosts.length > 1 ? `Рекламировался у ${b.hosts.length} из ${hosts.length} прямых конкурентов · ` : ""}открыть бренд в радаре">
-      <b>${esc(b.brand)}</b><span class="n">${hosts.length > 1 ? `у ${b.hosts.length}` : `${b.n} ${plu(b.n, "пост", "поста", "постов")}`}</span>
-      <span>${b.fresh ? '<span class="fr">новый · </span>' : ""}${esc(b.cat || "")}${hosts.length > 1 ? ` · у @${esc(b.hosts.slice(0, 2).join(", @"))}` : ""}</span></a>`).join("")}</div>
-    ${B.length > lim ? `<div class="dx-empty">и ещё ${B.length - lim} ${plu(B.length - lim, "бренд", "бренда", "брендов")} в радаре</div>` : ""}
-    ${own ? `<div class="dx-empty">Эти бренды уже платят площадкам, почти таким же, как <b>@${esc(own)}</b>, — предложите её.</div>` : ""}`;
-}
 // что у них заходит: свежие залёты (если есть) + самые залайканные посты за 30 дней, только с обложками
 function hotHtml(ds, lim = 8) {
   const V = (S.viral || []).filter(p => p.th && ds.some(d => d.u === p.u)).map(p => ({ c: p.c, k: p.k, th: p.th, l: p.l, pl: p.pl, u: p.u, r: p.r }));
@@ -2155,7 +2138,6 @@ function openDirect(u) {
     <section class="t lime d2"><div class="lab">Похожесть</div>${dxRing(d.p, "lt", "--sz:96px;--rb:var(--lime)")}<div class="sub" style="opacity:1">${esc(dxWhy(d))}</div>${dxWeak(d.j)}</section>
     <section class="t lav d3"><div class="lab">Похож на наши страницы</div><div class="dxm-ms">${d.m.map(([o, p]) => `<a href="#" data-u="${esc(o)}"><b>@${esc(o)}</b><span>${p}%</span></a>`).join("")}</div>
       <div class="sub" style="opacity:1;color:#3A3A40">${p0(d.m[0]?.[1]) >= C.min ? "От " + C.min + "% — прямой конкурент: тот же зритель выбирает между ним и нашей страницей." : ""}</div></section>
-    <section class="t d3"><div class="lab">Рекламируются здесь <span class="tag">радар</span></div><div id="dxBrands" data-hosts="${esc(u)}" data-own="${esc(d.o)}">${brandsHtml([u], d.o)}</div></section>
     ${d.v?.about || d.v?.topics?.length ? `<section class="t d6"><div class="lab">Что публикует <span class="tag">описание ИИ по коллажу обложек</span></div>
       ${d.v.topics?.length ? `<div class="dxm-tags">${d.v.topics.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}${d.v.about ? `<div class="sub" style="opacity:1;color:#3A3A40;font-size:12.5px">${esc(d.v.about)}</div>` : ""}</section>` : ""}
     <section class="t d6"><div class="lab">Лучшие посты · 30 дней</div>${hotHtml([d], 6)}</section>
@@ -2175,7 +2157,7 @@ function simSection(u) {
       ${o ? `<span class="dx-own">похож на нашу @${esc(o)}</span>` : ""}${why ? `<p class="dx-why" style="-webkit-line-clamp:3">${esc(why)}</p>` : ""}${d ? dxWeak(d.j) : ""}</div></div>
     ${d?.m?.length > 1 ? `<div class="sub" style="opacity:1">Ещё похож на: ${d.m.slice(1).map(([x, q]) => `@${esc(x)} · ${q}%`).join(", ")}</div>` : ""}
     ${!d && c?.why?.length ? `<div class="sub" style="opacity:1">${esc(c.why.map(w => w.replace(/ \(\+\d+\)$/, "")).join(" · "))}</div>` : ""}</section>
-    ${window.__PUBLIC_DATA ? `<section class="t d6"><div class="lab">Рекламируются здесь <span class="tag">радар</span></div><div id="dxBrands" data-hosts="${esc(u)}" data-own="${esc(o || "")}">${brandsHtml([u], o)}</div></section>` : ""}`;
+    `;
 }
 // окно нашей страницы: её прямые конкуренты — место по росту, кто у них рекламируется (кому продавать эту страницу)
 function ownDirectSection(u) {
@@ -2183,8 +2165,7 @@ function ownDirectSection(u) {
   const cs = compsOf(u); if (!cs.length) return "";
   return `<section class="t d6" style="grid-column:1/-1"><div class="lab">Прямые конкуренты @${esc(u)} · ${cs.length} <span class="tag">ИИ Gemini</span></div>
     <div class="dx-duel" style="margin-top:0"><div class="dx-pane"><div class="lab">Рост подписчиков за 7 дней</div>${raceHtml(u, cs, 8)}</div>
-      <div class="dx-side"><div class="dx-pane"><div class="lab">Кому продавать @${esc(u)}</div><div id="dxBrands" data-hosts="${esc(cs.map(([d]) => d.u).join(","))}" data-own="${esc(u)}">${brandsHtml(cs.map(([d]) => d.u), u, 5)}</div></div>
-      <button type="button" class="pill" data-dxgo="${esc(u)}" style="align-self:flex-start">Все конкуренты страницы <span class="arrow">↗</span></button></div></div></section>`;
+      <div class="dx-side"><button type="button" class="pill" data-dxgo="${esc(u)}" style="align-self:flex-start">Все конкуренты страницы <span class="arrow">↗</span></button></div></div></section>`;
 }
 // отметка «прямой» на карточках постов и строках таблиц, когда comp.json догрузился
 function markDirect(root = document) {
@@ -2196,15 +2177,15 @@ function markDirect(root = document) {
   });
 }
 /* ---------- раздел «Конкуренты»: четыре вопроса — по одному на отдел ----------
-   Кто нас обгоняет (руководство) · Что снимать (контент) · Кому продавать (продажи) · Справочник (поиск по всем).
+   Рост страниц · Удачные посты · Список контент-отдела · Справочник.
    Каждая плитка отвечает на свой вопрос; цифры без вывода сюда не попадают. */
 function dxData() {
   const C = CAI(); if (!C?.direct?.length) return null;
   const D = C.direct, P = dxPages(D), byO = new Map(P.map(x => [x.o, x]));
   if (S.dxOwn && !byO.has(S.dxOwn)) S.dxOwn = null;
   const lag = P.filter(x => x.gap != null && x.gap < 0), cmp = P.filter(x => x.gap != null);
-  const brands = S.radar ? brandsAt(D.map(d => d.u)) : null;
-  return { C, D, P, byO, lag, cmp, brands, hits: (S.viral || []).filter(p => D.some(d => d.u === p.u)).length };
+
+  return { C, D, P, byO, lag, cmp, hits: (S.viral || []).filter(p => D.some(d => d.u === p.u)).length };
 }
 const noCai = t => `<section class="t s12"><div class="lab">${t}</div><div class="headline">Подбор прямых конкурентов (ИИ Gemini) ещё не выгружен.</div><div class="empty-t">Появится после первого прогона competitor_ai на сервере.</div></section>`;
 // 1 · Кто нас обгоняет
@@ -2228,8 +2209,7 @@ function renderGrow() {
           <div class="lab">Рост подписчиков за 7 дней</div>${raceHtml(o, cs)}`
         : `<h3>${lag.length ? `<em class="lag">${lag.length} из ${cmp.length}</em> наших страниц растут медленнее своих прямых конкурентов` : "Все наши страницы растут быстрее своих прямых конкурентов"}</h3>${gapHtml(P)}`}</div>
       <div class="dx-side">${o ? `
-        <div class="dx-pane"><div class="lab">Что у них заходит</div>${hotHtml(csD)}</div>
-        <div class="dx-pane"><div class="lab">Кто у них рекламируется</div>${brandsHtml(csD.map(d => d.u), o, 4)}</div>`
+        <div class="dx-pane"><div class="lab">Что у них заходит</div>${hotHtml(csD)}</div>`
         : `<div class="dx-pane"><div class="lab">Быстрее всех растут · 7 дней</div>${fastHtml(D)}</div>`}
       </div></div></section>`);
   const ins = S.insights.find(i => i.type === "comp" && has(i));
@@ -2290,66 +2270,52 @@ function renderContent() {
   el.innerHTML = X.join("");
   addGain($("vt-trkin"));
 }
-// иконки категорий рекламодателей (радар): цвет + линейная иконка 24×24
-const CATI = {
-  "Медиа и стриминг": ["#8EA0FF", '<rect x="3" y="5" width="18" height="12" rx="2.5"/><path d="m10 9 5 2.5-5 2.5z"/><path d="M8 20h8"/>'],
-  "Товары": ["#FFB38A", '<path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>'],
-  "Еда и напитки": ["#F7C948", '<path d="M7 3v8a2 2 0 0 0 2 2V21"/><path d="M11 3v8"/><path d="M17 21V3c-2 1.5-3 4-3 7h3"/>'],
-  "Мода и красота": ["#F49AC1", '<path d="M8 4 4 7l2 4 2-1v10h8V10l2 1 2-4-4-3c-.5 1.5-2 2.5-4 2.5S8.5 5.5 8 4z"/>'],
-  "ИИ и софт": ["#CFC2FF", '<path d="M12 3c.6 3.8 2.2 5.4 6 6-3.8.6-5.4 2.2-6 6-.6-3.8-2.2-5.4-6-6 3.8-.6 5.4-2.2 6-6z"/><path d="M18.5 15c.3 1.6 1 2.2 2.5 2.5-1.6.3-2.2 1-2.5 2.5-.3-1.6-1-2.2-2.5-2.5 1.6-.3 2.2-1 2.5-2.5z"/>'],
-  "Спорт": ["#9BE7C4", '<circle cx="12" cy="12" r="8.5"/><path d="M3.8 9.5c4 .3 7.5 2.5 9.2 11M20.2 9.5c-4 .3-7.5 2.5-9.2 11M7 4.5c3 2 7 2 10 0"/>'],
-  "Приложения": ["#D2F35B", '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/>'],
-  "Игры": ["#FF8A65", '<path d="M7 7h10a4.5 4.5 0 0 1 4.4 5.5l-1 4.4a2.3 2.3 0 0 1-4 1L14.5 16h-5l-1.9 1.9a2.3 2.3 0 0 1-4-1l-1-4.4A4.5 4.5 0 0 1 7 7z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.5" cy="11" r=".6"/><circle cx="17" cy="13" r=".6"/>'],
-  "Финансы и крипта": ["#7DD3A8", '<circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.8-2.8 2.1 0 3 5.6 1.4 5.6 4.3 0 1.3-1.2 2.1-2.8 2.1-1.3 0-2.4-.6-2.9-1.5M12 6.2v1.6M12 16.9v1.6"/>'],
-  "Образование": ["#8ED1FC", '<path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11v4.5c1.5 1.5 3.5 2.2 5.5 2.2s4-.7 5.5-2.2V11"/>'],
-  "Другое": ["#D6D3CC", '<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.5 1.5 0 0 1 0 2.1l-6.2 6.2a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.4"/>'],
-};
-const catIco = (c, sz = 18) => { const [col, path] = CATI[c] || CATI["Другое"]; return `<span class="ci" style="--cc:${col};--cs:${sz}px" title="${esc(c || "Другое")}"><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg></span>`; };
-// 3 · Кому продавать: бренды, которые платят прямым конкурентам, — по нашим страницам, с медиакитом
-function renderSales() {
-  const X0 = dxData(), el = $("sbento");
-  if (!X0) { el.innerHTML = S.compLoading ? skelComp() : noCai("Кому продавать"); return; }
-  if (!window.__PUBLIC_DATA) { el.innerHTML = `<section class="t s12"><div class="lab">Кому продавать</div><div class="empty-t">Рекламодатели видны на опубликованном сайте.</div></section>`; return; }
-  if (!S.radar) { radarIdx(); el.innerHTML = skelComp(); return; }
-  const { D, P, brands } = X0, fresh = brands.filter(b => b.fresh);
-  const rows = P.map(x => { const cs = compsOf(x.o, D).map(([d]) => d.u); return { ...x, B: brandsAt(cs), cs }; }).filter(x => x.B.length).sort((a, b) => b.B.length - a.B.length);
-  const lim = S.sAll ? rows.length : 10;
-  const X = [];
-  X.push(`<section class="t ink s5"><div class="lab">Тёплые лиды <span class="tag">из радара</span></div>
-    <div class="huge" data-n="${brands.length}" data-fmt="int">${brands.length}</div>
-    <div class="sub">${plu(brands.length, "бренд платит", "бренда платят", "брендов платят")} пабликам, почти таким же, как наши. Им проще всего продать: формат и аудитория уже проверены их деньгами.${fresh.length ? ` <b style="color:var(--lime)">${fresh.length} ${plu(fresh.length, "новый", "новых", "новых")} за 3 дня.</b>` : ""}</div>
-    <div class="sl-sum"><div><b>${fresh.length}</b><span>новых за 3 дня</span></div><div><b>${brands.filter(b => b.hosts.length >= 3).length}</b><span>платят 3+ конкурентам</span></div><div><b>${new Set(brands.map(b => b.cat)).size}</b><span>категорий</span></div></div>
-    <div class="lnks"><a class="lnk" href="radar.html" target="_blank" rel="noopener">Все рекламодатели в радаре ↗</a></div></section>`);
-  const top = brands.slice(0, 6);
-  X.push(`<section class="t lime s7"><div class="lab">Платят сразу нескольким нашим конкурентам</div>
-    <div class="sl-top">${top.map((b, j) => `<a class="sl-tb" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener" style="--j:${j}">${catIco(b.cat, 20)}<span class="w"><b>${esc(b.brand)}</b><span>${b.fresh ? '<span class="fr">новый · </span>' : ""}${esc(b.cat)}</span></span><span class="n"><b>${b.hosts.length}</b>${plu(b.hosts.length, "площадка", "площадки", "площадок")}</span></a>`).join("")}</div></section>`);
-  // разбивка тёплых лидов по категориям: с какими рекламодателями говорить в первую очередь
-  const byCat = new Map(); for (const b of brands) byCat.set(b.cat || "Другое", (byCat.get(b.cat || "Другое") || 0) + 1);
-  const CC = [...byCat].sort((a, b) => b[1] - a[1]), cmx = Math.max(1, ...CC.map(x => x[1]));
-  X.push(`<section class="t s12"><div class="lab">Тёплые лиды по категориям <span class="tag">${brands.length} ${plu(brands.length, "бренд", "бренда", "брендов")}</span></div>
-    <div class="sl-cats">${CC.map(([c, n], j) => { const L = brands.filter(b => (b.cat || "Другое") === c).sort((a, b) => b.hosts.length - a.hosts.length);
-      return `<div class="sl-cat" style="--j:${j};--cc:${(CATI[c] || CATI["Другое"])[0]}"><div class="hd">${catIco(c, 18)}<span class="nm">${esc(c)}</span><b>${n}</b></div>
-        <div class="scb"><i style="width:${(n / cmx * 100).toFixed(1)}%"></i></div>
-        <div class="who">${L.slice(0, 3).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${esc(b.brand)}</a>`).join("")}${L.length > 3 ? `<span>+${L.length - 3}</span>` : ""}</div></div>`; }).join("")}</div></section>`);
-  // кому какую страницу предлагать: бренды, которые платят почти всем нашим нишам, — одной строкой сверху;
-  // у страницы — только её «свои» бренды: чем большей доле ИМЕННО её конкурентов бренд платит (и чем реже у других), тем выше
-  const share = new Map(); for (const x of rows) for (const b of x.B) share.set(b.key, (share.get(b.key) || 0) + 1);
-  const wide = brands.filter(b => (share.get(b.key) || 0) >= Math.max(3, rows.length * .4)).sort((a, b) => share.get(b.key) - share.get(a.key));
-  const wideK = new Set(wide.map(b => b.key));
-  const cardsP = rows.map(x => { const own = x.B.filter(b => !wideK.has(b.key)).map(b => ({ ...b, sc: b.hosts.length / x.cs.length / ((share.get(b.key) || 1) / rows.length) })).sort((a, b) => b.sc - a.sc);
-    return { ...x, own }; }).filter(x => x.own.length).sort((a, b) => b.own.length - a.own.length || b.B.length - a.B.length);
-  const lim2 = S.sAll ? cardsP.length : 9;
-  X.push(`<section class="t s12"><div class="lab">Какую нашу страницу кому предлагать <span class="tag">по брендам, которые уже платят её прямым конкурентам</span></div>
-    ${wide.length ? `<div class="sp-wide"><span class="k">Платят почти всем нашим нишам — предлагать любую страницу:</span>${wide.slice(0, 8).map(b => `<a href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${catIco(b.cat, 14)}${esc(b.brand)}<em>${share.get(b.key)}/${rows.length}</em></a>`).join("")}</div>` : ""}
-    <div class="sp-grid">${cardsP.slice(0, lim2).map((x, j) => `<div class="sp-c" style="--j:${Math.min(j, 12)}">
-      <button type="button" class="sp-h" data-u="${esc(x.o)}"><span class="sl-av">${esc((x.o.match(/[a-z0-9]/i) || ["@"])[0].toUpperCase())}</span><span class="w"><b>@${esc(x.o)}</b><span>${compact(ownF(x.o))} · ${esc(x.niche)}</span></span></button>
-      <div class="sp-k">Особенно подходит</div>
-      ${x.own.slice(0, 3).map(b => `<a class="sp-b" href="radar.html#b=${encodeURIComponent(b.key)}" target="_blank" rel="noopener">${catIco(b.cat, 16)}<span class="w"><b>${esc(b.brand)}${b.fresh ? ' <i title="новый за 3 дня"></i>' : ""}</b><span>платит ${b.hosts.length} из ${x.cs.length} её прямых конкурентов</span></span><span class="bar2"><i style="width:${Math.min(100, b.hosts.length / x.cs.length * 100).toFixed(0)}%"></i></span></a>`).join("")}
-      ${x.own.length > 3 ? `<div class="sp-more">ещё ${x.own.length - 3}: ${x.own.slice(3, 7).map(b => esc(b.brand)).join(", ")}${x.own.length > 7 ? "…" : ""}</div>` : ""}</div>`).join("")}</div>
-    ${cardsP.length > 9 ? `<button type="button" class="linkbtn" data-sall="1" style="align-self:flex-start">${S.sAll ? "Свернуть" : `Все ${cardsP.length} страниц`}</button>` : ""}
-    <p class="foot">Полоска — какой доле прямых конкурентов этой страницы бренд уже платит. Выше в карточке — бренды, характерные именно для её ниши. Клик по бренду — карточка в радаре, по странице — её цифры и конкуренты.</p></section>`);
-  el.innerHTML = X.join("");
+// Список контент-отдела: фиксированные аккаунты и подгруппы из таблицы.
+function curatedPosts() {
+  const C = S.curated, group = S.ccGroup || "all", format = S.ccFormat || "car";
+  const users = new Set(group === "all" ? (C.acc || []).map(a => a.u) : (C.groups.find(g => g.name === group)?.accounts || []));
+  return (C.posts || []).filter(p => users.has(p.u) && (format === "all" || p.k === format));
 }
+function ccPostCard(p) {
+  return `<a class="cc-post" href="${igPost(p)}" target="_blank" rel="noopener"><div class="cc-cover">${p.th ? `<img src="${esc(p.th)}" loading="lazy" alt="Пост @${esc(p.u)}" onerror="this.hidden=true">` : ""}<span class="cc-placeholder">${p.k === "car" ? "▤" : p.k === "reel" ? "▷" : "↗"}</span><span class="cc-format">${p.k === "car" ? "Карусель" : p.k === "reel" ? "Reels" : "Пост"}</span>${p.r >= 3 ? `<span class="cc-ratio">${xx(p.r)} к обычному</span>` : ""}<span class="cc-open">↗</span></div><div class="cc-caption"><b>@${esc(p.u)}</b><span>${dShort(p.d)} · ${p.pl != null ? compact(p.pl) + " просмотров" : fmt(p.l) + " лайков"}</span><p>${esc((p.x || "Без подписи").slice(0, 150))}</p><div class="cc-poststats"><span>♡ ${fmt(p.l)}</span><span>◌ ${fmt(p.cm)}</span></div></div></a>`;
+}
+function ccSpark(a) {
+  const h = a.h || [], vs = h.filter(x => x != null);
+  if (vs.length < 2) return '<div class="cc-await">История замеров накапливается</div>';
+  const lo = Math.min(...vs), span = Math.max(...vs) - lo || 1; let d = "", gap = true;
+  h.forEach((v, i) => { if (v == null) { gap = true; return; } d += `${gap ? "M" : "L"}${(i / Math.max(1, h.length - 1) * 500).toFixed(1)},${(58 - (v - lo) / span * 50).toFixed(1)} `; gap = false; });
+  return `<svg class="cc-spark" viewBox="0 0 500 66" preserveAspectRatio="none" aria-label="Подписчики за 7 дней"><path d="${d}" fill="none" stroke="${vs.at(-1) >= vs[0] ? 'var(--up)' : 'var(--down)'}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function renderCurated() {
+  const el = $("ccbento"), C = S.curated;
+  if (!C) { el.innerHTML = S.ccError ? `<section class="t s12"><div class="lab">Контент Карусели</div><div class="headline">Не удалось загрузить список</div><p class="sub">Основные разделы продолжают работать. Повторите загрузку.</p><button class="pill" data-ccretry>Повторить ↗</button></section>` : skelComp(); return; }
+  const group = S.ccGroup || "all", format = S.ccFormat || "car", query = S.ccQuery || "", sort = S.ccSort || "d1";
+  const users = new Set(group === "all" ? C.acc.map(a => a.u) : (C.groups.find(g => g.name === group)?.accounts || []));
+  const accounts = C.acc.filter(a => users.has(a.u) && (a.u + " " + a.name).toLowerCase().includes(query.toLowerCase())).sort((a,b) => (b[sort] ?? -Infinity) - (a[sort] ?? -Infinity));
+  const posts = curatedPosts().filter(p => !query || accounts.some(a => a.u === p.u)).sort((a,b) => (b.r || 0) - (a.r || 0) || (b.pl ?? b.l ?? 0) - (a.pl ?? a.l ?? 0));
+  const hot = posts.filter(p => p.r >= 3), fresh = accounts.filter(a => a.last && Math.abs(Date.now() - Date.parse(a.last + '+03:00')) < 72e5).length;
+  const previews = posts.filter(p => p.th).slice(0,3);
+  const tile = (a, i) => `<button class="t s4 cc-account" data-ccu="${esc(a.u)}" style="--i:${i}"><div class="lab">${esc(C.groups.filter(g => g.accounts.includes(a.u)).map(g => g.name).join(' · '))}<span class="cc-arrow">↗</span></div><h3>@${esc(a.u)}</h3><div class="cc-name">${esc(a.name || 'Контент-конкурент')}</div><div class="cc-kpis"><div><b>${compact(a.f)}</b><span>подписчиков</span></div><div><b class="${cls(a.d1)}">${signed(a.d1, compact)}</b><span>за сутки</span></div><div><b class="${cls(a.d7)}">${signed(a.d7, compact)}</b><span>за неделю</span></div></div>${ccSpark(a)}<div class="cc-foot"><span>${fmt(a.p7)} собрано постов / 7 дней</span><span>${a.last ? 'замер ' + tWhen(a.last) : 'ждёт замера'}</span></div></button>`;
+  el.innerHTML = `<section class="t ink s7 cc-hero"><div class="lab">Контент-отделу <span class="tag">список Даниила</span></div><div class="headline">Смотреть контент.<br>Находить то, что растёт.</div><p class="sub">${C.acc.length} выбранных аккаунтов, ${C.groups.length} подгрупп. Рост аудитории, карусели и удачные публикации — в одном месте, без рекламных подборок.</p><div class="cc-hero-bottom"><span class="cc-live"><i></i>${fresh} из ${accounts.length} с замером за 2 часа</span><span>${esc(C.at?.includes('T') ? 'Выгрузка ' + tWhen(C.at.slice(0,16)) : 'Новый список · история накапливается')}</span></div></section><section class="t lime s5 cc-summary"><div class="lab">${group === 'all' ? 'Все подгруппы' : esc(group)}</div><div class="cc-summary-n"><span data-n="${accounts.length}" data-fmt="int">${accounts.length}</span><small>аккаунтов</small></div><div class="cc-summary-row"><div><b>${posts.length}</b><span>${format === 'car' ? 'каруселей' : format === 'reel' ? 'Reels' : 'публикаций'} в выборке</span></div><div><b>${hot.length}</b><span>подтверждённых залётов</span></div></div>${previews.length ? `<div class="cc-mini">${previews.map((p,i)=>`<img src="${esc(p.th)}" alt="" style="--k:${i}" loading="lazy">`).join('')}</div>` : ''}</section>
+    <div class="chips2 s12 cc-groups">${[['all','Все подгруппы'],...C.groups.map(g=>[g.name,g.name])].map(([k,n])=>`<button class="chip" data-ccgroup="${esc(k)}" aria-pressed="${group===k}">${esc(n)}${k==='all'?'':` <small>${C.groups.find(g=>g.name===k).accounts.length}</small>`}</button>`).join('')}</div>
+    <section class="t s12 cc-toolbar"><div><div class="lab">Выбранные конкуренты</div><h2>Аудитория и темп роста</h2></div><div class="cc-controls"><input id="ccSearch" aria-label="Найти контент-конкурента" placeholder="Найти аккаунт…" value="${esc(query)}"><select id="ccSort" aria-label="Порядок аккаунтов">${[['d1','Рост за сутки'],['d7','Рост за неделю'],['f','Подписчики'],['p7','Посты за неделю']].map(([k,n])=>`<option value="${k}" ${sort===k?'selected':''}>${n}</option>`).join('')}</select></div></section>
+    ${accounts.slice(0,S.ccLimit||12).map(tile).join('') || '<section class="t s12"><p class="empty-t">По этому запросу аккаунтов нет.</p></section>'}${accounts.length>(S.ccLimit||12)?`<div class="s12 cc-more"><button class="pill" data-ccmore>Все ${accounts.length} аккаунтов <span class="arrow">↓</span></button></div>`:''}
+    <section class="t s12 cc-gallery"><div class="cc-gallery-head"><div><div class="lab">Библиотека контента · 7 дней</div><h2>Что можно взять за основу</h2></div><div class="seg">${[['car','Карусели'],['reel','Reels'],['all','Все посты']].map(([k,n])=>`<button data-ccformat="${k}" aria-pressed="${format===k}">${n}</button>`).join('')}</div></div><p class="cc-explain">Сначала — посты с наибольшим превышением обычного результата, затем по просмотрам или лайкам. Залёт — от 3× к медиане последних 30 публикаций того же формата; минимум 5 постов для сравнения.</p><div class="cc-postgrid">${posts.slice(0,S.ccPostLimit||12).map(ccPostCard).join('') || '<div class="empty-t">В этом формате пока нет собранных публикаций. Выберите «Все посты» или дождитесь следующего обхода.</div>'}</div>${posts.length>(S.ccPostLimit||12)?'<button class="pill cc-load" data-ccpostmore>Ещё публикации ↓</button>':''}</section>
+    <section class="t stone s12 cc-method"><span class="cc-method-icon">↗</span><div><b>Рост виден в цифрах. Причину проверяем по контенту.</b><p>В карточке аккаунта — почасовые замеры и история по дням. Прирост рядом с публикацией не доказывает, что подписки пришли именно с неё. Где замеров нет, оставляем пропуски.</p></div></section>`;
+  window.akmReveal?.(el);
+}
+function loadCurated() {
+  if (S.ccLoading) return; S.ccLoading = true; S.ccError = false;
+  fetch('data/content_competitors.json?t=' + Date.now()).then(r => { if(!r.ok) throw Error(r.status); return r.json(); }).then(C => { S.curated = C; renderCurated(); cqNums(); if(S.cMode==='curated') enter($('cCurated')); }).catch(() => { S.ccError = true; renderCurated(); }).finally(() => { S.ccLoading = false; });
+}
+function openCurated(u) {
+  const C=S.curated,a=C?.acc.find(a=>a.u===u); if(!a)return;
+  const posts=(C.posts||[]).filter(p=>p.u===u).sort((a,b)=>(b.r||0)-(a.r||0)||(b.pl??b.l??0)-(a.pl??a.l??0));
+  const start=Date.parse(C.start+':00+03:00'), series=(a.h||[]).map((v,i)=>[new Date(start+i*36e5+3*36e5).toISOString().slice(0,16),v]);
+  $('accBody').innerHTML=`<div class="dgrid"><section class="t ink d3 cc-dialog-head"><button class="x" data-close aria-label="Закрыть">×</button><div class="lab">Контент Карусели</div><h2 id="accTitle" class="cc-dialog-title">@${esc(u)}</h2><p class="sub">${esc(a.name)}</p><div class="big">${compact(a.f)}</div><p class="sub">подписчиков · замер ${tWhen(a.last)}</p><a class="lnk" href="https://www.instagram.com/${encodeURIComponent(u)}/" target="_blank" rel="noopener">Страница Instagram ↗</a></section><section class="t lime d3"><div class="lab">Изменение аудитории</div><div class="big">${signed(a.d1,compact)}</div><p class="sub">за сутки</p><div class="cc-kpis"><div><b>${signed(a.d7,compact)}</b><span>за неделю</span></div><div><b>${fmt(a.p7)}</b><span>собрано постов / 7 дней</span></div></div></section><section class="t d6"><div class="lab">Подписчики по часам · 7 дней</div>${hcSlot(series,{h:220})}</section><section class="t d6"><div class="lab">Подписчики по дням · 30 дней</div><div id="ccDaily"></div></section><section class="t d6"><div class="lab">Публикации аккаунта</div><div class="cc-postgrid">${posts.slice(0,30).map(ccPostCard).join('')||'<p class="empty-t">Посты ещё собираются.</p>'}</div></section></div>`;
+  openDlg($('accDlg')); hcMount($('accDlg')); chart($('ccDaily'),(a.ds||[]).map(([d,y])=>({d,y})),{h:180});
+}
+
 // 4 · Справочник: все конкуренты — карточки прямых, отслеживаемые, общий рейтинг; поиск и ниши
 function renderRef() {
   const M = S.cM, el = $("rbento");
@@ -2360,19 +2326,19 @@ function renderRef() {
   const C = CAI();
   if (C?.direct?.length) {
     const D = C.direct.filter(d => !inN || inN.has(d.u)), q = (S.dxQ || "").toLowerCase();
-    const by = { p: (x, y) => y.p - x.p, w: (x, y) => (dxG(y) ?? -1e9) - (dxG(x) ?? -1e9), f: (x, y) => (y.f || 0) - (x.f || 0), a: (x, y) => adsOf(y.u).length - adsOf(x.u).length || y.p - x.p };
+    const by = { p: (x, y) => y.p - x.p, w: (x, y) => (dxG(y) ?? -1e9) - (dxG(x) ?? -1e9), f: (x, y) => (y.f || 0) - (x.f || 0) };
     const list = D.filter(d => !q || (d.u + " " + (d.name || "") + " " + (d.v?.n || "") + " " + d.o).toLowerCase().includes(q)).sort(by[S.dxSort] || by.p), n = S.dxMore || 12;
-    const card = (d, j) => { const g = dxG(d), ads = adsOf(d.u).length, more = d.m.filter(([x, p]) => x !== d.o && p >= C.min).length, cov = (d.cov || []).filter(x => x.th).slice(0, 3);
+    const card = (d, j) => { const g = dxG(d), more = d.m.filter(([x, p]) => x !== d.o && p >= C.min).length, cov = (d.cov || []).filter(x => x.th).slice(0, 3);
       return `<button type="button" class="dx-card" data-dxu="${esc(d.u)}" style="--j:${Math.min(j, 16)}" aria-label="@${esc(d.u)}, похожесть ${d.p}%">
       <span class="dx-ch">${dxAv(d)}<span class="dx-cu"><b>@${esc(d.u)}</b><span>${compact(d.f)}${g != null ? ` · <span class="${cls(g)}">${pct2(g)}</span> / нед.` : ""}</span></span>${dxRing(d.p)}</span>
       <span class="dx-own">похож на @${esc(d.o)}${more ? ` <small>и ещё ${more}</small>` : ""}</span>
       <span class="dx-why">${esc(dxWhy(d))}</span>${dxWeak(d.j)}
       ${cov.length === 3 ? `<span class="dx-strip">${cov.map(x => `<span><img src="${esc(x.th)}" alt="" loading="lazy">${dxNum(x) ? `<em>${dxNum(x)}</em>` : ""}</span>`).join("")}</span>` : ""}
-      <span class="dx-cf"><span class="dx-nic">${esc(d.v?.n || "")}${d.ppd ? ` · ${d.ppd.toLocaleString("ru-RU", { maximumFractionDigits: 1 })} пост./день` : ""}</span>${ads ? `<span class="dx-ads" title="Брендов, которые здесь рекламировались (радар)">реклама · ${ads}</span>` : ""}</span></button>`; };
+      <span class="dx-cf"><span class="dx-nic">${esc(d.v?.n || "")}${d.ppd ? ` · ${d.ppd.toLocaleString("ru-RU", { maximumFractionDigits: 1 })} пост./день` : ""}</span></span></button>`; };
     const sb = (k, l) => `<button type="button" data-dxs="${k}" aria-pressed="${(S.dxSort || "p") === k}">${l}</button>`;
     T.push(`<section class="t s12" id="dxAll"><div class="dx-tools"><div class="lab" style="opacity:1">Прямые конкуренты · ${list.length}</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input class="search" id="dxQ" type="search" placeholder="Ник, ниша или наша страница" aria-label="Найти конкурента" value="${esc(S.dxQ || "")}">
-        <div class="seg" role="group" aria-label="Сортировка">${sb("p", "Похожесть")}${sb("w", "Рост")}${sb("f", "Размер")}${sb("a", "Реклама")}</div></div></div>
+        <div class="seg" role="group" aria-label="Сортировка">${sb("p", "Похожесть")}${sb("w", "Рост")}${sb("f", "Размер")}</div></div></div>
       <div class="dx-grid" id="dxGrid">${list.slice(0, n).map(card).join("") || `<div class="dx-empty">Никого не нашли.</div>`}</div>
       ${list.length > n ? `<button type="button" class="pill vmore" data-dxmore="1">Показать ещё · ${list.length - n}</button>` : ""}</section>`);
   }
@@ -2422,8 +2388,7 @@ function renderRef() {
 function renderComp() {
   const M = S.cM = build(S.cdays, S.cgroups);
   if ($("compCnt").textContent !== String(M.accounts.length || "")) { $("compCnt").textContent = M.accounts.length || ""; placeInd(false); }
-  radarIdx();
-  renderGrow(); renderContent(); renderSales(); renderRef();
+  renderGrow(); renderContent(); renderCurated(); renderRef();
   cqNums();
   const pg = $("pageComp"); dxImgFix(pg); markDirect(pg);
 }
@@ -2489,13 +2454,13 @@ function openTracked(u) {
 }
 // режим раздела «Конкуренты»: отслеживаемые (контент) ↔ все конкуренты (рынок, для рекламщиков)
 // карточки-вопросы наверху раздела: живая цифра-ответ на каждой
-const CMODES = { grow: "cGrow", content: "cCont", sales: "cSales", ref: "cRef" };
+const CMODES = { grow: "cGrow", content: "cCont", curated: "cCurated", ref: "cRef" };
 function cqNums() {
   const X = dxData();
   $("cqGrow").innerHTML = X ? `${X.lag.length}<small> из ${X.cmp.length}</small>` : S.compLoading ? '<i class="skw"></i>' : "—";
   $("cqGrowD").textContent = X ? "наших страниц растут медленнее своих прямых конкурентов" : "наши страницы против их прямых конкурентов";
-  $("cqSales").innerHTML = X?.brands ? String(X.brands.length) : '<i class="skw"></i>';
-  $("cqSalesD").textContent = X?.brands ? `${plu(X.brands.length, "бренд платит", "бренда платят", "брендов платят")} похожим пабликам — какую нашу страницу им предложить` : "бренды, которые платят похожим пабликам";
+  $("cqCurated").textContent = S.curated ? String(S.curated.acc.length) : "—";
+  $("cqCuratedD").textContent = S.curated ? `${S.curated.groups.length} подгрупп · рост подписчиков и удачные карусели` : "Подгруппы, рост аудитории и карусели из списка Даниила";
   $("cqRef").innerHTML = S.cM?.accounts.length ? fmt(S.cM.accounts.length + (TK().acc || []).filter(a => !S.cM.accounts.some(x => x.u === a.u)).length) : '<i class="skw"></i>';
   const th = [...(TK().hot || []).map(tPost), ...(S.viral || []).filter(p => !p.own)].filter(p => p?.th).slice(0, 3);
   $("cqArt").innerHTML = th.map((p, i) => `<img src="${esc(p.th)}" alt="" style="--k:${i - (th.length - 1) / 2}">`).join("");
@@ -2503,6 +2468,7 @@ function cqNums() {
 function setCMode(m, animate = true) {
   if (!CMODES[m]) m = "grow";
   const prev = S.cMode; S.cMode = m;
+  if (S.page === "comp") history.replaceState(null, "", m === "curated" ? "#content-carousels" : "#competitors");
   try { localStorage.setItem("comp.mode", m); } catch (e) {}
   document.querySelectorAll("#cmode [data-cmode]").forEach(b => { b.setAttribute("aria-selected", b.dataset.cmode === m); b.classList.toggle("on", b.dataset.cmode === m); });
   const show = () => { for (const k in CMODES) $(CMODES[k]).hidden = k !== m; };
@@ -2546,7 +2512,7 @@ window.akmCount = countUp;
 const PAGES = { net: { el: "pageNet", hash: "#network", title: "Статистика сетки" },
   cont: { el: "pageCont", hash: "#content", title: "Контент" },
   comp: { el: "pageComp", hash: "#competitors", title: "Конкуренты" } };
-const pageOf = h => h === "#tracked" || h === "#direct" ? "comp" : Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
+const pageOf = h => h === "#tracked" || h === "#direct" || h === "#content-carousels" ? "comp" : Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
 // #direct — сразу «Все конкуренты» → «Прямые конкуренты» (ссылка из окна «Что нового»)
 function toDirect() { if (S.cMode !== "grow") setCMode("grow", false); setTimeout(() => document.querySelector(".dx-hero")?.scrollIntoView({ behavior: "smooth", block: "start" }), 450); }
 function showPage(p) {
@@ -2579,11 +2545,25 @@ function go(p) {
   }, 190);
 }
 $("nav").addEventListener("click", e => { const a = e.target.closest("a[data-p]"); if (!a) return; e.preventDefault(); history.replaceState(null, "", a.getAttribute("href")); go(a.dataset.p); });
-window.addEventListener("hashchange", () => { if (location.hash === "#direct") { if (S.page === "comp") toDirect(); else { setCMode("grow", false); go("comp"); } return; }
+window.addEventListener("hashchange", () => { if (location.hash === "#content-carousels") { setCMode("curated", false); go("comp"); return; } if (location.hash === "#direct") { if (S.page === "comp") toDirect(); else { setCMode("grow", false); go("comp"); } return; }
   if (location.hash === "#tracked" && S.cMode !== "content") setCMode("content", false);
   go(pageOf(location.hash)); });
 window.addEventListener("resize", () => placeInd(false));
 $("cmode").addEventListener("click", e => { const b = e.target.closest("[data-cmode]"); if (b && b.dataset.cmode !== S.cMode) setCMode(b.dataset.cmode); });
+
+$('cCurated').addEventListener('click', e => {
+  const b=e.target.closest('[data-ccgroup],[data-ccformat],[data-ccu],[data-ccmore],[data-ccpostmore],[data-ccretry]'); if(!b)return;
+  if(b.hasAttribute('data-ccretry')) { loadCurated(); return; }
+  if(b.dataset.ccu) { openCurated(b.dataset.ccu); return; }
+  if(b.dataset.ccgroup) { S.ccGroup=b.dataset.ccgroup; S.ccLimit=12; S.ccPostLimit=12; }
+  if(b.dataset.ccformat) { S.ccFormat=b.dataset.ccformat; S.ccPostLimit=12; }
+  if(b.hasAttribute('data-ccmore')) S.ccLimit=S.curated.acc.length;
+  if(b.hasAttribute('data-ccpostmore')) S.ccPostLimit=(S.ccPostLimit||12)+12;
+  const y=scrollY; renderCurated(); scrollTo(0,y); if(b.dataset.ccgroup) enter($('cCurated'));
+});
+$('cCurated').addEventListener('change',e=>{if(e.target.id==='ccSort'){S.ccSort=e.target.value;renderCurated();}});
+$('cCurated').addEventListener('input',e=>{if(e.target.id!=='ccSearch')return; const v=e.target.value,pos=e.target.selectionStart;S.ccQuery=v;S.ccLimit=12;clearTimeout(S.ccSearchTimer);S.ccSearchTimer=setTimeout(()=>{renderCurated();const q=$('ccSearch');q.focus({preventScroll:true});q.setSelectionRange(pos,pos);},150);});
+
 // все действия внутри раздела «Конкуренты» — один обработчик
 const compPages = $("pageComp");
 compPages.addEventListener("click", e => {
@@ -2926,9 +2906,10 @@ if (location.hash === "#embed-table") {
   const post = () => parent.postMessage({ akmTableH: document.documentElement.scrollHeight }, "*");
   new ResizeObserver(post).observe(document.body); addEventListener("load", post);
 }
-try { const m = localStorage.getItem("comp.mode"); S.cMode = { trk: "content", all: "grow" }[m] || (CMODES[m] ? m : "grow"); } catch (e) {}
+try { const m = localStorage.getItem("comp.mode"); S.cMode = { trk: "content", all: "grow", sales: "curated" }[m] || (CMODES[m] ? m : "grow"); } catch (e) {}
 if (location.hash === "#tracked") S.cMode = "content";
 if (location.hash === "#direct") S.cMode = "grow";
+if (location.hash === "#content-carousels") S.cMode = "curated";
 setCMode(S.cMode, false);
 showPage(pageOf(location.hash));
 placeInd(false);
@@ -2943,6 +2924,7 @@ if (window.__PUBLIC_DATA) {
   if (D.aiUrl) { $("aiForm").classList.add("on"); $("aiSub").textContent = "Готовые разборы — карточками, или спросите своими словами."; }
   S.compLoading = !D.cdays;
   reveal();
+  loadCurated();
   // конкуренты — отдельный файл, догружается после показа страницы
   if (!D.cdays) fetch("data/comp.json?t=" + Date.now()).then(r => r.json()).then(C => {
     S.cdays = C.cdays || []; S.extra.cscore = C.cscore || {}; S.extra.tracked = C.tracked || S.extra.tracked; S.extra.cai = C.cai || null;
@@ -3114,7 +3096,7 @@ const NEWS = {
   cta: "Открыть",
   href: "index.html#content",
   // мини-превью: [подпись, плашка, приглушить]
-  demo: [["Как вести контент", "по каждой странице"], ["Готовые ИИ-разборы", "Gemini"], ["Карусели и нарезки", "конкуренты"], ["Иконки рекламодателей", "продажам", true]],
+  demo: [["Как вести контент", "по каждой странице"], ["Готовые ИИ-разборы", "Gemini"], ["Карусели и нарезки", "конкуренты"]],
 };
 const NEWS_SHOWS = 2;
 const KEY = "akm_news_" + NEWS.id;
