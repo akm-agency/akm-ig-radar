@@ -1,4 +1,115 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>AKM · панель управления</title>
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><!--akm-gate--><meta name="robots" content="noindex"><script>/* Вход по пинкоду и расшифровка данных сайта (пара к site_crypto.py). export_pages подставляет a48e70ac1f6407cbb092d17883153692.
+   Ключ после верного пинкода хранится в браузере (localStorage + cookie на год), пинкод запоминает менеджер паролей. */
+(() => {
+const SALT = "akm-ig-radar-v1", ITER = 150000, CHECK = "a48e70ac1f6407cbb092d17883153692", NAME = "akm_k";
+const enc = s => new TextEncoder().encode(s);
+const hex = b => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const W = new Uint32Array(64);
+function sha256(msg) {   // синхронный SHA-256: ключевой поток — тысячи коротких хешей, WebCrypto для этого слишком медленный
+  const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(nb);
+  m.set(msg); m[l] = 0x80; const bits = l * 8;
+  m[nb - 4] = bits >>> 24; m[nb - 3] = bits >>> 16; m[nb - 2] = bits >>> 8; m[nb - 1] = bits; m[nb - 5] = Math.floor(bits / 2 ** 32);
+  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a, h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+  for (let o = 0; o < nb; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = (m[o + i * 4] << 24) | (m[o + i * 4 + 1] << 16) | (m[o + i * 4 + 2] << 8) | m[o + i * 4 + 3];
+    for (let i = 16; i < 64; i++) {
+      const a = W[i - 15], b = W[i - 2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3), s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      W[i] = (W[i - 16] + s0 + W[i - 7] + s1) | 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7)), ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + W[i]) | 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10)), mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+  }
+  const out = new Uint8Array(32), dv = new DataView(out.buffer);
+  [h0, h1, h2, h3, h4, h5, h6, h7].forEach((x, i) => dv.setUint32(i * 4, x >>> 0));
+  return out;
+}
+const cat = (...a) => { const r = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; };
+const good = k => k?.length === 32 && hex(sha256(cat(k, enc("gate")))).slice(0, 32) === CHECK;
+async function derive(pin) {
+  const base = await crypto.subtle.importKey("raw", enc(pin), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc(SALT), iterations: ITER }, base, 256));
+}
+const path = location.pathname.replace(/[^/]*$/, "");
+function stored() {
+  try { const v = localStorage.getItem(NAME); if (v) return unhex(v); } catch { /* приватный режим */ }
+  const c = document.cookie.split("; ").find(x => x.startsWith(NAME + "="));
+  return c ? unhex(c.slice(NAME.length + 1)) : null;
+}
+function remember(k) {
+  try { localStorage.setItem(NAME, hex(k)); } catch { /* без localStorage — останется cookie */ }
+  document.cookie = `${NAME}=${hex(k)}; max-age=31536000; path=${path}; SameSite=Lax; Secure`;
+}
+function decrypt(buf, k) {
+  if (String.fromCharCode(...buf.slice(0, 4)) !== "AKM1") throw new Error("файл не зашифрован");
+  const nonce = buf.slice(4, 20), ct = buf.subarray(36);
+  if (hex(sha256(cat(k, nonce, enc("ok")))).slice(0, 32) !== hex(buf.slice(20, 36))) throw new Error("неверный ключ — обновите страницу");
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(ct.length);
+  for (let i = 0, o = 0; o < ct.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, ct.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = ct[o + j] ^ s[j];
+  }
+  return out;
+}
+
+function showGate(done) {
+  const css = `#akmGate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:16px;background:radial-gradient(900px circle at 20% 10%,#2b3d34,#0f1714 60%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff}
+  #akmGate form{width:min(380px,100%);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:30px 26px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+  #akmGate .lg{font-weight:700;font-size:26px;letter-spacing:-.04em}#akmGate .lg span{color:#D5FF72}
+  #akmGate p{margin:0;font-size:14px;opacity:.72;line-height:1.4}
+  #akmGate input{font:600 24px/1 system-ui,sans-serif;letter-spacing:.3em;text-align:center;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;padding:16px 12px;outline:none}
+  #akmGate input:focus{border-color:#D5FF72;box-shadow:0 0 0 4px rgba(213,255,114,.18)}
+  #akmGate button{font:600 16px system-ui,sans-serif;border:0;border-radius:999px;padding:15px;background:#D5FF72;color:#14251E;cursor:pointer}
+  #akmGate button:disabled{opacity:.6;cursor:wait}
+  #akmGate .hint{font-size:13px;opacity:.6;text-align:center}#akmGate .err{color:#FF9A8A;font-size:13.5px;text-align:center;min-height:18px}
+  #akmGate .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #akmGate.shake form{animation:akmShake .4s}@keyframes akmShake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+  const g = document.createElement("div"); g.id = "akmGate";
+  g.innerHTML = `<style>${css}</style><form method="post" action="#" autocomplete="on">
+    <div class="lg">AKM<span>.</span></div><p>Статистика сетки — только для своих. Введите пинкод.</p>
+    <input class="sr" type="text" name="username" autocomplete="username" value="AKM" tabindex="-1" aria-hidden="true">
+    <label class="sr" for="akmPin">Пинкод</label>
+    <input id="akmPin" type="password" name="password" autocomplete="current-password" inputmode="numeric" placeholder="••••••••" required autofocus>
+    <div class="err" role="alert"></div><button type="submit">Войти</button>
+    <div class="hint">Подсказка: пароль от wifi в офисе</div></form>`;
+  const add = () => { document.body.appendChild(g); g.querySelector("#akmPin").focus(); };
+  document.body ? add() : addEventListener("DOMContentLoaded", add);
+  g.querySelector("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pin = g.querySelector("#akmPin").value.trim(), btn = g.querySelector("button"), err = g.querySelector(".err");
+    btn.disabled = true; err.textContent = "";
+    try {
+      const k = await derive(pin);
+      if (!good(k)) { err.textContent = "Неверный пинкод"; g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); return; }
+      remember(k);
+      try { if (window.PasswordCredential) await navigator.credentials.store(new PasswordCredential({ id: "AKM", password: pin, name: "AKM" })); } catch { /* браузер без Credential API */ }
+      g.remove(); done(k);
+    } catch (x) { err.textContent = "Не получилось: " + x.message; }
+    finally { btn.disabled = false; }
+  });
+}
+
+const k0 = stored();
+window.akmKey = new Promise(res => good(k0) ? res(k0) : showGate(res));
+window.akmData = async name => {
+  const k = await window.akmKey;
+  const r = await fetch("data/" + name.replace(/\.json$/, "") + ".enc?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return JSON.parse(new TextDecoder().decode(decrypt(new Uint8Array(await r.arrayBuffer()), k)));
+};
+window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
+})();
+</script><!--akm-gate--><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>AKM · панель управления</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -264,6 +375,94 @@ dialog::backdrop{background:rgba(13,13,15,.45)}
 .kv span{font-size:12px;opacity:.75}
 .kv b{font-size:22px;font-weight:600;letter-spacing:-.04em}
 .kvs{display:flex;flex-wrap:wrap;gap:16px 26px;margin-top:auto}
+/* Instagram API: герой-плитка, карта, возраст, пол, топ постов */
+:root{--geo-hi:#3557ED;--geo-lo:#E6EAF4;--geo-0:#EEF0EA;--lime-strong:#9BD12E}
+@keyframes gxIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes gxGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes gxRise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes gxPulse{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+.gx-hero{position:relative;overflow:hidden}
+.gx-hero::after{content:"";position:absolute;inset:auto -10% -60% auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(53,87,237,.45),transparent 65%);pointer-events:none}
+.gx-head{font-size:clamp(18px,2.1vw,26px);font-weight:600;letter-spacing:-.03em;line-height:1.2;margin:4px 0 18px;max-width:780px}
+.gx-head b{color:var(--lime)}
+.gx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:18px 22px;position:relative;z-index:1}
+.gx{display:flex;flex-direction:column;gap:4px;animation:gxIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j,0)*70ms)}
+.gx-l{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+.gx-v{font-size:clamp(30px,3.6vw,46px);font-weight:600;letter-spacing:-.05em;line-height:1}
+.gx-v small{font-size:.42em;margin-left:5px;opacity:.75;letter-spacing:0}
+.gx-s{font-size:12.5px;opacity:.75}
+.gx-mix,.gx-days{margin-top:22px;position:relative;z-index:1}
+.gx-mix-l{font-size:12px;opacity:.7;margin-bottom:8px}
+.gx-stack{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.gx-stack i{background:var(--c);transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.2s + var(--j)*90ms)}
+.gx-leg,.gs-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;font-size:12.5px}
+.gx-leg i,.gs-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.gx-cols{display:flex;align-items:flex-end;gap:3px;height:56px}
+.gx-cols i{flex:1;height:var(--h);min-height:2px;background:var(--lime);border-radius:3px 3px 0 0;transform-origin:bottom;animation:gxRise .7s both}
+.geo-wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,1fr);gap:22px;align-items:center}
+.geo{position:relative;min-height:180px}
+.geo svg{display:block;width:100%;height:auto}
+.geo path{stroke:#fff;stroke-width:.5;transition:filter .15s}
+.geo path[data-c]{cursor:pointer}
+.geo path[data-c]:hover{filter:brightness(.82) saturate(1.3)}
+.t.ink .geo path{stroke:var(--ink)}
+.t.ink{--geo-0:rgba(255,255,255,.07);--geo-lo:rgba(255,255,255,.12);--geo-hi:var(--lime)}
+.t.ink .geo-pin circle{fill:var(--orange)}
+.geo-pin circle{fill:var(--orange)}
+.geo-pin .geo-pulse{fill:none;stroke:var(--orange);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:gxPulse 2.2s ease-out infinite;animation-delay:calc(var(--j)*.5s)}
+.geo-skel{display:grid;place-items:center;min-height:180px;font-size:13px;opacity:.6}
+.geo-tip{position:absolute;z-index:3;pointer-events:none;background:var(--ink);color:#fff;border-radius:10px;padding:8px 11px;font-size:12.5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:150px}
+.t.ink .geo-tip{background:#fff;color:var(--ink)}
+.geo-list{display:flex;flex-direction:column;gap:7px}
+.geo-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:4px 8px;font-size:13.5px;position:relative;animation:gxIn .5s both;animation-delay:calc(var(--j)*55ms)}
+.geo-row i{grid-column:1/-1;height:5px;border-radius:3px;background:var(--geo-hi);width:var(--w);transform-origin:left;animation:gxGrow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.15s + var(--j)*55ms)}
+.geo-cc{font-size:10.5px;font-weight:700;letter-spacing:.04em;border-radius:5px;padding:2px 0;text-align:center;background:rgba(0,0,0,.07)}
+.t.ink .geo-cc{background:rgba(255,255,255,.14)}
+.geo-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.geo-cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.geo-cities span{font-size:12px;border-radius:999px;padding:4px 10px;background:rgba(0,0,0,.06)}
+.ga-cols{display:flex;align-items:flex-end;gap:10px;height:190px;margin-top:8px}
+.ga-c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%}
+.ga-c i{width:100%;height:var(--h);min-height:3px;background:var(--ink);border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:gxRise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j)*70ms)}
+.ga-c b{font-size:14px;font-weight:600}
+.ga-c span{font-size:12px;opacity:.75;white-space:nowrap}
+.gs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+.gs-donut{width:150px;height:150px;flex:none}
+.gs-donut circle{transition:stroke-dasharray .9s}
+.gs-donut text{font-size:19px;font-weight:600;fill:currentColor;letter-spacing:-.03em}
+.gs-donut .gs-sub{font-size:9px;font-weight:400;opacity:.7;letter-spacing:0}
+.gs-leg{flex-direction:column;margin:0}
+.pb{display:flex;flex-direction:column;gap:6px}
+.pb-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;color:inherit;text-decoration:none;background:rgba(0,0,0,.035);animation:gxIn .5s both;animation-delay:calc(var(--j)*45ms);transition:background .15s,transform .15s}
+.pb-row:hover{background:rgba(0,0,0,.07);transform:translateX(3px)}
+.pb-best{background:color-mix(in oklab,var(--lime) 55%,transparent)}
+.pb-best:hover{background:var(--lime)}
+.pb-n{font-size:15px;font-weight:600;opacity:.5;text-align:center}
+.pb-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pb-top{display:flex;align-items:center;gap:8px;font-size:12.5px;flex-wrap:wrap}
+.pb-k{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--ink);color:#fff}
+.pb-k.carousel{background:var(--geo-hi)}.pb-k.post{background:var(--faint)}
+.pb-t{opacity:.7}
+.pb-fire{font-size:11px;font-weight:700;color:var(--orange)}
+.pb-bar{display:flex;align-items:center;gap:10px}
+.pb-bar i{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--geo-hi),var(--orange));width:var(--w);min-width:3px;transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.1s + var(--j)*45ms)}
+.pb-bar b{font-size:13.5px;white-space:nowrap}
+.pb-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pb-chips span{font-size:12px;border-radius:999px;padding:3px 9px;background:rgba(0,0,0,.06);white-space:nowrap}
+.gt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:30px;align-items:start}
+.gt-big{font-size:clamp(46px,6vw,78px)!important}
+.gt-top{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.gt-r{display:grid;grid-template-columns:minmax(0,160px) 1fr auto;align-items:center;gap:10px;border:0;background:rgba(255,255,255,.06);color:inherit;border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer;text-align:left;animation:gxIn .5s both;animation-delay:calc(var(--j)*60ms)}
+.gt-r:hover{background:rgba(255,255,255,.14)}
+.gt-u{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;flex-direction:column}
+.gt-u small{font-size:11px;opacity:.55}
+.gt-r2 .gx-l{margin-bottom:10px}
+.gt-bar i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--lime),var(--orange));width:var(--w);transform-origin:left;animation:gxGrow .9s both;animation-delay:calc(.2s + var(--j)*60ms)}
+.gt .geo-wrap{grid-template-columns:1fr;gap:12px}
+.gt .geo-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 18px}
+.gt .geo-row i{background:var(--lime)}
+@media (max-width:820px){.geo-wrap,.gt-grid{grid-template-columns:1fr}.pb-row{grid-template-columns:22px minmax(0,1fr)}.pb-chips{grid-column:2;justify-content:flex-start}.gt .geo-list{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.gx,.gx-stack i,.gx-cols i,.geo-row,.geo-row i,.ga-c i,.pb-row,.pb-bar i,.gt-r,.gt-bar i{animation:none}.geo-pin .geo-pulse{display:none}}
 .chartbox{position:relative}
 .chartbox svg{display:block;width:100%;height:auto}
 .tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none}
@@ -1418,7 +1617,7 @@ $("meta").textContent = upd ? `Данные на ${upd.toLocaleString("ru-RU", {
 const tick = () => { const n = new Date(); $("clock").innerHTML = n.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" }) + `<span>${n.toLocaleDateString("ru-RU", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Moscow" })} · МСК</span>`; };
 tick(); setInterval(tick, 15000);
 // конкуренты и радар — отдельные файлы; ждём их немного, чтобы панель появилась один раз целиком
-const get = f => fetch("data/" + f + "?t=" + Date.now()).then(r => r.ok ? r.json() : null).catch(() => null);
+const get = f => akmData(f).catch(() => null);
 let shown = false; const fb = setTimeout(() => { shown = true; render(null, null); }, 1800);
 Promise.all([get("comp.json"), get("radar.json")]).then(([C, R]) => { clearTimeout(fb); if (!shown || C || R) render(C, R); shown = true; });
 // живой счётчик: темп каждой страницы (подписчиков в сутки) → прибавка в секунду; целое прибавилось — «+N» всплывает
@@ -1466,13 +1665,17 @@ const fail = why => {
   b.querySelector("button").onclick = () => location.reload();
   document.body.appendChild(b);
 };
+const F = "network.json";
+// закрытые страницы ждут пинкод (gate.js), и только потом грузят и расшифровывают данные; медиакит открыт
+(window.akmKey || Promise.resolve()).then(() => {
 addEventListener("error", e => { if (performance.now() < 20000) fail(e.message || "ошибка скрипта"); });   // только пока страница открывается
 const slow = setTimeout(() => { if (!window.__PUBLIC_DATA) fail("данные грузятся слишком долго — проверьте интернет или VPN"); }, 15000);
-fetch("data/network.json?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(d => {
+(window.akmData ? window.akmData(F) : fetch("data/" + F + "?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })).then(d => {
   clearTimeout(slow); document.getElementById("loadFail")?.remove();
   window.__PUBLIC_DATA = d;
   const s = document.createElement("script"); s.textContent = document.getElementById("main-js").textContent;
   document.body.appendChild(s);
 }).catch(e => { clearTimeout(slow); fail("данные — " + e.message); });
+});
 })();
 </script></body></html>

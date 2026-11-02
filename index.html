@@ -1,4 +1,115 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Статистика сетки AKM</title></head><body class="public">
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><!--akm-gate--><meta name="robots" content="noindex"><script>/* Вход по пинкоду и расшифровка данных сайта (пара к site_crypto.py). export_pages подставляет a48e70ac1f6407cbb092d17883153692.
+   Ключ после верного пинкода хранится в браузере (localStorage + cookie на год), пинкод запоминает менеджер паролей. */
+(() => {
+const SALT = "akm-ig-radar-v1", ITER = 150000, CHECK = "a48e70ac1f6407cbb092d17883153692", NAME = "akm_k";
+const enc = s => new TextEncoder().encode(s);
+const hex = b => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const W = new Uint32Array(64);
+function sha256(msg) {   // синхронный SHA-256: ключевой поток — тысячи коротких хешей, WebCrypto для этого слишком медленный
+  const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(nb);
+  m.set(msg); m[l] = 0x80; const bits = l * 8;
+  m[nb - 4] = bits >>> 24; m[nb - 3] = bits >>> 16; m[nb - 2] = bits >>> 8; m[nb - 1] = bits; m[nb - 5] = Math.floor(bits / 2 ** 32);
+  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a, h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+  for (let o = 0; o < nb; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = (m[o + i * 4] << 24) | (m[o + i * 4 + 1] << 16) | (m[o + i * 4 + 2] << 8) | m[o + i * 4 + 3];
+    for (let i = 16; i < 64; i++) {
+      const a = W[i - 15], b = W[i - 2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3), s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      W[i] = (W[i - 16] + s0 + W[i - 7] + s1) | 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7)), ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + W[i]) | 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10)), mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+  }
+  const out = new Uint8Array(32), dv = new DataView(out.buffer);
+  [h0, h1, h2, h3, h4, h5, h6, h7].forEach((x, i) => dv.setUint32(i * 4, x >>> 0));
+  return out;
+}
+const cat = (...a) => { const r = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; };
+const good = k => k?.length === 32 && hex(sha256(cat(k, enc("gate")))).slice(0, 32) === CHECK;
+async function derive(pin) {
+  const base = await crypto.subtle.importKey("raw", enc(pin), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc(SALT), iterations: ITER }, base, 256));
+}
+const path = location.pathname.replace(/[^/]*$/, "");
+function stored() {
+  try { const v = localStorage.getItem(NAME); if (v) return unhex(v); } catch { /* приватный режим */ }
+  const c = document.cookie.split("; ").find(x => x.startsWith(NAME + "="));
+  return c ? unhex(c.slice(NAME.length + 1)) : null;
+}
+function remember(k) {
+  try { localStorage.setItem(NAME, hex(k)); } catch { /* без localStorage — останется cookie */ }
+  document.cookie = `${NAME}=${hex(k)}; max-age=31536000; path=${path}; SameSite=Lax; Secure`;
+}
+function decrypt(buf, k) {
+  if (String.fromCharCode(...buf.slice(0, 4)) !== "AKM1") throw new Error("файл не зашифрован");
+  const nonce = buf.slice(4, 20), ct = buf.subarray(36);
+  if (hex(sha256(cat(k, nonce, enc("ok")))).slice(0, 32) !== hex(buf.slice(20, 36))) throw new Error("неверный ключ — обновите страницу");
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(ct.length);
+  for (let i = 0, o = 0; o < ct.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, ct.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = ct[o + j] ^ s[j];
+  }
+  return out;
+}
+
+function showGate(done) {
+  const css = `#akmGate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:16px;background:radial-gradient(900px circle at 20% 10%,#2b3d34,#0f1714 60%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff}
+  #akmGate form{width:min(380px,100%);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:30px 26px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+  #akmGate .lg{font-weight:700;font-size:26px;letter-spacing:-.04em}#akmGate .lg span{color:#D5FF72}
+  #akmGate p{margin:0;font-size:14px;opacity:.72;line-height:1.4}
+  #akmGate input{font:600 24px/1 system-ui,sans-serif;letter-spacing:.3em;text-align:center;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;padding:16px 12px;outline:none}
+  #akmGate input:focus{border-color:#D5FF72;box-shadow:0 0 0 4px rgba(213,255,114,.18)}
+  #akmGate button{font:600 16px system-ui,sans-serif;border:0;border-radius:999px;padding:15px;background:#D5FF72;color:#14251E;cursor:pointer}
+  #akmGate button:disabled{opacity:.6;cursor:wait}
+  #akmGate .hint{font-size:13px;opacity:.6;text-align:center}#akmGate .err{color:#FF9A8A;font-size:13.5px;text-align:center;min-height:18px}
+  #akmGate .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #akmGate.shake form{animation:akmShake .4s}@keyframes akmShake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+  const g = document.createElement("div"); g.id = "akmGate";
+  g.innerHTML = `<style>${css}</style><form method="post" action="#" autocomplete="on">
+    <div class="lg">AKM<span>.</span></div><p>Статистика сетки — только для своих. Введите пинкод.</p>
+    <input class="sr" type="text" name="username" autocomplete="username" value="AKM" tabindex="-1" aria-hidden="true">
+    <label class="sr" for="akmPin">Пинкод</label>
+    <input id="akmPin" type="password" name="password" autocomplete="current-password" inputmode="numeric" placeholder="••••••••" required autofocus>
+    <div class="err" role="alert"></div><button type="submit">Войти</button>
+    <div class="hint">Подсказка: пароль от wifi в офисе</div></form>`;
+  const add = () => { document.body.appendChild(g); g.querySelector("#akmPin").focus(); };
+  document.body ? add() : addEventListener("DOMContentLoaded", add);
+  g.querySelector("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pin = g.querySelector("#akmPin").value.trim(), btn = g.querySelector("button"), err = g.querySelector(".err");
+    btn.disabled = true; err.textContent = "";
+    try {
+      const k = await derive(pin);
+      if (!good(k)) { err.textContent = "Неверный пинкод"; g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); return; }
+      remember(k);
+      try { if (window.PasswordCredential) await navigator.credentials.store(new PasswordCredential({ id: "AKM", password: pin, name: "AKM" })); } catch { /* браузер без Credential API */ }
+      g.remove(); done(k);
+    } catch (x) { err.textContent = "Не получилось: " + x.message; }
+    finally { btn.disabled = false; }
+  });
+}
+
+const k0 = stored();
+window.akmKey = new Promise(res => good(k0) ? res(k0) : showGate(res));
+window.akmData = async name => {
+  const k = await window.akmKey;
+  const r = await fetch("data/" + name.replace(/\.json$/, "") + ".enc?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return JSON.parse(new TextDecoder().decode(decrypt(new Uint8Array(await r.arrayBuffer()), k)));
+};
+window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
+})();
+</script><!--akm-gate--><meta name="viewport" content="width=device-width,initial-scale=1"><title>Статистика сетки AKM</title></head><body class="public">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -264,6 +375,94 @@ dialog::backdrop{background:rgba(13,13,15,.45)}
 .kv span{font-size:12px;opacity:.75}
 .kv b{font-size:22px;font-weight:600;letter-spacing:-.04em}
 .kvs{display:flex;flex-wrap:wrap;gap:16px 26px;margin-top:auto}
+/* Instagram API: герой-плитка, карта, возраст, пол, топ постов */
+:root{--geo-hi:#3557ED;--geo-lo:#E6EAF4;--geo-0:#EEF0EA;--lime-strong:#9BD12E}
+@keyframes gxIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes gxGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes gxRise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes gxPulse{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+.gx-hero{position:relative;overflow:hidden}
+.gx-hero::after{content:"";position:absolute;inset:auto -10% -60% auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(53,87,237,.45),transparent 65%);pointer-events:none}
+.gx-head{font-size:clamp(18px,2.1vw,26px);font-weight:600;letter-spacing:-.03em;line-height:1.2;margin:4px 0 18px;max-width:780px}
+.gx-head b{color:var(--lime)}
+.gx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:18px 22px;position:relative;z-index:1}
+.gx{display:flex;flex-direction:column;gap:4px;animation:gxIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j,0)*70ms)}
+.gx-l{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+.gx-v{font-size:clamp(30px,3.6vw,46px);font-weight:600;letter-spacing:-.05em;line-height:1}
+.gx-v small{font-size:.42em;margin-left:5px;opacity:.75;letter-spacing:0}
+.gx-s{font-size:12.5px;opacity:.75}
+.gx-mix,.gx-days{margin-top:22px;position:relative;z-index:1}
+.gx-mix-l{font-size:12px;opacity:.7;margin-bottom:8px}
+.gx-stack{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.gx-stack i{background:var(--c);transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.2s + var(--j)*90ms)}
+.gx-leg,.gs-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;font-size:12.5px}
+.gx-leg i,.gs-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.gx-cols{display:flex;align-items:flex-end;gap:3px;height:56px}
+.gx-cols i{flex:1;height:var(--h);min-height:2px;background:var(--lime);border-radius:3px 3px 0 0;transform-origin:bottom;animation:gxRise .7s both}
+.geo-wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,1fr);gap:22px;align-items:center}
+.geo{position:relative;min-height:180px}
+.geo svg{display:block;width:100%;height:auto}
+.geo path{stroke:#fff;stroke-width:.5;transition:filter .15s}
+.geo path[data-c]{cursor:pointer}
+.geo path[data-c]:hover{filter:brightness(.82) saturate(1.3)}
+.t.ink .geo path{stroke:var(--ink)}
+.t.ink{--geo-0:rgba(255,255,255,.07);--geo-lo:rgba(255,255,255,.12);--geo-hi:var(--lime)}
+.t.ink .geo-pin circle{fill:var(--orange)}
+.geo-pin circle{fill:var(--orange)}
+.geo-pin .geo-pulse{fill:none;stroke:var(--orange);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:gxPulse 2.2s ease-out infinite;animation-delay:calc(var(--j)*.5s)}
+.geo-skel{display:grid;place-items:center;min-height:180px;font-size:13px;opacity:.6}
+.geo-tip{position:absolute;z-index:3;pointer-events:none;background:var(--ink);color:#fff;border-radius:10px;padding:8px 11px;font-size:12.5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:150px}
+.t.ink .geo-tip{background:#fff;color:var(--ink)}
+.geo-list{display:flex;flex-direction:column;gap:7px}
+.geo-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:4px 8px;font-size:13.5px;position:relative;animation:gxIn .5s both;animation-delay:calc(var(--j)*55ms)}
+.geo-row i{grid-column:1/-1;height:5px;border-radius:3px;background:var(--geo-hi);width:var(--w);transform-origin:left;animation:gxGrow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.15s + var(--j)*55ms)}
+.geo-cc{font-size:10.5px;font-weight:700;letter-spacing:.04em;border-radius:5px;padding:2px 0;text-align:center;background:rgba(0,0,0,.07)}
+.t.ink .geo-cc{background:rgba(255,255,255,.14)}
+.geo-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.geo-cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.geo-cities span{font-size:12px;border-radius:999px;padding:4px 10px;background:rgba(0,0,0,.06)}
+.ga-cols{display:flex;align-items:flex-end;gap:10px;height:190px;margin-top:8px}
+.ga-c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%}
+.ga-c i{width:100%;height:var(--h);min-height:3px;background:var(--ink);border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:gxRise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j)*70ms)}
+.ga-c b{font-size:14px;font-weight:600}
+.ga-c span{font-size:12px;opacity:.75;white-space:nowrap}
+.gs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+.gs-donut{width:150px;height:150px;flex:none}
+.gs-donut circle{transition:stroke-dasharray .9s}
+.gs-donut text{font-size:19px;font-weight:600;fill:currentColor;letter-spacing:-.03em}
+.gs-donut .gs-sub{font-size:9px;font-weight:400;opacity:.7;letter-spacing:0}
+.gs-leg{flex-direction:column;margin:0}
+.pb{display:flex;flex-direction:column;gap:6px}
+.pb-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;color:inherit;text-decoration:none;background:rgba(0,0,0,.035);animation:gxIn .5s both;animation-delay:calc(var(--j)*45ms);transition:background .15s,transform .15s}
+.pb-row:hover{background:rgba(0,0,0,.07);transform:translateX(3px)}
+.pb-best{background:color-mix(in oklab,var(--lime) 55%,transparent)}
+.pb-best:hover{background:var(--lime)}
+.pb-n{font-size:15px;font-weight:600;opacity:.5;text-align:center}
+.pb-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pb-top{display:flex;align-items:center;gap:8px;font-size:12.5px;flex-wrap:wrap}
+.pb-k{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--ink);color:#fff}
+.pb-k.carousel{background:var(--geo-hi)}.pb-k.post{background:var(--faint)}
+.pb-t{opacity:.7}
+.pb-fire{font-size:11px;font-weight:700;color:var(--orange)}
+.pb-bar{display:flex;align-items:center;gap:10px}
+.pb-bar i{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--geo-hi),var(--orange));width:var(--w);min-width:3px;transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.1s + var(--j)*45ms)}
+.pb-bar b{font-size:13.5px;white-space:nowrap}
+.pb-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pb-chips span{font-size:12px;border-radius:999px;padding:3px 9px;background:rgba(0,0,0,.06);white-space:nowrap}
+.gt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:30px;align-items:start}
+.gt-big{font-size:clamp(46px,6vw,78px)!important}
+.gt-top{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.gt-r{display:grid;grid-template-columns:minmax(0,160px) 1fr auto;align-items:center;gap:10px;border:0;background:rgba(255,255,255,.06);color:inherit;border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer;text-align:left;animation:gxIn .5s both;animation-delay:calc(var(--j)*60ms)}
+.gt-r:hover{background:rgba(255,255,255,.14)}
+.gt-u{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;flex-direction:column}
+.gt-u small{font-size:11px;opacity:.55}
+.gt-r2 .gx-l{margin-bottom:10px}
+.gt-bar i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--lime),var(--orange));width:var(--w);transform-origin:left;animation:gxGrow .9s both;animation-delay:calc(.2s + var(--j)*60ms)}
+.gt .geo-wrap{grid-template-columns:1fr;gap:12px}
+.gt .geo-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 18px}
+.gt .geo-row i{background:var(--lime)}
+@media (max-width:820px){.geo-wrap,.gt-grid{grid-template-columns:1fr}.pb-row{grid-template-columns:22px minmax(0,1fr)}.pb-chips{grid-column:2;justify-content:flex-start}.gt .geo-list{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.gx,.gx-stack i,.gx-cols i,.geo-row,.geo-row i,.ga-c i,.pb-row,.pb-bar i,.gt-r,.gt-bar i{animation:none}.geo-pin .geo-pulse{display:none}}
 .chartbox{position:relative}
 .chartbox svg{display:block;width:100%;height:auto}
 .tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none}
@@ -1708,7 +1907,7 @@ function lvStep() {
 async function lvFetch() {
   if (!window.__PUBLIC_DATA) return;
   try {
-    const m = await fetch("data/live.json?t=" + Date.now()).then(r => r.ok ? r.json() : null);
+    const m = await akmData("live.json").catch(() => null);
     if (m?.acc?.length && m.at !== LV.at) { LV.model = m; LV.at = m.at; }
   } catch { /* офлайн — продолжаем на старой модели */ }
 }
@@ -1882,6 +2081,7 @@ function renderBento() {
   T.push(`<section class="t s7" id="sigTile"><div class="lab">Сигналы ${sig.length > 6 ? `<button class="linkbtn" type="button" data-act="more">${S.showAllSig ? "Свернуть" : `Все · ${sig.length}`}</button>` : ""}</div>
     <div class="sigs">${shown.map(s => s.u ? `<button type="button" class="sg" data-u="${esc(s.u)}"><span class="dt ${s.lvl}"></span><span><b>@${esc(s.u)}</b> — ${esc(s.text)}</span></button>` : `<div class="sg"><span class="dt"></span><span><b>Вся сетка</b> — ${esc(s.text)}</span></div>`).join("") || `<div class="muted">Сигналов нет — всё спокойно.</div>`}</div></section>`);
 
+  T.push(graphTile());
   T.push(hourlyTile());
   const vOwn = (S.viral || []).filter(p => p.own && p.k !== "reel" && p.d >= shift(M.latest, -3));
   T.push(`<section class="t ink s12 go-cont"><div class="lab">Контент сетки</div>
@@ -1894,6 +2094,7 @@ function renderBento() {
   h48($("netHourly"), h48Slots(A.map(a => a.u)));
   liveMount(total);
   markDirect($("bento"));
+  graphMount($("bento"));
 }
 
 function cols() {
@@ -2004,6 +2205,7 @@ function openAccount(u, M = S.M) {
       <div class="big">${signed(a.w1, compact)}</div><div class="sub">за неделю ${a.w1pct != null ? "· " + pct(a.w1pct) : ""}</div>
       <div class="kvs">${kv("За 4 недели", signed(a.w4))}${kv("Публикаций", fmt(L.media))}${kv("Ср. лайки", fmt(L.likes))}${kv("ER", L.er != null ? L.er.toLocaleString("ru-RU") + "%" : "—")}</div></section>
     ${M === S.cM ? simSection(a.u) : ownDirectSection(a.u)}
+    ${graphSection(a.u)}
     ${a.sig.length ? `<section class="t peach d6"><div class="lab">Сигналы</div><div class="sgn">${a.sig.map(s => `<div><span class="dt ${s.lvl}"></span><span>${esc(s.text)}</span></div>`).join("")}</div></section>` : ""}
     ${S.extra?.hourly?.acc?.[a.u] ? `<section class="t" style="grid-column:1/-1"><div class="lab">По часам · 48 ч <span class="tag">замеры каждый час</span></div><div id="accHourly"></div></section>` : ""}
     <section class="t d6"><div class="lab">Подписчики · 45 дней</div><div id="accChart"></div></section>
@@ -2013,6 +2215,7 @@ function openAccount(u, M = S.M) {
     <section class="t d6"><div class="lab">По дням · клик по столбику выше подсветит день</div><div class="daylist"><table><thead><tr><th scope="col">Дата</th><th scope="col">Подписчики</th><th scope="col">Прирост</th><th scope="col" style="text-align:left">Публикации</th></tr></thead><tbody id="accDays"></tbody></table></div></section>
   </div>`;
   h48($("accHourly"), h48Slots([a.u]), { line: true });
+  graphMount($("accBody"));
   chart($("accChart"), a.pts.filter(p => p.d > shift(M.latest, -46)).map(p => ({ d: p.d, y: p.followers })), { w: 820, h: 200 });
   const recent = a.daily.filter(x => x.d > shift(M.latest, -31));
   bars($("accBars"), recent, d => { const r = $("accDays").querySelector(`tr[data-d="${d}"]`); $("accDays").querySelectorAll("tr.hl").forEach(x => x.classList.remove("hl")); if (r) { r.classList.add("hl"); r.scrollIntoView({ block: "nearest" }); } });
@@ -2029,6 +2232,143 @@ function openAccount(u, M = S.M) {
   $("accDays").innerHTML = [...recent].reverse().map(x => `<tr data-d="${x.d}"><td>${dShort(x.d)} <span class="muted">${WD[new Date(dms(x.d)).getUTCDay()]}</span></td><td class="n">${fmt(x.f)}</td><td class="n ${cls(x.g)}">${signed(x.g)}</td><td class="posts">${postsCell(x)}</td></tr>`).join("");
   openDlg($("accDlg"));
   enter($("accBody"));
+}
+
+/* Официальный API (graph_api.py): у подключённых страниц — закрытая статистика, у остальных — просмотры постов */
+// ISO2 → числовой код ISO 3166 (id стран в world-atlas)
+const GEO_N = Object.fromEntries("US840 GB826 CA124 DE276 IT380 FR250 AU036 ES724 BR076 MX484 IN356 NL528 PL616 CL152 TR792 PH608 IR364 AR032 CO170 PE604 RU643 UA804 SE752 NO578 FI246 DK208 IE372 PT620 BE056 CH756 AT040 CZ203 RO642 HU348 GR300 ZA710 EG818 NG566 KE404 MA504 SA682 AE784 IL376 PK586 BD050 ID360 MY458 TH764 VN704 JP392 KR410 CN156 NZ554 VE862 EC218 BO068 UY858 PY600 GT320 CU192 DO214 PR630 HN340 SV222 NI558 CR188 PA591 JM388 KZ398 UZ860 AZ031 GE268 AM051 BY112 LT440 LV428 EE233 SK703 SI705 HR191 RS688 BA070 BG100 MK807 AL008 DZ012 TN788 LY434 IQ368 SY760 JO400 LB422 KW414 QA634 OM512 YE887 AF004 NP524 LK144 MM104 KH116 LA418 MN496 TW158 ET231 GH288 CI384 CM120 SN686 TZ834 UG800 AO024 MZ508 ZW716 ZM894 SD729 IS352 LU442 MD498 CY196 ME499 TT780 GY328 SR740 HT332 BZ084 PG598 MG450 NA516 BW072 ML466 NE562 TD148 CD180 CG178 GA266 SO706 RW646 BI108 MW454 BF854 GN324 SL694 LR430 BJ204 TG768 MR478 ER232 DJ262 SS728 CF140 KG417 TJ762 TM795 KP408 BT064 BN096 TL626 GL304 FJ242 NC540 SB090 VU548 PS275 XK-99 EH732 GQ226 GW624 LS426 SZ748 GM270"
+  .split(" ").map(s => [s.slice(0, 2), s.slice(2)]));
+const G_SEX = { M: "мужчины", F: "женщины", U: "не указан" };
+const G_RU = (() => { try { return new Intl.DisplayNames(["ru"], { type: "region" }); } catch { return null; } })();
+const geoName = c => { try { return G_RU?.of(c) || c; } catch { return c; } };
+const loadJs = src => new Promise((ok, bad) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = bad; document.head.append(s); });
+function geoLib() {   // карта грузится один раз и только когда нужна
+  return geoLib.p ||= Promise.all([loadJs("https://cdn.jsdelivr.net/npm/d3-array@3.2.4/dist/d3-array.min.js"),
+      loadJs("https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js")])
+    .then(() => loadJs("https://cdn.jsdelivr.net/npm/d3-geo@3.1.1/dist/d3-geo.min.js"))
+    .then(() => fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json")).then(r => r.json())
+    .catch(e => { geoLib.p = null; throw e; });
+}
+const per1k = (a, b) => a != null && b ? (a / b * 1000).toLocaleString("ru-RU", { maximumFractionDigits: a / b * 1000 < 10 ? 1 : 0 }) : "—";
+const share = (a, b) => a != null && b ? (a / b * 100).toLocaleString("ru-RU", { maximumFractionDigits: a / b * 100 < 10 ? 1 : 0 }) + "%" : "—";
+const gPlink = p => `https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/`;
+const gWhen = t => t ? `${dShort(t.slice(0, 10))} · ${t.slice(11, 16)}` : "—";
+const gKind = k => k === "reel" ? "Reels" : k === "carousel" ? "карусель" : "пост";
+
+async function geoMount(el) {
+  const counts = JSON.parse(el.dataset.geo || "[]"), total = +el.dataset.total || counts.reduce((s, x) => s + x[1], 0);
+  if (!counts.length) return;
+  el.innerHTML = `<div class="geo-skel">карта загружается…</div>`;
+  let world;
+  try { world = await geoLib(); } catch { el.innerHTML = `<div class="geo-skel">карта не загрузилась — список стран справа</div>`; return; }
+  const feats = topojson.feature(world, world.objects.countries).features.filter(f => f.id !== "010");
+  const W = Math.max(320, el.clientWidth || 720), H = Math.round(W * .52);
+  const proj = d3.geoNaturalEarth1().fitExtent([[4, 4], [W - 4, H - 4]], { type: "FeatureCollection", features: feats });
+  const path = d3.geoPath(proj);
+  const byN = new Map(counts.map(([c, v]) => [GEO_N[c], [c, v]]));
+  const mx = Math.max(...counts.map(x => x[1]));
+  const fill = v => v ? `color-mix(in oklab, var(--geo-hi) ${Math.round(8 + 92 * Math.pow(v / mx, .42))}%, var(--geo-lo))` : "var(--geo-0)";
+  const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c]) => feats.find(f => f.id === GEO_N[c])).filter(Boolean);
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Карта аудитории по странам">
+    ${feats.map(f => { const x = byN.get(f.id); return `<path d="${path(f)}" fill="${fill(x?.[1])}"${x ? ` data-c="${x[0]}" data-v="${x[1]}"` : ""}/>`; }).join("")}
+    ${top.map((f, i) => { const [cx, cy] = path.centroid(f); return isFinite(cx) ? `<g class="geo-pin" style="--j:${i}" transform="translate(${cx.toFixed(1)},${cy.toFixed(1)})"><circle r="14" class="geo-pulse"/><circle r="4.5"/></g>` : ""; }).join("")}
+  </svg><div class="geo-tip" hidden></div>`;
+  const tip = el.querySelector(".geo-tip");
+  el.querySelector("svg").addEventListener("pointermove", e => {
+    const p = e.target.closest("path[data-c]");
+    if (!p) { tip.hidden = true; return; }
+    const r = el.getBoundingClientRect();
+    tip.innerHTML = `<b>${esc(geoName(p.dataset.c))}</b><span>${fmt(+p.dataset.v)} подписчиков · ${share(+p.dataset.v, total)}</span>`;
+    tip.hidden = false; tip.style.left = Math.min(r.width - 180, e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px";
+  });
+  el.querySelector("svg").addEventListener("pointerleave", () => tip.hidden = true);
+}
+function graphMount(root) { root.querySelectorAll("[data-geo]").forEach(geoMount); }
+
+function geoBlock(counts, total, cities) {
+  if (!counts?.length) return "";
+  const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 8), mx = top[0][1] || 1;
+  return `<div class="geo-wrap"><div class="geo" data-geo='${esc(JSON.stringify(counts))}' data-total="${total}"></div>
+    <div class="geo-list">${top.map(([c, v], i) => `<div class="geo-row" style="--j:${i}"><span class="geo-cc">${esc(c)}</span><span class="geo-nm">${esc(geoName(c))}</span><b>${share(v, total)}</b><i style="--w:${(v / mx * 100).toFixed(1)}%"></i></div>`).join("")}
+      ${cities?.length ? `<div class="geo-cities">${cities.slice(0, 6).map(([k, v]) => `<span>${esc(k.split(",")[0])} <b>${compact(v)}</b></span>`).join("")}</div>` : ""}</div></div>`;
+}
+
+function postBoard(ps, full) {
+  ps = ps.filter(p => p.c && (p.vi ?? p.v ?? p.l) != null);
+  if (!ps.length) return "";
+  const val = p => p.vi ?? p.v ?? 0;
+  ps = [...ps].sort((a, b) => val(b) - val(a) || (b.l ?? 0) - (a.l ?? 0)).slice(0, 10);
+  const mx = Math.max(1, ...ps.map(val));
+  const sec = ms => ms ? (ms / 1000).toLocaleString("ru-RU", { maximumFractionDigits: 1 }) + " с" : null;
+  return `<div class="pb">${ps.map((p, i) => `<a class="pb-row${i === 0 ? " pb-best" : ""}" href="${gPlink(p)}" target="_blank" rel="noopener" title="${esc(p.x)}" style="--j:${i}">
+    <span class="pb-n">${i + 1}</span>
+    <span class="pb-main"><span class="pb-top"><span class="pb-k ${p.k}">${gKind(p.k)}</span><span class="pb-t">${gWhen(p.t)}</span>${i === 0 ? `<span class="pb-fire">лучший за 14 дней</span>` : ""}</span>
+      <span class="pb-bar"><i style="--w:${(val(p) / mx * 100).toFixed(1)}%"></i><b>${val(p) ? compact(val(p)) + " просм." : (p.l != null ? "♥ " + compact(p.l) : "—")}</b></span></span>
+    <span class="pb-chips">${full ? [p.reach != null && `охват ${compact(p.reach)}`, p.sh && `↗ ${compact(p.sh)}`, p.sv && `⌑ ${compact(p.sv)}`, p.k === "reel" && sec(p.aw) && `▶ ${sec(p.aw)}`].filter(Boolean).map(x => `<span>${x}</span>`).join("")
+      : [p.l != null && `♥ ${compact(p.l)}`, p.cm && `💬 ${compact(p.cm)}`].filter(Boolean).map(x => `<span>${x}</span>`).join("")}</span></a>`).join("")}</div>`;
+}
+
+function graphSection(u) {
+  const g = S.extra?.graph?.acc?.[u]; if (!g) return "";
+  const I = g.ins;
+  if (!I) {
+    const board = postBoard(g.posts || [], false);
+    return board ? `<section class="t d6"><div class="lab">Топ постов · 14 дней <span class="tag">просмотры от Instagram API</span></div>${board}</section>` : "";
+  }
+  const d = I.d28 || {}, f = g.f || 0, A = I.aud || {};
+  const big = (lab, v, sub, j) => `<div class="gx" style="--j:${j}"><span class="gx-l">${lab}</span><b class="gx-v" data-n="${v ?? 0}" data-fmt="huge">${v != null ? hugeNum(v) : "—"}</b><span class="gx-s">${sub}</span></div>`;
+  const inter = [["Лайки", d.likes, "var(--geo-hi)"], ["Репосты", d.shares, "var(--orange)"], ["Сохранения", d.saves, "var(--lime-strong)"], ["Комменты", d.comments, "var(--lavender)"]];
+  const isum = inter.reduce((s, x) => s + (x[1] || 0), 0) || 1;
+  const reachX = f && d.reach ? d.reach / f : null;
+  const days = Object.entries(I.days || {}).sort();
+  const ages = A.age || [], amx = Math.max(1, ...ages.map(x => x[1]));
+  const sex = A.gender || [], stot = sex.reduce((s, x) => s + x[1], 0) || 1;
+  let acc = 0;
+  const donut = sex.map(([k, v], i) => { const a0 = acc / stot, a1 = (acc += v) / stot, r = 42, C = 2 * Math.PI * r;
+    return `<circle r="${r}" cx="60" cy="60" fill="none" stroke="${["var(--geo-hi)", "var(--faint)", "var(--orange)"][i % 3]}" stroke-width="16" stroke-dasharray="${(a1 - a0) * C} ${C}" stroke-dashoffset="${-a0 * C}" transform="rotate(-90 60 60)"/>`; }).join("");
+  return `<section class="t ink d6 gx-hero"><div class="lab">Instagram изнутри · 28 дней <span class="tag">закрытые данные Instagram · ${I.date ? "на " + dShort(I.date) : ""}</span></div>
+      ${reachX ? `<div class="gx-head">Охват — <b>${reachX.toLocaleString("ru-RU", { maximumFractionDigits: 1 })}×</b> от числа подписчиков: контент видят далеко за пределами базы</div>` : ""}
+      <div class="gx-grid">
+        ${big("Охват", d.reach, reachX ? `${reachX.toLocaleString("ru-RU", { maximumFractionDigits: 1 })}× подписчиков` : "уникальные аккаунты", 0)}
+        ${big("Просмотры", d.views, d.reach ? `${(d.views / d.reach).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} на одного зрителя` : "", 1)}
+        ${big("Вовлечённые", d.accounts_engaged, `${share(d.accounts_engaged, d.reach)} охвата`, 2)}
+        ${big("Репосты", d.shares, `${per1k(d.shares, d.reach)} на 1000 охвата`, 3)}
+        ${big("Сохранения", d.saves, `${per1k(d.saves, d.reach)} на 1000 охвата`, 4)}
+        ${big("Заходы в профиль", d.profile_views, `${share(d.profile_views, d.reach)} охвата`, 5)}
+      </div>
+      <div class="gx-mix"><div class="gx-mix-l">Из чего состоят ${fmt(d.total_interactions)} взаимодействий</div>
+        <div class="gx-stack">${inter.map(([l, v, c], j) => v ? `<i style="flex:${v};--c:${c};--j:${j}" title="${l}: ${fmt(v)}"></i>` : "").join("")}</div>
+        <div class="gx-leg">${inter.map(([l, v, c]) => `<span><i style="background:${c}"></i>${l} <b>${share(v, isum)}</b></span>`).join("")}</div></div>
+      ${days.length >= 2 ? `<div class="gx-days"><div class="gx-mix-l">Охват по дням</div><div class="gx-cols">${days.slice(-30).map(([dd, x]) => { const m = Math.max(...days.map(y => y[1].reach || 0)) || 1; return `<i style="--h:${((x.reach || 0) / m * 100).toFixed(1)}%" title="${dShort(dd)}: ${fmt(x.reach)}"></i>`; }).join("")}</div></div>` : ""}
+    </section>
+    ${A.country?.length ? `<section class="t d6"><div class="lab">География подписчиков <span class="tag">${A.country.length} ${plu(A.country.length, "страна", "страны", "стран")}</span></div>${geoBlock(A.country, f, A.city)}</section>` : ""}
+    ${ages.length ? `<section class="t lime d3"><div class="lab">Возраст</div><div class="ga-cols">${ages.slice().sort((a, b) => a[0].localeCompare(b[0])).map(([k, v], j) => `<div class="ga-c" style="--j:${j}"><b>${share(v, f || stot)}</b><i style="--h:${(v / amx * 100).toFixed(1)}%"></i><span>${esc(k)}</span></div>`).join("")}</div></section>` : ""}
+    ${sex.length ? `<section class="t d3"><div class="lab">Пол</div><div class="gs"><svg viewBox="0 0 120 120" class="gs-donut">${donut}<text x="60" y="58" text-anchor="middle">${share(sex[0][1], stot)}</text><text x="60" y="74" text-anchor="middle" class="gs-sub">${esc(G_SEX[sex[0][0]] || sex[0][0])}</text></svg>
+      <div class="gs-leg">${sex.map(([k, v], i) => `<span><i style="background:${["var(--geo-hi)", "var(--faint)", "var(--orange)"][i % 3]}"></i>${esc(G_SEX[k] || k)} <b>${share(v, stot)}</b></span>`).join("")}</div></div></section>` : ""}
+    ${(I.posts || []).length ? `<section class="t d6"><div class="lab">Топ постов · 14 дней <span class="tag">охват ↗ репосты ⌑ сохранения ▶ ср. просмотр</span></div>${postBoard(I.posts, true)}</section>` : ""}`;
+}
+
+/* плитка на главной: вся сетка глазами Instagram API */
+function graphTile() {
+  const G = S.extra?.graph?.acc; if (!G) return "";
+  const since = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+  const reels = Object.entries(G).flatMap(([u, g]) => (g.posts || []).filter(p => p.k === "reel" && p.v != null && p.t >= since).map(p => ({ ...p, u })));
+  if (!reels.length) return "";
+  const sum = reels.reduce((s, p) => s + p.v, 0);
+  const best = new Map(); for (const p of reels) if (!best.has(p.u) || best.get(p.u).v < p.v) best.set(p.u, p);   // по лучшему ролику каждой страницы
+  const top = [...best.values()].sort((a, b) => b.v - a.v).slice(0, 7), mx = top[0].v || 1;
+  const conn = Object.entries(G).filter(([, g]) => g.ins);
+  const geo = {}; let gtot = 0;
+  for (const [, g] of conn) { gtot += g.f || 0; for (const [c, v] of g.ins.aud?.country || []) geo[c] = (geo[c] || 0) + v; }
+  const reach = conn.reduce((s, [, g]) => s + (g.ins.d28?.reach || 0), 0);
+  return `<section class="t ink s12 gt"><div class="lab">Instagram API · вся сетка <span class="tag">официальные данные Meta, каждый час</span></div>
+    <div class="gt-grid"><div class="gt-l">
+      <div class="gx-l">просмотры Reels сетки за 7 дней</div>
+      <div class="big gt-big" data-n="${sum}" data-fmt="huge">${hugeNum(sum)}</div>
+      <div class="sub">${reels.length} ${plu(reels.length, "ролик", "ролика", "роликов")} в ${best.size} ${plu(best.size, "аккаунте", "аккаунтах", "аккаунтах")}${conn.length ? ` · охват подключённых за 28 дней <b>${compact(reach)}</b>` : ""}</div>
+      <div class="gx-l" style="margin-top:18px">лучший ролик каждой страницы</div><div class="gt-top" style="margin-top:8px">${top.map((p, j) => `<button type="button" class="gt-r" data-u="${esc(p.u)}" style="--j:${j}"><span class="gt-u">@${esc(p.u)}<small>${gWhen(p.t)}</small></span><span class="gt-bar"><i style="--w:${(p.v / mx * 100).toFixed(1)}%"></i></span><b>${compact(p.v)}</b></button>`).join("")}</div>
+    </div>
+    ${Object.keys(geo).length ? `<div class="gt-r2"><div class="gx-l">где живёт аудитория подключённых страниц · ${conn.length} из ${Object.keys(G).length}</div>${geoBlock(Object.entries(geo), gtot, null)}</div>` : ""}</div></section>`;
 }
 
 /* ---------- competitors ---------- */
@@ -2346,7 +2686,7 @@ function renderCurated() {
 }
 function loadCurated() {
   if (S.ccLoading) return; S.ccLoading = true; S.ccError = false;
-  fetch('data/content_competitors.json?t=' + Date.now()).then(r => { if(!r.ok) throw Error(r.status); return r.json(); }).then(C => { S.curated = C; renderCurated(); cqNums(); if(S.cMode==='curated') enter($('cCurated')); }).catch(() => { S.ccError = true; renderCurated(); }).finally(() => { S.ccLoading = false; });
+  akmData("content_competitors.json").then(C => { S.curated = C; renderCurated(); cqNums(); if(S.cMode==='curated') enter($('cCurated')); }).catch(() => { S.ccError = true; renderCurated(); }).finally(() => { S.ccLoading = false; });
 }
 function openCurated(u) {
   const C=S.curated,a=C?.acc.find(a=>a.u===u); if(!a)return;
@@ -2983,7 +3323,7 @@ if (window.__PUBLIC_DATA) {
   reveal();
   loadCurated();
   // конкуренты — отдельный файл, догружается после показа страницы
-  if (!D.cdays) fetch("data/comp.json?t=" + Date.now()).then(r => r.json()).then(C => {
+  if (!D.cdays) akmData("comp.json").then(C => {
     S.cdays = C.cdays || []; S.extra.cscore = C.cscore || {}; S.extra.tracked = C.tracked || S.extra.tracked; S.extra.cai = C.cai || null;
     S.compLoading = false; renderComp(); renderTracked(); markDirect($("bento"));
   }).catch(() => { S.compLoading = false; renderComp(); renderTracked(); });
@@ -3012,14 +3352,18 @@ const fail = why => {
   b.querySelector("button").onclick = () => location.reload();
   document.body.appendChild(b);
 };
+const F = "network.json";
+// закрытые страницы ждут пинкод (gate.js), и только потом грузят и расшифровывают данные; медиакит открыт
+(window.akmKey || Promise.resolve()).then(() => {
 addEventListener("error", e => { if (performance.now() < 20000) fail(e.message || "ошибка скрипта"); });   // только пока страница открывается
 const slow = setTimeout(() => { if (!window.__PUBLIC_DATA) fail("данные грузятся слишком долго — проверьте интернет или VPN"); }, 15000);
-fetch("data/network.json?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(d => {
+(window.akmData ? window.akmData(F) : fetch("data/" + F + "?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })).then(d => {
   clearTimeout(slow); document.getElementById("loadFail")?.remove();
   window.__PUBLIC_DATA = d;
   const s = document.createElement("script"); s.textContent = document.getElementById("main-js").textContent;
   document.body.appendChild(s);
 }).catch(e => { clearTimeout(slow); fail("данные — " + e.message); });
+});
 })();
 </script><script>/* Подсказки «?» у заголовков блоков: откуда данные, как считается, на чём основано решение.
    Вставляется в обе страницы (export_pages.py). Сам находит заголовки .lab и добавляет кнопку,

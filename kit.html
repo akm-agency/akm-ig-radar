@@ -264,6 +264,94 @@ dialog::backdrop{background:rgba(13,13,15,.45)}
 .kv span{font-size:12px;opacity:.75}
 .kv b{font-size:22px;font-weight:600;letter-spacing:-.04em}
 .kvs{display:flex;flex-wrap:wrap;gap:16px 26px;margin-top:auto}
+/* Instagram API: герой-плитка, карта, возраст, пол, топ постов */
+:root{--geo-hi:#3557ED;--geo-lo:#E6EAF4;--geo-0:#EEF0EA;--lime-strong:#9BD12E}
+@keyframes gxIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes gxGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes gxRise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes gxPulse{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.9);opacity:0}}
+.gx-hero{position:relative;overflow:hidden}
+.gx-hero::after{content:"";position:absolute;inset:auto -10% -60% auto;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(53,87,237,.45),transparent 65%);pointer-events:none}
+.gx-head{font-size:clamp(18px,2.1vw,26px);font-weight:600;letter-spacing:-.03em;line-height:1.2;margin:4px 0 18px;max-width:780px}
+.gx-head b{color:var(--lime)}
+.gx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:18px 22px;position:relative;z-index:1}
+.gx{display:flex;flex-direction:column;gap:4px;animation:gxIn .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j,0)*70ms)}
+.gx-l{font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+.gx-v{font-size:clamp(30px,3.6vw,46px);font-weight:600;letter-spacing:-.05em;line-height:1}
+.gx-v small{font-size:.42em;margin-left:5px;opacity:.75;letter-spacing:0}
+.gx-s{font-size:12.5px;opacity:.75}
+.gx-mix,.gx-days{margin-top:22px;position:relative;z-index:1}
+.gx-mix-l{font-size:12px;opacity:.7;margin-bottom:8px}
+.gx-stack{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px}
+.gx-stack i{background:var(--c);transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.2s + var(--j)*90ms)}
+.gx-leg,.gs-leg{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:9px;font-size:12.5px}
+.gx-leg i,.gs-leg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.gx-cols{display:flex;align-items:flex-end;gap:3px;height:56px}
+.gx-cols i{flex:1;height:var(--h);min-height:2px;background:var(--lime);border-radius:3px 3px 0 0;transform-origin:bottom;animation:gxRise .7s both}
+.geo-wrap{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,1fr);gap:22px;align-items:center}
+.geo{position:relative;min-height:180px}
+.geo svg{display:block;width:100%;height:auto}
+.geo path{stroke:#fff;stroke-width:.5;transition:filter .15s}
+.geo path[data-c]{cursor:pointer}
+.geo path[data-c]:hover{filter:brightness(.82) saturate(1.3)}
+.t.ink .geo path{stroke:var(--ink)}
+.t.ink{--geo-0:rgba(255,255,255,.07);--geo-lo:rgba(255,255,255,.12);--geo-hi:var(--lime)}
+.t.ink .geo-pin circle{fill:var(--orange)}
+.geo-pin circle{fill:var(--orange)}
+.geo-pin .geo-pulse{fill:none;stroke:var(--orange);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:gxPulse 2.2s ease-out infinite;animation-delay:calc(var(--j)*.5s)}
+.geo-skel{display:grid;place-items:center;min-height:180px;font-size:13px;opacity:.6}
+.geo-tip{position:absolute;z-index:3;pointer-events:none;background:var(--ink);color:#fff;border-radius:10px;padding:8px 11px;font-size:12.5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 8px 24px rgba(0,0,0,.2);min-width:150px}
+.t.ink .geo-tip{background:#fff;color:var(--ink)}
+.geo-list{display:flex;flex-direction:column;gap:7px}
+.geo-row{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:4px 8px;font-size:13.5px;position:relative;animation:gxIn .5s both;animation-delay:calc(var(--j)*55ms)}
+.geo-row i{grid-column:1/-1;height:5px;border-radius:3px;background:var(--geo-hi);width:var(--w);transform-origin:left;animation:gxGrow .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.15s + var(--j)*55ms)}
+.geo-cc{font-size:10.5px;font-weight:700;letter-spacing:.04em;border-radius:5px;padding:2px 0;text-align:center;background:rgba(0,0,0,.07)}
+.t.ink .geo-cc{background:rgba(255,255,255,.14)}
+.geo-nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.geo-cities{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.geo-cities span{font-size:12px;border-radius:999px;padding:4px 10px;background:rgba(0,0,0,.06)}
+.ga-cols{display:flex;align-items:flex-end;gap:10px;height:190px;margin-top:8px}
+.ga-c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%}
+.ga-c i{width:100%;height:var(--h);min-height:3px;background:var(--ink);border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:gxRise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j)*70ms)}
+.ga-c b{font-size:14px;font-weight:600}
+.ga-c span{font-size:12px;opacity:.75;white-space:nowrap}
+.gs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
+.gs-donut{width:150px;height:150px;flex:none}
+.gs-donut circle{transition:stroke-dasharray .9s}
+.gs-donut text{font-size:19px;font-weight:600;fill:currentColor;letter-spacing:-.03em}
+.gs-donut .gs-sub{font-size:9px;font-weight:400;opacity:.7;letter-spacing:0}
+.gs-leg{flex-direction:column;margin:0}
+.pb{display:flex;flex-direction:column;gap:6px}
+.pb-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;color:inherit;text-decoration:none;background:rgba(0,0,0,.035);animation:gxIn .5s both;animation-delay:calc(var(--j)*45ms);transition:background .15s,transform .15s}
+.pb-row:hover{background:rgba(0,0,0,.07);transform:translateX(3px)}
+.pb-best{background:color-mix(in oklab,var(--lime) 55%,transparent)}
+.pb-best:hover{background:var(--lime)}
+.pb-n{font-size:15px;font-weight:600;opacity:.5;text-align:center}
+.pb-main{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pb-top{display:flex;align-items:center;gap:8px;font-size:12.5px;flex-wrap:wrap}
+.pb-k{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:var(--ink);color:#fff}
+.pb-k.carousel{background:var(--geo-hi)}.pb-k.post{background:var(--faint)}
+.pb-t{opacity:.7}
+.pb-fire{font-size:11px;font-weight:700;color:var(--orange)}
+.pb-bar{display:flex;align-items:center;gap:10px}
+.pb-bar i{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--geo-hi),var(--orange));width:var(--w);min-width:3px;transform-origin:left;animation:gxGrow .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.1s + var(--j)*45ms)}
+.pb-bar b{font-size:13.5px;white-space:nowrap}
+.pb-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.pb-chips span{font-size:12px;border-radius:999px;padding:3px 9px;background:rgba(0,0,0,.06);white-space:nowrap}
+.gt-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:30px;align-items:start}
+.gt-big{font-size:clamp(46px,6vw,78px)!important}
+.gt-top{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.gt-r{display:grid;grid-template-columns:minmax(0,160px) 1fr auto;align-items:center;gap:10px;border:0;background:rgba(255,255,255,.06);color:inherit;border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer;text-align:left;animation:gxIn .5s both;animation-delay:calc(var(--j)*60ms)}
+.gt-r:hover{background:rgba(255,255,255,.14)}
+.gt-u{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;flex-direction:column}
+.gt-u small{font-size:11px;opacity:.55}
+.gt-r2 .gx-l{margin-bottom:10px}
+.gt-bar i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--lime),var(--orange));width:var(--w);transform-origin:left;animation:gxGrow .9s both;animation-delay:calc(.2s + var(--j)*60ms)}
+.gt .geo-wrap{grid-template-columns:1fr;gap:12px}
+.gt .geo-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 18px}
+.gt .geo-row i{background:var(--lime)}
+@media (max-width:820px){.geo-wrap,.gt-grid{grid-template-columns:1fr}.pb-row{grid-template-columns:22px minmax(0,1fr)}.pb-chips{grid-column:2;justify-content:flex-start}.gt .geo-list{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.gx,.gx-stack i,.gx-cols i,.geo-row,.geo-row i,.ga-c i,.pb-row,.pb-bar i,.gt-r,.gt-bar i{animation:none}.geo-pin .geo-pulse{display:none}}
 .chartbox{position:relative}
 .chartbox svg{display:block;width:100%;height:auto}
 .tip{position:absolute;top:0;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;white-space:nowrap;pointer-events:none}
@@ -1254,14 +1342,18 @@ const fail = why => {
   b.querySelector("button").onclick = () => location.reload();
   document.body.appendChild(b);
 };
+const F = "kits.json";
+// закрытые страницы ждут пинкод (gate.js), и только потом грузят и расшифровывают данные; медиакит открыт
+(window.akmKey || Promise.resolve()).then(() => {
 addEventListener("error", e => { if (performance.now() < 20000) fail(e.message || "ошибка скрипта"); });   // только пока страница открывается
 const slow = setTimeout(() => { if (!window.__PUBLIC_DATA) fail("данные грузятся слишком долго — проверьте интернет или VPN"); }, 15000);
-fetch("data/kits.json?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); }).then(d => {
+(window.akmData ? window.akmData(F) : fetch("data/" + F + "?t=" + Date.now(), { cache: "no-store" }).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })).then(d => {
   clearTimeout(slow); document.getElementById("loadFail")?.remove();
   window.__PUBLIC_DATA = d;
   const s = document.createElement("script"); s.textContent = document.getElementById("main-js").textContent;
   document.body.appendChild(s);
 }).catch(e => { clearTimeout(slow); fail("данные — " + e.message); });
+});
 })();
 </script><script>/* Общие эффекты обеих страниц (вставляется export_pages.py, как help.js):
    · «липкая» шапка с фоном, когда страница прокручена;
