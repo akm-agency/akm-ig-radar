@@ -529,7 +529,8 @@ $("grid").addEventListener("click", async e => {
     } else {
       const ta = art.querySelector("#cm-" + i), comment = ta.value.trim();
       if (act === "rework" && !comment) { ta.focus(); ta.placeholder = "Напишите, что поправить: без комментария доработку не отправить"; btn.disabled = false; btn.textContent = label; return; }
-      const slot = act === "approved" ? art.querySelector("#sl-" + i).value : "";
+      // «авто» = сразу первый свободный слот этого аккаунта (страница сама занимает его на сетке, не ждёт синхронизации)
+      const slot = act === "approved" ? (art.querySelector("#sl-" + i).value || ((freeSlots(p.account)[0] || {}).key || "")) : "";
       await decide(p, act, comment, slot ? {slot} : {});
     }
   } catch (err) {
