@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Контентщик AKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* В стиле сайта сетки: светлый камень, тёмные и лаймовые плитки. Сверху здоровье каналов, ниже очередь постов
+   карточками; слайды листаются как в Instagram, по клику — полный размер. */
+:root{
+  color-scheme:light;
+  --stone:#E9E8E3; --tile:#FFFFFF; --tile-2:#F4F3EF;
+  --ink:#0D0D0F; --muted:#6B6B72; --faint:#A3A3A8; --line:#E4E3DE;
+  --blue:#2541FF; --lime:#D2F35B; --lavender:#CFC2FF; --peach:#FFD9C7; --orange:#FF4F1F;
+  --up:#13924F; --down:#E1343F;
+  --r:24px; --gap:10px;
+  --f:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--stone);margin:0}
+body{color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a{color:inherit}
+p,h1,h2,h3{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding:18px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left));
+  display:flex;flex-direction:column;gap:var(--gap)}
+
+/* шапка */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;padding:4px 0 10px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{display:inline-grid;place-items:center;background:var(--ink);color:var(--lime);border-radius:999px;height:48px;padding:0 18px;font-weight:700;letter-spacing:-.02em;flex:none}
+h1{font-size:clamp(24px,2.6vw,34px);font-weight:600;letter-spacing:-.04em;line-height:1}
+.meta{font-size:12px;color:var(--muted);margin-top:5px}
+.back{background:var(--tile);border-radius:999px;padding:10px 16px;font-weight:500;text-decoration:none;white-space:nowrap}
+.back:hover{background:var(--tile-2)}
+
+/* каналы */
+.accs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--gap)}
+.acc{background:var(--ink);color:#fff;border-radius:var(--r);padding:18px 20px;display:grid;gap:16px}
+.acc-hd{display:flex;align-items:center;gap:12px}
+.acc-hd img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#333;flex:none}
+.acc-hd b{font-weight:600;font-size:16px;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-hd span{margin-left:auto;background:var(--lime);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.num small{display:block;color:#9C9CA3;font-size:11.5px;line-height:1.3}
+.num strong{display:block;font-size:clamp(24px,2.4vw,32px);font-weight:600;letter-spacing:-.04em;line-height:1.1;margin-top:4px}
+
+/* фильтры */
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 0 2px}
+.chip{background:var(--tile);border-radius:999px;padding:8px 14px;font-weight:500;font-size:13px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+.chip i{font-style:normal;color:var(--faint);margin-left:4px}
+.chip[aria-pressed="true"] i{color:#9C9CA3}
+.sep{width:1px;height:22px;background:#D3D2CC;margin:0 4px}
+
+/* посты */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:var(--gap);align-items:start}
+.post{background:var(--tile);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pill{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:var(--tile-2)}
+.s-ready{background:var(--lime)} .s-approved{background:var(--blue);color:#fff} .s-published{background:var(--lavender)}
+.s-rejected{background:var(--peach)} .s-rendered{background:#FFF1B8}
+.who{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;min-width:0}
+.who img{width:20px;height:20px;border-radius:50%;object-fit:cover}
+.type{font-size:12px;color:var(--muted)}
+.score{margin-left:auto;display:flex;align-items:baseline;gap:2px;font-weight:600;font-size:20px;letter-spacing:-.03em}
+.score small{font-size:12px;color:var(--faint);font-weight:500}
+.post h3{font-size:16px;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+
+/* карусель */
+.car{position:relative}
+.strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:14px;overscroll-behavior-x:contain}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:0 0 calc((100% - 6px)/1.6);scroll-snap-align:start;aspect-ratio:4/5;border-radius:14px;overflow:hidden;background:var(--tile-2)}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);
+  box-shadow:0 2px 10px rgba(0,0,0,.18);display:grid;place-items:center;font-size:18px;line-height:1}
+.nav-btn.prev{left:8px} .nav-btn.next{right:8px}
+.nav-btn:disabled{opacity:0;pointer-events:none}
+.count{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.noimg{aspect-ratio:16/7;border-radius:14px;background:var(--tile-2);display:grid;place-items:center;color:var(--muted);font-size:13px}
+
+/* разбор */
+.bars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.bar-i{background:var(--tile-2);border-radius:12px;padding:8px 10px}
+.bar-i small{display:block;font-size:11px;color:var(--muted)}
+.bar-i b{font-size:16px;font-weight:600}
+details{border-top:1px solid var(--line);padding-top:10px}
+details+details{border-top:0;padding-top:0}
+summary{cursor:pointer;font-weight:500;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--muted);font-size:18px;line-height:1}
+details[open] summary::after{content:"−"}
+summary i{font-style:normal;color:var(--faint);font-weight:400;margin-left:6px}
+.cap{white-space:pre-wrap;background:var(--tile-2);border-radius:12px;padding:12px;margin-top:8px;font-size:13.5px;overflow-wrap:anywhere}
+ul{margin:8px 0 0;padding-left:18px;display:grid;gap:6px}
+li{overflow-wrap:anywhere}
+.ok li::marker{color:var(--up)}
+.src a{color:var(--blue);word-break:break-all}
+.foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:auto}
+.copy{margin-left:auto;background:var(--ink);color:#fff;border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:500;white-space:nowrap}
+.copy.done{background:var(--up)}
+.res{background:var(--lavender);border-radius:12px;padding:10px 12px;font-size:13px}
+.empty{background:var(--tile);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+
+/* просмотр слайдов */
+.lb{position:fixed;inset:0;background:rgba(8,8,10,.94);z-index:50;display:flex;align-items:center;justify-content:center;padding:56px 12px 64px}
+.lb img{max-width:min(100%,560px);max-height:100%;border-radius:12px;display:block;user-select:none}
+.lb .x{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px;color:#fff;font-size:28px;width:44px;height:44px}
+.lb .nav-btn{background:rgba(255,255,255,.14);color:#fff;width:48px;height:48px;box-shadow:none}
+.lb .nav-btn.prev{left:max(10px,calc(50% - 340px))} .lb .nav-btn.next{right:max(10px,calc(50% - 340px))}
+.lb .cnt{position:absolute;bottom:max(18px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#C9C9CE;font-size:13px}
+
+@media (max-width:600px){
+  .wrap{gap:8px;padding-top:12px}
+  .logo{height:40px;padding:0 14px}
+  .acc{padding:16px}
+  .post{padding:14px;border-radius:20px}
+  .strip button{flex-basis:78%}
+  .nav-btn:not(.lb .nav-btn){display:none}
+  .filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:6px 16px 2px}
+  .filters::-webkit-scrollbar{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <div class="brand"><span class="logo">AKM</span>
+      <div><h1>Контентщик</h1><p class="meta" id="meta"></p></div></div>
+    <a class="back" href="../radar.html">← Радар сетки</a>
+  </header>
+  <section class="accs" id="accs"></section>
+  <nav class="filters" id="filters" aria-label="Фильтры"></nav>
+  <main class="grid" id="grid"></main>
+</div>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Слайды">
+  <button class="x" id="lbX" aria-label="Закрыть">×</button>
+  <button class="nav-btn prev" id="lbP" aria-label="Назад">‹</button>
+  <img id="lbImg" alt="">
+  <button class="nav-btn next" id="lbN" aria-label="Вперёд">›</button>
+  <div class="cnt" id="lbC"></div>
+</div>
+<script>
+const D = {"mode": "approve", "updated": "03.11 09:40", "accounts": [{"name": "rocksfalls", "avatar": "a/rocksfalls.jpg", "med_reach_10": 373, "follows_10": 0, "followers_7d": 10}, {"name": "americanfootballfights", "avatar": "a/americanfootballfights.jpg", "med_reach_10": 400, "follows_10": 0, "followers_7d": 2}], "posts": [{"id": "1103_perfect-sleep", "account": "rocksfalls", "status": "ready", "score": 8, "type": "spreader", "headline": "FALL ASLEEP AFTER MIDNIGHT? YOUR HEART MAY PAY", "slides": ["p/rocksfalls__1103_perfect-sleep/00.jpg", "p/rocksfalls__1103_perfect-sleep/01.jpg", "p/rocksfalls__1103_perfect-sleep/02.jpg", "p/rocksfalls__1103_perfect-sleep/03.jpg", "p/rocksfalls__1103_perfect-sleep/04.jpg", "p/rocksfalls__1103_perfect-sleep/05.jpg", "p/rocksfalls__1103_perfect-sleep/06.jpg", "p/rocksfalls__1103_perfect-sleep/07.jpg"], "titles": ["Your night runs in 90-minute loops", "Deep sleep cleans your brain", "REM: paralyzed and dreaming", "Best bedtime: 10-11 PM", "The math: 5 cycles = 7.5 hours", "Night owl? Your heart may pay", "Send this to a night owl"], "caption": "The best bedtime isn't midnight. It isn't 9 PM either.\nA UK study of 88,026 adults found the lowest heart risk in people who fell asleep between 10 and 11 PM.\nYour night runs in 90-minute cycles, so 5 full cycles = 7.5 hours. Time your alarm to the end of one.\nStudies suggest it's a link, not a guarantee, but your body clearly likes a schedule.\nWhat time do you actually fall asleep? Be honest 👇\nFollow → @rocksfalls to get the most useful information first, every day.", "sources": ["https://www.sleepfoundation.org/how-sleep-works/stages-of-sleep", "https://www.helsinki.fi/en/news/healthier-world/deep-sleep-cleanses-brain", "https://www.nbcnews.com/health/aging/falling-asleep-time-may-safest-heart-new-study-shows-rcna4887", "https://www.aarp.org/health/healthy-living/info-2021/bedtime-heart-health.html", "https://www.news-medical.net/news/20260209/Late-sleepers-have-higher-heart-risk-and-its-mostly-preventable.aspx", "https://www.sciencedaily.com/releases/2026/01/260130041101.htm"], "parts": {"cover": 9, "hook": 8, "share_reason": 7}, "fixes": ["Необязательно: слайд 06 — висящее слово 'HOURS'; сократить title до '5 CYCLES = 7.5 HOURS'.", "Необязательно: слайд 06 (out/05.jpg) — будильник показывает ~10:10, а текст про 6:00 AM; при перегенерации стрелки на 6:00.", "Необязательно: подпись слайдов — title и line одного кегля и цвета сливаются; выделить title (жёлтый/крупнее) или отбить строкой."], "fixed": ["Внутренние слайды 1–7 заменены на единый тёплый ночной стиль: спящие взрослые крупно, будильник, человек с телефоном ночью, бодрое утро у окна", "Убраны архивные/чувствительные кадры (ребёнок под сеткой, спящий на полу, пожилая пара в униформе)", "Последний слайд больше не дублирует призыв; 'BEST BEDTIME: 10-11 PM' в одну строку"], "credits": 8.0, "updated": "2026-11-03T08:58:34", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/rocksfalls/1103_perfect-sleep"}, {"id": "1103_couple-sleep-positions", "account": "americanfootballfights", "status": "ready", "score": 7, "type": "converter", "headline": "HOW YOU SLEEP NEXT TO YOUR PARTNER REVEALS EVERYTHING", "slides": ["p/americanfootballfights__1103_couple-sleep-positions/00.jpg", "p/americanfootballfights__1103_couple-sleep-positions/01.jpg", "p/americanfootballfights__1103_couple-sleep-positions/02.jpg", "p/americanfootballfights__1103_couple-sleep-positions/03.jpg", "p/americanfootballfights__1103_couple-sleep-positions/04.jpg", "p/americanfootballfights__1103_couple-sleep-positions/05.jpg", "p/americanfootballfights__1103_couple-sleep-positions/06.jpg", "p/americanfootballfights__1103_couple-sleep-positions/07.jpg"], "titles": ["42% sleep back to back", "31% face the same way", "Only 4% face each other", "Touch is the real signal", "The one inch rule", "30 inches apart", "Part 2 tomorrow — follow now"], "caption": "Your sleeping position is quietly telling your partner how close you really are.\n\nA University of Hertfordshire survey of 1,000+ people found touch and distance in bed tracked how happy couples felt.\nPart 2 tomorrow: what each position means.\n\nHow far apart do you two sleep?\n\nFollow → @americanfootballfights to get the most useful information first, every day.", "sources": ["https://www.sciencedaily.com/releases/2014/04/140415203702.htm", "https://time.com/64966/what-your-sleeping-position-says-about-your-relationship"], "parts": {"cover": 7, "hook": 7, "share_follow": 8}, "fixes": ["Слайд «Only 4% face each other»: «Most couples who start this way drift apart» не подтверждено источником — смягчить («Many couples…») или убрать", "Part 2: заранее прописать источники значений поз (поп-психология, подавать как «Psychologists say…»)"], "fixed": ["Выдуманная причина «breathing on each other» убрана", "«Studies suggest» -> «The survey suggests»", "Слайд «one inch»: кадр теперь пара вплотную в объятии", "Слайд «4% face each other»: пара лицом к лицу крупно", "Обложка: кроп крупнее, лица читаются"], "credits": 4.0, "updated": "2026-11-03T09:40:05", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/americanfootballfights/1103_couple-sleep-positions"}, {"id": "1103_kissing-science", "account": "rocksfalls", "status": "ready", "score": 7, "type": "spreader", "headline": "WHAT ONE 10-SECOND KISS DOES TO YOUR BODY", "slides": ["p/rocksfalls__1103_kissing-science/00.jpg", "p/rocksfalls__1103_kissing-science/01.jpg", "p/rocksfalls__1103_kissing-science/02.jpg", "p/rocksfalls__1103_kissing-science/03.jpg", "p/rocksfalls__1103_kissing-science/04.jpg", "p/rocksfalls__1103_kissing-science/05.jpg", "p/rocksfalls__1103_kissing-science/06.jpg", "p/rocksfalls__1103_kissing-science/07.jpg"], "titles": ["80 million bacteria, 10 seconds", "Your mouths start to match", "Less stress, lower cholesterol", "A first kiss is a test", "One bad kiss can end it", "You probably tilt right", "Now you know"], "caption": "And most people have no idea it is happening.\n\n80 million bacteria, a drop in stress, a silent compatibility test, all in a few seconds.\nOne bad first kiss killed the attraction for 2 in 3 women in one study.\n\nWhich way do you tilt, left or right? Tell us below.\n\nFollow → @rocksfalls to get the most useful information first, every day.", "sources": ["https://www.livescience.com/48771-kissing-microbiota-bacteria.html", "https://www.sci.news/biology/science-ten-second-kiss-80-million-bacteria-02283.html", "https://experts.arizona.edu/en/publications/kissing-in-marital-and-cohabiting-relationships-effects-on-blood-/", "https://www.ox.ac.uk/news/2013-10-11-kissing-helps-us-find-right-partner-–-and-keep-them", "https://www.sciencedaily.com/releases/2007/08/070830121629.htm", "https://www.albany.edu/campusnews/releases_401.htm", "https://www.nature.com/articles/news030210-7"], "parts": {"cover": 9, "hook": 8, "share_reason": 6}, "fixes": ["Не исправлено с 1 круга (не блокирует): последняя строка подписи всё ещё шаблонная 'Follow → @rocksfalls to get the most useful information first' — лучше 'Send this to the person you'd test it on.'", "Слайд 08 (out/07.jpg, 'Now you know'): пожилая пара в очках не про поцелуй — по желанию взять пару в момент поцелуя/улыбки вплотную.", "Слайд 05 (out/04.jpg): то же стоковое фото пары, что на обложке americanfootballfights/1103_what-men-notice — не выпускать оба поста в один день или заменить кадр здесь."], "fixed": ["Обложка: Климт заменён на крупный план пары перед поцелуем — останавливает ленту", "Слайд 06: гримасничающий мужчина вместо нейтральной пожилой женщины", "Слайд 07: целующаяся пара вместо одинокой женщины", "Подпись и слайд 02 поправлены по фактам"], "credits": 3.0, "updated": "2026-11-03T08:58:50", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/rocksfalls/1103_kissing-science"}, {"id": "1103_quit-alcohol-timeline", "account": "americanfootballfights", "status": "ready", "score": 7, "type": "spreader", "headline": "STOP DRINKING FOR 30 DAYS. THIS IS WHAT YOUR BODY DOES", "slides": ["p/americanfootballfights__1103_quit-alcohol-timeline/00.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/01.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/02.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/03.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/04.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/05.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/06.jpg", "p/americanfootballfights__1103_quit-alcohol-timeline/07.jpg"], "titles": ["Day 1: the restless part", "Week 1: sleep starts to reset", "Insulin resistance down 26%", "Blood pressure and weight drop", "71% slept better, 88% saved money", "Drink heavily every day? Read this", "Send this to your drinking buddy"], "caption": "Your body starts noticing within days, and the numbers back it up.\n\nIn one study, a single month off alcohol lowered insulin resistance, blood pressure and weight. Most Dry January finishers said they slept better and had more energy.\n\nIf you drink heavily every day, talk to a doctor before quitting. Stopping suddenly can be dangerous.\n\nCould you go 30 days without a drink?\n\nFollow → @americanfootballfights to get the most useful information first, every day.", "sources": ["https://bmjopen.bmj.com/content/8/5/e020673", "https://pubmed.ncbi.nlm.nih.gov/29730627/", "https://www.sussex.ac.uk/news/article/47131-how-dry-january-is-the-secret-to-better-sleep-saving-money-and-losing-weight", "https://www.sciencedaily.com/releases/2018/12/181228164834.htm", "https://medlineplus.gov/ency/article/000764.htm", "https://pubmed.ncbi.nlm.nih.gov/23347102/"], "parts": {"cover": 7, "hook": 7, "share_follow": 7}, "fixes": ["Слайд 2 (обяз.): заменить line на «Alcohol helps you fall asleep but cuts REM sleep and breaks up the night. Without it, many people report better-quality sleep.» — без «later in the night» и «deeper»", "Слайд 4: «The group that kept drinking saw no change» → «saw no significant change»", "Слайд 3: «a London hospital study» → «a small London study (94 people)» — честно и усиливает доверие", "Слайд 5 (опц.): «In a Sussex survey of Dry January finishers» → «In a Sussex survey of 800+ Dry January participants» (данные из августовского опроса, не только тех, кто дошёл до конца)", "Слайд 2 (Week 1: sleep) — кот на клавиатуре слабый и не по теме: взять крупный план человека, крепко спящего в постели / проснувшегося отдохнувшим у окна", "Слайды 3, 4, 6 (глюкометр, тонометр, стетоскоп) — три безликих предмета подряд; хотя бы один заменить на лицо: мужчина меряет давление / человек на весах с улыбкой", "Обложка ок (лицо, виски), но эмоция вялая — если есть кадр с более напряжённым взглядом на стакан, предпочесть его"], "fixed": [], "credits": 5.0, "updated": "2026-11-03T08:58:49", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/americanfootballfights/1103_quit-alcohol-timeline"}, {"id": "1103_what-men-notice", "account": "americanfootballfights", "status": "ready", "score": 7, "type": "converter", "headline": "SMALL THINGS MEN NOTICE ABOUT HER BUT NEVER SAY (PART 1)", "slides": ["p/americanfootballfights__1103_what-men-notice/00.jpg", "p/americanfootballfights__1103_what-men-notice/01.jpg", "p/americanfootballfights__1103_what-men-notice/02.jpg", "p/americanfootballfights__1103_what-men-notice/03.jpg", "p/americanfootballfights__1103_what-men-notice/04.jpg", "p/americanfootballfights__1103_what-men-notice/05.jpg", "p/americanfootballfights__1103_what-men-notice/06.jpg", "p/americanfootballfights__1103_what-men-notice/07.jpg"], "titles": ["The way she laughs", "When she remembers the small stuff", "Her \"look at this\" moments", "How she lights up with good news", "How she treats strangers", "Her scent on his hoodie", "Send this to him"], "caption": "He notices way more than he lets on.\n\nNot her looks. The laugh, the little details she remembers, the way she treats the waiter.\nMost men just never say it out loud.\n\nWhich one does your partner do without even trying?\n\nPart 2 tomorrow: what women notice about him but never say. Follow → @americanfootballfights so you don't miss it.", "sources": ["https://pmc.ncbi.nlm.nih.gov/articles/PMC4779443/", "https://www.sciencedaily.com/releases/2016/02/160222144546.htm", "https://www.gottman.com/blog/turn-toward/", "https://fortune.com/well/article/predict-divorce-communication-style-gottman-institute", "https://doi.org/10.1037/0022-3514.91.5.904", "https://doi.org/10.1017/S0140525X00023992", "https://psych.ubc.ca/news/stressed-out-try-smelling-your-partners-shirt/", "https://www.psychologicalscience.org/?p=166170"], "parts": {"cover": 8, "hook": 8, "share_or_follow": 7}, "fixes": ["Последний слайд дублирует 'Send this to him' (title и начало line). Line: 'Part 2 tomorrow: what women notice about him but never say. Follow so you don't miss it.'", "Слайд 06 (out/05.jpg, strangers): пара с бумажными полотенцами в магазине слабо про 'официанта/кассира' — по возможности заменить на 'woman thanking barista'.", "Обложка — то же фото пары, что слайд 05 в rocksfalls/1103_kissing-science: не публиковать в один день."], "fixed": ["Part 1 на обложке и в подписи, Part 2 tomorrow + follow на последнем слайде — повод подписаться есть", "Buss и Gable переформулированы точно, источники по запаху добавлены", "Слайды 01/03/05/06 заменены: пара смеётся вместе, цветная пара, женщина в худи"], "credits": 2.0, "updated": "2026-11-03T08:58:49", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/americanfootballfights/1103_what-men-notice"}, {"id": "1103_bible-creatures", "account": "rocksfalls", "status": "draft", "score": null, "type": "", "headline": "THE BIBLE DESCRIBES CREATURES SCARIER THAN ANY HORROR MOVIE", "slides": ["p/rocksfalls__1103_bible-creatures/00.jpg", "p/rocksfalls__1103_bible-creatures/01.jpg", "p/rocksfalls__1103_bible-creatures/02.jpg", "p/rocksfalls__1103_bible-creatures/03.jpg", "p/rocksfalls__1103_bible-creatures/04.jpg", "p/rocksfalls__1103_bible-creatures/05.jpg", "p/rocksfalls__1103_bible-creatures/06.jpg", "p/rocksfalls__1103_bible-creatures/07.jpg"], "titles": ["1. Leviathan", "2. Behemoth", "3. Seraphim", "4. Cherubim", "5. Ophanim", "6. The Nephilim", "7. Locusts of the Abyss"], "caption": "The Bible describes creatures that would make any horror director jealous.\n\nNo halos, no harps. Wings of fire, wheels covered in eyes and giants that made men feel like insects. All of it is written down, chapter and verse.\n\nWhich one would you least want to meet?\n\nFollow → @rocksfalls to get the most useful information first, every day.", "sources": [], "parts": {}, "fixes": [], "fixed": [], "credits": 0, "updated": "2026-11-03T01:11:44", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/rocksfalls/1103_bible-creatures"}, {"id": "1103_72-hours-disaster", "account": "americanfootballfights", "status": "backlog", "score": null, "type": "", "headline": "IF DISASTER HITS, THE FIRST 72 HOURS DECIDE EVERYTHING", "slides": [], "titles": ["1. Water first", "2. Fill the bathtub", "3. Save your phone", "4. Keep the fridge shut", "5. No generators indoors", "6. Cash and paper", "7. Pick a meeting point"], "caption": "When disaster hits, the first 72 hours matter more than anything else.\n\nWater, power, phone, food and one plan most families never make. Save this so you have it when the lights go out.\n\nWhat would you grab first?\n\nFollow → @americanfootballfights to get the most useful information first, every day.", "sources": [], "parts": {}, "fixes": [], "fixed": [], "credits": 0, "updated": "2026-11-03T01:16:43", "permalink": "", "result": {}, "cmd": "python agent.py approve posts/americanfootballfights/1103_72-hours-disaster"}]};
+const ST = {ready:"готов", approved:"одобрен", rendered:"свёрстан", draft:"черновик", backlog:"запас", published:"опубликован", rejected:"отклонён"};
+const TY = {spreader:"разгон", converter:"конверсия"};
+const PARTS = {cover:"обложка", hook:"хук", share_reason:"повод переслать"};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => n == null ? "—" : Number(n).toLocaleString("ru-RU");
+const $ = id => document.getElementById(id);
+const avatar = a => (D.accounts.find(x => x.name === a) || {}).avatar || "";
+
+$("meta").textContent = `режим: ${D.mode === "approve" ? "публикация после одобрения" : "авто"} · обновлено ${D.updated}`;
+
+$("accs").innerHTML = D.accounts.map(a => {
+  const ready = D.posts.filter(p => p.account === a.name && p.status === "ready").length;
+  return `<article class="acc"><div class="acc-hd">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<b>@${esc(a.name)}</b>
+    <span>готово: ${ready}</span></div><div class="nums">
+    <div class="num"><small>медиана охвата, 10 постов</small><strong>${fmt(a.med_reach_10)}</strong></div>
+    <div class="num"><small>подписки с 10 постов</small><strong>${fmt(a.follows_10)}</strong></div>
+    <div class="num"><small>подписчиков за 7 дней</small><strong>${a.followers_7d > 0 ? "+" : ""}${fmt(a.followers_7d)}</strong></div>
+    </div></article>`;
+}).join("");
+
+let fAcc = "all", fSt = "all";
+try { const s = JSON.parse(localStorage.getItem("cf") || "{}"); fAcc = s.a || "all"; fSt = s.s || "all"; } catch (e) {}
+
+function filters() {
+  const n = (a, s) => D.posts.filter(p => (a === "all" || p.account === a) && (s === "all" || p.status === s)).length;
+  const sts = [...new Set(D.posts.map(p => p.status))];
+  const chip = (kind, v, label, on) => `<button class="chip" data-k="${kind}" data-v="${esc(v)}" aria-pressed="${on}">${label}<i>${kind === "a" ? n(v, fSt) : n(fAcc, v)}</i></button>`;
+  $("filters").innerHTML = chip("a", "all", "Все каналы", fAcc === "all") +
+    D.accounts.map(a => chip("a", a.name, "@" + esc(a.name), fAcc === a.name)).join("") + `<span class="sep"></span>` +
+    chip("s", "all", "Все статусы", fSt === "all") + sts.map(s => chip("s", s, ST[s] || s, fSt === s)).join("");
+}
+$("filters").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  if (b.dataset.k === "a") fAcc = b.dataset.v; else fSt = b.dataset.v;
+  try { localStorage.setItem("cf", JSON.stringify({a: fAcc, s: fSt})); } catch (e) {}
+  render();
+});
+
+function card(p, i) {
+  const sl = p.slides.length ? `<div class="car"><div class="strip" data-i="${i}">${p.slides.map((s, j) =>
+      `<button data-j="${j}" aria-label="Слайд ${j + 1}"><img src="${s}" alt="${esc(j ? p.titles[j - 1] : p.headline)}" loading="lazy" decoding="async"></button>`).join("")}</div>
+      <button class="nav-btn prev" aria-label="Назад" disabled>‹</button><button class="nav-btn next" aria-label="Вперёд">›</button></div>
+      <div class="count"><span>${p.slides.length} слайдов · листай или нажми</span>${p.credits ? `<span>Higgsfield: ${p.credits} кр.</span>` : ""}</div>`
+    : `<div class="noimg">слайды ещё не свёрстаны</div>`;
+  const parts = Object.entries(p.parts).filter(([k]) => PARTS[k]);
+  const r = p.result || {};
+  return `<article class="post">
+    <div class="top"><span class="pill s-${esc(p.status)}">${ST[p.status] || esc(p.status)}</span>
+      <span class="who">${avatar(p.account) ? `<img src="${avatar(p.account)}" alt="">` : ""}@${esc(p.account)}</span>
+      ${p.type ? `<span class="type">· ${TY[p.type] || esc(p.type)}</span>` : ""}
+      ${p.score ? `<span class="score">${p.score}<small>/10</small></span>` : ""}</div>
+    <h3>${esc(p.headline)}</h3>${sl}
+    ${r.reach != null ? `<div class="res">Результат: охват ${fmt(r.reach)} (×${r.x_reach}), репосты ${r.shares_per_1k}/1000, подписки ${r.follows_per_1k}/1000${r.verdict ? " — " + esc(r.verdict) : ""}</div>` : ""}
+    ${parts.length ? `<div class="bars">${parts.map(([k, v]) => `<div class="bar-i"><small>${PARTS[k]}</small><b>${v}</b></div>`).join("")}</div>` : ""}
+    <div>
+    <details><summary>Подпись</summary><div class="cap">${esc(p.caption)}</div></details>
+    ${p.fixes.length ? `<details><summary>Замечания критика<i>${p.fixes.length}</i></summary><ul>${p.fixes.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}
+    ${p.fixed.length ? `<details><summary>Исправлено<i>${p.fixed.length}</i></summary><ul class="ok">${p.fixed.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}
+    ${p.sources.length ? `<details><summary>Источники<i>${p.sources.length}</i></summary><ul class="src">${p.sources.map(x => `<li><a href="${esc(x)}" target="_blank" rel="noopener">${esc(x)}</a></li>`).join("")}</ul></details>` : ""}
+    </div>
+    <div class="foot">${p.permalink ? `<a href="${esc(p.permalink)}" target="_blank" rel="noopener">пост в Instagram ↗</a>` : `<span>${esc(p.id)}</span>`}
+      ${p.status === "ready" ? `<button class="copy" data-cmd="${esc(p.cmd)}">Скопировать команду одобрения</button>` : ""}</div>
+  </article>`;
+}
+
+let shown = [];
+function render() {
+  filters();
+  shown = D.posts.filter(p => (fAcc === "all" || p.account === fAcc) && (fSt === "all" || p.status === fSt));
+  $("grid").innerHTML = shown.length ? shown.map(card).join("") : `<div class="empty">Нет постов под этот фильтр</div>`;
+  document.querySelectorAll(".car").forEach(c => {
+    const s = c.querySelector(".strip"), pv = c.querySelector(".prev"), nx = c.querySelector(".next");
+    const upd = () => { pv.disabled = s.scrollLeft < 4; nx.disabled = s.scrollLeft + s.clientWidth > s.scrollWidth - 4; };
+    s.addEventListener("scroll", upd, {passive: true}); upd();
+    pv.onclick = () => s.scrollBy({left: -s.clientWidth * .8, behavior: "smooth"});
+    nx.onclick = () => s.scrollBy({left: s.clientWidth * .8, behavior: "smooth"});
+  });
+}
+
+$("grid").addEventListener("click", e => {
+  const c = e.target.closest(".copy");
+  if (c) {
+    navigator.clipboard?.writeText(c.dataset.cmd).then(() => { c.textContent = "Скопировано"; c.classList.add("done"); },
+      () => { c.textContent = c.dataset.cmd; });
+    return;
+  }
+  const b = e.target.closest(".strip button");
+  if (b) openLb(+b.parentElement.dataset.i, +b.dataset.j);
+});
+
+let lbP = null, lbJ = 0;
+function openLb(i, j) { lbP = shown[i]; lbJ = j; showLb(); $("lb").hidden = false; document.body.style.overflow = "hidden"; $("lbX").focus(); }
+function showLb() {
+  lbJ = (lbJ + lbP.slides.length) % lbP.slides.length;
+  $("lbImg").src = lbP.slides[lbJ]; $("lbImg").alt = lbJ ? lbP.titles[lbJ - 1] || "" : lbP.headline;
+  $("lbC").textContent = `${lbJ + 1} / ${lbP.slides.length} · @${lbP.account}`;
+}
+function closeLb() { $("lb").hidden = true; document.body.style.overflow = ""; }
+$("lbX").onclick = closeLb;
+$("lbP").onclick = () => { lbJ--; showLb(); };
+$("lbN").onclick = () => { lbJ++; showLb(); };
+$("lb").addEventListener("click", e => { if (e.target.id === "lb") closeLb(); });
+document.addEventListener("keydown", e => {
+  if ($("lb").hidden) return;
+  if (e.key === "Escape") closeLb();
+  if (e.key === "ArrowLeft") { lbJ--; showLb(); }
+  if (e.key === "ArrowRight") { lbJ++; showLb(); }
+});
+let tx = null;
+$("lb").addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, {passive: true});
+$("lb").addEventListener("touchend", e => {
+  if (tx == null) return; const dx = e.changedTouches[0].clientX - tx; tx = null;
+  if (Math.abs(dx) > 40) { lbJ += dx < 0 ? 1 : -1; showLb(); }
+});
+
+render();
+</script>
+</body>
+</html>
