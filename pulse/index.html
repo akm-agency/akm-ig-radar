@@ -1,0 +1,635 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><!--akm-gate--><meta name="robots" content="noindex"><script>/* Вход по пинкоду и расшифровка данных сайта (пара к site_crypto.py). export_pages подставляет a48e70ac1f6407cbb092d17883153692.
+   Ключ после верного пинкода хранится в браузере (localStorage + cookie на год), пинкод запоминает менеджер паролей. */
+(() => {
+const SALT = "akm-ig-radar-v1", ITER = 150000, CHECK = "a48e70ac1f6407cbb092d17883153692", NAME = "akm_k";
+const enc = s => new TextEncoder().encode(s);
+const hex = b => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const W = new Uint32Array(64);
+function sha256(msg) {   // синхронный SHA-256: ключевой поток — тысячи коротких хешей, WebCrypto для этого слишком медленный
+  const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(nb);
+  m.set(msg); m[l] = 0x80; const bits = l * 8;
+  m[nb - 4] = bits >>> 24; m[nb - 3] = bits >>> 16; m[nb - 2] = bits >>> 8; m[nb - 1] = bits; m[nb - 5] = Math.floor(bits / 2 ** 32);
+  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a, h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+  for (let o = 0; o < nb; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = (m[o + i * 4] << 24) | (m[o + i * 4 + 1] << 16) | (m[o + i * 4 + 2] << 8) | m[o + i * 4 + 3];
+    for (let i = 16; i < 64; i++) {
+      const a = W[i - 15], b = W[i - 2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3), s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      W[i] = (W[i - 16] + s0 + W[i - 7] + s1) | 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7)), ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + W[i]) | 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10)), mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+  }
+  const out = new Uint8Array(32), dv = new DataView(out.buffer);
+  [h0, h1, h2, h3, h4, h5, h6, h7].forEach((x, i) => dv.setUint32(i * 4, x >>> 0));
+  return out;
+}
+const cat = (...a) => { const r = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; };
+const good = k => k?.length === 32 && hex(sha256(cat(k, enc("gate")))).slice(0, 32) === CHECK;
+async function derive(pin) {
+  const base = await crypto.subtle.importKey("raw", enc(pin), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc(SALT), iterations: ITER }, base, 256));
+}
+const path = location.pathname.replace(/[^/]*$/, "");
+function stored() {
+  try { const v = localStorage.getItem(NAME); if (v) return unhex(v); } catch { /* приватный режим */ }
+  const c = document.cookie.split("; ").find(x => x.startsWith(NAME + "="));
+  return c ? unhex(c.slice(NAME.length + 1)) : null;
+}
+function remember(k) {
+  try { localStorage.setItem(NAME, hex(k)); } catch { /* без localStorage — останется cookie */ }
+  document.cookie = `${NAME}=${hex(k)}; max-age=31536000; path=${path}; SameSite=Lax; Secure`;
+}
+function decrypt(buf, k) {
+  if (String.fromCharCode(...buf.slice(0, 4)) !== "AKM1") throw new Error("файл не зашифрован");
+  const nonce = buf.slice(4, 20), ct = buf.subarray(36);
+  if (hex(sha256(cat(k, nonce, enc("ok")))).slice(0, 32) !== hex(buf.slice(20, 36))) throw new Error("неверный ключ — обновите страницу");
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(ct.length);
+  for (let i = 0, o = 0; o < ct.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, ct.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = ct[o + j] ^ s[j];
+  }
+  return out;
+}
+
+function showGate(done) {
+  const css = `#akmGate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:16px;background:radial-gradient(900px circle at 20% 10%,#2b3d34,#0f1714 60%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff}
+  #akmGate form{width:min(380px,100%);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:30px 26px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+  #akmGate .lg{font-weight:700;font-size:26px;letter-spacing:-.04em}#akmGate .lg span{color:#D5FF72}
+  #akmGate p{margin:0;font-size:14px;opacity:.72;line-height:1.4}
+  #akmGate input{font:600 24px/1 system-ui,sans-serif;letter-spacing:.3em;text-align:center;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;padding:16px 12px;outline:none}
+  #akmGate input:focus{border-color:#D5FF72;box-shadow:0 0 0 4px rgba(213,255,114,.18)}
+  #akmGate button{font:600 16px system-ui,sans-serif;border:0;border-radius:999px;padding:15px;background:#D5FF72;color:#14251E;cursor:pointer}
+  #akmGate button:disabled{opacity:.6;cursor:wait}
+  #akmGate .hint{font-size:13px;opacity:.6;text-align:center}#akmGate .err{color:#FF9A8A;font-size:13.5px;text-align:center;min-height:18px}
+  #akmGate .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #akmGate.shake form{animation:akmShake .4s}@keyframes akmShake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+  const g = document.createElement("div"); g.id = "akmGate";
+  g.innerHTML = `<style>${css}</style><form method="post" action="#" autocomplete="on">
+    <div class="lg">AKM<span>.</span></div><p>Статистика сетки — только для своих. Введите пинкод.</p>
+    <input class="sr" type="text" name="username" autocomplete="username" value="AKM" tabindex="-1" aria-hidden="true">
+    <label class="sr" for="akmPin">Пинкод</label>
+    <input id="akmPin" type="password" name="password" autocomplete="current-password" inputmode="numeric" placeholder="••••••••" required autofocus>
+    <div class="err" role="alert"></div><button type="submit">Войти</button>
+    <div class="hint">Подсказка: пароль от wifi в офисе</div></form>`;
+  const add = () => { document.body.appendChild(g); g.querySelector("#akmPin").focus(); };
+  document.body ? add() : addEventListener("DOMContentLoaded", add);
+  g.querySelector("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pin = g.querySelector("#akmPin").value.trim(), btn = g.querySelector("button"), err = g.querySelector(".err");
+    btn.disabled = true; err.textContent = "";
+    try {
+      const k = await derive(pin);
+      if (!good(k)) { err.textContent = "Неверный пинкод"; g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); return; }
+      remember(k);
+      try { if (window.PasswordCredential) await navigator.credentials.store(new PasswordCredential({ id: "AKM", password: pin, name: "AKM" })); } catch { /* браузер без Credential API */ }
+      g.remove(); done(k);
+    } catch (x) { err.textContent = "Не получилось: " + x.message; }
+    finally { btn.disabled = false; }
+  });
+}
+
+const k0 = stored();
+window.akmKey = new Promise(res => good(k0) ? res(k0) : showGate(res));
+window.akmData = async name => {
+  const k = await window.akmKey;
+  const r = await fetch("data/" + name.replace(/\.json$/, "") + ".enc?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return JSON.parse(new TextDecoder().decode(decrypt(new Uint8Array(await r.arrayBuffer()), k)));
+};
+window.akmOpen = async buf => decrypt(buf, await window.akmKey);   // расшифровать любой зашифрованный файл (картинки и данные пульта)
+window.akmSeal = async bytes => {                                    // зашифровать: пульт пишет решения в репозиторий уже шифром
+  const k = await window.akmKey, nonce = crypto.getRandomValues(new Uint8Array(16));
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(bytes.length);
+  for (let i = 0, o = 0; o < bytes.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, bytes.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = bytes[o + j] ^ s[j];
+  }
+  return cat(enc("AKM1"), nonce, sha256(cat(k, nonce, enc("ok"))).slice(0, 16), out);
+};
+window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
+})();
+</script><!--akm-gate-->
+<title>Пульт контентщика AKM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Пульт в айдентике сайта сетки AKM: светлый камень, тёмные плитки, лайм для «готово». Сверху каналы и план недели,
+   ниже очередь постов: каждый пост — карточка с каруселью, разбором критика и решением редактора. */
+:root{
+  --stone:#E9E8E3; --tile:#FFFFFF; --tile-2:#F4F3EF; --ink:#0D0D0F; --ink-2:#1F1F24; --muted:#66666D; --faint:#A3A3A8; --line:#E1E0DA;
+  --lime:#D2F35B; --lav:#CFC2FF; --peach:#FFD9C7; --blue:#2541FF; --up:#13924F; --down:#D6303B; --warn:#B7791F;
+  --on-dark:#FFFFFF; --on-dark-2:#A7A7AE;
+  --r:22px; --f:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --stone:#121214; --tile:#1C1C20; --tile-2:#25252A; --ink:#F2F2F0; --ink-2:#26262C; --muted:#A0A0A8; --faint:#6E6E76; --line:#2E2E34;
+  --lime:#C4E64E; --lav:#8C7BE0; --peach:#C98B70; --blue:#7D8CFF; --up:#3CC27A; --down:#FF6B74; --warn:#E3A84A;
+  --on-dark:#F2F2F0; --on-dark-2:#9A9AA2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --stone:#121214; --tile:#1C1C20; --tile-2:#25252A; --ink:#F2F2F0; --ink-2:#26262C; --muted:#A0A0A8; --faint:#6E6E76; --line:#2E2E34;
+  --lime:#C4E64E; --lav:#8C7BE0; --peach:#C98B70; --blue:#7D8CFF; --up:#3CC27A; --down:#FF6B74; --warn:#E3A84A;
+  --on-dark:#F2F2F0; --on-dark-2:#9A9AA2; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--stone);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
+button,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a{color:var(--blue)}
+p,h1,h2,h3,ul{margin:0}
+.wrap{max-width:1320px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
+.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.logo{background:var(--ink-2);color:var(--lime);border-radius:999px;height:44px;padding:0 16px;display:grid;place-items:center;font-weight:700;flex:none}
+h1{font-size:clamp(22px,2.4vw,30px);font-weight:600;letter-spacing:-.03em;line-height:1.05;text-wrap:balance}
+.meta{color:var(--muted);font-size:12.5px;margin-top:4px}
+.dark{background:var(--ink-2);color:var(--on-dark);border-radius:var(--r);padding:18px}
+.accs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
+.acc-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.acc-hd img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#333}
+.acc-hd b{font-weight:600;font-size:15.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.num small{display:block;color:var(--on-dark-2);font-size:11.5px;line-height:1.3}
+.num strong{display:block;font-size:26px;font-weight:600;letter-spacing:-.03em;margin-top:3px}
+.goal{margin-top:12px;font-size:12.5px;color:var(--on-dark-2)}
+.goal b{color:var(--lime);font-weight:600}
+details.plan{background:var(--tile);border-radius:var(--r);padding:14px 18px}
+details.plan summary{cursor:pointer;font-weight:600;font-size:15px}
+.plan-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin-top:12px}
+.plan-body h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+.plan-body ul{padding-left:18px;display:grid;gap:5px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;padding-top:6px}
+.tab{background:var(--tile);border-radius:999px;padding:8px 14px;font-weight:500;font-size:13px}
+.tab[aria-pressed="true"]{background:var(--ink-2);color:var(--on-dark)}
+.tab i{font-style:normal;color:var(--faint);margin-left:5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:12px;align-items:start}
+.post{background:var(--tile);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.pill{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:var(--tile-2)}
+.pill.wait{background:var(--lime);color:#0D0D0F} .pill.ok{background:var(--up);color:#fff} .pill.redo{background:var(--peach);color:#0D0D0F}
+.pill.pub{background:var(--lav);color:#0D0D0F} .pill.low{background:var(--tile-2);color:var(--muted)}
+.who{display:flex;align-items:center;gap:6px;font-weight:500}
+.who img{width:20px;height:20px;border-radius:50%}
+.type{color:var(--muted)}
+.score{margin-left:auto;font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.score small{font-size:12px;color:var(--faint);font-weight:500}
+.post h2{font-size:17px;font-weight:600;letter-spacing:-.02em;line-height:1.25;text-wrap:balance}
+.strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;border-radius:12px}
+.strip button{flex:0 0 calc((100% - 12px)/2.4);scroll-snap-align:start;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--tile-2);max-width:100%}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.parts{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.part{background:var(--tile-2);border-radius:10px;padding:6px 4px;text-align:center}
+.part small{display:block;font-size:10.5px;color:var(--muted);line-height:1.2}
+.part b{font-size:16px;font-weight:600}
+.part.hi b{color:var(--up)} .part.lo b{color:var(--down)}
+.why{background:var(--tile-2);border-radius:12px;padding:12px;display:grid;gap:6px}
+.why h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+details.more{border-top:1px solid var(--line);padding-top:10px}
+details.more summary{cursor:pointer;font-weight:500}
+.cap{white-space:pre-wrap;background:var(--tile-2);border-radius:12px;padding:12px;margin-top:8px;font-size:13.5px;overflow-wrap:anywhere}
+.more ul{padding-left:18px;margin-top:8px;display:grid;gap:5px;overflow-wrap:anywhere}
+.decide{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border-radius:999px;padding:10px 16px;font-weight:600;font-size:13.5px;background:var(--tile-2)}
+.btn.approve{background:var(--up);color:#fff}
+.btn.redo{background:var(--peach);color:#0D0D0F}
+.btn:disabled{opacity:.45;cursor:default}
+textarea{width:100%;min-height:72px;border-radius:12px;border:1px solid var(--line);background:var(--tile);padding:10px;resize:vertical}
+.state{font-size:12.5px;color:var(--muted)}
+.state b{color:var(--ink)}
+.note{font-size:12.5px;color:var(--warn)}
+.empty{background:var(--tile);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
+.lb{position:fixed;inset:0;background:rgba(8,8,10,.94);z-index:50;display:flex;align-items:center;justify-content:center;padding:max(48px,env(safe-area-inset-top,0px)) 12px max(56px,env(safe-area-inset-bottom,0px))}
+.lb img{max-width:min(100%,560px);max-height:100%;border-radius:12px}
+.lb .x{position:absolute;top:max(10px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));color:#fff;font-size:28px;width:44px;height:44px}
+.lb .nv{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:30px;width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:50%}
+.lb .p{left:max(10px,env(safe-area-inset-left,0px))} .lb .n{right:max(10px,env(safe-area-inset-right,0px))}
+.lb .c{position:absolute;bottom:max(16px,env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#C9C9CE;font-size:13px}
+@media (max-width:600px){.parts{grid-template-columns:repeat(4,1fr)}.strip button{flex-basis:72%}.num strong{font-size:22px}}
+
+#postsView{display:flex;flex-direction:column;gap:12px}
+.views{display:flex;gap:8px;flex-wrap:wrap}
+.views .tab{font-weight:600;font-size:14px;padding:10px 18px}
+.sacc{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:12px;align-items:start}
+.fill{margin-top:14px;height:8px;border-radius:99px;background:#34343b;overflow:hidden}
+.fill span{display:block;height:100%;background:var(--lime)}
+.fillcap{margin-top:6px;font-size:12px;color:var(--on-dark-2)}
+.num strong.lime{color:var(--lime)} .num strong.peach{color:var(--peach)}
+.card{background:var(--tile);border-radius:var(--r);padding:16px}
+.card>h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:10px;display:flex;gap:8px;align-items:center}
+.card>h2 i{font-style:normal;background:var(--tile-2);border-radius:99px;padding:1px 8px;color:var(--ink);letter-spacing:0}
+.week{display:grid;gap:6px}
+.day{display:grid;grid-template-columns:52px 1fr;gap:8px}
+.dl{font-size:12px;color:var(--muted);line-height:1.2;padding-top:8px}
+.dl b{display:block;color:var(--ink);font-size:14px;font-weight:600}
+.day.today .dl b{color:var(--blue)}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
+.slot{border-radius:14px;padding:8px;min-height:88px;display:flex;flex-direction:column;gap:5px;background:var(--tile-2);border:1.5px dashed var(--line);text-align:left;min-width:0;width:100%;color:var(--ink)}
+.slot .t{font-family:var(--mono);font-size:12px;font-weight:500;display:flex;justify-content:space-between;gap:4px}
+.slot .s{font-size:11.5px;color:var(--muted);line-height:1.25}
+.slot.free{border-color:var(--up)} .slot.free .s{color:var(--up);font-weight:600}
+.slot.booked,.slot.published,.slot.late{border:1.5px solid transparent;color:#0D0D0F}
+.slot.booked{background:var(--lime)} .slot.published{background:var(--lav)} .slot.late{background:var(--peach)}
+.slot.booked .s,.slot.booked .t,.slot.published .s,.slot.published .t,.slot.late .s,.slot.late .t{color:#0D0D0F}
+.slot.missed{opacity:.5;cursor:default}
+.slot .tt{font-size:11.5px;font-weight:600;line-height:1.2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.list{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:var(--tile-2);border-radius:14px;padding:8px;text-align:left;width:100%}
+.row img,.row .ph{width:44px;height:55px;border-radius:8px;object-fit:cover;background:var(--line);display:block}
+.row .ti{font-weight:600;font-size:13px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.row .su{color:var(--muted);font-size:12px;margin-top:2px}
+.row .sd{display:grid;gap:4px;justify-items:end}
+.row b.sc{font-size:15px;font-weight:600}
+.warnbox{background:var(--peach);color:#0D0D0F;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:500}
+select{font:inherit;color:inherit;background:var(--tile-2);border:1px solid var(--line);border-radius:12px;padding:9px 10px;max-width:100%}
+.btn.off{background:var(--tile-2);color:var(--down)}
+dialog{border:0;border-radius:var(--r);padding:18px;background:var(--tile);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:86vh;overflow:auto}
+dialog::backdrop{background:rgba(8,8,10,.6)}
+dialog h2{font-size:17px;font-weight:600;margin-bottom:4px}
+.dlg-x{float:right;font-size:24px;width:36px;height:36px;color:var(--muted)}
+.pill.off{background:var(--tile-2);color:var(--down)}
+@media (max-width:560px){.day{grid-template-columns:44px 1fr}.row{grid-template-columns:44px 1fr}.row .sd{grid-column:2;justify-items:start}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+[hidden]{display:none!important}
+body{margin:0}
+</style></head><body>
+
+<div class="wrap">
+  <header class="bar">
+    <span class="logo">AKM</span>
+    <div><h1>Пульт контентщика</h1><p class="meta" id="meta"></p></div>
+    <div class="btns" style="margin-left:auto"><button class="btn" id="gh"></button><button class="btn" id="out">Выйти</button></div>
+  </header>
+  <section class="accs" id="accs"></section>
+  <nav class="views" id="views" aria-label="Раздел"></nav>
+  <section id="slotsView"><div class="sgrid" id="sgrid"></div></section>
+  <section id="postsView">
+    <details class="plan" id="plan"><summary>План реанимации каналов</summary><div class="plan-body" id="planBody"></div></details>
+    <nav class="tabs" id="tabs" aria-label="Фильтр постов"></nav>
+    <main class="grid" id="grid"></main>
+  </section>
+</div>
+<dialog id="dlg"></dialog>
+<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Слайды">
+  <button class="x" id="lbX" aria-label="Закрыть">×</button>
+  <button class="nv p" id="lbP" aria-label="Назад">‹</button><img id="lbImg" alt=""><button class="nv n" id="lbN" aria-label="Вперёд">›</button>
+  <div class="c" id="lbC"></div>
+</div>
+
+<script>
+window.akmKey.then(() => window.akmData('pulse')).then(async D => {
+const PARTS = [["stop","обложка"],["share","переслать"],["save","сохранить"],["comment","коммент"],["follow","подписка"],["facts","факты"],["images","картинки"]];
+const TYPE = {spreader:"разгон", converter:"подписка"};
+const FMT = {series:"серия, день", keyword:"слово в комментарии", hit:"хит конкурента"};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => n == null ? "—" : Number(n).toLocaleString("ru-RU");
+const byKey = Object.fromEntries(D.posts.map(p => [p.key, p]));
+let decisions = {}, edits = {}, db = null, user = null, me = null, names = {}, tab = "wait", view = "slots";
+try { tab = localStorage.getItem("akm-tab") || "wait"; view = localStorage.getItem("akm-view") || "slots"; } catch (e) {}
+const saveLocal = () => { try { localStorage.setItem("akm-tab", tab); localStorage.setItem("akm-view", view); } catch (e) {} };
+const nowMsk = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 16).replace("T", " ");
+const when = s => { const [d, t] = String(s || "").split(" "); return d ? d.slice(8) + "." + d.slice(5, 7) + " " + t : ""; };
+const blobs = {};
+function encUrl(path) {
+  return blobs[path] || (blobs[path] = fetch(path, {cache: "force-cache"}).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
+    .then(b => window.akmOpen(new Uint8Array(b))).then(u8 => URL.createObjectURL(new Blob([u8], {type: "image/jpeg"}))));
+}
+const flat = s => String(s || "").replace(/\n/g, " ");
+
+$("meta").textContent = `обновлено ${D.updated} · публикация только после «Одобрить» · окна публикации ${D.windows}`;
+$("accs").innerHTML = D.accounts.map(a => `<article class="dark"><div class="acc-hd">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<b>@${esc(a.name)}</b></div>
+  <div class="nums"><div class="num"><small>медиана охвата, 10 постов</small><strong>${fmt(a.med_reach_10)}</strong></div>
+  <div class="num"><small>подписки с 10 постов</small><strong>${fmt(a.follows_10)}</strong></div>
+  <div class="num"><small>подписчиков за 7 дней</small><strong>${a.followers_7d > 0 ? "+" : ""}${fmt(a.followers_7d)}</strong></div></div>
+  <p class="goal">Цель недели: <b>${esc(a.goal)}</b></p></article>`).join("");
+$("planBody").innerHTML = D.plan.map(s => `<div><h3>${esc(s.title)}</h3><ul>${s.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`).join("");
+
+/* ---- корзины постов: решение редактора, ещё не применённое конвейером, важнее статуса на диске ---- */
+function baseBucket(p) {
+  if (p.status === "published") return "pub";
+  if (p.status === "approved") return "ok";
+  if (p.status === "rework") return "redo";
+  if (p.status === "rejected") return "off";
+  return p.status === "ready" ? "wait" : "low";
+}
+function bucket(p) {
+  if (p.status === "published") return "pub";
+  const d = decisions[p.key];
+  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", unapprove: "wait", reject: "off"}[d.decision] || baseBucket(p);
+  return baseBucket(p);
+}
+const pending = p => { const d = decisions[p.key]; return !!d && p.decision_at !== d.at; };
+
+/* ---- слоты: сетка с диска + решения из БД (занял / освободил) ---- */
+function slotModel(acc) {
+  const A = D.slots.find(s => s.name === acc), occ = {};
+  const now = nowMsk();
+  A.days.forEach(d => d.slots.forEach(s => { if (s.pkey) occ[s.key] = s.pkey; }));
+  const drop = k => { for (const sk in occ) if (occ[sk] === k) delete occ[sk]; };
+  for (const [k, d] of Object.entries(decisions)) {
+    const p = byKey[k]; if (!p || p.account !== acc || p.status === "published" || p.decision_at === d.at) continue;
+    if (d.decision === "approved") { drop(k); if (d.slot) occ[d.slot] = k; }
+    else if (["unapprove", "reject", "rework"].includes(d.decision)) drop(k);
+  }
+  const days = A.days.map(day => ({...day, slots: day.slots.map(s => {
+    s = {...s, past: s.key < now};
+    const pk = occ[s.key], p = pk && byKey[pk];
+    let st = "free";
+    if (p) st = p.status === "published" ? "published" : (s.past ? "late" : "booked");
+    else if (s.past) st = "missed";
+    return {...s, p, st};
+  })}));
+  const fut = days.flatMap(d => d.slots).filter(s => !s.past);
+  return {A, days, free: fut.filter(s => s.st === "free"), booked: fut.filter(s => s.st === "booked").length, total: fut.length};
+}
+const freeSlots = acc => slotModel(acc).free;
+
+const LABEL = {free: "Свободен", booked: "Одобрен", published: "Опубликован", late: "Просрочен", missed: "Пропущен"};
+function slotBtn(acc, s) {
+  const p = s.p;
+  return `<button class="slot ${s.st}" data-acc="${esc(acc)}" data-sk="${s.key}" ${s.st === "missed" ? "disabled" : ""}>
+    <span class="t"><span>${s.time}</span><span>МСК</span></span><span class="s">${LABEL[s.st]}${p && pending(p) ? " · ждёт синхр." : ""}</span>
+    ${p ? `<span class="tt">${esc(flat(p.headline))}</span>` : ""}</button>`;
+}
+function rowBtn(p, extra) {
+  const sc = p.critic?.score;
+  return `<button class="row" data-goto="${esc(p.key)}">${p.slides[0] ? `<img data-enc="${p.slides[0]}" alt="">` : `<span class="ph"></span>`}
+    <span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${extra || ""}</span></span>
+    <span class="sd">${sc != null ? `<b class="sc">${sc}<small style="color:var(--faint);font-weight:500">/10</small></b>` : ""}</span></button>`;
+}
+function listCard(title, arr, mk, empty) {
+  return `<div class="card"><h2>${title}<i>${arr.length}</i></h2>${arr.length ? `<div class="list">${arr.map(mk).join("")}</div>` : `<p class="state">${empty}</p>`}</div>`;
+}
+function renderSlots() {
+  $("sgrid").innerHTML = D.accounts.map(a => {
+    const m = slotModel(a.name), mine = D.posts.filter(p => p.account === a.name);
+    const sc = p => p.critic?.score || 0;
+    const q = mine.filter(p => bucket(p) === "ok").sort((x, y) => (x.slot || "~").localeCompare(y.slot || "~"));
+    const w = mine.filter(p => bucket(p) === "wait").sort((x, y) => sc(y) - sc(x));
+    const dr = mine.filter(p => ["low", "redo"].includes(bucket(p))).sort((x, y) => sc(y) - sc(x));
+    const pubs = mine.filter(p => p.status === "published");
+    const warn = m.free.length && !q.length && !w.length ? `<div class="warnbox">Свободные слоты есть, а одобренных и готовых к одобрению постов нет: нужна новая партия.</div>`
+      : (w.length && m.free.length ? `<div class="warnbox">${w.length} пост(ов) ждут одобрения, свободных слотов: ${m.free.length}. Нажмите на свободный слот, чтобы поставить пост.</div>` : "");
+    return `<article class="sacc"><div class="dark"><div class="acc-hd">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<b>@${esc(a.name)}</b></div>
+      <div class="nums" style="grid-template-columns:repeat(4,1fr)"><div class="num"><small>свободных слотов, 7 дн.</small><strong class="lime">${m.free.length}</strong></div>
+      <div class="num"><small>занято одобренными</small><strong>${m.booked}</strong></div>
+      <div class="num"><small>ждут одобрения</small><strong class="${w.length ? "peach" : ""}">${w.length}</strong></div>
+      <div class="num"><small>черновики</small><strong>${dr.length}</strong></div></div>
+      <div class="fill"><span style="width:${m.total ? Math.round(100 * m.booked / m.total) : 0}%"></span></div>
+      <p class="fillcap">${m.A.per_day} поста в день · окна ${m.A.windows.map(x => x + " МСК").join(", ")} · загружено ${m.booked} из ${m.total}</p></div>
+      ${warn}
+      <div class="card"><h2>Слоты · вчера и 7 дней вперёд</h2><div class="legend" style="margin-bottom:10px"><span><i style="background:var(--tile-2);border:1.5px solid var(--up)"></i>свободный</span><span><i style="background:var(--lime)"></i>одобрен</span><span><i style="background:var(--lav)"></i>опубликован</span><span><i style="background:var(--peach)"></i>просрочен</span></div>
+        <div class="week">${m.days.map(d => `<div class="day${d.today ? " today" : ""}"><div class="dl"><b>${d.wd}</b>${d.label}</div><div class="slots">${d.slots.map(s => slotBtn(a.name, s)).join("")}</div></div>`).join("")}</div></div>
+      ${listCard("Одобрены, в очереди", q, p => rowBtn(p, p.slot ? when(p.slot) : "слот назначится при синхронизации"), "Нет одобренных постов в очереди.")}
+      ${listCard("Ждут одобрения", w, p => rowBtn(p, "готов к одобрению"), "Ничего не ждёт решения.")}
+      ${listCard("Черновики и доработка", dr, p => rowBtn(p, bucket(p) === "redo" ? "на доработке" : "черновик"), "Черновиков нет.")}
+      ${listCard("Опубликованы", pubs, p => rowBtn(p, when((p.published_at || "").replace("T", " ").slice(0, 16))), "Пока ничего не опубликовано.")}</article>`;
+  }).join("");
+}
+
+/* ---- решения ---- */
+async function decide(p, decision, comment, extra) {
+  await store.put("decisions", p.key, {decision, comment: comment || "", by: me, at: new Date().toISOString(), headline: p.headline, ...(extra || {})});
+}
+const dlg = $("dlg");
+dlg.addEventListener("close", () => render());
+function openSlot(acc, sk) {
+  const m = slotModel(acc), s = m.days.flatMap(d => d.slots).find(x => x.key === sk); if (!s) return;
+  const head = `<button class="dlg-x" data-close aria-label="Закрыть">×</button><h2>@${esc(acc)} · ${when(sk)} МСК</h2>`;
+  if (s.p) {
+    const p = s.p;
+    dlg.innerHTML = head + `<p class="state">${LABEL[s.st]}${pending(p) ? " (решение ждёт применения конвейером)" : ""}</p><div class="list" style="margin:10px 0">${rowBtn(p, "")}</div>
+      <div class="btns">${p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : ""}
+      <button class="btn" data-goto="${esc(p.key)}">Открыть карточку</button>
+      ${p.status !== "published" ? `<button class="btn off" data-unslot="${esc(p.key)}" ${db ? "" : "disabled"}>Снять со слота</button>` : ""}</div>`;
+  } else {
+    const rank = p => bucket(p) === "wait" ? 0 : 1;
+    const cands = D.posts.filter(p => p.account === acc && ["wait", "low"].includes(bucket(p)))
+      .sort((x, y) => rank(x) - rank(y) || (y.critic?.score || 0) - (x.critic?.score || 0));
+    dlg.innerHTML = head + `<p class="state">Выберите пост: он будет одобрен и поставлен в этот слот.${db ? "" : " Сначала нажмите «Подключить запись»."}</p>
+      <div class="list" style="margin-top:10px">${cands.length ? cands.map(p => `<div class="row"><img data-enc="${p.slides[0]}" alt=""><span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${bucket(p) === "wait" ? "готов" : "черновик, не прошёл критика"} · оценка ${p.critic?.score ?? "—"}</span></span>
+        <span class="sd"><button class="btn approve" data-put="${esc(p.key)}" data-slot="${sk}" ${db ? "" : "disabled"}>Сюда</button></span></div>`).join("") : `<p class="state">Нет постов для этого аккаунта. Нужна новая партия.</p>`}</div>`;
+  }
+  dlg.showModal(); hydrate();
+}
+dlg.addEventListener("click", async e => {
+  if (e.target === dlg || e.target.closest("[data-close]")) return dlg.close();
+  const g = e.target.closest("[data-goto]"); if (g) { dlg.close(); return gotoPost(g.dataset.goto); }
+  const put = e.target.closest("[data-put]");
+  if (put && db) { put.disabled = true; put.textContent = "Сохраняю…";
+    try { await decide(byKey[put.dataset.put], "approved", "", {slot: put.dataset.slot}); dlg.close(); } catch (err) { put.disabled = false; put.textContent = "Не вышло, ещё раз"; } }
+  const un = e.target.closest("[data-unslot]");
+  if (un && db) { un.disabled = true; un.textContent = "Сохраняю…";
+    try { await decide(byKey[un.dataset.unslot], "unapprove", ""); dlg.close(); } catch (err) { un.disabled = false; un.textContent = "Не вышло, ещё раз"; } }
+});
+$("sgrid").addEventListener("click", e => {
+  const s = e.target.closest(".slot"); if (s && !s.disabled) return openSlot(s.dataset.acc, s.dataset.sk);
+  const g = e.target.closest("[data-goto]"); if (g) gotoPost(g.dataset.goto);
+});
+function gotoPost(key) {
+  const p = byKey[key]; if (!p) return;
+  view = "posts"; tab = bucket(p); saveLocal(); render();
+  const i = shown.indexOf(p);
+  requestAnimationFrame(() => { const el = document.querySelector(`.post[data-i="${i}"]`); if (el) el.scrollIntoView({block: "start", behavior: "smooth"}); });
+}
+
+/* ---- вкладки и карточки ---- */
+const TABS = [["wait","Ждут проверки"],["ok","Одобрены"],["redo","На доработке"],["pub","Опубликованы"],["low","Черновики"],["off","Сняты"]];
+function renderTabs() {
+  const cnt = k => D.posts.filter(p => bucket(p) === k).length;
+  $("tabs").innerHTML = TABS.map(([k, l]) => `<button class="tab" data-k="${k}" aria-pressed="${tab === k}">${l}<i>${cnt(k)}</i></button>`).join("");
+  $("views").innerHTML = [["slots", "Слоты"], ["posts", "Посты"]].map(([k, l]) => `<button class="tab" data-v="${k}" aria-pressed="${view === k}">${l}</button>`).join("");
+}
+$("views").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; view = b.dataset.v; saveLocal(); render(); });
+$("tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (!b) return; tab = b.dataset.k; saveLocal(); render(); });
+
+function card(p, i) {
+  const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p);
+  const pill = {wait:["wait","ждёт проверки"], ok:["ok","одобрен"], redo:["redo","на доработке"], pub:["pub","опубликован"], low:["low","черновик"], off:["off","снят"]}[b];
+  const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}` : "";
+  const res = p.result ? `<div class="kv"><dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd></div>` : "";
+  const ed = edits[p.key], capText = ed?.caption ?? p.caption, capPend = ed && ed.caption !== p.caption;
+  const slotTxt = (pend && dcs.decision === "approved" && dcs.slot) ? when(dcs.slot) + " (ждёт синхронизации)" : p.slot ? when(p.slot) : "назначится после одобрения";
+  const free = p.status === "published" ? [] : freeSlots(p.account);
+  const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено"};
+  return `<article class="post" data-i="${i}">
+  <div class="top"><span class="pill ${pill[0]}">${pill[1]}</span>
+    <span class="who">${p.avatar ? `<img src="${p.avatar}" alt="">` : ""}@${esc(p.account)}</span>
+    <span class="type">· ${FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""))}</span>
+    ${p.collab ? `<span class="pill">совместно с @${esc(p.collab)}</span>` : ""}
+    <span class="score">${c.score ?? "—"}<small>/10</small></span></div>
+  <h2>${esc(p.headline)}</h2>
+  <div class="strip">${p.slides.map((s, j) => `<button data-j="${j}" aria-label="Слайд ${j + 1}"><img data-enc="${s}" alt=""></button>`).join("")}</div>
+  <div class="parts">${PARTS.map(([k, l]) => `<div class="part ${pr[k] >= 8 ? "hi" : pr[k] != null && pr[k] <= 5 ? "lo" : ""}"><small>${l}</small><b>${pr[k] ?? "—"}</b></div>`).join("")}</div>
+  <div class="why"><h3>Почему этот пост</h3><p>${esc(c.why_viral || p.why || "—")}</p>
+    <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список (${(p.dm_text || "").split("\n").filter(Boolean).length} строк)</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
+    <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${esc(slotTxt)}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd></dl>${res}</div>
+  <details class="more"><summary>Подпись и источники${capPend ? " · правка ждёт применения" : ""}</summary>
+    ${p.status === "published" ? `<div class="cap">${esc(p.caption)}</div>` : `<textarea id="cap-${i}" style="margin-top:8px;min-height:160px">${esc(capText)}</textarea>
+    <div class="btns" style="margin-top:8px"><button class="btn" data-act="cap" ${db ? "" : "disabled"}>Сохранить подпись</button></div>`}
+    <ul>${(p.sources || []).map(s => `<li><a href="${esc(s)}" target="_blank" rel="noopener">${esc(s)}</a></li>`).join("")}</ul></details>
+  ${(c.fixes || []).length ? `<details class="more"><summary>Замечания критика (${c.fixes.length})</summary><ul>${c.fixes.map(f => `<li>${esc(f)}</li>`).join("")}</ul></details>` : ""}
+  ${p.status === "published" ? (p.permalink ? `<a href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : "") : `
+  <div class="decide">
+    ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? "" : " (применено)"} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
+    <label class="state" for="cm-${i}">Комментарий (для доработки обязателен)</label>
+    <textarea id="cm-${i}" placeholder="Что поправить: слайд, текст, картинка…">${esc(pend ? dcs?.comment || "" : "")}</textarea>
+    <label class="state" for="sl-${i}">Слот публикации</label>
+    <select id="sl-${i}"><option value="">Ближайший свободный (авто)</option>${free.map(s => `<option value="${s.key}">${when(s.key)} МСК</option>`).join("")}</select>
+    <div class="btns"><button class="btn approve" data-act="approved" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}</button>
+      <button class="btn redo" data-act="rework" ${db ? "" : "disabled"}>На доработку</button>
+      ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
+      ${b !== "off" ? `<button class="btn off" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
+    ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
+  </div>`}
+  </article>`;
+}
+
+let shown = [];
+function render() {
+  renderTabs();
+  $("slotsView").hidden = view !== "slots"; $("postsView").hidden = view !== "posts";
+  if (view === "slots") renderSlots();
+  else {
+    shown = D.posts.filter(p => bucket(p) === tab);
+    $("grid").innerHTML = shown.length ? shown.map(card).join("") : `<div class="empty">${tab === "wait" ? "Новых постов на проверку нет. Сборщик добавляет их каждый день в 10:00 МСК." : "Здесь пока пусто."}</div>`;
+  }
+  hydrate();
+}
+
+$("grid").addEventListener("click", async e => {
+  const art = e.target.closest(".post"); if (!art) return;
+  const p = shown[+art.dataset.i];
+  const sb = e.target.closest(".strip button");
+  if (sb) return openLb(p, +sb.dataset.j);
+  const btn = e.target.closest("[data-act]"); if (!btn || !db) return;
+  const act = btn.dataset.act, i = art.dataset.i, label = btn.textContent;
+  btn.disabled = true; btn.textContent = "Сохраняю…";
+  try {
+    if (act === "cap") {
+      const text = art.querySelector("#cap-" + i).value.trim();
+      await store.put("edits", p.key, {caption: text, by: me, at: new Date().toISOString(), headline: p.headline});
+    } else {
+      const ta = art.querySelector("#cm-" + i), comment = ta.value.trim();
+      if (act === "rework" && !comment) { ta.focus(); ta.placeholder = "Напишите, что поправить: без комментария доработку не отправить"; btn.disabled = false; btn.textContent = label; return; }
+      const slot = act === "approved" ? art.querySelector("#sl-" + i).value : "";
+      await decide(p, act, comment, slot ? {slot} : {});
+    }
+  } catch (err) {
+    btn.disabled = false; btn.textContent = "Не сохранилось, повторить";
+  }
+});
+
+let lp = null, lj = 0;
+function openLb(p, j) { lp = p; lj = j; showLb(); $("lb").hidden = false; $("lbX").focus(); }
+function showLb() { lj = (lj + lp.slides.length) % lp.slides.length; encUrl(lp.slides[lj]).then(u => { if (lp.slides[lj] && $("lbImg")) $("lbImg").src = u; }); $("lbC").textContent = `${lj + 1} / ${lp.slides.length} · @${lp.account}`; }
+$("lbX").onclick = () => $("lb").hidden = true;
+$("lbP").onclick = () => { lj--; showLb(); };
+$("lbN").onclick = () => { lj++; showLb(); };
+$("lb").addEventListener("click", e => { if (e.target.id === "lb") $("lb").hidden = true; });
+document.addEventListener("keydown", e => {
+  if ($("lb").hidden) return;
+  if (e.key === "Escape") $("lb").hidden = true;
+  if (e.key === "ArrowLeft") { lj--; showLb(); }
+  if (e.key === "ArrowRight") { lj++; showLb(); }
+});
+
+function hydrate() {
+  const io = hydrate.io || (hydrate.io = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; io.unobserve(e.target);
+    encUrl(e.target.dataset.enc).then(u => { e.target.src = u; }).catch(() => { e.target.alt = "не загрузилось"; });
+  }), {rootMargin: "800px"}));
+  document.querySelectorAll("img[data-enc]:not([src])").forEach(i => io.observe(i));
+}
+function rerender() { if (dlg.open) return; const a = document.activeElement; if (a && a.tagName === "TEXTAREA" && a.value) return; render(); }
+
+/* ---- хранилище решений: pulse/inbox/decisions.enc и edits.enc в репозитории (шифр пинкодом).
+   Читать может любой вошедший; писать — тот, кто вставил токен GitHub (доступ к одному репозиторию, право Contents). ---- */
+const REPO = "akm-agency/akm-ig-radar", INBOX = "pulse/inbox/";
+let token = ""; try { token = localStorage.getItem("akm-gh") || ""; } catch (e) {}
+const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
+const unb64 = s => Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0));
+const gh = (path, opt = {}) => fetch("https://api.github.com/repos/" + REPO + "/contents/" + path, {...opt, cache: "no-store",
+  headers: {Authorization: "Bearer " + token, Accept: "application/vnd.github+json", ...(opt.headers || {})}});
+const store = {
+  async read(name) {
+    if (token) {
+      const r = await gh(INBOX + name + ".enc");
+      if (r.status === 404) return {map: {}, sha: null};
+      if (!r.ok) throw new Error("GitHub " + r.status);
+      const j = await r.json();
+      return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(unb64(j.content)))), sha: j.sha};
+    }
+    const r = await fetch("inbox/" + name + ".enc?t=" + Date.now(), {cache: "no-store"});
+    if (!r.ok) return {map: {}, sha: null};
+    return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(new Uint8Array(await r.arrayBuffer())))), sha: null};
+  },
+  async put(name, key, doc) {
+    if (!token) throw new Error("нет токена");
+    for (let n = 0; n < 4; n++) {
+      const {map, sha} = await store.read(name);
+      map[key] = doc;
+      const body = {message: "Пульт: " + name + " " + key, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
+      if (sha) body.sha = sha;
+      const r = await gh(INBOX + name + ".enc", {method: "PUT", body: JSON.stringify(body)});
+      if (r.ok) { (name === "decisions" ? decisions : edits)[key] = doc; rerender(); return; }
+      if (r.status !== 409 && r.status !== 422) throw new Error("GitHub " + r.status);   // конфликт — кто-то записал раньше, читаем заново
+    }
+    throw new Error("конфликт записи");
+  },
+};
+async function refresh() {
+  try {
+    decisions = (await store.read("decisions")).map; edits = (await store.read("edits")).map;
+    Object.values(decisions).forEach(x => { if (x.by) names[x.by] = x.by; });
+    rerender();
+  } catch (e) { $("meta").textContent += " · не удалось обновить решения: " + e.message; }
+}
+function ghLabel() { $("gh").textContent = token ? "Запись включена" : "Подключить запись"; db = token ? store : null; }
+$("gh").onclick = () => {
+  dlg.innerHTML = `<button class="dlg-x" data-close aria-label="Закрыть">×</button><h2>Запись решений</h2>
+    <p class="state" style="margin:6px 0 10px">Решения («Одобрить», «Снять», слот, подпись) сохраняются файлами в репозитории akm-ig-radar. Нужен токен GitHub: fine-grained, только репозиторий akm-ig-radar, право Contents: Read and write. Токен хранится только в этом браузере.</p>
+    <input id="tk" type="password" autocomplete="off" placeholder="github_pat_…" style="width:100%;border-radius:12px;border:1px solid var(--line);background:var(--tile-2);color:inherit;padding:10px;font:inherit">
+    <div class="btns" style="margin-top:10px"><button class="btn approve" id="tkOk">Сохранить</button>${token ? '<button class="btn off" id="tkDel">Отключить</button>' : ""}</div><p class="note" id="tkErr"></p>`;
+  dlg.showModal();
+  $("tkOk").onclick = async () => {
+    const v = $("tk").value.trim(); if (!v) return;
+    token = v; $("tkErr").textContent = "Проверяю…";
+    try {
+      const u = await fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => { if (!r.ok) throw new Error("токен не принят (" + r.status + ")"); return r.json(); });
+      const t = await gh(INBOX.slice(0, -1));
+      if (t.status === 401 || t.status === 403) throw new Error("у токена нет доступа к репозиторию");
+      try { localStorage.setItem("akm-gh", token); } catch (e) {}
+      me = u.login; names[me] = me; ghLabel(); dlg.close(); refresh();
+    } catch (e) { token = ""; $("tkErr").textContent = e.message; }
+  };
+  if ($("tkDel")) $("tkDel").onclick = () => { try { localStorage.removeItem("akm-gh"); } catch (e) {} token = ""; me = null; ghLabel(); dlg.close(); };
+};
+$("out").onclick = () => window.akmLogout();
+
+ghLabel();
+render();
+if (token) fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => r.ok ? r.json() : null).then(u => { if (u) { me = u.login; names[me] = me; } });
+refresh();
+setInterval(refresh, 60000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+}).catch(e => { document.body.insertAdjacentHTML("beforeend", '<p style="padding:24px;font:14px system-ui">Пульт не загрузился: ' + String(e.message || e).replace(/</g, "&lt;") + ". Обновите страницу.</p>"); });
+</script>
+</body></html>
