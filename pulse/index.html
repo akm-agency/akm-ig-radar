@@ -121,171 +121,271 @@ window.akmSeal = async bytes => {                                    // заши
 window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
 })();
 </script><!--akm-gate-->
-<title>Пульт контентщика AKM</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<title>Пульт контента AKM</title>
 <style>
-/* Пульт в айдентике сайта сетки AKM: светлый камень, тёмные плитки, лайм для «готово». Сверху каналы и план недели,
-   ниже очередь постов: каждый пост — карточка с каруселью, разбором критика и решением редактора. */
+/* Пульт в айдентике сайта сетки (ig_network): светлый камень, белые плитки, чёрно-зелёные «ink»-плитки, лайм для действий.
+   Три экрана: Конвейер (что генерится → что ждёт вас → очередь → вышло), Слоты (с «силой слота» по истории), Аккаунты (сводка по сети). */
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-cyrillic-ext.woff2) format("woff2");unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-cyrillic-ext.woff2) format("woff2");unicode-range:U+0460-052F,U+1C80-1C8A,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
-  --stone:#E9E8E3; --tile:#FFFFFF; --tile-2:#F4F3EF; --ink:#0D0D0F; --ink-2:#1F1F24; --muted:#66666D; --faint:#A3A3A8; --line:#E1E0DA;
-  --lime:#D2F35B; --lav:#CFC2FF; --peach:#FFD9C7; --blue:#2541FF; --up:#13924F; --down:#D6303B; --warn:#B7791F;
-  --on-dark:#FFFFFF; --on-dark-2:#A7A7AE;
-  --r:22px; --f:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+  --stone:#E9EDE7; --tile:#FFFFFF; --tile-2:#F2F5ED; --ink:#14251E; --ink-2:#263C30; --muted:#59685B; --faint:#849282; --line:#DFE5D9;
+  --lime:#D5FF72; --lav:#DAD4F3; --peach:#F3CEB9; --blue:#3557ED; --orange:#FA714A; --up:#1A784B; --down:#C93449; --warn:#9A6212;
+  --r:26px; --f:"AKM Text","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif; --fd:"AKM Display","Unbounded",var(--f);
+  --ease:cubic-bezier(.22,1,.36,1);
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --stone:#121214; --tile:#1C1C20; --tile-2:#25252A; --ink:#F2F2F0; --ink-2:#26262C; --muted:#A0A0A8; --faint:#6E6E76; --line:#2E2E34;
-  --lime:#C4E64E; --lav:#8C7BE0; --peach:#C98B70; --blue:#7D8CFF; --up:#3CC27A; --down:#FF6B74; --warn:#E3A84A;
-  --on-dark:#F2F2F0; --on-dark-2:#9A9AA2; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --stone:#121214; --tile:#1C1C20; --tile-2:#25252A; --ink:#F2F2F0; --ink-2:#26262C; --muted:#A0A0A8; --faint:#6E6E76; --line:#2E2E34;
-  --lime:#C4E64E; --lav:#8C7BE0; --peach:#C98B70; --blue:#7D8CFF; --up:#3CC27A; --down:#FF6B74; --warn:#E3A84A;
-  --on-dark:#F2F2F0; --on-dark-2:#9A9AA2; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--stone);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums}
-button,textarea{font:inherit;color:inherit}
-button{cursor:pointer;border:0;background:none;padding:0}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+html{scrollbar-gutter:stable}
+body{margin:0;background:var(--stone);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0;text-align:left}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 a{color:var(--blue)}
-p,h1,h2,h3,ul{margin:0}
-.wrap{max-width:1320px;margin:0 auto;padding-block:16px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:12px}
-.bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.logo{background:var(--ink-2);color:var(--lime);border-radius:999px;height:44px;padding:0 16px;display:grid;place-items:center;font-weight:700;flex:none}
-h1{font-size:clamp(22px,2.4vw,30px);font-weight:600;letter-spacing:-.03em;line-height:1.05;text-wrap:balance}
-.meta{color:var(--muted);font-size:12.5px;margin-top:4px}
-.dark{background:var(--ink-2);color:var(--on-dark);border-radius:var(--r);padding:18px}
-.accs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:12px}
-.acc-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.acc-hd img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#333}
-.acc-hd b{font-weight:600;font-size:15.5px;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.num small{display:block;color:var(--on-dark-2);font-size:11.5px;line-height:1.3}
-.num strong{display:block;font-size:26px;font-weight:600;letter-spacing:-.03em;margin-top:3px}
-.goal{margin-top:12px;font-size:12.5px;color:var(--on-dark-2)}
-.goal b{color:var(--lime);font-weight:600}
-details.plan{background:var(--tile);border-radius:var(--r);padding:14px 18px}
-details.plan summary{cursor:pointer;font-weight:600;font-size:15px}
-.plan-body{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin-top:12px}
-.plan-body h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
-.plan-body ul{padding-left:18px;display:grid;gap:5px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;padding-top:6px}
-.tab{background:var(--tile);border-radius:999px;padding:8px 14px;font-weight:500;font-size:13px}
-.tab[aria-pressed="true"]{background:var(--ink-2);color:var(--on-dark)}
-.tab i{font-style:normal;color:var(--faint);margin-left:5px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:12px;align-items:start}
-.post{background:var(--tile);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
-.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
-.pill{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;background:var(--tile-2)}
-.pill.wait{background:var(--lime);color:#0D0D0F} .pill.ok{background:var(--up);color:#fff} .pill.redo{background:var(--peach);color:#0D0D0F}
-.pill.pub{background:var(--lav);color:#0D0D0F} .pill.low{background:var(--tile-2);color:var(--muted)}
-.who{display:flex;align-items:center;gap:6px;font-weight:500}
-.who img{width:20px;height:20px;border-radius:50%}
-.type{color:var(--muted)}
-.score{margin-left:auto;font-size:26px;font-weight:600;letter-spacing:-.03em;line-height:1}
-.score small{font-size:12px;color:var(--faint);font-weight:500}
-.post h2{font-size:17px;font-weight:600;letter-spacing:-.02em;line-height:1.25;text-wrap:balance}
-.strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;border-radius:12px}
-.strip button{flex:0 0 calc((100% - 12px)/2.4);scroll-snap-align:start;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--tile-2);max-width:100%}
-.strip img{width:100%;height:100%;object-fit:cover;display:block}
-.parts{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.part{background:var(--tile-2);border-radius:10px;padding:6px 4px;text-align:center}
-.part small{display:block;font-size:10.5px;color:var(--muted);line-height:1.2}
-.part b{font-size:16px;font-weight:600}
-.part.hi b{color:var(--up)} .part.lo b{color:var(--down)}
-.why{background:var(--tile-2);border-radius:12px;padding:12px;display:grid;gap:6px}
-.why h3{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
-.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
-details.more{border-top:1px solid var(--line);padding-top:10px}
-details.more summary{cursor:pointer;font-weight:500}
-.cap{white-space:pre-wrap;background:var(--tile-2);border-radius:12px;padding:12px;margin-top:8px;font-size:13.5px;overflow-wrap:anywhere}
-.more ul{padding-left:18px;margin-top:8px;display:grid;gap:5px;overflow-wrap:anywhere}
-.decide{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border-radius:999px;padding:10px 16px;font-weight:600;font-size:13.5px;background:var(--tile-2)}
-.btn.approve{background:var(--up);color:#fff}
-.btn.redo{background:var(--peach);color:#0D0D0F}
-.btn:disabled{opacity:.45;cursor:default}
-textarea{width:100%;min-height:72px;border-radius:12px;border:1px solid var(--line);background:var(--tile);padding:10px;resize:vertical}
-.state{font-size:12.5px;color:var(--muted)}
-.state b{color:var(--ink)}
-.note{font-size:12.5px;color:var(--warn)}
-.empty{background:var(--tile);border-radius:var(--r);padding:28px;text-align:center;color:var(--muted)}
-.lb{position:fixed;inset:0;background:rgba(8,8,10,.94);z-index:50;display:flex;align-items:center;justify-content:center;padding:max(48px,env(safe-area-inset-top,0px)) 12px max(56px,env(safe-area-inset-bottom,0px))}
-.lb img{max-width:min(100%,560px);max-height:100%;border-radius:12px}
-.lb .x{position:absolute;top:max(10px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));color:#fff;font-size:28px;width:44px;height:44px}
-.lb .nv{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:30px;width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:50%}
-.lb .p{left:max(10px,env(safe-area-inset-left,0px))} .lb .n{right:max(10px,env(safe-area-inset-right,0px))}
-.lb .c{position:absolute;bottom:max(16px,env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;color:#C9C9CE;font-size:13px}
-@media (max-width:600px){.parts{grid-template-columns:repeat(4,1fr)}.strip button{flex-basis:72%}.num strong{font-size:22px}}
+p,h1,h2,h3,ul,dl{margin:0}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--fd);text-wrap:balance}
 
-#postsView{display:flex;flex-direction:column;gap:12px}
-.views{display:flex;gap:8px;flex-wrap:wrap}
-.views .tab{font-weight:600;font-size:14px;padding:10px 18px}
-.sacc{display:flex;flex-direction:column;gap:12px;min-width:0}
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:12px;align-items:start}
-.fill{margin-top:14px;height:8px;border-radius:99px;background:#34343b;overflow:hidden}
-.fill span{display:block;height:100%;background:var(--lime)}
-.fillcap{margin-top:6px;font-size:12px;color:var(--on-dark-2)}
-.num strong.lime{color:var(--lime)} .num strong.peach{color:var(--peach)}
-.card{background:var(--tile);border-radius:var(--r);padding:16px}
-.card>h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:10px;display:flex;gap:8px;align-items:center}
-.card>h2 i{font-style:normal;background:var(--tile-2);border-radius:99px;padding:1px 8px;color:var(--ink);letter-spacing:0}
+.wrap{max-width:1400px;margin:0 auto;padding:14px max(14px,env(safe-area-inset-right,0px)) 72px max(14px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:12px}
+header.bar{position:sticky;top:0;z-index:30;background:var(--tile);border-radius:var(--r);padding:10px 12px 10px 10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{display:inline-flex;align-items:center;background:var(--tile-2);border-radius:999px;height:48px;padding:0 18px;flex:none}
+.logo svg{height:20px;width:auto;display:block}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+h1{font-size:clamp(16px,1.5vw,20px);font-weight:500;letter-spacing:-.04em;line-height:1.2}
+.meta{color:var(--muted);font-size:12px;margin-top:2px}
+.nav{display:flex;background:var(--tile-2);border-radius:999px;padding:4px;gap:2px;margin-left:8px}
+.nav button{border-radius:999px;padding:9px 18px;font-weight:500;color:var(--muted);transition:background .2s,color .2s;white-space:nowrap}
+.nav button[aria-pressed=true]{background:var(--ink);color:#fff}
+.nav button i{font-style:normal;margin-left:6px;font-size:12px;opacity:.7}
+.nav button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime);margin-left:7px;box-shadow:0 0 0 2px rgba(213,255,114,.35)}
+.tools{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sel{border:0;background:var(--tile-2);border-radius:999px;height:44px;padding:0 38px 0 16px;font-weight:500;max-width:240px;appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2314251E' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center}
+.btn{border-radius:999px;padding:0 18px;height:44px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:13.5px;background:var(--tile-2);transition:background .2s,transform .2s var(--ease);white-space:nowrap;text-align:center}
+.btn:hover:not(:disabled){background:#E8ECE1}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.approve{background:var(--ink);color:var(--lime)} .btn.approve:hover:not(:disabled){background:var(--ink-2)}
+.btn.blue{background:var(--blue);color:#fff} .btn.blue:hover:not(:disabled){background:#2544C1}
+.btn.redo{background:var(--peach)} .btn.redo:hover:not(:disabled){background:#EBBFA6}
+.btn.off{color:var(--down)}
+.btn.sm{height:34px;padding:0 14px;font-size:12.5px}
+.btn:disabled{opacity:.42;cursor:default}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+
+/* плитки */
+.t{background:var(--tile);border-radius:var(--r);padding:20px 22px;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative;overflow:hidden}
+.t.ink{background:var(--ink);color:#fff} .t.lime{background:var(--lime)} .t.lav{background:var(--lav)} .t.peach{background:var(--peach)} .t.blue{background:var(--blue);color:#fff}
+.lab{font-size:12px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;opacity:.72}
+.big{font-size:clamp(38px,4.2vw,60px);font-weight:600;letter-spacing:-.055em;line-height:.95}
+.t.ink .big{color:var(--lime)}
+.sub{font-size:12.5px;opacity:.8}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+
+/* конвейер */
+.flow{display:flex;gap:12px;align-items:stretch}
+.phase{display:flex;flex-direction:column;gap:6px;min-width:0}
+.phase.ai{flex:5.2} .phase.human{flex:2.1} .phase.out{flex:2.1}
+.ph-l{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-left:6px;display:flex;gap:8px;align-items:center}
+.ph-l::after{content:"";height:1.5px;background:var(--line);flex:1}
+.stages{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;flex:1}
+.stage{background:var(--tile);border-radius:20px;padding:12px 12px 12px;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0;transition:background .2s,transform .2s var(--ease)}
+.stage:hover{transform:translateY(-2px)}
+.stage .n{font-size:30px;font-weight:600;letter-spacing:-.05em;line-height:1}
+.stage .l{font-size:12.5px;font-weight:600;line-height:1.2;margin-top:4px}
+.stage .d{font-size:11.5px;color:var(--muted);line-height:1.25}
+.stage.zero .n{color:var(--faint)}
+.stage[aria-pressed=true]{background:var(--ink);color:#fff} .stage[aria-pressed=true] .d{color:#C1C9BE} .stage[aria-pressed=true] .n{color:var(--lime)}
+.stage.human{background:var(--lime)} .stage.human.zero{background:var(--tile)}
+.stage.human[aria-pressed=true]{background:var(--ink)}
+.stage.out{background:var(--lav)} .stage.out[aria-pressed=true]{background:var(--ink)}
+.stage.queue{background:#E6F2DA}
+.stage.queue[aria-pressed=true]{background:var(--ink)}
+.live{width:9px;height:9px;border-radius:50%;background:var(--orange);position:absolute;right:11px;top:11px;animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(250,113,74,.55)}50%{box-shadow:0 0 0 7px rgba(250,113,74,0)}}
+@media(max-width:1000px){.flow{flex-direction:column}.stages{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}}
+@media(prefers-reduced-motion:reduce){.live{animation:none}*{scroll-behavior:auto!important;transition:none!important}}
+
+.listhd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:6px 4px 0}
+.listhd h2{font-size:clamp(17px,1.6vw,21px);font-weight:500;letter-spacing:-.04em}
+.listhd .cnt{background:var(--tile);border-radius:99px;padding:2px 11px;font-weight:600}
+.listhd .hint{color:var(--muted);font-size:13px}
+.listhd .sp{margin-left:auto}
+.chip{border-radius:999px;background:var(--tile);padding:7px 14px;font-size:12.5px;font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.minis{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:10px;align-items:start}
+.mini{background:var(--tile);border-radius:22px;padding:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mini .open{display:grid;grid-template-columns:74px 1fr;gap:12px;align-items:start;border-radius:14px;width:100%}
+.th{position:relative;width:74px;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--tile-2);display:grid;place-items:center;color:var(--faint);font-size:11px;text-align:center}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th.build{background:repeating-linear-gradient(135deg,var(--tile-2) 0 8px,#EAEFE3 8px 16px)}
+.th.build.on{animation:stripes 1.2s linear infinite;background-size:23px 23px}
+@keyframes stripes{to{background-position:23px 0}}
+.mt{font-weight:600;font-size:13.5px;line-height:1.28;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.mi{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.ac{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink);min-width:0;max-width:100%}
+.ac img{width:18px;height:18px;border-radius:50%;object-fit:cover;flex:none;background:var(--line)}
+.ac span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sc{font-weight:700;border-radius:99px;padding:1px 8px;background:var(--tile-2);font-size:12px}
+.sc.hi{background:var(--lime)} .sc.lo{background:var(--peach)}
+.tag{border-radius:99px;padding:2px 9px;font-size:11.5px;font-weight:600;background:var(--tile-2)}
+.tag.live{position:static;animation:none;width:auto;height:auto;background:var(--peach);box-shadow:none}
+.tag.lav{background:var(--lav)} .tag.lime{background:var(--lime)} .tag.peach{background:var(--peach)}
+.note-line{font-size:12.5px;background:var(--peach);border-radius:12px;padding:7px 10px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.mact{display:flex;gap:6px;flex-wrap:wrap}
+.empty{background:var(--tile);border-radius:var(--r);padding:30px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--fd);font-weight:500;font-size:17px;margin-bottom:4px}
+
+/* сила слота */
+.pw{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;line-height:1}
+.pw u{display:block;width:34px;height:6px;border-radius:9px;background:rgba(20,37,30,.12);overflow:hidden;text-decoration:none}
+.pw u i{display:block;height:100%;border-radius:9px;background:var(--faint)}
+.pw.hi u i{background:var(--up)} .pw.mid u i{background:#7E9A4A} .pw.lo u i{background:var(--down)} .pw.no{color:var(--faint)}
+.pw.hi{color:var(--up)} .pw.lo{color:var(--down)}
+.sgrp{display:flex;flex-direction:column;gap:12px}
+.arow{background:var(--tile);border-radius:var(--r);padding:12px 16px;display:grid;grid-template-columns:minmax(150px,210px) minmax(150px,1.1fr) auto auto auto;gap:14px;align-items:center}
+.arow .nm{display:flex;gap:10px;align-items:center;min-width:0;font-weight:600;border-radius:12px}
+.arow .nm img{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--line);flex:none}
+.arow .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wchips{display:flex;gap:6px;flex-wrap:wrap}
+.wchip{display:inline-flex;gap:8px;align-items:center;background:var(--tile-2);border-radius:99px;padding:5px 10px;font-size:12px;font-weight:600}
+.wchip b{font-weight:600}
+.mg{display:flex;gap:3px}
+.mg div{display:flex;flex-direction:column;gap:3px;justify-content:center}
+.mg i{display:block;width:10px;height:10px;border-radius:3px;background:var(--tile-2);border:1.5px solid var(--line)}
+.mg i.free{border-color:var(--up);background:#fff} .mg i.booked{background:var(--lime);border-color:var(--lime)} .mg i.published{background:var(--lav);border-color:var(--lav)} .mg i.late{background:var(--peach);border-color:var(--peach)} .mg i.missed{opacity:.4}
+.mg .tdy{position:relative} .mg .tdy::after{content:"";position:absolute;left:-1.5px;right:-1.5px;bottom:-5px;height:2px;background:var(--blue);border-radius:2px}
+.free-n{font-weight:700;font-size:15px;white-space:nowrap}
+.free-n small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
+@media(max-width:1000px){.arow{grid-template-columns:1fr auto}.arow .wchips,.arow .mg{grid-column:1/-1}}
+
+.acc-head{display:grid;grid-template-columns:1fr 1.3fr;gap:12px}
+@media(max-width:900px){.acc-head{grid-template-columns:1fr}}
+.card{background:var(--tile);border-radius:var(--r);padding:18px 20px}
+.card>h2{font-size:15px;font-weight:500;letter-spacing:-.03em;margin-bottom:4px}
+.card>.sub{margin-bottom:12px;color:var(--muted);opacity:1}
+.hours{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;align-items:end;height:112px}
+.hours button{display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative;border-radius:5px}
+.hours button i{display:block;width:100%;border-radius:5px 5px 2px 2px;background:#C9D3C3;min-height:6px;transition:filter .15s}
+.hours button:hover i{filter:brightness(.92)}
+.hours button.hi i{background:#58A878} .hours button.mid i{background:#A8C46A} .hours button.lo i{background:#E39A89} .hours button.no i{background:var(--line)}
+.hours button.has i{box-shadow:0 0 0 2px var(--ink)}
+.hours button.has::before{content:"";position:absolute;top:-1px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--ink)}
+.hours button.sel i{background:var(--blue)}
+.hlab{display:grid;grid-template-columns:repeat(24,1fr);gap:3px;margin-top:5px;font-size:10px;color:var(--faint);text-align:center}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .week{display:grid;gap:6px}
-.day{display:grid;grid-template-columns:52px 1fr;gap:8px}
+.day{display:grid;grid-template-columns:54px 1fr;gap:8px}
 .dl{font-size:12px;color:var(--muted);line-height:1.2;padding-top:8px}
 .dl b{display:block;color:var(--ink);font-size:14px;font-weight:600}
 .day.today .dl b{color:var(--blue)}
-.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
-.slot{border-radius:14px;padding:8px;min-height:88px;display:flex;flex-direction:column;gap:5px;background:var(--tile-2);border:1.5px dashed var(--line);text-align:left;min-width:0;width:100%;color:var(--ink)}
-.slot .t{font-family:var(--mono);font-size:12px;font-weight:500;display:flex;justify-content:space-between;gap:4px}
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(116px,1fr));gap:6px}
+.slot{border-radius:16px;padding:9px;min-height:94px;display:flex;flex-direction:column;gap:5px;background:var(--tile-2);border:1.5px dashed var(--line);width:100%;min-width:0}
+.slot .t1{font-weight:700;font-size:13px;display:flex;justify-content:space-between;gap:4px}
+.slot .t1 span+span{font-weight:500;color:var(--muted);font-size:11px}
 .slot .s{font-size:11.5px;color:var(--muted);line-height:1.25}
-.slot.free{border-color:var(--up)} .slot.free .s{color:var(--up);font-weight:600}
-.slot.booked,.slot.published,.slot.late{border:1.5px solid transparent;color:#0D0D0F}
+.slot .tt{font-size:11.5px;font-weight:600;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.slot .pw{margin-top:auto}
+.slot.free{border-color:var(--up);background:#fff} .slot.free .s{color:var(--up);font-weight:600}
+.slot.booked,.slot.published,.slot.late{border:1.5px solid transparent}
 .slot.booked{background:var(--lime)} .slot.published{background:var(--lav)} .slot.late{background:var(--peach)}
-.slot.booked .s,.slot.booked .t,.slot.published .s,.slot.published .t,.slot.late .s,.slot.late .t{color:#0D0D0F}
-.slot.missed{opacity:.5;cursor:default}
-.slot .tt{font-size:11.5px;font-weight:600;line-height:1.2;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.list{display:grid;gap:8px}
-.row{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:var(--tile-2);border-radius:14px;padding:8px;text-align:left;width:100%}
-.row img,.row .ph{width:44px;height:55px;border-radius:8px;object-fit:cover;background:var(--line);display:block}
+.slot.booked .s,.slot.published .s,.slot.late .s,.slot.booked .t1 span+span,.slot.published .t1 span+span,.slot.late .t1 span+span{color:var(--ink)}
+.slot.booked .pw u,.slot.published .pw u,.slot.late .pw u{background:rgba(20,37,30,.2)}
+.slot.missed{opacity:.45;cursor:default}
+.lists{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:12px;align-items:start}
+.list{display:grid;gap:7px}
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;background:var(--tile-2);border-radius:14px;padding:7px;width:100%}
+.row .th{width:44px;border-radius:8px}
 .row .ti{font-weight:600;font-size:13px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.row .su{color:var(--muted);font-size:12px;margin-top:2px}
-.row .sd{display:grid;gap:4px;justify-items:end}
-.row b.sc{font-size:15px;font-weight:600}
-.warnbox{background:var(--peach);color:#0D0D0F;border-radius:14px;padding:10px 12px;font-size:13px;font-weight:500}
-select{font:inherit;color:inherit;background:var(--tile-2);border:1px solid var(--line);border-radius:12px;padding:9px 10px;max-width:100%}
-.btn.off{background:var(--tile-2);color:var(--down)}
-dialog{border:0;border-radius:var(--r);padding:18px;background:var(--tile);color:var(--ink);width:min(560px,calc(100vw - 24px));max-height:86vh;overflow:auto}
-dialog::backdrop{background:rgba(8,8,10,.6)}
-dialog h2{font-size:17px;font-weight:600;margin-bottom:4px}
-.dlg-x{float:right;font-size:24px;width:36px;height:36px;color:var(--muted)}
-.pill.off{background:var(--tile-2);color:var(--down)}
-@media (max-width:560px){.day{grid-template-columns:44px 1fr}.row{grid-template-columns:44px 1fr}.row .sd{grid-column:2;justify-items:start}}
-@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
-[hidden]{display:none!important}
-body{margin:0}
+.row .su{color:var(--muted);font-size:12px;margin-top:2px;display:block}
+.warnbox{background:var(--peach);border-radius:16px;padding:10px 14px;font-size:13px;font-weight:500}
+
+/* аккаунты */
+.tbl{background:var(--tile);border-radius:var(--r);padding:8px 8px 10px;overflow-x:auto}
+.tr{display:grid;grid-template-columns:minmax(190px,1.5fr) repeat(8,minmax(70px,1fr));gap:8px;align-items:center;padding:8px 12px;border-radius:14px;min-width:820px}
+.tr.hd{font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0}
+.tr.hd button{font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-size:11.5px}
+.tr.hd button[aria-sort]{color:var(--ink)}
+.tr.hd button[aria-sort]::after{content:" ↓"}
+.tr:not(.hd):hover{background:var(--tile-2)}
+.tr .nm{display:flex;gap:9px;align-items:center;font-weight:600;min-width:0}
+.tr .nm img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:var(--line);flex:none}
+.tr .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num0{color:var(--faint)}
+.flag{font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--tile-2);display:inline-block;white-space:nowrap}
+.flag.bad{background:var(--peach)} .flag.good{background:var(--lime)}
+
+/* подробная карточка поста (в окне) */
+dialog{border:0;border-radius:var(--r);padding:20px;background:var(--tile);color:var(--ink);width:min(580px,calc(100vw - 20px));max-height:90vh;overflow:auto}
+dialog.wide{width:min(720px,calc(100vw - 20px))}
+dialog::backdrop{background:rgba(13,22,17,.55)}
+dialog h2{font-size:18px;font-weight:500;letter-spacing:-.04em;margin-bottom:4px}
+.dlg-x{float:right;font-size:26px;width:38px;height:38px;color:var(--muted);text-align:center}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+.pill{border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;background:var(--tile-2)}
+.pill.wait{background:var(--lime)} .pill.ok{background:var(--up);color:#fff} .pill.redo{background:var(--peach)} .pill.pub{background:var(--lav)}
+.pscore{margin-left:auto;font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.pscore small{font-size:12px;color:var(--faint);font-weight:500}
+.post{display:flex;flex-direction:column;gap:12px}
+.post h3{font-size:17px;font-weight:500;letter-spacing:-.03em;line-height:1.25;margin:2px 0}
+.strip{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;border-radius:12px}
+.strip button{flex:0 0 calc((100% - 12px)/2.6);scroll-snap-align:start;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--tile-2)}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:6px}
+.part{background:var(--tile-2);border-radius:12px;padding:6px 4px;text-align:center}
+.part small{display:block;font-size:10.5px;color:var(--muted);line-height:1.2}
+.part b{font-size:16px;font-weight:700}
+.part.hi b{color:var(--up)} .part.lo b{color:var(--down)}
+.why{background:var(--tile-2);border-radius:16px;padding:12px 14px;display:grid;gap:6px}
+.why h4{margin:0;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+details.more{border-top:1px solid var(--line);padding-top:10px}
+details.more summary{cursor:pointer;font-weight:600}
+.cap{white-space:pre-wrap;background:var(--tile-2);border-radius:12px;padding:12px;margin-top:8px;font-size:13.5px;overflow-wrap:anywhere}
+.more ul{padding-left:18px;margin-top:8px;display:grid;gap:5px;overflow-wrap:anywhere}
+.decide{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+textarea,input[type=text],input[type=password]{width:100%;border-radius:14px;border:1.5px solid var(--line);background:#fff;padding:10px 12px;resize:vertical}
+textarea{min-height:72px}
+select.f{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px}
+.state{font-size:12.5px;color:var(--muted)} .state b{color:var(--ink)}
+.note{font-size:12.5px;color:var(--warn)}
+.lb{position:fixed;inset:0;background:rgba(13,22,17,.94);z-index:60;display:flex;align-items:center;justify-content:center;padding:max(48px,env(safe-area-inset-top,0px)) 12px max(56px,env(safe-area-inset-bottom,0px))}
+.lb img{max-width:min(100%,560px);max-height:100%;border-radius:12px}
+.lb .x{position:absolute;top:10px;right:12px;color:#fff;font-size:28px;width:44px;height:44px;text-align:center}
+.lb .nv{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:30px;width:48px;height:48px;background:rgba(255,255,255,.12);border-radius:50%;text-align:center}
+.lb .p{left:10px} .lb .n{right:10px}
+.lb .c{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:#C9D3C3;font-size:13px}
+.sdetail{display:grid;gap:10px;margin:12px 0}
+.bigstr{display:flex;align-items:baseline;gap:10px}
+.bigstr b{font-family:var(--fd);font-size:44px;font-weight:600;letter-spacing:-.05em;line-height:1}
+.bigstr span{font-weight:600}
+.hint{color:var(--muted);font-size:13px}
 </style></head><body>
 
 <div class="wrap">
   <header class="bar">
-    <span class="logo">AKM</span>
-    <div><h1>Пульт контентщика</h1><p class="meta" id="meta"></p></div>
-    <div class="btns" style="margin-left:auto"><button class="btn" id="gh"></button><button class="btn" id="out">Выйти</button></div>
+    <div class="brand">
+      <span class="logo"><svg viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
+      <div><h1>Пульт контента</h1><p class="meta" id="meta"></p></div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Раздел"></nav>
+    <div class="tools">
+      <select class="sel" id="accSel" aria-label="Аккаунт"></select>
+      <button class="btn" id="gh"></button><button class="btn" id="out">Выйти</button>
+    </div>
   </header>
-  <section class="accs" id="accs"></section>
-  <nav class="views" id="views" aria-label="Раздел"></nav>
-  <section id="slotsView"><div class="sgrid" id="sgrid"></div></section>
-  <section id="postsView">
-    <details class="plan" id="plan"><summary>План реанимации каналов</summary><div class="plan-body" id="planBody"></div></details>
-    <nav class="tabs" id="tabs" aria-label="Фильтр постов"></nav>
-    <main class="grid" id="grid"></main>
-  </section>
+  <div id="view"></div>
 </div>
 <dialog id="dlg"></dialog>
+<dialog id="pdlg" class="wide"></dialog>
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Слайды">
   <button class="x" id="lbX" aria-label="Закрыть">×</button>
   <button class="nv p" id="lbP" aria-label="Назад">‹</button><img id="lbImg" alt=""><button class="nv n" id="lbN" aria-label="Вперёд">›</button>
@@ -294,7 +394,6 @@ body{margin:0}
 
 <script>
 window.akmKey.then(() => window.akmData('pulse')).then(async D => {
-// части оценки критика: новый критик роста (04.11) — stop/spread/follow/fit/save/trust; у старых постов — share/comment/facts/images
 const PARTS = [[["stop"],"обложка"],[["spread","share"],"переслать"],[["follow"],"подписка"],[["fit"],"аудитория"],[["save"],"сохранить"],[["trust","facts"],"факты"],[["comment"],"коммент"],[["images"],"картинки"]];
 const partVal = (pr, keys) => { for (const k of keys) if (pr[k] != null) return pr[k]; return null; };
 const TYPE = {spreader:"разгон", converter:"подписка"};
@@ -302,28 +401,74 @@ const FMT = {series:"серия, день", keyword:"слово в коммен�
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const fmt = n => n == null ? "—" : Number(n).toLocaleString("ru-RU");
+const pad = n => String(n).padStart(2, "0");
+const flat = s => String(s || "").replace(/\n/g, " ");
+const WD = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+
+D.posts.forEach((p, i) => p._i = i);
 const byKey = Object.fromEntries(D.posts.map(p => [p.key, p]));
-let decisions = {}, edits = {}, db = null, user = null, me = null, names = {}, tab = "wait", view = "slots";
-try { tab = localStorage.getItem("akm-tab") || "wait"; view = localStorage.getItem("akm-view") || "slots"; } catch (e) {}
-const saveLocal = () => { try { localStorage.setItem("akm-tab", tab); localStorage.setItem("akm-view", view); } catch (e) {} };
+const accByName = Object.fromEntries(D.accounts.map(a => [a.name, a]));
+const avatarOf = n => accByName[n]?.avatar || "";
+let decisions = {}, edits = {}, slotcfg = {}, db = null, me = null, names = {};
+let view = "flow", stg = "wait", acc = "", sortBy = "wait";
+try { view = localStorage.getItem("akm-view2") || "flow"; stg = localStorage.getItem("akm-stg") || "wait"; acc = localStorage.getItem("akm-acc") || ""; } catch (e) {}
+if (acc && !accByName[acc]) acc = "";
+const saveLocal = () => { try { localStorage.setItem("akm-view2", view); localStorage.setItem("akm-stg", stg); localStorage.setItem("akm-acc", acc); } catch (e) {} };
 const nowMsk = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 16).replace("T", " ");
 const when = s => { const [d, t] = String(s || "").split(" "); return d ? d.slice(8) + "." + d.slice(5, 7) + " " + t : ""; };
+const ts = iso => Date.parse(/(Z|[+-]\d\d:?\d\d)$/.test(iso) ? iso : iso + "+03:00");
+const ago = iso => { if (!iso) return ""; const m = Math.round((Date.now() - ts(iso)) / 60000);
+  return m < 1 ? "сейчас" : m < 60 ? m + " мин" : m < 1440 ? Math.round(m / 60) + " ч" : Math.round(m / 1440) + " дн"; };
 const blobs = {};
 function encUrl(path) {
   return blobs[path] || (blobs[path] = fetch(path, {cache: "force-cache"}).then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
     .then(b => window.akmOpen(new Uint8Array(b))).then(u8 => URL.createObjectURL(new Blob([u8], {type: "image/jpeg"}))));
 }
-const flat = s => String(s || "").replace(/\n/g, " ");
 
-$("meta").textContent = `обновлено ${D.updated} · публикация только после «Одобрить» · окна публикации ${D.windows}`;
-$("accs").innerHTML = D.accounts.map(a => `<article class="dark"><div class="acc-hd">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<b>@${esc(a.name)}</b></div>
-  <div class="nums"><div class="num"><small>медиана охвата, 10 постов</small><strong>${fmt(a.med_reach_10)}</strong></div>
-  <div class="num"><small>подписки с 10 постов</small><strong>${fmt(a.follows_10)}</strong></div>
-  <div class="num"><small>подписчиков за 7 дней</small><strong>${a.followers_7d > 0 ? "+" : ""}${fmt(a.followers_7d)}</strong></div></div>
-  <p class="goal">Цель недели: <b>${esc(a.goal)}</b></p></article>`).join("");
-$("planBody").innerHTML = D.plan.map(s => `<div><h3>${esc(s.title)}</h3><ul>${s.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`).join("");
+/* ---------- окна и слоты: настройки из репозитория + ещё не применённые правки со страницы ---------- */
+function cfgOf(a) {
+  const ov = slotcfg[a.name], use = ov && ov.at > (a.cfg_at || "");
+  return {windows: use ? ov.windows : a.windows, per_day: use ? ov.per_day : a.per_day, max_per_day: use ? ov.max_per_day : a.max_per_day, pending: !!use};
+}
+const wStart = w => +w.split("-")[0];
+const addDays = (d, n) => new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
+const wdOf = d => (new Date(d + "T00:00:00Z").getUTCDay() + 6) % 7;
 
-/* ---- корзины постов: решение редактора, ещё не применённое конвейером, важнее статуса на диске ---- */
+/* ---------- СИЛА СЛОТА ----------
+   Берём историю публикаций аккаунта (охват каждого поста, время выхода по Москве). Для слота «час + день недели»
+   считаем, во сколько раз посты рядом по времени (гауссово окно ±1,25 ч; посты в тот же день недели весят полностью,
+   в другие — 55 %) отличаются от медианы аккаунта, со сжатием к «норме» при малом числе постов.
+   0–100: 50 = как обычно, 88 = ×2 к медиане, 12 = ×0,5. Слабая история → низкая уверенность, а не выдуманная цифра. */
+const HIST = {};
+Object.entries(D.hist || {}).forEach(([a, h]) => {
+  const v = h.p.map(x => x[1]).sort((x, y) => x - y);
+  HIST[a] = {metric: h.metric, med: v.length ? v[v.length >> 1] : 0,
+    pts: h.p.map(([t, val]) => ({h: +t.slice(11, 13) + +t.slice(14, 16) / 60, wd: wdOf(t.slice(0, 10)), v: val}))};
+});
+const SMEMO = {};
+function strength(a, hour, wd) {
+  const k = a + "|" + hour + "|" + wd; if (k in SMEMO) return SMEMO[k];
+  const H = HIST[a]; let r = null;
+  if (H && H.pts.length >= 3 && H.med > 0) {
+    let num = 0, den = 0, near = 0, nearV = [];
+    for (const q of H.pts) {
+      let dh = Math.abs(q.h - (hour + .5)); dh = Math.min(dh, 24 - dh);
+      let w = Math.exp(-dh * dh / (2 * 1.25 * 1.25)); if (wd != null && q.wd !== wd) w *= .55;
+      num += w * Math.log(Math.max(q.v, 1) / H.med); den += w;
+      if (dh <= 1.5) { near++; nearV.push(q.v); }
+    }
+    const est = num / (den + 2), score = Math.round(50 + 50 * Math.tanh(est / .7));
+    nearV.sort((x, y) => x - y);
+    r = {score, ratio: Math.exp(est), near, metric: H.metric, med: H.med, expect: Math.round(H.med * Math.exp(est)),
+         conf: near >= 8 ? "высокая" : near >= 3 ? "средняя" : "низкая", nearMed: nearV.length ? nearV[nearV.length >> 1] : null};
+  }
+  return SMEMO[k] = r;
+}
+const sCls = s => !s ? "no" : s.score >= 68 ? "hi" : s.score >= 42 ? "mid" : "lo";
+const sWord = s => !s ? "нет истории" : s.score >= 68 ? "сильный" : s.score >= 42 ? "средний" : "слабый";
+const pw = s => `<span class="pw ${sCls(s)}" title="${s ? "Сила слота " + s.score + "/100" : "Мало постов в истории аккаунта"}"><u><i style="width:${s ? s.score : 0}%"></i></u>${s ? s.score : "—"}</span>`;
+
+/* ---------- корзины постов (решение редактора, ещё не применённое конвейером, важнее статуса на диске) ---------- */
 function baseBucket(p) {
   if (p.status === "published") return "pub";
   if (p.status === "approved") return "ok";
@@ -338,154 +483,339 @@ function bucket(p) {
   return baseBucket(p);
 }
 const pending = p => { const d = decisions[p.key]; return !!d && p.decision_at !== d.at; };
+function stageOf(p) {
+  const b = bucket(p);
+  if (b === "pub") return "pub"; if (b === "ok") return "queue"; if (b === "redo") return "edit"; if (b === "off") return "off"; if (b === "wait") return "wait";
+  if (p.status === "imaged") return "img"; if (p.status === "draft") return "write";
+  return p.critic?.score == null ? "check" : "fail";
+}
+const STAGES = [
+  ["plan",  "ai",    "Тема в плане",  "выбрана, текст не начат"],
+  ["write", "ai",    "Пишется",       "текст и факты"],
+  ["img",   "ai",    "Картинки",      "подбор кадров"],
+  ["check", "ai",    "Проверка ИИ",   "критик ставит балл"],
+  ["fail",  "ai",    "Слабый балл",   "не дотянул — в доводку"],
+  ["wait",  "human", "Ждут вас",      "одобрить или править"],
+  ["edit",  "human", "Правки",        "вернулись на доработку"],
+  ["queue", "out",   "В очереди",     "одобрены, ждут слота"],
+  ["pub",   "out",   "Вышли",         "опубликованы"],
+];
+const PH = {ai: "ИИ готовит", human: "решаете вы", out: "выход"};
+const BSTAGE = {planned: "plan", draft: "write", imaged: "img"};
+function items() {
+  const A = acc ? (x => x.account === acc) : () => true;
+  const posts = D.posts.map(p => ({...p, stage: stageOf(p)}));
+  const bld = (D.building || []).filter(b => !byKey[b.key]).map(b => ({...b, slides: [], critic: {}, building: true, stage: BSTAGE[b.status] || "plan"}));
+  return [...posts, ...bld].filter(A);
+}
 
-/* ---- слоты: сетка с диска + решения из БД (занял / освободил) ---- */
-function slotModel(acc) {
-  const A = D.slots.find(s => s.name === acc), occ = {};
-  const now = nowMsk();
-  A.days.forEach(d => d.slots.forEach(s => { if (s.pkey) occ[s.key] = s.pkey; }));
+/* ---------- слоты: сетка дней (вчера + 7 вперёд) ---------- */
+function daysOf(a) {
+  const c = cfgOf(a), now = nowMsk(), today = now.slice(0, 10), wins = [...c.windows].sort((x, y) => wStart(x) - wStart(y));
+  const mine = D.posts.filter(p => p.account === a.name);
+  const bySlot = {}; mine.forEach(p => { if (p.slot && ["approved", "published"].includes(p.status)) bySlot[p.slot] = p; });
+  const pubs = mine.filter(p => p.status === "published" && p.published_at);
+  const occ = {};
+  const out = [];
+  for (let n = -1; n <= 7; n++) {
+    const date = addDays(today, n), wd = wdOf(date), row = {date, wd: WD[wd], wdi: wd, label: date.slice(8) + "." + date.slice(5, 7), today: n === 0, slots: []};
+    for (const w of wins) {
+      const [s, e] = w.split("-").map(Number), key = `${date} ${pad(s)}:05`;
+      let pk = bySlot[key]?.key;
+      if (!pk) { const q = pubs.find(q => q.published_at.slice(0, 10) === date && +q.published_at.slice(11, 13) >= s && +q.published_at.slice(11, 13) < e && q.slot !== key); if (q) pk = q.key; }
+      if (pk) occ[key] = pk;
+      row.slots.push({key, time: `${pad(s)}:05`, hour: s, win: w, past: key < now});
+    }
+    out.push(row);
+  }
+  // решения, ещё не применённые конвейером: занял / освободил
   const drop = k => { for (const sk in occ) if (occ[sk] === k) delete occ[sk]; };
   for (const [k, d] of Object.entries(decisions)) {
-    const p = byKey[k]; if (!p || p.account !== acc || p.status === "published" || p.decision_at === d.at) continue;
+    const p = byKey[k]; if (!p || p.account !== a.name || p.status === "published" || p.decision_at === d.at) continue;
     if (d.decision === "approved") { drop(k); if (d.slot) occ[d.slot] = k; }
     else if (["unapprove", "reject", "rework"].includes(d.decision)) drop(k);
   }
-  const days = A.days.map(day => ({...day, slots: day.slots.map(s => {
-    s = {...s, past: s.key < now};
-    const pk = occ[s.key], p = pk && byKey[pk];
-    let st = "free";
-    if (p) st = p.status === "published" ? "published" : (s.past ? "late" : "booked");
-    else if (s.past) st = "missed";
-    return {...s, p, st};
-  })}));
-  const fut = days.flatMap(d => d.slots).filter(s => !s.past);
-  return {A, days, free: fut.filter(s => s.st === "free"), booked: fut.filter(s => s.st === "booked").length, total: fut.length};
+  out.forEach(day => day.slots.forEach(s => {
+    const p = occ[s.key] && byKey[occ[s.key]]; s.p = p;
+    s.st = p ? (p.status === "published" ? "published" : (s.past ? "late" : "booked")) : (s.past ? "missed" : "free");
+    s.str = strength(a.name, s.hour, day.wdi);
+  }));
+  return out;
 }
-const freeSlots = acc => slotModel(acc).free;
+const SM = {};
+function slotModel(name) {
+  const a = accByName[name], days = daysOf(a), fut = days.flatMap(d => d.slots).filter(s => !s.past);
+  return {a, c: cfgOf(a), days, free: fut.filter(s => s.st === "free"), booked: fut.filter(s => s.st === "booked").length, total: fut.length};
+}
+const freeSlots = n => slotModel(n).free;
+const bestFree = (n, within = 48 * 3600e3) => {
+  const f = freeSlots(n); if (!f.length) return null;
+  const lim = Date.now() + 3 * 3600e3 + within, near = f.filter(s => Date.parse(s.key.replace(" ", "T") + ":00Z") <= lim);
+  return (near.length ? near : f.slice(0, 1)).reduce((b, s) => (s.str?.score ?? 40) > (b.str?.score ?? 40) ? s : b);
+};
 
-const LABEL = {free: "Свободен", booked: "Одобрен", published: "Опубликован", late: "Просрочен", missed: "Пропущен"};
-function slotBtn(acc, s) {
+/* ---------- экраны ---------- */
+const miniAcc = n => `<span class="ac">${avatarOf(n) ? `<img src="${avatarOf(n)}" alt="">` : ""}<span>@${esc(n)}</span></span>`;
+function mini(p) {
+  const sc = p.critic?.score, ed = edits[p.key], capPend = ed && ed.caption !== p.caption && p.status !== "published", dcs = decisions[p.key];
+  const th = p.slides?.[0] ? `<span class="th"><img data-enc="${p.slides[0]}" alt=""></span>`
+    : `<span class="th build ${p.live ? "on" : ""}">${p.live ? "идёт<br>сейчас" : "в работе"}</span>`;
+  let extra = "";
+  if (p.stage === "edit") { const c = (dcs && pending(p) ? dcs.comment : p.editor_comment) || ""; if (c) extra = `<div class="note-line">Правка: ${esc(c)}</div>`; }
+  if (p.stage === "queue") extra = `<div class="mf"><span class="tag lime">${p.slot ? when(p.slot) + " МСК" : (pending(p) && dcs?.slot ? when(dcs.slot) + " МСК" : "слот назначится")}</span>${(() => { const sl = p.slot || (pending(p) && dcs?.slot); const s = sl && strength(p.account, +sl.slice(11, 13), wdOf(sl.slice(0, 10))); return s ? pw(s) : ""; })()}</div>`;
+  if (p.stage === "pub") extra = `<div class="mf">${p.result ? `<span class="tag ${p.result.verdict === "хит" ? "lime" : p.result.verdict === "провал" ? "peach" : ""}">${esc(p.result.verdict)} · ×${p.result.x_reach}</span><span>охват ${fmt(p.result.reach)}</span>` : `<span>итог через 24 ч</span>`}</div>`;
+  const quick = p.stage === "wait" ? (() => {
+    const s = bestFree(p.account);
+    return `<div class="mact"><button class="btn approve sm" data-quick="${esc(p.key)}" ${db && s ? "" : "disabled"} title="${s ? "Лучший свободный слот в ближайшие 48 ч" : "Нет свободных слотов"}">${s ? "Одобрить → " + when(s.key).slice(0, 5) + " " + s.time + (s.str ? " · " + s.str.score : "") : "Нет слотов"}</button></div>` ; })() : "";
+  const meta = p.building ? `<span class="tag">${STAGES.find(x => x[0] === p.stage)?.[2]}</span>${p.live ? '<span class="tag live">идёт сейчас</span>' : ""}` :
+    `${sc != null ? `<span class="sc ${sc >= 8 ? "hi" : sc < 6 ? "lo" : ""}">${sc}</span>` : ""}${capPend ? '<span class="tag lav">✎ подпись</span>' : ""}${pending(p) ? '<span class="tag">ждёт синхр.</span>' : ""}${p.collab ? '<span class="tag">совм.</span>' : ""}`;
+  return `<article class="mini"><button class="open" data-open="${esc(p.key)}">${th}<span class="mi"><span class="mt">${esc(flat(p.headline))}</span>
+    <span class="mf">${miniAcc(p.account)}<span>${ago(p.updated || p.published_at)}</span></span><span class="mf">${meta}</span></span></button>${extra}${quick}</article>`;
+}
+
+function renderFlow() {
+  const all = items(), by = {}; STAGES.forEach(s => by[s[0]] = []); by.off = [];
+  all.forEach(p => (by[p.stage] ||= []).push(p));
+  const fr = acc ? [acc] : D.accounts.map(a => a.name);
+  const models = fr.map(slotModel), freeN = models.reduce((s, m) => s + m.free.length, 0), booked = models.reduce((s, m) => s + m.booked, 0);
+  const starving = models.filter(m => m.free.length && !by.queue.some(p => p.account === m.a.name) && !by.wait.some(p => p.account === m.a.name)).length;
+  const liveN = all.filter(p => p.live).length;
+  const kp = `<section class="kpis">
+    <div class="t ink"><span class="lab">Ждут вашего решения</span><span class="big">${by.wait.length}</span><span class="sub">${by.wait.length ? "проверьте и одобрите — ниже, на экране" : "всё разобрано"}${by.edit.length ? ` · правок в работе: ${by.edit.length}` : ""}</span></div>
+    <div class="t lime"><span class="lab">В очереди на выход</span><span class="big">${by.queue.length}</span><span class="sub">заняли ${booked} из ${booked + freeN} слотов на 7 дней</span></div>
+    <div class="t lav"><span class="lab">Свободных слотов, 7 дней</span><span class="big">${freeN}</span><span class="sub">${freeN ? "куда ставить новые посты" : "всё занято"}</span></div>
+    <div class="t ${starving ? "peach" : ""}"><span class="lab">${acc ? "Запас постов" : "Аккаунтов без запаса"}</span><span class="big">${acc ? by.wait.length + by.queue.length : starving}</span><span class="sub">${starving ? (acc ? "слоты свободны, а поста нет — нужна партия" : "есть свободные слоты, а постов нет — нужна партия") : "слоты обеспечены постами"}</span></div></section>`;
+  const flow = `<section class="flow">${["ai", "human", "out"].map(ph => `<div class="phase ${ph}"><div class="ph-l">${PH[ph]}</div><div class="stages">${STAGES.filter(s => s[1] === ph).map(([k, , l, d]) => {
+    const n = by[k].length, live = by[k].some(p => p.live);
+    return `<button class="stage ${ph} ${k === "queue" ? "queue" : ""} ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="n">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</section>`;
+  const cur = STAGES.find(s => s[0] === stg), curName = stg === "off" ? "Снятые" : cur[2];
+  let list = by[stg] || [];
+  const sc = p => p.critic?.score || 0;
+  list = [...list].sort(stg === "wait" ? (x, y) => sc(y) - sc(x) : stg === "queue" ? (x, y) => (x.slot || "~").localeCompare(y.slot || "~") : stg === "pub" ? (x, y) => (y.published_at || "").localeCompare(x.published_at || "") : (x, y) => (y.updated || "").localeCompare(x.updated || ""));
+  const EMPTY = {wait: ["Новых постов на проверку нет", "Сборщик добавляет их каждый день; пока можно посмотреть слоты."], plan: ["Тем в плане нет", "Новый план появится при следующем запуске сборщика."], queue: ["Очередь пуста", "Одобренные посты ждут здесь своего слота."]};
+  const em = EMPTY[stg] || ["Здесь пока пусто", "Посты этого этапа появятся по мере работы конвейера."];
+  const pg = `<div class="listhd"><h2>${curName}</h2><span class="cnt">${list.length}</span><span class="hint">${stg === "off" ? "снятые с публикации" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
+    <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые ${by.off.length}</button></span></div>
+    <div class="minis">${list.length ? list.map(mini).join("") : `<div class="empty" style="grid-column:1/-1"><b>${em[0]}</b>${em[1]}</div>`}</div>`;
+  const plan = `<details class="card" style="margin-top:6px"><summary style="cursor:pointer;font-weight:600">План реанимации каналов</summary><div class="lists" style="margin-top:12px">${D.plan.map(s => `<div><h3 style="font-size:13px;margin-bottom:6px">${esc(s.title)}</h3><ul style="padding-left:18px;display:grid;gap:5px">${s.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div>`).join("")}</div></details>`;
+  $("view").innerHTML = kp + flow + pg + plan;
+  return liveN;
+}
+
+const SC = {free: "Свободен", booked: "Одобрен", published: "Опубликован", late: "Просрочен", missed: "Пропущен"};
+function slotBtn(name, s) {
   const p = s.p;
-  return `<button class="slot ${s.st}" data-acc="${esc(acc)}" data-sk="${s.key}" ${s.st === "missed" ? "disabled" : ""}>
-    <span class="t"><span>${s.time}</span><span>МСК</span></span><span class="s">${LABEL[s.st]}${p && pending(p) ? " · ждёт синхр." : ""}</span>
-    ${p ? `<span class="tt">${esc(flat(p.headline))}</span>` : ""}</button>`;
+  return `<button class="slot ${s.st}" data-acc="${esc(name)}" data-sk="${s.key}" ${s.st === "missed" ? "disabled" : ""}>
+    <span class="t1"><span>${s.time}</span><span>МСК</span></span><span class="s">${SC[s.st]}${p && pending(p) ? " · ждёт синхр." : ""}</span>
+    ${p ? `<span class="tt">${esc(flat(p.headline))}</span>` : ""}${pw(s.str)}</button>`;
 }
 function rowBtn(p, extra) {
   const sc = p.critic?.score;
-  return `<button class="row" data-goto="${esc(p.key)}">${p.slides[0] ? `<img data-enc="${p.slides[0]}" alt="">` : `<span class="ph"></span>`}
-    <span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${extra || ""}</span></span>
-    <span class="sd">${sc != null ? `<b class="sc">${sc}<small style="color:var(--faint);font-weight:500">/10</small></b>` : ""}</span></button>`;
+  return `<button class="row" data-open="${esc(p.key)}">${p.slides[0] ? `<span class="th"><img data-enc="${p.slides[0]}" alt=""></span>` : `<span class="th"></span>`}
+    <span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${extra || ""}</span></span>${sc != null ? `<span class="sc ${sc >= 8 ? "hi" : sc < 6 ? "lo" : ""}">${sc}</span>` : "<span></span>"}</button>`;
 }
-function listCard(title, arr, mk, empty) {
-  return `<div class="card"><h2>${title}<i>${arr.length}</i></h2>${arr.length ? `<div class="list">${arr.map(mk).join("")}</div>` : `<p class="state">${empty}</p>`}</div>`;
+function hoursChart(name, sel) {
+  const c = cfgOf(accByName[name]), have = new Set(c.windows.map(wStart));
+  return `<div class="hours" role="group" aria-label="Сила слота по часам">${Array.from({length: 24}, (_, h) => {
+    const s = strength(name, h, null);
+    return `<button class="${sCls(s)} ${have.has(h) ? "has" : ""} ${sel === h ? "sel" : ""}" data-hour="${h}" data-acc="${esc(name)}" title="${pad(h)}:05 МСК · ${s ? "сила " + s.score + " (×" + s.ratio.toFixed(1) + " к медиане), постов рядом: " + s.near : "мало истории"}"><i style="height:${s ? Math.max(6, s.score) : 6}%"></i></button>`; }).join("")}</div>
+    <div class="hlab">${Array.from({length: 24}, (_, h) => `<span>${h % 3 === 0 ? pad(h) : ""}</span>`).join("")}</div>`;
 }
 function renderSlots() {
-  $("sgrid").innerHTML = D.accounts.map(a => {
-    const m = slotModel(a.name), mine = D.posts.filter(p => p.account === a.name);
-    const sc = p => p.critic?.score || 0;
-    const q = mine.filter(p => bucket(p) === "ok").sort((x, y) => (x.slot || "~").localeCompare(y.slot || "~"));
-    const w = mine.filter(p => bucket(p) === "wait").sort((x, y) => sc(y) - sc(x));
-    const dr = mine.filter(p => ["low", "redo"].includes(bucket(p))).sort((x, y) => sc(y) - sc(x));
-    const pubs = mine.filter(p => p.status === "published");
-    const warn = m.free.length && !q.length && !w.length ? `<div class="warnbox">Свободные слоты есть, а одобренных и готовых к одобрению постов нет: нужна новая партия.</div>`
-      : (w.length && m.free.length ? `<div class="warnbox">${w.length} пост(ов) ждут одобрения, свободных слотов: ${m.free.length}. Нажмите на свободный слот, чтобы поставить пост.</div>` : "");
-    return `<article class="sacc"><div class="dark"><div class="acc-hd">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<b>@${esc(a.name)}</b></div>
-      <div class="nums" style="grid-template-columns:repeat(4,1fr)"><div class="num"><small>свободных слотов, 7 дн.</small><strong class="lime">${m.free.length}</strong></div>
-      <div class="num"><small>занято одобренными</small><strong>${m.booked}</strong></div>
-      <div class="num"><small>ждут одобрения</small><strong class="${w.length ? "peach" : ""}">${w.length}</strong></div>
-      <div class="num"><small>черновики</small><strong>${dr.length}</strong></div></div>
-      <div class="fill"><span style="width:${m.total ? Math.round(100 * m.booked / m.total) : 0}%"></span></div>
-      <p class="fillcap">${m.A.per_day} поста в день · окна ${m.A.windows.map(x => x + " МСК").join(", ")} · загружено ${m.booked} из ${m.total}</p></div>
-      ${warn}
-      <div class="card"><h2>Слоты · вчера и 7 дней вперёд</h2><div class="legend" style="margin-bottom:10px"><span><i style="background:var(--tile-2);border:1.5px solid var(--up)"></i>свободный</span><span><i style="background:var(--lime)"></i>одобрен</span><span><i style="background:var(--lav)"></i>опубликован</span><span><i style="background:var(--peach)"></i>просрочен</span></div>
-        <div class="week">${m.days.map(d => `<div class="day${d.today ? " today" : ""}"><div class="dl"><b>${d.wd}</b>${d.label}</div><div class="slots">${d.slots.map(s => slotBtn(a.name, s)).join("")}</div></div>`).join("")}</div></div>
-      ${listCard("Одобрены, в очереди", q, p => rowBtn(p, p.slot ? when(p.slot) : "слот назначится при синхронизации"), "Нет одобренных постов в очереди.")}
-      ${listCard("Ждут одобрения", w, p => rowBtn(p, "готов к одобрению"), "Ничего не ждёт решения.")}
-      ${listCard("Черновики и доработка", dr, p => rowBtn(p, bucket(p) === "redo" ? "на доработке" : "черновик"), "Черновиков нет.")}
-      ${listCard("Опубликованы", pubs, p => rowBtn(p, when((p.published_at || "").replace("T", " ").slice(0, 16))), "Пока ничего не опубликовано.")}</article>`;
-  }).join("");
+  if (!acc) {   // сводка по всем: строка = аккаунт, мини-сетка = 9 дней × окна
+    $("view").innerHTML = `<div class="listhd"><h2>Слоты всех аккаунтов</h2><span class="cnt">${D.accounts.length}</span><span class="hint">квадратик — слот; нажмите на аккаунт, чтобы открыть неделю с силой каждого слота</span></div>
+      <div class="legend" style="margin:0 6px"><span><i style="background:#fff;border:1.5px solid var(--up)"></i>свободный</span><span><i style="background:var(--lime)"></i>одобрен</span><span><i style="background:var(--lav)"></i>опубликован</span><span><i style="background:var(--peach)"></i>просрочен</span></div>
+      <div class="sgrp">${D.accounts.map(a => {
+        const m = slotModel(a.name), c = m.c, q = D.posts.filter(p => p.account === a.name && ["wait", "ok"].includes(bucket(p))).length;
+        const wc = [...c.windows].sort((x, y) => wStart(x) - wStart(y)).map(w => `<span class="wchip"><b>${pad(wStart(w))}:05</b>${pw(strength(a.name, wStart(w), null))}</span>`).join("");
+        return `<div class="arow"><button class="nm" data-pick="${esc(a.name)}">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<span>@${esc(a.name)}</span></button>
+          <div class="wchips">${wc}</div>
+          <div class="mg" aria-hidden="true">${m.days.map(d => `<div class="${d.today ? "tdy" : ""}">${d.slots.map(s => `<i class="${s.st}"></i>`).join("")}</div>`).join("")}</div>
+          <div class="free-n">${m.free.length}<small>свободно${q ? " · постов " + q : ""}</small></div>
+          <button class="btn sm" data-addslot="${esc(a.name)}">+ слот</button></div>`; }).join("")}</div>`;
+    return;
+  }
+  const m = slotModel(acc), a = m.a, c = m.c;
+  const mine = D.posts.filter(p => p.account === acc), sc = p => p.critic?.score || 0;
+  const q = mine.filter(p => bucket(p) === "ok").sort((x, y) => (x.slot || "~").localeCompare(y.slot || "~"));
+  const w = mine.filter(p => bucket(p) === "wait").sort((x, y) => sc(y) - sc(x));
+  const bookedS = m.days.flatMap(d => d.slots).filter(s => s.st === "booked" && s.str);
+  const avg = bookedS.length ? Math.round(bookedS.reduce((t, s) => t + s.str.score, 0) / bookedS.length) : null;
+  const warn = m.free.length && !q.length && !w.length ? `<div class="warnbox">Свободные слоты есть, а одобренных и готовых постов нет: нужна новая партия.</div>`
+    : (w.length && m.free.length ? `<div class="warnbox">${w.length} пост(ов) ждут одобрения, свободных слотов: ${m.free.length}. Лучшие посты ставьте в самые сильные слоты.</div>` : "");
+  const H = HIST[acc];
+  $("view").innerHTML = `<section class="acc-head">
+    <div class="t ink"><div style="display:flex;gap:12px;align-items:center">${a.avatar ? `<img src="${a.avatar}" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover">` : ""}<div><div class="lab">аккаунт</div><b style="font-size:19px">@${esc(acc)}</b></div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px">
+        <div><span class="lab">свободно</span><div class="big" style="font-size:38px">${m.free.length}</div></div>
+        <div><span class="lab">занято</span><div class="big" style="font-size:38px;color:#fff">${m.booked}</div></div>
+        <div><span class="lab">сила занятых</span><div class="big" style="font-size:38px;color:#fff">${avg ?? "—"}</div></div></div>
+      <span class="sub">${c.max_per_day} поста в день · ${c.windows.length} окон · загружено ${m.booked} из ${m.total} на 7 дней${c.pending ? " · окна ждут синхронизации" : ""}</span></div>
+    <div class="card"><h2>Сила слота по часам суток</h2><p class="sub">${H && H.pts.length >= 3 ? `по ${H.pts.length} постам аккаунта, метрика — ${H.metric}. Столбик — как пост, вышедший в этот час, обычно отличается от медианы аккаунта (${fmt(H.med)}). Точка — час, где уже есть слот. Нажмите на столбик, чтобы добавить слот.` : "Мало истории постов: силу посчитать нельзя, оценка появится после первых публикаций."}</p>
+      ${hoursChart(acc)}<div class="legend"><span><i style="background:#58A878"></i>сильный</span><span><i style="background:#A8C46A"></i>средний</span><span><i style="background:#E39A89"></i>слабый</span><span><i style="background:#C9D3C3"></i>нет данных</span><span><i style="background:#fff;box-shadow:0 0 0 2px var(--ink)"></i>слот есть</span></div>
+      <div class="btns" style="margin-top:12px"><button class="btn blue sm" data-addslot="${esc(acc)}">+ Добавить слот</button></div></div></section>
+    ${warn}
+    <div class="card"><h2>Неделя</h2><p class="sub">Шкала в слоте — его сила: зелёная — посты в это время и день недели исторически набирают больше обычного.</p>
+      <div class="week">${m.days.map(d => `<div class="day${d.today ? " today" : ""}"><div class="dl"><b>${d.wd}</b>${d.label}</div><div class="slots">${d.slots.map(s => slotBtn(acc, s)).join("")}</div></div>`).join("")}</div></div>
+    <div class="lists">
+      <div class="card"><h2>В очереди (${q.length})</h2><div class="list">${q.length ? q.map(p => rowBtn(p, p.slot ? when(p.slot) : "слот назначится при синхронизации")).join("") : `<p class="state">Нет одобренных постов в очереди.</p>`}</div></div>
+      <div class="card"><h2>Ждут решения (${w.length})</h2><div class="list">${w.length ? w.map(p => rowBtn(p, "готов к одобрению")).join("") : `<p class="state">Ничего не ждёт решения.</p>`}</div></div></div>`;
 }
 
-/* ---- решения ---- */
+function renderAccounts() {
+  const all = items();
+  const rows = D.accounts.map(a => {
+    const mine = all.filter(p => p.account === a.name), n = k => mine.filter(p => p.stage === k).length, m = slotModel(a.name);
+    const gen = n("plan") + n("write") + n("img") + n("check"), wait = n("wait"), qu = n("queue");
+    const bs = m.free.reduce((b, s) => Math.max(b, s.str?.score ?? -1), -1);
+    return {a, gen, wait, qu, free: m.free.length, best: bs < 0 ? null : bs, reach: a.med_reach_10 ?? 0, fol: a.followers_7d ?? 0,
+            flag: m.free.length && !wait && !qu ? "нужна партия" : wait ? "ждёт вас" : m.free.length === 0 ? "слоты закрыты" : "в порядке"};
+  });
+  const SORTS = {name: (x, y) => x.a.name.localeCompare(y.a.name), gen: (x, y) => y.gen - x.gen, wait: (x, y) => y.wait - x.wait || y.free - x.free, qu: (x, y) => y.qu - x.qu,
+    free: (x, y) => y.free - x.free, best: (x, y) => (y.best ?? -1) - (x.best ?? -1), reach: (x, y) => y.reach - x.reach, fol: (x, y) => y.fol - x.fol, flag: (x, y) => x.flag.localeCompare(y.flag)};
+  rows.sort(SORTS[sortBy] || SORTS.wait);
+  const th = (k, l) => `<button data-sort="${k}" ${sortBy === k ? 'aria-sort="descending"' : ""}>${l}</button>`;
+  const z = v => v ? v : `<span class="num0">0</span>`;
+  const bad = rows.filter(r => r.flag === "нужна партия").length;
+  $("view").innerHTML = `<div class="listhd"><h2>Сводка по сети</h2><span class="cnt">${D.accounts.length}</span><span class="hint">${bad ? bad + " без запаса постов" : "у всех есть запас"} · нажмите на аккаунт, чтобы открыть его конвейер</span></div>
+    <div class="tbl"><div class="tr hd">${th("name", "Аккаунт")}${th("gen", "ИИ готовит")}${th("wait", "Ждут вас")}${th("qu", "В очереди")}${th("free", "Свободно слотов")}${th("best", "Лучший свободный")}${th("reach", "Охват, медиана")}${th("fol", "Подп. / 7 дн.")}${th("flag", "Статус")}</div>
+    ${rows.map(r => `<div class="tr"><button class="nm" data-pick="${esc(r.a.name)}">${r.a.avatar ? `<img src="${r.a.avatar}" alt="">` : ""}<span>@${esc(r.a.name)}</span></button>
+      <span>${z(r.gen)}</span><span>${z(r.wait)}</span><span>${z(r.qu)}</span><span>${z(r.free)}</span><span>${r.best == null ? '<span class="num0">—</span>' : pw({score: r.best})}</span>
+      <span>${fmt(r.a.med_reach_10)}</span><span>${r.a.followers_7d > 0 ? "+" : ""}${fmt(r.a.followers_7d)}</span>
+      <span><span class="flag ${r.flag === "нужна партия" ? "bad" : r.flag === "ждёт вас" ? "good" : ""}">${r.flag}</span></span></div>`).join("")}</div>`;
+}
+
+function render() {
+  const w = items().filter(p => p.stage === "wait").length;
+  $("nav").innerHTML = [["flow", "Конвейер", w], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0]].map(([k, l, n]) =>
+    `<button data-v="${k}" aria-pressed="${view === k}">${l}${n ? `<span class="dot" title="${n} ждут решения"></span>` : ""}</button>`).join("");
+  $("accSel").innerHTML = `<option value="">Все аккаунты (${D.accounts.length})</option>` + D.accounts.map(a => `<option value="${esc(a.name)}" ${acc === a.name ? "selected" : ""}>@${esc(a.name)}</option>`).join("");
+  $("accSel").hidden = D.accounts.length < 2;
+  if (view === "flow") renderFlow(); else if (view === "slots") renderSlots(); else renderAccounts();
+  hydrate();
+}
+$("accSel").onchange = e => { acc = e.target.value; saveLocal(); render(); };
+$("nav").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; view = b.dataset.v; saveLocal(); render(); window.scrollTo({top: 0}); });
+$("view").addEventListener("click", async e => {
+  const t = e.target;
+  let b = t.closest("[data-stg]"); if (b) { stg = b.dataset.stg; saveLocal(); return render(); }
+  b = t.closest("[data-pick]"); if (b) { acc = b.dataset.pick; if (view === "accs") view = "flow"; saveLocal(); render(); return window.scrollTo({top: 0}); }
+  b = t.closest("[data-sort]"); if (b) { sortBy = b.dataset.sort; return render(); }
+  b = t.closest("[data-addslot]"); if (b) return openAdd(b.dataset.addslot);
+  b = t.closest(".hours [data-hour]"); if (b) return openAdd(b.dataset.acc, +b.dataset.hour);
+  b = t.closest(".slot"); if (b && !b.disabled) return openSlot(b.dataset.acc, b.dataset.sk);
+  b = t.closest("[data-open]"); if (b) return openPost(b.dataset.open);
+  b = t.closest("[data-quick]");
+  if (b && db) {
+    const p = byKey[b.dataset.quick], s = bestFree(p.account); if (!s) return;
+    b.disabled = true; b.textContent = "Сохраняю…";
+    try { await decide(p, "approved", "", {slot: s.key}); } catch (err) { b.disabled = false; b.textContent = "Не вышло, ещё раз"; }
+  }
+});
+
+/* ---------- решения ---------- */
 async function decide(p, decision, comment, extra) {
   await store.put("decisions", p.key, {decision, comment: comment || "", by: me, at: new Date().toISOString(), headline: p.headline, ...(extra || {})});
 }
-const dlg = $("dlg");
-dlg.addEventListener("close", () => render());
-function openSlot(acc, sk) {
-  const m = slotModel(acc), s = m.days.flatMap(d => d.slots).find(x => x.key === sk); if (!s) return;
-  const head = `<button class="dlg-x" data-close aria-label="Закрыть">×</button><h2>@${esc(acc)} · ${when(sk)} МСК</h2>`;
+const dlg = $("dlg"), pdlg = $("pdlg");
+dlg.addEventListener("close", () => render()); pdlg.addEventListener("close", () => render());
+const xbtn = `<button class="dlg-x" data-close aria-label="Закрыть">×</button>`;
+const needDb = () => db ? "" : `<p class="note">Сначала нажмите «Подключить запись» вверху.</p>`;
+
+function strengthBlock(s, wdLabel) {
+  if (!s) return `<div class="sdetail"><div class="bigstr"><b style="color:var(--faint)">—</b><span>сила слота: нет истории</span></div><p class="hint">У аккаунта слишком мало постов с замером. Слот можно занять, оценка появится после первых публикаций.</p></div>`;
+  return `<div class="sdetail"><div class="bigstr"><b>${s.score}</b><span>${sWord(s)} слот</span></div>
+    <p class="hint">Посты в это время${wdLabel ? " (" + wdLabel + " весит больше)" : ""} набирают в среднем <b>×${s.ratio.toFixed(1)}</b> к обычному: ожидаемый ${s.metric} ≈ <b>${fmt(s.expect)}</b> при медиане ${fmt(s.med)}.
+    Опора: ${s.near} пост(ов) в пределах ±1,5 ч${s.nearMed ? ", их медиана " + fmt(s.nearMed) : ""}. Уверенность: <b>${s.conf}</b>.</p></div>`;
+}
+function openSlot(name, sk) {
+  const m = slotModel(name), s = m.days.flatMap(d => d.slots).find(x => x.key === sk), day = m.days.find(d => d.slots.includes(s)); if (!s) return;
+  const head = xbtn + `<h2>@${esc(name)} · ${when(sk)} МСК</h2>`, st = strengthBlock(s.str, day.wd);
   if (s.p) {
     const p = s.p;
-    dlg.innerHTML = head + `<p class="state">${LABEL[s.st]}${pending(p) ? " (решение ждёт применения конвейером)" : ""}</p><div class="list" style="margin:10px 0">${rowBtn(p, "")}</div>
+    dlg.innerHTML = head + `<p class="state">${SC[s.st]}${pending(p) ? " (решение ждёт применения конвейером)" : ""}</p>${st}<div class="list" style="margin:10px 0">${rowBtn(p, "")}</div>
       <div class="btns">${p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : ""}
-      <button class="btn" data-goto="${esc(p.key)}">Открыть карточку</button>
-      ${p.status !== "published" ? `<button class="btn off" data-unslot="${esc(p.key)}" ${db ? "" : "disabled"}>Снять со слота</button>` : ""}</div>`;
+      ${p.status !== "published" ? `<button class="btn off" data-unslot="${esc(p.key)}" ${db ? "" : "disabled"}>Снять со слота</button>` : ""}</div>${p.status !== "published" ? needDb() : ""}`;
   } else {
-    const rank = p => bucket(p) === "wait" ? 0 : 1;
-    const cands = D.posts.filter(p => p.account === acc && ["wait", "low"].includes(bucket(p)))
-      .sort((x, y) => rank(x) - rank(y) || (y.critic?.score || 0) - (x.critic?.score || 0));
-    dlg.innerHTML = head + `<p class="state">Выберите пост: он будет одобрен и поставлен в этот слот.${db ? "" : " Сначала нажмите «Подключить запись»."}</p>
-      <div class="list" style="margin-top:10px">${cands.length ? cands.map(p => `<div class="row"><img data-enc="${p.slides[0]}" alt=""><span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${bucket(p) === "wait" ? "готов" : "черновик, не прошёл критика"} · оценка ${p.critic?.score ?? "—"}</span></span>
-        <span class="sd"><button class="btn approve" data-put="${esc(p.key)}" data-slot="${sk}" ${db ? "" : "disabled"}>Сюда</button></span></div>`).join("") : `<p class="state">Нет постов для этого аккаунта. Нужна новая партия.</p>`}</div>`;
+    const cands = D.posts.filter(p => p.account === name && ["wait", "low"].includes(bucket(p)))
+      .sort((x, y) => (bucket(x) === "wait" ? 0 : 1) - (bucket(y) === "wait" ? 0 : 1) || (y.critic?.score || 0) - (x.critic?.score || 0));
+    dlg.innerHTML = head + st + `<p class="state">Выберите пост: он будет одобрен и поставлен в этот слот.</p>${needDb()}
+      <div class="list" style="margin-top:10px">${cands.length ? cands.map(p => `<div class="row"><span class="th"><img data-enc="${p.slides[0]}" alt=""></span><span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${bucket(p) === "wait" ? "готов" : "не прошёл критика"} · оценка ${p.critic?.score ?? "—"}</span></span>
+        <button class="btn approve sm" data-put="${esc(p.key)}" data-slot="${sk}" ${db ? "" : "disabled"}>Сюда</button></div>`).join("") : `<p class="state">Нет постов для этого аккаунта. Нужна новая партия.</p>`}</div>`;
   }
   dlg.showModal(); hydrate();
 }
+
+/* добавить / убрать окно публикации */
+async function saveWindows(name, wins) {
+  const a = accByName[name], c = cfgOf(a), d = wins.length - c.windows.length;
+  await store.put("slotcfg", name, {windows: wins, per_day: Math.max(1, c.per_day + d), max_per_day: Math.max(1, c.max_per_day + d), by: me, at: new Date().toISOString()});
+}
+function openAdd(name, hour) {
+  const a = accByName[name], c = cfgOf(a), have = new Set(c.windows.map(wStart));
+  if (hour == null) { // сильнейший свободный час по умолчанию
+    let best = -1, bh = 12; for (let h = 0; h < 24; h++) { const s = strength(name, h, null); if (!have.has(h) && (s ? s.score : 30) > best) { best = s ? s.score : 30; bh = h; } } hour = bh;
+  }
+  const s = strength(name, hour, null);
+  dlg.innerHTML = xbtn + `<h2>Слоты @${esc(name)}</h2><p class="state">Выберите час на графике: высота — сила слота по истории аккаунта. Новый слот появится на сетке сразу, в расписание конвейера попадёт при синхронизации.</p>
+    <div style="margin:12px 0 4px" id="addChart">${hoursChart(name, hour)}</div>
+    <div id="addInfo"><h2 style="margin-top:14px">Слот ${pad(hour)}:05 МСК</h2>${strengthBlock(s)}</div>
+    <div class="btns"><button class="btn approve" id="addGo" ${db && !have.has(hour) ? "" : "disabled"}>${have.has(hour) ? "Слот в этот час уже есть" : "Добавить слот " + pad(hour) + ":05"}</button></div>${needDb()}
+    <h2 style="margin-top:18px;font-size:15px">Текущие окна</h2><div class="wchips" style="margin-top:8px">${[...c.windows].sort((x, y) => wStart(x) - wStart(y)).map(w => `<span class="wchip"><b>${pad(wStart(w))}:05</b>${pw(strength(name, wStart(w), null))}<button data-rmw="${w}" aria-label="Убрать окно ${w}" title="Убрать окно" style="font-size:15px;color:var(--down)" ${db && c.windows.length > 1 ? "" : "disabled"}>×</button></span>`).join("")}</div>
+    ${c.pending ? `<p class="note" style="margin-top:8px">Изменения окон ждут применения конвейером.</p>` : ""}`;
+  dlg.dataset.add = name; dlg.dataset.hour = hour;
+  dlg.showModal();
+}
 dlg.addEventListener("click", async e => {
   if (e.target === dlg || e.target.closest("[data-close]")) return dlg.close();
-  const g = e.target.closest("[data-goto]"); if (g) { dlg.close(); return gotoPost(g.dataset.goto); }
+  const op = e.target.closest("[data-open]"); if (op) { dlg.close(); return openPost(op.dataset.open); }
+  const hr = e.target.closest(".hours [data-hour]"); if (hr && dlg.dataset.add) return openAdd(dlg.dataset.add, +hr.dataset.hour);
+  if (e.target.closest("#addGo") && db) {
+    const btn = e.target.closest("#addGo"), name = dlg.dataset.add, h = +dlg.dataset.hour, c = cfgOf(accByName[name]);
+    btn.disabled = true; btn.textContent = "Сохраняю…";
+    try { await saveWindows(name, [...c.windows, `${pad(h)}-${pad(h + 1)}`]); dlg.close(); render(); } catch (err) { btn.disabled = false; btn.textContent = "Не вышло, ещё раз"; }
+    return;
+  }
+  const rm = e.target.closest("[data-rmw]");
+  if (rm && db && dlg.dataset.add) {
+    const name = dlg.dataset.add, c = cfgOf(accByName[name]); rm.disabled = true;
+    try { await saveWindows(name, c.windows.filter(w => w !== rm.dataset.rmw)); dlg.close(); render(); } catch (err) { rm.disabled = false; }
+    return;
+  }
   const put = e.target.closest("[data-put]");
   if (put && db) { put.disabled = true; put.textContent = "Сохраняю…";
-    try { await decide(byKey[put.dataset.put], "approved", "", {slot: put.dataset.slot}); dlg.close(); } catch (err) { put.disabled = false; put.textContent = "Не вышло, ещё раз"; } }
+    try { await decide(byKey[put.dataset.put], "approved", "", {slot: put.dataset.slot}); dlg.close(); render(); } catch (err) { put.disabled = false; put.textContent = "Не вышло, ещё раз"; } }
   const un = e.target.closest("[data-unslot]");
   if (un && db) { un.disabled = true; un.textContent = "Сохраняю…";
-    try { await decide(byKey[un.dataset.unslot], "unapprove", ""); dlg.close(); } catch (err) { un.disabled = false; un.textContent = "Не вышло, ещё раз"; } }
+    try { await decide(byKey[un.dataset.unslot], "unapprove", ""); dlg.close(); render(); } catch (err) { un.disabled = false; un.textContent = "Не вышло, ещё раз"; } }
 });
-$("sgrid").addEventListener("click", e => {
-  const s = e.target.closest(".slot"); if (s && !s.disabled) return openSlot(s.dataset.acc, s.dataset.sk);
-  const g = e.target.closest("[data-goto]"); if (g) gotoPost(g.dataset.goto);
-});
-function gotoPost(key) {
-  const p = byKey[key]; if (!p) return;
-  view = "posts"; tab = bucket(p); saveLocal(); render();
-  const i = shown.indexOf(p);
-  requestAnimationFrame(() => { const el = document.querySelector(`.post[data-i="${i}"]`); if (el) el.scrollIntoView({block: "start", behavior: "smooth"}); });
-}
 
-/* ---- вкладки и карточки ---- */
-const TABS = [["wait","Ждут проверки"],["ok","Одобрены"],["redo","На доработке"],["pub","Опубликованы"],["low","Черновики"],["off","Сняты"]];
-function renderTabs() {
-  const cnt = k => D.posts.filter(p => bucket(p) === k).length;
-  $("tabs").innerHTML = TABS.map(([k, l]) => `<button class="tab" data-k="${k}" aria-pressed="${tab === k}">${l}<i>${cnt(k)}</i></button>`).join("");
-  $("views").innerHTML = [["slots", "Слоты"], ["posts", "Посты"]].map(([k, l]) => `<button class="tab" data-v="${k}" aria-pressed="${view === k}">${l}</button>`).join("");
-}
-$("views").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; view = b.dataset.v; saveLocal(); render(); });
-$("tabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (!b) return; tab = b.dataset.k; saveLocal(); render(); });
-
-function card(p, i) {
-  const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p);
-  const pill = {wait:["wait","ждёт проверки"], ok:["ok","одобрен"], redo:["redo","на доработке"], pub:["pub","опубликован"], low:["low","черновик"], off:["off","снят"]}[b];
-  const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}` : "";
+/* ---------- карточка поста (окно) ---------- */
+function card(p) {
+  const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p), i = p._i;
+  const pill = {wait: ["wait", "ждёт проверки"], ok: ["ok", "одобрен"], redo: ["redo", "на доработке"], pub: ["pub", "опубликован"], low: ["", "черновик"], off: ["", "снят"]}[b];
+  const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}` : "";
   const res = p.result ? `<div class="kv"><dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd></div>` : "";
   const ed = edits[p.key], capText = ed?.caption ?? p.caption, capPend = ed && ed.caption !== p.caption;
-  const slotTxt = (pend && dcs.decision === "approved" && dcs.slot) ? when(dcs.slot) + " (ждёт синхронизации)" : p.slot ? when(p.slot) : "назначится после одобрения";
+  const slotKey = (pend && dcs.decision === "approved" && dcs.slot) ? dcs.slot : p.slot;
+  const slotStr = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
+  const slotTxt = slotKey ? when(slotKey) + " МСК" + (pend && dcs.slot ? " (ждёт синхронизации)" : "") : "назначится после одобрения";
   const free = p.status === "published" ? [] : freeSlots(p.account);
+  const strongest = free.reduce((x, s) => !x || (s.str?.score ?? -1) > (x.str?.score ?? -1) ? s : x, null);
   const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено"};
-  return `<article class="post" data-i="${i}">
-  <div class="top"><span class="pill ${pill[0]}">${pill[1]}</span>
-    <span class="who">${p.avatar ? `<img src="${p.avatar}" alt="">` : ""}@${esc(p.account)}</span>
-    <span class="type">· ${FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""))}</span>
-    ${p.collab ? `<span class="pill">совместно с @${esc(p.collab)}</span>` : ""}
-    <span class="score">${c.score ?? "—"}<small>/10</small></span></div>
-  <h2>${esc(p.headline)}</h2>
+  return `<article class="post" data-key="${esc(p.key)}">
+  <div class="top">${pill[0] ? `<span class="pill ${pill[0]}">${pill[1]}</span>` : `<span class="pill">${pill[1]}</span>`}<span class="ac">${avatarOf(p.account) ? `<img src="${avatarOf(p.account)}" alt="">` : ""}<span>@${esc(p.account)}</span></span>
+    <span class="hint">${FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""))}</span>${p.collab ? `<span class="pill">совместно с @${esc(p.collab)}</span>` : ""}
+    <span class="pscore">${c.score ?? "—"}<small>/10</small></span></div>
+  <h3>${esc(p.headline)}</h3>
   <div class="strip">${p.slides.map((s, j) => `<button data-j="${j}" aria-label="Слайд ${j + 1}"><img data-enc="${s}" alt=""></button>`).join("")}</div>
   <div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>
-  <div class="why"><h3>Почему этот пост</h3><p>${esc(c.why_viral || p.why || "—")}</p>
-    <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список (${(p.dm_text || "").split("\n").filter(Boolean).length} строк)</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
-    <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${esc(slotTxt)}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd></dl>${res}</div>
+  <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
+    <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
+    <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${esc(slotTxt)} ${slotStr ? pw(slotStr) : ""}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd></dl>${res}</div>
   <details class="more"><summary>Подпись и источники${capPend ? " · правка ждёт применения" : ""}</summary>
     ${p.status === "published" ? `<div class="cap">${esc(p.caption)}</div>` : `<textarea id="cap-${i}" style="margin-top:8px;min-height:160px">${esc(capText)}</textarea>
-    <div class="btns" style="margin-top:8px"><button class="btn" data-act="cap" ${db ? "" : "disabled"}>Сохранить подпись</button></div>`}
+    <div class="btns" style="margin-top:8px"><button class="btn sm" data-act="cap" ${db ? "" : "disabled"}>Сохранить подпись</button></div>`}
     <ul>${(p.sources || []).map(s => `<li><a href="${esc(s)}" target="_blank" rel="noopener">${esc(s)}</a></li>`).join("")}</ul></details>
   ${(c.fixes || []).length ? `<details class="more"><summary>Замечания критика (${c.fixes.length})</summary><ul>${c.fixes.map(f => `<li>${esc(f)}</li>`).join("")}</ul></details>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : "") : `
@@ -494,7 +824,7 @@ function card(p, i) {
     <label class="state" for="cm-${i}">Комментарий (для доработки обязателен)</label>
     <textarea id="cm-${i}" placeholder="Что поправить: слайд, текст, картинка…">${esc(pend ? dcs?.comment || "" : "")}</textarea>
     <label class="state" for="sl-${i}">Слот публикации</label>
-    <select id="sl-${i}"><option value="">Ближайший свободный (авто)</option>${free.map(s => `<option value="${s.key}">${when(s.key)} МСК</option>`).join("")}</select>
+    <select class="f" id="sl-${i}"><option value="">Ближайший свободный</option>${strongest && strongest.str ? `<option value="${strongest.key}" selected>★ Самый сильный: ${when(strongest.key)} МСК · сила ${strongest.str.score}</option>` : ""}${free.map(s => `<option value="${s.key}">${when(s.key)} МСК${s.str ? " · сила " + s.str.score : ""}</option>`).join("")}</select>
     <div class="btns"><button class="btn approve" data-act="approved" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}</button>
       <button class="btn redo" data-act="rework" ${db ? "" : "disabled"}>На доработку</button>
       ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
@@ -503,41 +833,33 @@ function card(p, i) {
   </div>`}
   </article>`;
 }
-
-let shown = [];
-function render() {
-  renderTabs();
-  $("slotsView").hidden = view !== "slots"; $("postsView").hidden = view !== "posts";
-  if (view === "slots") renderSlots();
-  else {
-    shown = D.posts.filter(p => bucket(p) === tab);
-    $("grid").innerHTML = shown.length ? shown.map(card).join("") : `<div class="empty">${tab === "wait" ? "Новых постов на проверку нет. Сборщик добавляет их каждый день в 10:00 МСК." : "Здесь пока пусто."}</div>`;
-  }
-  hydrate();
+function openPost(key) {
+  const p = byKey[key];
+  if (!p) { const b = (D.building || []).find(x => x.key === key); if (!b) return;
+    pdlg.innerHTML = xbtn + `<h2>${esc(b.headline)}</h2><p class="state">@${esc(b.account)} · ${STAGES.find(s => s[0] === BSTAGE[b.status])?.[2] || b.status} · обновлено ${ago(b.updated)} назад${b.live ? " · идёт сейчас" : ""}</p><p class="hint" style="margin-top:8px">Пост ещё делается: карточка с картинками и оценкой появится, когда конвейер дойдёт до проверки.</p>`;
+    return pdlg.showModal(); }
+  pdlg.innerHTML = xbtn + card(p); pdlg.showModal(); hydrate();
 }
-
-$("grid").addEventListener("click", async e => {
+pdlg.addEventListener("click", async e => {
+  if (e.target === pdlg || e.target.closest("[data-close]")) return pdlg.close();
   const art = e.target.closest(".post"); if (!art) return;
-  const p = shown[+art.dataset.i];
-  const sb = e.target.closest(".strip button");
-  if (sb) return openLb(p, +sb.dataset.j);
+  const p = byKey[art.dataset.key], i = p._i;
+  const sb = e.target.closest(".strip button"); if (sb) return openLb(p, +sb.dataset.j);
   const btn = e.target.closest("[data-act]"); if (!btn || !db) return;
-  const act = btn.dataset.act, i = art.dataset.i, label = btn.textContent;
+  const act = btn.dataset.act, label = btn.textContent;
   btn.disabled = true; btn.textContent = "Сохраняю…";
   try {
     if (act === "cap") {
-      const text = art.querySelector("#cap-" + i).value.trim();
-      await store.put("edits", p.key, {caption: text, by: me, at: new Date().toISOString(), headline: p.headline});
+      await store.put("edits", p.key, {caption: art.querySelector("#cap-" + i).value.trim(), by: me, at: new Date().toISOString(), headline: p.headline});
+      btn.textContent = "Сохранено"; btn.disabled = false;
     } else {
       const ta = art.querySelector("#cm-" + i), comment = ta.value.trim();
       if (act === "rework" && !comment) { ta.focus(); ta.placeholder = "Напишите, что поправить: без комментария доработку не отправить"; btn.disabled = false; btn.textContent = label; return; }
-      // «авто» = сразу первый свободный слот этого аккаунта (страница сама занимает его на сетке, не ждёт синхронизации)
       const slot = act === "approved" ? (art.querySelector("#sl-" + i).value || ((freeSlots(p.account)[0] || {}).key || "")) : "";
       await decide(p, act, comment, slot ? {slot} : {});
+      pdlg.close(); render();
     }
-  } catch (err) {
-    btn.disabled = false; btn.textContent = "Не сохранилось, повторить";
-  }
+  } catch (err) { btn.disabled = false; btn.textContent = "Не сохранилось, повторить"; }
 });
 
 let lp = null, lj = 0;
@@ -561,10 +883,11 @@ function hydrate() {
   }), {rootMargin: "800px"}));
   document.querySelectorAll("img[data-enc]:not([src])").forEach(i => io.observe(i));
 }
-function rerender() { if (dlg.open) return; const a = document.activeElement; if (a && a.tagName === "TEXTAREA" && a.value) return; render(); }
+function rerender() { if (dlg.open || pdlg.open) return; const a = document.activeElement; if (a && a.tagName === "TEXTAREA" && a.value) return; render(); }
 
-/* ---- хранилище решений: pulse/inbox/decisions.enc и edits.enc в репозитории (шифр пинкодом).
-   Читать может любой вошедший; писать — тот, кто вставил токен GitHub (доступ к одному репозиторию, право Contents). ---- */
+/* ---------- хранилище решений: pulse/inbox/*.enc в репозитории (шифр пинкодом).
+   Читать может любой вошедший; писать — тот, кто вставил токен GitHub (один репозиторий, право Contents).
+   decisions — одобрения/правки/снятия, edits — подписи, slotcfg — окна публикации аккаунтов. ---------- */
 const REPO = "akm-agency/akm-ig-radar", INBOX = "pulse/inbox/";
 let token = ""; try { token = localStorage.getItem("akm-gh") || ""; } catch (e) {}
 const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
@@ -592,7 +915,7 @@ const store = {
       const body = {message: "Пульт: " + name + " " + key, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
       if (sha) body.sha = sha;
       const r = await gh(INBOX + name + ".enc", {method: "PUT", body: JSON.stringify(body)});
-      if (r.ok) { (name === "decisions" ? decisions : edits)[key] = doc; rerender(); return; }
+      if (r.ok) { ({decisions, edits, slotcfg}[name])[key] = doc; rerender(); return; }
       if (r.status !== 409 && r.status !== 422) throw new Error("GitHub " + r.status);   // конфликт — кто-то записал раньше, читаем заново
     }
     throw new Error("конфликт записи");
@@ -600,16 +923,17 @@ const store = {
 };
 async function refresh() {
   try {
-    decisions = (await store.read("decisions")).map; edits = (await store.read("edits")).map;
+    decisions = (await store.read("decisions")).map; edits = (await store.read("edits")).map; slotcfg = (await store.read("slotcfg")).map;
     Object.values(decisions).forEach(x => { if (x.by) names[x.by] = x.by; });
     rerender();
   } catch (e) { $("meta").textContent += " · не удалось обновить решения: " + e.message; }
 }
-function ghLabel() { $("gh").textContent = token ? "Запись включена" : "Подключить запись"; db = token ? store : null; }
+function ghLabel() { $("gh").textContent = token ? "Запись включена" : "Подключить запись"; $("gh").classList.toggle("blue", !token); db = token ? store : null; }
 $("gh").onclick = () => {
-  dlg.innerHTML = `<button class="dlg-x" data-close aria-label="Закрыть">×</button><h2>Запись решений</h2>
-    <p class="state" style="margin:6px 0 10px">Решения («Одобрить», «Снять», слот, подпись) сохраняются файлами в репозитории akm-ig-radar. Нужен токен GitHub: fine-grained, только репозиторий akm-ig-radar, право Contents: Read and write. Токен хранится только в этом браузере.</p>
-    <input id="tk" type="password" autocomplete="off" placeholder="github_pat_…" style="width:100%;border-radius:12px;border:1px solid var(--line);background:var(--tile-2);color:inherit;padding:10px;font:inherit">
+  dlg.dataset.add = "";
+  dlg.innerHTML = xbtn + `<h2>Запись решений</h2>
+    <p class="state" style="margin:6px 0 10px">Решения («Одобрить», «Снять», слот, подпись, окна публикации) сохраняются файлами в репозитории akm-ig-radar. Нужен токен GitHub: fine-grained, только репозиторий akm-ig-radar, право Contents: Read and write. Токен хранится только в этом браузере.</p>
+    <input id="tk" type="password" autocomplete="off" placeholder="github_pat_…">
     <div class="btns" style="margin-top:10px"><button class="btn approve" id="tkOk">Сохранить</button>${token ? '<button class="btn off" id="tkDel">Отключить</button>' : ""}</div><p class="note" id="tkErr"></p>`;
   dlg.showModal();
   $("tkOk").onclick = async () => {
@@ -627,6 +951,7 @@ $("gh").onclick = () => {
 };
 $("out").onclick = () => window.akmLogout();
 
+$("meta").textContent = `обновлено ${D.updated} · публикация только после «Одобрить» · окна: ${D.windows}`;
 ghLabel();
 render();
 if (token) fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => r.ok ? r.json() : null).then(u => { if (u) { me = u.login; names[me] = me; } });
