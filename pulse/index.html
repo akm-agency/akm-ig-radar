@@ -948,9 +948,10 @@ function hydrate(now) {
 }
 function rerender() { if (dlg.open || pdlg.open) return; const a = document.activeElement; if (a && a.tagName === "TEXTAREA" && a.value) return; render(); }
 
-/* ---------- хранилище: pulse/inbox/*.enc в репозитории (шифр пинкодом). Читать может любой вошедший; писать — с токеном GitHub.
+/* ---------- хранилище: pulse/inbox/*.enc в ОТДЕЛЬНОЙ ветке pulse-inbox (шифр пинкодом) — клики не запускают сборку GitHub Pages.
+   Читать может любой вошедший (raw.githubusercontent.com), писать — с токеном GitHub через API.
    decisions — одобрения/правки/снятия, edits — подписи, slotcfg — окна публикации. Применяет pulse_watch.py (≈1 мин). ---------- */
-const REPO = "akm-agency/akm-ig-radar", INBOX = "pulse/inbox/";
+const REPO = "akm-agency/akm-ig-radar", INBOX = "pulse/inbox/", BRANCH = "pulse-inbox";
 let token = ""; try { token = localStorage.getItem("akm-gh") || ""; } catch (e) {}
 const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
 const unb64 = s => Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0));
@@ -960,13 +961,13 @@ const MAPS = {decisions: () => decisions, edits: () => edits, slotcfg: () => slo
 const store = {
   async read(name) {
     if (token) {
-      const r = await gh(INBOX + name + ".enc");
+      const r = await gh(INBOX + name + ".enc?ref=" + BRANCH);
       if (r.status === 404) return {map: {}, sha: null};
       if (!r.ok) throw new Error("GitHub " + r.status);
       const j = await r.json();
       return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(unb64(j.content)))), sha: j.sha};
     }
-    const r = await fetch("inbox/" + name + ".enc?t=" + Date.now(), {cache: "no-store"});
+    const r = await fetch(`https://raw.githubusercontent.com/${REPO}/${BRANCH}/${INBOX}${name}.enc?t=${Date.now()}`, {cache: "no-store"});
     if (!r.ok) return {map: {}, sha: null};
     return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(new Uint8Array(await r.arrayBuffer())))), sha: null};
   },
@@ -975,7 +976,7 @@ const store = {
     for (let n = 0; n < 4; n++) {
       const {map, sha} = await store.read(name);
       map[key] = doc;
-      const body = {message: "Пульт: " + name + " " + key, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
+      const body = {message: "Пульт: " + name + " " + key, branch: BRANCH, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
       if (sha) body.sha = sha;
       const r = await gh(INBOX + name + ".enc", {method: "PUT", body: JSON.stringify(body)});
       if (r.ok) { MAPS[name]()[key] = doc; rerender(); return; }
@@ -1006,7 +1007,7 @@ $("gh").onclick = () => {
     token = v; $("tkErr").textContent = "Проверяю…";
     try {
       const u = await fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => { if (!r.ok) throw new Error("токен не принят (" + r.status + ")"); return r.json(); });
-      const t = await gh(INBOX.slice(0, -1));
+      const t = await gh(INBOX.slice(0, -1) + "?ref=" + BRANCH);
       if (t.status === 401 || t.status === 403) throw new Error("у токена нет доступа к репозиторию");
       try { localStorage.setItem("akm-gh", token); } catch (e) {}
       me = u.login; names[me] = me; ghLabel(); dlg.close(); refresh(); toast("Запись включена");
