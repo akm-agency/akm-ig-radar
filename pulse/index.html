@@ -294,7 +294,9 @@ body{margin:0}
 
 <script>
 window.akmKey.then(() => window.akmData('pulse')).then(async D => {
-const PARTS = [["stop","обложка"],["share","переслать"],["save","сохранить"],["comment","коммент"],["follow","подписка"],["facts","факты"],["images","картинки"]];
+// части оценки критика: новый критик роста (04.11) — stop/spread/follow/fit/save/trust; у старых постов — share/comment/facts/images
+const PARTS = [[["stop"],"обложка"],[["spread","share"],"переслать"],[["follow"],"подписка"],[["fit"],"аудитория"],[["save"],"сохранить"],[["trust","facts"],"факты"],[["comment"],"коммент"],[["images"],"картинки"]];
+const partVal = (pr, keys) => { for (const k of keys) if (pr[k] != null) return pr[k]; return null; };
 const TYPE = {spreader:"разгон", converter:"подписка"};
 const FMT = {series:"серия, день", keyword:"слово в комментарии", hit:"хит конкурента"};
 const $ = id => document.getElementById(id);
@@ -477,7 +479,7 @@ function card(p, i) {
     <span class="score">${c.score ?? "—"}<small>/10</small></span></div>
   <h2>${esc(p.headline)}</h2>
   <div class="strip">${p.slides.map((s, j) => `<button data-j="${j}" aria-label="Слайд ${j + 1}"><img data-enc="${s}" alt=""></button>`).join("")}</div>
-  <div class="parts">${PARTS.map(([k, l]) => `<div class="part ${pr[k] >= 8 ? "hi" : pr[k] != null && pr[k] <= 5 ? "lo" : ""}"><small>${l}</small><b>${pr[k] ?? "—"}</b></div>`).join("")}</div>
+  <div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>
   <div class="why"><h3>Почему этот пост</h3><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список (${(p.dm_text || "").split("\n").filter(Boolean).length} строк)</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
     <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${esc(slotTxt)}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd></dl>${res}</div>
