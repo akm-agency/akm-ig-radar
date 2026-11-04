@@ -107,6 +107,17 @@ window.akmData = async name => {
   if (!r.ok) throw new Error("HTTP " + r.status);
   return JSON.parse(new TextDecoder().decode(decrypt(new Uint8Array(await r.arrayBuffer()), k)));
 };
+window.akmOpen = async buf => decrypt(buf, await window.akmKey);   // расшифровать любой зашифрованный файл (картинки и данные пульта)
+window.akmSeal = async bytes => {                                    // зашифровать: пульт пишет решения в репозиторий уже шифром
+  const k = await window.akmKey, nonce = crypto.getRandomValues(new Uint8Array(16));
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(bytes.length);
+  for (let i = 0, o = 0; o < bytes.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, bytes.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = bytes[o + j] ^ s[j];
+  }
+  return cat(enc("AKM1"), nonce, sha256(cat(k, nonce, enc("ok"))).slice(0, 16), out);
+};
 window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
 })();
 </script><!--akm-gate-->
