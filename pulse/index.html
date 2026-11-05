@@ -665,7 +665,7 @@ const bestFree = n => {   // самый сильный свободный сло
    procs — процессы конвейера с пульсом, events — последние действия, posts — последнее действие по каждому посту. */
 let LIVE = null, liveErr = "", liveFeedAll = false;
 const PN = {rework: "Доработка по правкам", builder: "Сборщик постов", cycle: "Цикл дня", factory: "Фабрика постов", publish: "Публикация",
-  daily: "Статистика", early: "Ранние признаки", frames: "Кадры", fix_dark: "Починка чёрных слайдов", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка"};
+  daily: "Статистика", early: "Ранние признаки", frames: "Кадры", fix_dark: "Починка чёрных слайдов", hf_bridge: "Chrome → Higgsfield", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка"};
 const secAgo = iso => iso ? Math.max(0, Math.round((Date.now() - ts(iso)) / 1000)) : 1e9;
 const agoS = iso => { const s = secAgo(iso); return s < 60 ? s + " с назад" : s < 3600 ? Math.round(s / 60) + " мин назад" : s < 86400 ? Math.round(s / 3600) + " ч назад" : Math.round(s / 86400) + " дн назад"; };
 const hm = iso => iso ? iso.slice(11, 16) : "";
@@ -706,6 +706,7 @@ function livePanel() {
     <div class="livep"><div class="procs">${procs.length ? procs.map(p => { const [c, w] = procState(p); const d = (p.doing || []).filter(x => x.key).slice(-2);
       return `<div class="proc ${c}"><span class="pn"><i></i>${esc(PN[p.name] || p.name)}<span class="hint" style="margin-left:auto;font-weight:400">${w}</span></span>
         ${d.map(x => `<span class="pm">→ <button data-open="${esc(x.key)}" style="font-weight:600">${esc(headOf(x.key).slice(0, 60))}</button>${x.msg ? ": " + esc(x.msg.slice(0, 120)) : ""}</span>`).join("") || `<span class="pm">${c === "on" ? "ждёт работы" : ""}</span>`}</div>`; }).join("") : `<div class="proc off"><span class="pm">Процессы конвейера не запущены.</span></div>`}
+      ${LIVE.bridge ? `<div class="proc ${LIVE.bridge.online ? "on" : "off"}"><span class="pn"><i></i>Ваш Chrome → Higgsfield<span class="hint" style="margin-left:auto;font-weight:400">${LIVE.bridge.online ? "на связи" : "не на связи"}</span></span><span class="pm">${LIVE.bridge.online ? (LIVE.bridge.queued ? "в очереди кадров: " + LIVE.bridge.queued : "очередь кадров пуста") : "кадры пойдут через платный запасной API (~3 ₽): откройте Chrome с расширением AKM"}</span></div>` : ""}
       ${img ? `<div class="proc ${img.state === "ошибка" ? "stale" : secAgo(img.at) < 600 ? "on" : "off"}"><span class="pn"><i></i>Генерация кадров (Higgsfield)<span class="hint" style="margin-left:auto;font-weight:400">${esc(img.state || "")} · ${agoS(img.at)}</span></span>${img.error ? `<span class="pm" style="color:var(--bad)">${esc(img.error)}</span>` : ""}${img.post ? `<span class="pm">→ ${esc(headOf(img.post).slice(0, 60))}</span>` : ""}</div>` : ""}</div>
     <div class="feed">${ev.length ? ev.map(e => `<div class="ev ${e.kind || ""}"><time title="${esc(e.at)}">${hm(e.at)}</time><span class="ep">${esc(PN[e.proc] || e.proc || "")}</span><span class="em">${e.key ? `<button data-open="${esc(e.key)}">${esc(headOf(e.key).slice(0, 34))}</button>` : ""}${esc(e.msg)}</span></div>`).join("") : `<p class="hint">Событий пока нет.</p>`}</div></div></section>`;
 }
