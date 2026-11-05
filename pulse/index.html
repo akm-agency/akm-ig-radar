@@ -665,7 +665,7 @@ const bestFree = n => {   // самый сильный свободный сло
    procs — процессы конвейера с пульсом, events — последние действия, posts — последнее действие по каждому посту. */
 let LIVE = null, liveErr = "", liveFeedAll = false;
 const PN = {rework: "Доработка по правкам", builder: "Сборщик постов", cycle: "Цикл дня", factory: "Фабрика постов", publish: "Публикация",
-  daily: "Статистика", early: "Ранние признаки", frames: "Кадры", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка"};
+  daily: "Статистика", early: "Ранние признаки", frames: "Кадры", fix_dark: "Починка чёрных слайдов", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка"};
 const secAgo = iso => iso ? Math.max(0, Math.round((Date.now() - ts(iso)) / 1000)) : 1e9;
 const agoS = iso => { const s = secAgo(iso); return s < 60 ? s + " с назад" : s < 3600 ? Math.round(s / 60) + " мин назад" : s < 86400 ? Math.round(s / 3600) + " ч назад" : Math.round(s / 86400) + " дн назад"; };
 const hm = iso => iso ? iso.slice(11, 16) : "";
