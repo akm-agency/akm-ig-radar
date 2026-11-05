@@ -909,6 +909,10 @@ $("view").addEventListener("click", async e => {
   b = t.closest("[data-dl]"); if (b) return downloadSlides(byKey[b.dataset.dl], b);
   b = t.closest("[data-copy]"); if (b) { const p = byKey[b.dataset.copy]; navigator.clipboard.writeText(edits[p.key]?.caption ?? p.caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
   b = t.closest("[data-up]");
+  if (b && !db) {                                   // без токена: отметка в этом браузере; статус «вышел» конвейер ставит сам, найдя пост в ленте
+    const k = b.dataset.up; upMarks[k] = upMarks[k] ? 0 : Date.now();
+    try { localStorage.setItem("akm-up", JSON.stringify(upMarks)); } catch (e) {}
+    toast(upMarks[k] ? "Отмечено. Конвейер сам найдёт пост в ленте за ~15 мин" : "Отметка снята"); return render(); }
   if (b && db) { const p = byKey[b.dataset.up]; b.disabled = true; b.textContent = "Сохраняю…";
     try { await decide(p, "uploaded", "", {uploaded_at: nowMsk().replace(" ", "T")}); toast("Отмечено: залит"); render(); }
     catch (err) { b.disabled = false; b.textContent = "Залито ✓"; toast("Не сохранилось: " + err.message, 1); }
@@ -1045,18 +1049,20 @@ async function downloadSlides(p, btn) {
   } catch (e) { if (e.name !== "AbortError") toast("Не скачалось: " + e.message, 1); }
   btn.disabled = false; btn.textContent = label;
 }
+let upMarks = {}; try { upMarks = JSON.parse(localStorage.getItem("akm-up") || "{}"); } catch (e) {}
 function renderUpload() {
   const man = [...new Set(D.posts.filter(p => p.manual).map(p => p.account))];
   const list = D.posts.filter(p => p.manual && (!acc || p.account === acc) && ["ok", "pub"].includes(bucket(p)))
     .sort((x, y) => (bucket(x) === "pub") - (bucket(y) === "pub") || ((pending(x) && decisions[x.key]?.slot) || x.slot || "~").localeCompare((pending(y) && decisions[y.key]?.slot) || y.slot || "~"));
   const todo = list.filter(p => bucket(p) === "ok");
-  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Заливка</h2><span class="n">${todo.length}</span><span class="hint">ручные каналы без API (${man.length}) · одобренные посты по времени слота. На телефоне «Скачать» сразу предлагает сохранить слайды в галерею</span></div>
+  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Заливка</h2><span class="n">${todo.length}</span><span class="hint">ручные каналы (${man.length}) · одобренные посты по времени слота. «Скачать» на телефоне сохраняет слайды в галерею. Выложенный пост конвейер сам находит в ленте за ~15 мин и переносит в «Вышли» — вход и токен не нужны</span></div>
     <div class="upl">${list.length ? list.map(p => { const sl = (pending(p) && decisions[p.key]?.slot) || p.slot, done = bucket(p) === "pub";
-      return `<article class="uc ${done ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
-      <div class="ub"><span class="hint">@${esc(p.account)} · ${done ? "залит " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
+      const mine = !done && upMarks[p.key];
+      return `<article class="uc ${done || mine ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
+      <div class="ub"><span class="hint">@${esc(p.account)} · ${done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
         <h3>${esc(flat(p.headline))}</h3><div class="cap-prev">${esc(edits[p.key]?.caption ?? p.caption)}</div>
         <div class="btns"><button class="btn sm go" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
-        ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}" ${db ? "" : 'disabled title="Нужна «Подключить запись»"'}>Залито ✓</button>`}</div></div></article>`; }).join("")
+        ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Залито ✓"}</button>`}</div></div></article>`; }).join("")
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
 }
 
