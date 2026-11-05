@@ -408,6 +408,62 @@ textarea,input[type=text],input[type=password],select.f{width:100%;border-radius
 textarea{resize:vertical;min-height:76px}
 .state{font-size:13px;color:var(--muted)} .state b{color:var(--ink)}
 .note{font-size:12.5px;color:#8A5A12}
+/* живой журнал */
+.livep{display:grid;grid-template-columns:minmax(260px,1fr) 2fr;gap:16px}
+@media(max-width:980px){.livep{grid-template-columns:1fr}}
+.lhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.lfresh{font-size:12px;color:var(--muted)} .lfresh.bad{color:var(--bad);font-weight:600}
+.procs{display:grid;gap:8px;align-content:start}
+.proc{background:var(--soft);border-radius:var(--r-s);padding:10px 12px;display:grid;gap:3px;font-size:12.5px}
+.proc .pn{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.proc .pn i{width:9px;height:9px;border-radius:50%;background:var(--faint);flex:none}
+.proc.on .pn i{background:var(--good);box-shadow:0 0 0 4px rgba(31,122,77,.15);animation:pulse 1.6s infinite}
+.proc.stale .pn i{background:var(--orange)} .proc.off .pn i{background:#BFC6BB}
+.proc .pm{color:var(--muted);overflow-wrap:anywhere}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(31,122,77,0)}}
+.feed{display:grid;gap:2px;max-height:430px;overflow:auto;font-size:12.5px;align-content:start}
+.ev{display:grid;grid-template-columns:44px 110px 1fr;gap:8px;padding:6px 8px;border-radius:10px;align-items:baseline}
+.ev:nth-child(odd){background:var(--soft)}
+.ev time{color:var(--faint);font-variant-numeric:tabular-nums} .ev .ep{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev .em{overflow-wrap:anywhere} .ev .em button{font-weight:600;text-decoration:underline;text-underline-offset:2px;margin-right:6px}
+.ev.err .em{color:var(--bad)} .ev.warn .em{color:#8A5A12} .ev.ok .em{color:var(--good)} .ev.stage .em{font-weight:600}
+@media(max-width:640px){.ev{grid-template-columns:40px 1fr}.ev .ep{display:none}}
+.la{font-size:11.5px;color:var(--muted);display:flex;gap:6px;align-items:baseline;overflow-wrap:anywhere}
+.la.stuck{color:var(--bad);font-weight:600} .la.go{color:var(--good)}
+/* идея, слабые места, рейтинг, кадры */
+.idea{background:var(--lime-soft);border-radius:var(--r-s);padding:14px 16px;display:grid;gap:8px;font-size:13.5px;line-height:1.45}
+.idea h4,.weak h4,.ranks h4,.imgs h4,.plog h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.idea a{color:var(--blue);font-weight:600}
+.idea .nums{display:flex;gap:8px;flex-wrap:wrap}
+.idea .nums span{background:#fff;border-radius:99px;padding:4px 10px;font-size:12.5px;font-weight:600}
+.weak{background:#FCE9E4;border:2px solid #F2B7A8;border-radius:var(--r-s);padding:14px 16px;display:grid;gap:8px}
+.weak ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13px}
+.weak li{display:flex;gap:8px;align-items:baseline}
+.weak li b{flex:none;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:2px 7px;background:var(--bad);color:#fff}
+.weak li b.mid{background:var(--orange)}
+.weak.none{background:var(--soft);border-color:transparent}
+.ranks{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ranks h4{grid-column:1/-1}
+.rk{background:var(--soft);border-radius:var(--r-s);padding:10px 12px;font-size:12px;color:var(--muted);display:grid;gap:2px}
+.rk b{font-size:20px;color:var(--ink);font-weight:600;letter-spacing:-.03em}
+.rk.hi b{color:var(--good)} .rk.lo b{color:var(--bad)}
+.imgs{display:grid;gap:8px}
+.isl{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.isl div{border-radius:10px;padding:6px 8px;font-size:11.5px;background:var(--soft);display:grid;gap:2px}
+.isl div b{font-size:12px}
+.isl .web{background:#E6F0FF} .isl .higgsfield{background:var(--lav)} .isl .nano-api{background:var(--peach)} .isl .пусто{background:#FCE9E4;color:var(--bad)}
+.plog{display:grid;gap:6px}
+.wtag{background:var(--bad)!important;color:#fff!important}
+/* заливка */
+.upl{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.uc{background:var(--panel);border-radius:var(--r);overflow:hidden;display:grid;grid-template-columns:120px 1fr;gap:0}
+.uc .uimg{background:var(--soft);aspect-ratio:4/5}
+.uc .uimg img{width:100%;height:100%;object-fit:cover;display:block}
+.uc .ub{padding:12px 14px;display:grid;gap:6px;align-content:start;font-size:12.5px}
+.uc h3{font-size:13.5px;font-weight:600;line-height:1.3}
+.uc .btns{display:flex;flex-wrap:wrap;gap:6px}
+.uc.done{opacity:.55}
+.cap-prev{font-size:12px;color:var(--muted);max-height:4.2em;overflow:hidden}
 .lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
 .lb img{max-width:min(100%,600px);max-height:100%;border-radius:14px}
 .lb .xb{position:absolute;top:12px;right:14px;color:#fff;font-size:28px;width:44px;height:44px}
@@ -605,6 +661,74 @@ const bestFree = n => {   // самый сильный свободный сло
   return (near.length ? near : f.slice(0, 1)).reduce((b, s) => (s.str?.score ?? 40) > (b.str?.score ?? 40) ? s : b);
 };
 
+/* ---------- ЖИВОЙ ЖУРНАЛ: pulse/live.enc в ветке pulse-live (live_watch.py, каждые 15 с) ----------
+   procs — процессы конвейера с пульсом, events — последние действия, posts — последнее действие по каждому посту. */
+let LIVE = null, liveErr = "", liveFeedAll = false;
+const PN = {rework: "Доработка по правкам", builder: "Сборщик постов", cycle: "Цикл дня", factory: "Фабрика постов", publish: "Публикация",
+  daily: "Статистика", early: "Ранние признаки", frames: "Кадры", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка"};
+const secAgo = iso => iso ? Math.max(0, Math.round((Date.now() - ts(iso)) / 1000)) : 1e9;
+const agoS = iso => { const s = secAgo(iso); return s < 60 ? s + " с назад" : s < 3600 ? Math.round(s / 60) + " мин назад" : s < 86400 ? Math.round(s / 3600) + " ч назад" : Math.round(s / 86400) + " дн назад"; };
+const hm = iso => iso ? iso.slice(11, 16) : "";
+function procState(p) {
+  if (!p.alive) return p.ended ? ["off", "закончил " + hm(p.ended)] : ["off", "остановлен"];
+  const s = secAgo(p.at);
+  return s < 75 ? ["on", "работает"] : ["stale", "пульса нет " + agoS(p.at).replace(" назад", "")];
+}
+const headOf = k => flat(byKey[k]?.headline || (D.building || []).find(b => b.key === k)?.headline || (k || "").split("__")[1] || "");
+/* что с постом прямо сейчас: последнее действие и признак «застрял» */
+function postLive(p) {
+  if (!LIVE) return null;
+  const last = LIVE.posts?.[p.key], rw = (LIVE.procs || []).find(x => x.name === "rework");
+  const doing = (LIVE.procs || []).find(x => x.alive && (x.doing || []).some(d => d.key === p.key));
+  if (p.stage === "edit" && p.rework_error && !pending(p)) {
+    if (!p.rework_pending) return {cls: "stuck", t: "доработка упала после 3 попыток: " + p.rework_error.slice(0, 120) + " — отправьте «На доработку» ещё раз"};
+    if (!doing) return {cls: "stuck", t: `сбой (попытка ${p.rework_tries || 1} из 3), повтор: ` + p.rework_error.slice(0, 90)};
+  }
+  if (p.stage === "edit") {
+    if (!pending(p) && !doing && !(rw && rw.alive)) return {cls: "stuck", t: "доработка не идёт: процесс не запущен" + (last ? " · последнее: " + last.msg.slice(0, 80) + " (" + agoS(last.at) + ")" : "")};
+    if (doing) return {cls: "go", t: "сейчас: " + ((doing.doing.find(d => d.key === p.key) || {}).msg || last?.msg || "в работе").slice(0, 110)};
+    if (rw && rw.alive) return {cls: "", t: "в очереди доработки" + (last ? " · последнее: " + last.msg.slice(0, 70) + " (" + agoS(last.at) + ")" : "")};
+  }
+  if (doing) return {cls: "go", t: "сейчас: " + ((doing.doing.find(d => d.key === p.key) || {}).msg || "в работе").slice(0, 110)};
+  if (last && secAgo(last.at) < 6 * 3600) return {cls: last.kind === "err" ? "stuck" : "", t: last.msg.slice(0, 110) + " · " + agoS(last.at)};
+  return null;
+}
+function livePanel() {
+  if (!LIVE) return `<section class="panel" id="livePanel"><div class="lhead"><h2>Сейчас в работе</h2><span class="lfresh ${liveErr ? "bad" : ""}">${liveErr ? "журнал не загрузился: " + esc(liveErr) : "загружаю журнал…"}</span></div></section>`;
+  const fresh = secAgo(LIVE.at), stale = fresh > 180;
+  const order = {on: 0, stale: 1, off: 2};
+  const procs = [...(LIVE.procs || [])].filter(p => p.alive || secAgo(p.ended || p.at) < 12 * 3600).sort((x, y) => order[procState(x)[0]] - order[procState(y)[0]]);
+  const ev = (LIVE.events || []).filter(e => liveFeedAll || e.key || e.kind === "stage" || e.kind === "err").filter(e => !acc || !e.key || e.key.startsWith(acc + "__")).slice(-60).reverse();
+  const img = LIVE.img;
+  return `<section class="panel" id="livePanel"><div class="lhead"><h2>Сейчас в работе</h2>
+    <span class="lfresh ${stale ? "bad" : ""}">${stale ? "⚠ конвейер не выходит на связь " + agoS(LIVE.at) + " — проверьте, включён ли ПК и pulse_watch" : "журнал живой · обновлён " + agoS(LIVE.at)}</span>
+    <span class="sp" style="margin-left:auto"><button class="chip" data-feedall aria-pressed="${liveFeedAll}">${liveFeedAll ? "Все строки" : "Только важное"}</button></span></div>
+    <div class="livep"><div class="procs">${procs.length ? procs.map(p => { const [c, w] = procState(p); const d = (p.doing || []).filter(x => x.key).slice(-2);
+      return `<div class="proc ${c}"><span class="pn"><i></i>${esc(PN[p.name] || p.name)}<span class="hint" style="margin-left:auto;font-weight:400">${w}</span></span>
+        ${d.map(x => `<span class="pm">→ <button data-open="${esc(x.key)}" style="font-weight:600">${esc(headOf(x.key).slice(0, 60))}</button>${x.msg ? ": " + esc(x.msg.slice(0, 120)) : ""}</span>`).join("") || `<span class="pm">${c === "on" ? "ждёт работы" : ""}</span>`}</div>`; }).join("") : `<div class="proc off"><span class="pm">Процессы конвейера не запущены.</span></div>`}
+      ${img ? `<div class="proc ${img.state === "ошибка" ? "stale" : secAgo(img.at) < 600 ? "on" : "off"}"><span class="pn"><i></i>Генерация кадров (Higgsfield)<span class="hint" style="margin-left:auto;font-weight:400">${esc(img.state || "")} · ${agoS(img.at)}</span></span>${img.error ? `<span class="pm" style="color:var(--bad)">${esc(img.error)}</span>` : ""}${img.post ? `<span class="pm">→ ${esc(headOf(img.post).slice(0, 60))}</span>` : ""}</div>` : ""}</div>
+    <div class="feed">${ev.length ? ev.map(e => `<div class="ev ${e.kind || ""}"><time title="${esc(e.at)}">${hm(e.at)}</time><span class="ep">${esc(PN[e.proc] || e.proc || "")}</span><span class="em">${e.key ? `<button data-open="${esc(e.key)}">${esc(headOf(e.key).slice(0, 34))}</button>` : ""}${esc(e.msg)}</span></div>`).join("") : `<p class="hint">Событий пока нет.</p>`}</div></div></section>`;
+}
+async function loadLive() {
+  try {
+    const r = token ? await fetch(`https://api.github.com/repos/${REPO}/contents/pulse/live.enc?ref=pulse-live`, {cache: "no-store", headers: {Authorization: "Bearer " + token, Accept: "application/vnd.github.raw"}})
+                    : await fetch(`https://raw.githubusercontent.com/${REPO}/pulse-live/pulse/live.enc?t=${Date.now()}`, {cache: "no-store"});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    LIVE = JSON.parse(new TextDecoder().decode(await window.akmOpen(new Uint8Array(await r.arrayBuffer())))); liveErr = "";
+  } catch (e) { liveErr = e.message; }
+  paintLive();
+}
+function paintLive() {
+  const lp = $("livePanel"); if (lp && view === "flow") { const sc = lp.querySelector(".feed")?.scrollTop || 0; lp.outerHTML = livePanel(); const f = $("livePanel").querySelector(".feed"); if (f) f.scrollTop = sc; }
+  document.querySelectorAll("[data-la]").forEach(el => { const p = byKey[el.dataset.la] || items(true).find(x => x.key === el.dataset.la); const l = p && postLive(p);
+    el.className = "la " + (l?.cls || ""); el.textContent = l ? l.t : ""; });
+  const pl = $("plog"); if (pl && pdlg.open) pl.outerHTML = postLog(pl.dataset.k);
+}
+function postLog(k) {
+  const ev = (LIVE?.events || []).filter(e => e.key === k).slice(-40).reverse();
+  return `<div class="plog" id="plog" data-k="${esc(k)}"><h4>Журнал поста · в реальном времени</h4>${ev.length ? `<div class="feed" style="max-height:260px">${ev.map(e => `<div class="ev ${e.kind || ""}"><time title="${esc(e.at)}">${hm(e.at)}</time><span class="ep">${esc(PN[e.proc] || e.proc || "")}</span><span class="em">${esc(e.msg)}</span></div>`).join("")}</div>` : `<p class="hint">${LIVE ? "За последние часы по этому посту действий не было." : "Журнал загружается…"}</p>`}</div>`;
+}
+
 /* ---------- экран «Конвейер» ---------- */
 const ICON = {
   plan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3Z"/></svg>',
@@ -618,6 +742,8 @@ function cardHtml(p) {
   if (capPend) tags.push('<span class="v">✎ подпись</span>');
   if (!p.building && pending(p)) tags.push("<span>ждёт применения</span>");
   if (p.collab) tags.push("<span>совместный</span>");
+  const hw = (p.weak || []).filter(w => w.sev === "high").length;
+  if (hw) tags.push(`<span class="wtag">⚠ ${hw}</span>`);
   let cover;
   if (p.slides?.[0]) cover = `<button class="cv" data-open="${esc(p.key)}" aria-label="Открыть пост"><img class="s" data-enc="${p.slides[0]}" alt="">
       ${sc != null ? `<span class="sc ${sc >= 8 ? "hi" : sc < 6 ? "lo" : ""}">${sc}</span>` : ""}${avatarOf(p.account) ? `<img class="av" src="${avatarOf(p.account)}" alt="">` : ""}
@@ -635,7 +761,7 @@ function cardHtml(p) {
       ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}</div>`;
   }
   return `<article class="pc">${cover}<div class="bd"><h3>${esc(flat(p.headline))}</h3>
-    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span></div>${extra}</div>${act}</article>`;
+    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span></div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
 }
 
 function renderFlow() {
@@ -666,7 +792,8 @@ function renderFlow() {
   const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
       <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button></span></div>
     <div class="cards">${list.length ? list.map(cardHtml).join("") : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
-  $("view").innerHTML = hero + track + lst;
+  $("view").innerHTML = hero + livePanel() + track + lst;
+  paintLive();
 }
 
 /* ---------- экран «Слоты» ---------- */
@@ -758,11 +885,12 @@ function renderAccounts() {
 
 function render() {
   const w = items().filter(p => p.stage === "wait").length;
-  $("nav").innerHTML = [["flow", "Конвейер", w], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0]].map(([k, l, n]) =>
+  const upN = D.posts.filter(p => p.manual && bucket(p) === "ok").length;
+  $("nav").innerHTML = [["flow", "Конвейер", w], ["upload", "Заливка", upN], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0]].map(([k, l, n]) =>
     `<button data-v="${k}" aria-pressed="${view === k}">${l}${n ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
   $("accSel").innerHTML = `<option value="">Все аккаунты · ${D.accounts.length}</option>` + D.accounts.map(a => `<option value="${esc(a.name)}" ${acc === a.name ? "selected" : ""}>@${esc(a.name)}</option>`).join("");
   $("accSel").hidden = D.accounts.length < 2;
-  if (view === "flow") renderFlow(); else if (view === "slots") renderSlots(); else renderAccounts();
+  if (view === "flow") renderFlow(); else if (view === "upload") renderUpload(); else if (view === "slots") renderSlots(); else renderAccounts();
   hydrate();
 }
 $("accSel").onchange = e => { acc = e.target.value; saveLocal(); render(); };
@@ -776,6 +904,14 @@ async function saveWindows(name, wins) {
 $("view").addEventListener("click", async e => {
   const t = e.target;
   let b = t.closest("[data-stg]"); if (b) { stg = b.dataset.stg; saveLocal(); render(); return; }
+  if (t.closest("[data-feedall]")) { liveFeedAll = !liveFeedAll; return paintLive(); }
+  b = t.closest("[data-dl]"); if (b) return downloadSlides(byKey[b.dataset.dl], b);
+  b = t.closest("[data-copy]"); if (b) { const p = byKey[b.dataset.copy]; navigator.clipboard.writeText(edits[p.key]?.caption ?? p.caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
+  b = t.closest("[data-up]");
+  if (b && db) { const p = byKey[b.dataset.up]; b.disabled = true; b.textContent = "Сохраняю…";
+    try { await decide(p, "uploaded", "", {uploaded_at: nowMsk().replace(" ", "T")}); toast("Отмечено: залит"); render(); }
+    catch (err) { b.disabled = false; b.textContent = "Залито ✓"; toast("Не сохранилось: " + err.message, 1); }
+    return; }
   b = t.closest("[data-pick]"); if (b) { acc = b.dataset.pick; if (view === "accs") view = "flow"; saveLocal(); render(); return window.scrollTo({top: 0}); }
   b = t.closest("[data-sort]"); if (b) { sortBy = b.dataset.sort; return render(); }
   b = t.closest(".hours [data-hour]"); if (b) { const h = +b.dataset.hour, c = cfgOf(accByName[acc]);
@@ -851,6 +987,78 @@ dlg.addEventListener("click", async e => {
     catch (err) { un.disabled = false; un.textContent = "Не вышло"; toast("Не сохранилось: " + err.message, 1); } }
 });
 
+/* ---------- идея, слабые места, место среди своих и конкурентов, кадры ---------- */
+const nf = n => n == null ? "—" : (n > 0 ? "+" : "") + fmt(n);
+function ideaBlock(p) {
+  const I = p.idea; if (!I) return "";
+  const r = I.ref || {}, nums = [];
+  if (r.extra != null) nums.push(`${nf(r.extra)} подписчиков сверх обычного за ${r.hours || 6} ч`);
+  else if (r.excess != null) nums.push(`${nf(Math.round(r.excess))} подписчиков сверх фона`);
+  if (r.follows != null) nums.push(`подписок ${fmt(r.follows)}`);
+  if (r.reach) nums.push(`охват ${fmt(r.reach)}`);
+  if (r.x_med) nums.push(`лайки ×${r.x_med}`);
+  return `<div class="idea"><h4>Идея поста${I.format ? " · " + esc(I.format) : ""}</h4>${nums.length ? `<div class="nums">${nums.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}
+    <p>${esc(I.text)}</p>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Открыть пост-основу @${esc(r.acc)} ↗</a>` : ""}</div>`;
+}
+function weakBlock(p) {
+  const W = p.weak || [];
+  if (!W.length) return `<div class="weak none"><h4>Слабые места</h4><p class="hint">Явных слабых мест конвейер не нашёл.</p></div>`;
+  return `<div class="weak"><h4>Слабые места · ${W.length}</h4><ul>${W.map(w => `<li><b class="${w.sev}">${w.sev === "high" ? "брак" : "риск"}</b><span>${esc(w.t)}</span></li>`).join("")}</ul></div>`;
+}
+function rankBlock(p) {
+  const R = p.rank, C = p.comp_rank; if (!R && !C) return "";
+  const cls = v => v >= 70 ? "hi" : v < 35 ? "lo" : "";
+  return `<div class="ranks"><h4>Сравнение</h4>
+    ${R ? `<div class="rk ${cls(R.net_pct)}"><b>лучше ${R.net_pct}%</b>наших постов за 14 дней по баллу критика (${R.net_n})</div>` : ""}
+    ${R && R.acc_pct != null ? `<div class="rk ${cls(R.acc_pct)}"><b>лучше ${R.acc_pct}%</b>постов @${esc(p.account)} (${R.acc_n})</div>` : ""}
+    ${C ? `<div class="rk ${C.top_pct <= 20 ? "hi" : C.top_pct > 60 ? "lo" : ""}"><b>топ ${C.top_pct}%</b>основа среди ${C.n} постов конкурентов ниши по приросту подписчиков за 10 дней</div>`
+        : `<div class="rk"><b>—</b>у основы нет замера прироста подписчиков: с конкурентами по подпискам не сравнить</div>`}
+    <p class="hint" style="grid-column:1/-1">Балл критика — фильтр брака, залёт он предсказывает слабо. Решает реальный охват за 24–72 ч.</p></div>`;
+}
+const SRC = {"интернет": "интернет", higgsfield: "ИИ · Higgsfield", "nano-api": "ИИ · API", "вручную": "вручную", "пусто": "ПУСТО"};
+function imgBlock(p) {
+  const S = p.imgsrc || {}, G = p.gen_log || {}; if (!Object.keys(S).length && !Object.keys(G).length) return "";
+  const n = Math.max(p.slides.length, ...Object.keys(S).map(k => +k + 1));
+  return `<div class="imgs"><h4>Конвейер картинок</h4><div class="isl">${Array.from({length: n}, (_, i) => { const s = S[i] || "?", g = G[i] || [];
+    const tries = g.length ? g.map(x => `${x.via === "api" ? "API" : "HF"} ${x.ok ? "✓" : "✗"}`).join(" · ") : "";
+    return `<div class="${esc(s)}" title="${esc(g.map(x => (x.ok ? "ок" : "брак: " + (x.issues || []).join("; ")) + " — " + (x.prompt || "")).join("\n"))}"><b>${i === 0 ? "обложка" : "слайд " + (i + 1)}</b>${esc(SRC[s] || s)}${tries ? `<span class="hint">${tries}</span>` : ""}</div>`; }).join("")}</div>
+    <p class="hint">Сначала фото из интернета; если подходящего нет — кадр генерируется в Higgsfield (безлимит) и проходит проверку на лишние руки и лица. Наведите на слайд, чтобы увидеть попытки.</p></div>`;
+}
+
+/* ---------- экран «Заливка»: ручные каналы без API — заливщик скачивает слайды, копирует подпись, отмечает «залито» ---------- */
+const FILES_RAW = p => `https://raw.githubusercontent.com/${REPO}/pulse-files/${p}`;
+async function fullBlob(path) {
+  const r = await fetch(FILES_RAW(path), {cache: "force-cache"}); if (!r.ok) throw new Error("HTTP " + r.status);
+  return new Blob([await window.akmOpen(new Uint8Array(await r.arrayBuffer()))], {type: "image/jpeg"});
+}
+async function downloadSlides(p, btn) {
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Готовлю…";
+  try {
+    const paths = p.full || [];
+    if (!paths.length) throw new Error("полноразмерных слайдов ещё нет — подождите пересборку пульта");
+    const blobs = await Promise.all(paths.map(fullBlob));
+    const files = blobs.map((b, j) => new File([b], `${p.account}_${String(j + 1).padStart(2, "0")}.jpg`, {type: "image/jpeg"}));
+    if (navigator.canShare && navigator.canShare({files})) { await navigator.share({files, title: p.headline}); }   // телефон: «Сохранить в Фото» одним нажатием
+    else files.forEach((f, j) => setTimeout(() => { const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name; a.click(); }, j * 350));
+    toast("Слайды: " + files.length + " шт.");
+  } catch (e) { if (e.name !== "AbortError") toast("Не скачалось: " + e.message, 1); }
+  btn.disabled = false; btn.textContent = label;
+}
+function renderUpload() {
+  const man = [...new Set(D.posts.filter(p => p.manual).map(p => p.account))];
+  const list = D.posts.filter(p => p.manual && (!acc || p.account === acc) && ["ok", "pub"].includes(bucket(p)))
+    .sort((x, y) => (bucket(x) === "pub") - (bucket(y) === "pub") || ((pending(x) && decisions[x.key]?.slot) || x.slot || "~").localeCompare((pending(y) && decisions[y.key]?.slot) || y.slot || "~"));
+  const todo = list.filter(p => bucket(p) === "ok");
+  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Заливка</h2><span class="n">${todo.length}</span><span class="hint">ручные каналы без API (${man.length}) · одобренные посты по времени слота. На телефоне «Скачать» сразу предлагает сохранить слайды в галерею</span></div>
+    <div class="upl">${list.length ? list.map(p => { const sl = (pending(p) && decisions[p.key]?.slot) || p.slot, done = bucket(p) === "pub";
+      return `<article class="uc ${done ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
+      <div class="ub"><span class="hint">@${esc(p.account)} · ${done ? "залит " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
+        <h3>${esc(flat(p.headline))}</h3><div class="cap-prev">${esc(edits[p.key]?.caption ?? p.caption)}</div>
+        <div class="btns"><button class="btn sm go" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
+        ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}" ${db ? "" : 'disabled title="Нужна «Подключить запись»"'}>Залито ✓</button>`}</div></div></article>`; }).join("")
+      : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
+}
+
 /* ---------- карточка поста ---------- */
 function card(p) {
   const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p), i = p._i;
@@ -884,6 +1092,7 @@ function card(p) {
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Отправить на доработку</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
   </div>`}
+  ${weakBlock(p)}${ideaBlock(p)}${rankBlock(p)}
   <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
     <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${slotKey ? slotLabel(slotKey) + " " + (slotStr ? pw(slotStr, 1) : "") : "назначится после одобрения"}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd>${res}</dl></div>
@@ -891,6 +1100,8 @@ function card(p) {
     ${p.status === "published" ? `<div class="cap">${esc(p.caption)}</div>` : `<textarea id="cap-${i}" style="margin-top:8px;min-height:170px">${esc(capText)}</textarea>
     <div class="btns" style="margin-top:8px"><button class="btn sm" data-act="cap" ${db ? "" : "disabled"}>Сохранить подпись</button></div>`}
     <ul>${(p.sources || []).map(s => `<li><a href="${esc(s)}" target="_blank" rel="noopener">${esc(s)}</a></li>`).join("")}</ul></details>
+  ${imgBlock(p)}
+  ${postLog(p.key)}
   ${(c.fixes || []).length ? `<details class="more"><summary>Замечания критика (${c.fixes.length})</summary><ul>${c.fixes.map(f => `<li>${esc(f)}</li>`).join("")}</ul></details>` : ""}
   </div></article>`;
 }
@@ -1026,6 +1237,8 @@ render();
 if (token) fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => r.ok ? r.json() : null).then(u => { if (u) { me = u.login; names[me] = me; ghLabel(); } });
 refresh();
 setInterval(refresh, 45000);
+loadLive();
+setInterval(() => { if (!document.hidden) loadLive(); }, token ? 12000 : 45000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
 }).catch(e => { document.body.insertAdjacentHTML("beforeend", '<p style="padding:24px;font:14px system-ui">Пульт не загрузился: ' + String(e.message || e).replace(/</g, "&lt;") + ". Обновите страницу.</p>"); });
 </script>
