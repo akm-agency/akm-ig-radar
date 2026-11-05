@@ -463,6 +463,8 @@ textarea{resize:vertical;min-height:76px}
 .uc h3{font-size:13.5px;font-weight:600;line-height:1.3}
 .uc .btns{display:flex;flex-wrap:wrap;gap:6px}
 .uc.done{opacity:.55}
+.rsn{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}
+.rsn .chip{height:28px;font-size:12px}
 .cap-prev{font-size:12px;color:var(--muted);max-height:4.2em;overflow:hidden}
 .lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
 .lb img{max-width:min(100%,600px);max-height:100%;border-radius:14px}
@@ -702,6 +704,7 @@ function livePanel() {
   const img = LIVE.img;
   return `<section class="panel" id="livePanel"><div class="lhead"><h2>Сейчас в работе</h2>
     <span class="lfresh ${stale ? "bad" : ""}">${stale ? "⚠ конвейер не выходит на связь " + agoS(LIVE.at) + " — проверьте, включён ли ПК и pulse_watch" : "журнал живой · обновлён " + agoS(LIVE.at)}</span>
+    ${LIVE.spend ? `<span class="lfresh" title="${esc(Object.entries(LIVE.spend.stages || {}).map(([k, v]) => k + ": " + v + " ₽").join(" · "))}">· расход сегодня <b>${fmt(Math.round(Math.max(LIVE.spend.rub, LIVE.spend.balance || 0)))} ₽</b>${LIVE.spend.balance != null ? ` (по балансу OpenRouter; по постам учтено ${fmt(Math.round(LIVE.spend.rub))} ₽)` : ""}${LIVE.spend.per_good ? ` · ${LIVE.spend.per_good} ₽ на годный пост (${LIVE.spend.good} из ${LIVE.spend.made})` : ""}</span>` : ""}
     <span class="sp" style="margin-left:auto"><button class="chip" data-feedall aria-pressed="${liveFeedAll}">${liveFeedAll ? "Все строки" : "Только важное"}</button></span></div>
     <div class="livep"><div class="procs">${procs.length ? procs.map(p => { const [c, w] = procState(p); const d = (p.doing || []).filter(x => x.key).slice(-2);
       return `<div class="proc ${c}"><span class="pn"><i></i>${esc(PN[p.name] || p.name)}<span class="hint" style="margin-left:auto;font-weight:400">${w}</span></span>
@@ -881,7 +884,13 @@ function renderAccounts() {
     ${rows.map(r => `<div class="tr" data-pick="${esc(r.a.name)}"><span class="nm">${r.a.avatar ? `<img src="${r.a.avatar}" alt="">` : ""}<span>@${esc(r.a.name)}</span></span>
       ${z(r.gen)}${z(r.wait)}${z(r.qu)}${z(r.free)}<span>${r.best == null ? '<span class="z">—</span>' : pw({score: r.best, ratio: 1}, 1)}</span>
       <span class="num">${fmt(r.a.med_reach_10)}</span><span class="num">${r.a.followers_7d > 0 ? "+" : ""}${fmt(r.a.followers_7d)}</span>
-      <span><span class="flag ${r.flag === "нужна партия" ? "bad" : r.flag === "ждёт вас" ? "you" : ""}">${r.flag}</span></span></div>`).join("")}</div></section>`;
+      <span><span class="flag ${r.flag === "нужна партия" ? "bad" : r.flag === "ждёт вас" ? "you" : ""}">${r.flag}</span></span></div>`).join("")}</div></section>
+    <section><div class="ph" style="padding:0 6px"><h2>Лицо каналов</h2><span class="hint">паспорт, которого держится конвейер: темы вне него отсеиваются до сборки, критик проверяет каждый пост</span></div>
+    <div class="upl">${D.accounts.filter(a => a.face).map(a => `<article class="panel" style="padding:16px 18px;display:grid;gap:8px"><b>@${esc(a.name)}</b>
+      <p style="font-size:13px;line-height:1.45">${esc(a.face.summary_ru || a.face.promise || "")}</p>
+      ${a.face.rubric ? `<p class="hint">Рубрика: <b>${esc(a.face.rubric.name || "")}</b> — ${esc(a.face.rubric.link || "")}</p>` : ""}
+      ${(a.face.follow_hooks || []).length ? `<details class="more"><summary>Поводы подписаться (${a.face.follow_hooks.length})</summary><ul>${a.face.follow_hooks.map(h => `<li>${esc(h)}</li>`).join("")}</ul></details>` : ""}
+      ${(a.face.never || []).length ? `<details class="more"><summary>Никогда (${a.face.never.length})</summary><ul>${a.face.never.map(h => `<li>${esc(h)}</li>`).join("")}</ul></details>` : ""}</article>`).join("")}</div></section>`;
 }
 
 function render() {
@@ -1066,12 +1075,16 @@ function renderUpload() {
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
 }
 
+/* причины решений редактора: уходят в decisions.reasons → state.editor_reasons → learn.py (уроки в плейбук) */
+const REASONS = ["скучная обложка", "не по нише", "картинки мимо", "выдумка/фейк", "пустой или чёрный слайд", "нет повода подписаться", "текст длинный", "уже было", "отличный пост"];
+const rsnSel = {};
 /* ---------- карточка поста ---------- */
 function card(p) {
   const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p), i = p._i;
   const pill = {wait: ["wait", "ждёт решения"], ok: ["ok", "одобрен"], redo: ["redo", "на доработке"], pub: ["pub", "опубликован"], low: ["", "черновик"], off: ["", "снят"]}[b];
   const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}` : "";
-  const res = p.result ? `<dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd>` : "";
+  const r72 = p.result72 ? `<dt>Итог 72 ч</dt><dd>${p.result72.likes != null ? `лайков ${fmt(p.result72.likes)} (×${p.result72.x_likes} к медиане канала)` : `охват ${fmt(p.result72.reach)} (×${p.result72.x_reach}), подписок ${fmt(p.result72.follows)}, репостов ${fmt(p.result72.shares)}`} — ${esc(p.result72.verdict)}</dd>` : "";
+  const res = (p.result ? `<dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd>` : "") + r72;
   const ed = edits[p.key], capText = ed?.caption ?? p.caption, capPend = ed && ed.caption !== p.caption;
   const slotKey = (pend && dcs.decision === "approved" && dcs.slot) ? dcs.slot : p.slot;
   const slotStr = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
@@ -1095,7 +1108,9 @@ function card(p) {
     <div class="btns"><button class="btn go" data-act="approved" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}</button>
       ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
       ${b !== "off" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
-    <label class="f" for="cm-${i}">Что поправить (для доработки обязательно)</label>
+    <label class="f">Причина (одним нажатием — конвейер учится на этом)</label>
+    <div class="rsn" data-rsn="${esc(p.key)}">${REASONS.map(r => `<button class="chip" data-r="${esc(r)}" aria-pressed="${(rsnSel[p.key] || []).includes(r)}">${esc(r)}</button>`).join("")}</div>
+    <label class="f" for="cm-${i}">Что поправить (для доработки — комментарий или причина)</label>
     <textarea id="cm-${i}" placeholder="Слайд, текст, картинка…">${esc(pend ? dcs?.comment || "" : "")}</textarea>
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Отправить на доработку</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
@@ -1103,7 +1118,7 @@ function card(p) {
   ${rankBlock(p)}
   <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
-    <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${slotKey ? slotLabel(slotKey) + " " + (slotStr ? pw(slotStr, 1) : "") : "назначится после одобрения"}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd>${res}</dl></div>
+    <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${slotKey ? slotLabel(slotKey) + " " + (slotStr ? pw(slotStr, 1) : "") : "назначится после одобрения"}</dd><dt>Стоимость</dt><dd>${p.cost == null ? "—" : p.cost_exact ? `<b>${p.cost} ₽</b> по реальным вызовам${p.cost_stages ? "<br><span class='hint'>" + Object.entries(p.cost_stages).map(([k, v]) => esc(k) + " " + v + " ₽").join(" · ") + "</span>" : ""}` : `≈ ${p.cost} ₽ <span class="hint">старая оценка: без проверки кадров, доводки и запасного API — реальная цена в 3–5 раз выше</span>`}</dd>${res}</dl></div>
   <details class="more"><summary>Подпись и источники${capPend ? " · правка ждёт применения" : ""}</summary>
     ${p.status === "published" ? `<div class="cap">${esc(p.caption)}</div>` : `<textarea id="cap-${i}" style="margin-top:8px;min-height:170px">${esc(capText)}</textarea>
     <div class="btns" style="margin-top:8px"><button class="btn sm" data-act="cap" ${db ? "" : "disabled"}>Сохранить подпись</button></div>`}
@@ -1128,6 +1143,9 @@ pdlg.addEventListener("click", async e => {
   if (th) { const j = +th.dataset.th; art.querySelectorAll("[data-th]").forEach(x => x.setAttribute("aria-current", x === th)); art.querySelector(".gal .main").dataset.j = j;
     encUrl(p.slides[j]).then(u => { $("galMain").src = u; }); return; }
   const mb = e.target.closest(".gal .main"); if (mb) return openLb(p, +mb.dataset.j || 0);
+  const rb = e.target.closest("[data-r]");
+  if (rb) { const k = rb.closest("[data-rsn]").dataset.rsn, r = rb.dataset.r, cur = new Set(rsnSel[k] || []);
+    cur.has(r) ? cur.delete(r) : cur.add(r); rsnSel[k] = [...cur]; rb.setAttribute("aria-pressed", cur.has(r)); return; }
   const btn = e.target.closest("[data-act]"); if (!btn || !db) return;
   const act = btn.dataset.act, label = btn.textContent;
   btn.disabled = true; btn.textContent = "Сохраняю…";
@@ -1136,10 +1154,11 @@ pdlg.addEventListener("click", async e => {
       await store.put("edits", p.key, {caption: art.querySelector("#cap-" + i).value.trim(), by: me, at: new Date().toISOString(), headline: p.headline});
       btn.textContent = "Сохранено"; btn.disabled = false; toast("Подпись сохранена");
     } else {
-      const ta = art.querySelector("#cm-" + i), comment = ta ? ta.value.trim() : "";
+      const ta = art.querySelector("#cm-" + i), reasons = rsnSel[p.key] || [];
+      const comment = (ta ? ta.value.trim() : "") || (act === "rework" && reasons.length ? "Исправить: " + reasons.join(", ") : "");
       if (act === "rework" && !comment) { ta.focus(); ta.placeholder = "Напишите, что поправить — без комментария доработку не отправить"; btn.disabled = false; btn.textContent = label; return; }
       const sel = art.querySelector("#sl-" + i), slot = act === "approved" ? (sel?.value || "") : "";
-      await decide(p, act, comment, slot ? {slot} : {});
+      await decide(p, act, comment, {...(slot ? {slot} : {}), reasons});
       pdlg.close(); render();
       toast({approved: "Одобрен" + (slot ? " · " + slotLabel(slot) : ""), rework: "Отправлен на доработку", reject: "Снят", unapprove: "Одобрение отменено"}[act] || "Сохранено");
     }
