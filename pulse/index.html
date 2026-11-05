@@ -1079,6 +1079,7 @@ function card(p) {
     <span class="big-score">${c.score ?? "—"}<small>/10</small></span></div>
   <h3>${esc(p.headline)}</h3>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
+  ${weakBlock(p)}${ideaBlock(p)}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : "") : `
   <div class="decide">
     ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? " (ждёт применения)" : ""} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
@@ -1092,7 +1093,7 @@ function card(p) {
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Отправить на доработку</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
   </div>`}
-  ${weakBlock(p)}${ideaBlock(p)}${rankBlock(p)}
+  ${rankBlock(p)}
   <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
     <dt>Прогноз</dt><dd>${esc(c.predicted_reach || "—")}</dd><dt>Слот</dt><dd>${slotKey ? slotLabel(slotKey) + " " + (slotStr ? pw(slotStr, 1) : "") : "назначится после одобрения"}</dd><dt>Стоимость</dt><dd>${p.cost != null ? p.cost + " ₽" : "—"}</dd>${res}</dl></div>
