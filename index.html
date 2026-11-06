@@ -1249,6 +1249,62 @@ html.embed-root,html.embed-root body{background:#fff!important}
 @media(max-width:480px){.cc-intro-side{display:none}.cc-intro h2{font-size:38px}.cc-workspace{padding:12px}.cc-views{gap:0}.cc-views button{font-size:11px;padding:10px}.cc-groups{flex-wrap:nowrap;overflow:auto;padding-bottom:6px}.cc-groups .chip{flex:none}.cc-resultbar .cc-controls{flex-wrap:wrap}.cc-resultbar .cc-controls select{flex:1}.cc-caption{padding:12px;gap:10px}.cc-poststats{gap:8px;font-size:10px;flex-wrap:wrap}.cc-byline{font-size:10px}.cc-fallback>b{font-size:16px}.cc-fallback>span{font-size:7px}.cc-fallback>small{font-size:9px}.cc-baseline{font-size:9px}.cc-quality{font-size:10px}.cc-post{border-radius:14px}}
 @media(prefers-reduced-motion:reduce){.cc-post,.cc-save,.cc-cover img{transition:none!important;transform:none!important}}
 
+/* ---------- вкладка «Тренды» (trends.py → trends.json) ---------- */
+.tr-ctl{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.tr-ctl .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tr-pick{border:0;background:var(--tile);border-radius:999px;height:36px;padding:0 34px 0 14px;font:500 12.5px/1 var(--f);color:var(--ink);
+  appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 17px) 16px,calc(100% - 12px) 16px;background-size:5px 5px;background-repeat:no-repeat;max-width:100%}
+.tr-st{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.tr-st.new{background:var(--lime);color:var(--ink)}
+.tr-st.up{background:var(--orange);color:#fff}
+.tr-st.hold{background:var(--tile-2);color:var(--ink)}
+.tr-st.cool{background:var(--tile-2);color:var(--faint)}
+.tr-ty{font:600 11px/1 var(--f-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.t.ink .tr-ty{color:rgba(255,255,255,.6)}
+.tr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:var(--gap)}
+.tr-card{background:var(--tile-2);border-radius:20px;padding:12px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.tr-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:12px;overflow:hidden;aspect-ratio:3/1.25;background:var(--line)}
+.tr-thumbs a{display:block;position:relative;background:var(--line);min-width:0}
+.tr-thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.tr-thumbs .nx{position:absolute;left:5px;bottom:5px;background:rgba(13,13,15,.78);color:#fff;font:600 10.5px/1 var(--f-mono);padding:3px 5px;border-radius:6px}
+.tr-thumbs .no{display:grid;place-items:center;height:100%;color:var(--faint);font-size:11px;text-align:center;padding:4px}
+.tr-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tr-lbl{font-size:14.5px;font-weight:600;line-height:1.3;letter-spacing:-.01em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.tr-meta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 10px}
+.tr-meta b{color:var(--ink);font-weight:600}
+.tr-our{font-size:12px;color:var(--up);font-weight:500}
+.tr-subs{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:12.5px;color:var(--muted)}
+.tr-sx{font-size:17px;font-weight:600;letter-spacing:-.02em;color:var(--ink)}
+.tr-sx.up{color:var(--up)}.tr-sx.down{color:var(--down)}.tr-sx.none{color:var(--faint);font-size:14px}
+.tr-ex{font-size:12.5px}
+.tr-ex summary{cursor:pointer;color:var(--muted);font-weight:500;list-style:none}
+.tr-ex summary::-webkit-details-marker{display:none}
+.tr-ex summary::after{content:" ↓"}.tr-ex[open] summary::after{content:" ↑"}
+.tr-ex a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;padding:7px 0;border-top:1px solid var(--line);text-decoration:none}
+.tr-ex a:first-of-type{margin-top:6px}
+.tr-ex a span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-ex a i{grid-column:1/-1;font-style:normal;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tr-hero{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;border-radius:16px;overflow:hidden;aspect-ratio:3/1.3}
+.tr-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.tr-hero span,.tr-hero a{background:rgba(255,255,255,.08)}
+.tr-hero a{display:block;position:relative;min-width:0;color:rgba(255,255,255,.55);font-size:11.5px;text-decoration:none}
+.tr-hero .no{display:grid;place-items:center;height:100%;padding:6px;text-align:center;overflow:hidden;background:none}
+.tr-hero .nx{position:absolute;left:6px;bottom:6px;background:rgba(255,255,255,.92);color:var(--ink);font:600 11px/1 var(--f-mono);padding:3px 6px;border-radius:6px}
+.tr-big{font-size:clamp(22px,2.2vw,30px);font-weight:600;letter-spacing:-.03em;line-height:1.12}
+.tr-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tr-nums div{display:flex;flex-direction:column;gap:4px}
+.tr-nums b{font-size:clamp(34px,3.6vw,52px);font-weight:600;letter-spacing:-.05em;line-height:.95}
+.tr-nums span{font-size:12.5px;color:var(--muted)}
+.tr-todo{display:flex;flex-direction:column}
+.tr-todo>div{display:grid;grid-template-columns:22px minmax(0,1fr);gap:4px 12px;padding:12px 0;border-top:1px solid rgba(13,13,15,.12)}
+.tr-todo>div:first-child{border-top:0}
+.tr-todo .k{font:600 13px/1.4 var(--f-mono)}
+.tr-todo .w{font-size:12.5px;opacity:.7}
+.tr-todo .idea{font-size:14px;line-height:1.45}
+.tr-todo .idea b{font-weight:600}
+.tr-todo a{font-size:12.5px;font-weight:500}
+@media (max-width:640px){.tr-nums{grid-template-columns:1fr 1fr 1fr;gap:8px}.tr-ctl{flex-direction:column;align-items:stretch}.tr-ctl .grp{flex-direction:column;align-items:stretch;gap:8px}.tr-ctl .seg{overflow-x:auto;scrollbar-width:none;max-width:100%}.tr-ctl .seg button{flex:none;white-space:nowrap}}
 </style><link rel="stylesheet" href="design-polish.css">
 
 <div class="wrap">
@@ -1257,7 +1313,7 @@ html.embed-root,html.embed-root body{background:#fff!important}
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
       <div><h1 id="pTitle">Статистика сетки</h1><div class="meta" id="meta"><i class="skm" aria-label="Загрузка"></i></div></div>
     </div>
-    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#content" data-p="cont">Контент</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
+    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a href="#network" data-p="net">Сетка</a><a href="#content" data-p="cont">Контент</a><a href="#trends" data-p="trd">Тренды</a><a href="#competitors" data-p="comp">Конкуренты <span class="cnt" id="compCnt"></span></a><a class="ext" href="radar.html" target="_blank" rel="noopener">Радар ↗</a></nav>
     <div class="pills">
       <button class="pill dark" type="button" id="aiOpen"><span class="ai-spark" aria-hidden="true"></span>Спросить ИИ <span class="arrow">↗</span></button>
     </div>
@@ -1279,6 +1335,10 @@ html.embed-root,html.embed-root body{background:#fff!important}
 
   <main class="page" id="pageCont" hidden>
     <div class="bento" id="cbento"><section class="t s12 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w75"></i><i class="b w60"></i></section></div>
+  </main>
+
+  <main class="page" id="pageTrd" hidden>
+    <div class="bento" id="trbento"><section class="t s12 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w75"></i><i class="b w60"></i></section></div>
   </main>
 
   <main class="page" id="pageComp" hidden>
@@ -2861,6 +2921,93 @@ function setCMode(m, animate = true) {
   setCMode.t = setTimeout(() => { from.getAnimations().forEach(x => x.cancel()); show(); enter($(CMODES[m]), dir); }, 180);
 }
 
+/* ---------- вкладка «Тренды»: звук / мем-копия / идея / хэштег у ≥3 страниц базы (trends.py) ---------- */
+const TR_TYPE = { sound: "Звук", copy: "Мем · копия", idea: "Идея", tag: "Хэштег" };
+const TR_ST = { "новый": "new", "растёт": "up", "держится": "hold", "остывает": "cool" };
+const trSt = s => `<span class="tr-st ${TR_ST[s] || "hold"}">${esc(s)}</span>`;
+// приток подписчиков после поста против обычного темпа страницы (trends.py): главный показатель тренда
+const trSubs = t => t.sn ? `<span class="tr-sx ${t.sx >= 1.3 ? "up" : t.sx < 0.9 ? "down" : ""}">подписки ${xx(t.sx)}</span>` : `<span class="tr-sx none">подписки —</span>`;
+const trDay = n => n == null ? "" : `${n > 0 ? "+" : n < 0 ? "−" : ""}${compact(Math.abs(n))} в сутки`;
+const trBrings = t => t.sn >= 2 && t.sx >= 1.3 && t.s !== "остывает";
+function loadTrends() {
+  if (S.tr || S.trLoading) return;
+  S.trLoading = true;
+  renderTrends();
+  akmData("trends.json").then(d => { S.tr = d; }).catch(() => { S.trErr = true; })
+    .finally(() => { S.trLoading = false; renderTrends(); if (S.page === "trd") enter($("pageTrd")); });
+}
+function trThumbs(t, cls = "tr-thumbs") {
+  const ex = t.ex.slice(0, 3);
+  return `<div class="${cls}">${ex.map(e => `<a href="${igPost(e)}" target="_blank" rel="noopener" aria-label="Пример: @${esc(e.u)}">${e.th
+    ? `<img src="${esc(e.th)}" alt="" loading="lazy" onerror="this.remove()">` : `<span class="no">@${esc(e.u)}</span>`}${e.sd != null ? `<span class="nx">${trDay(e.sd).replace(" в сутки", "")} подп.</span>` : ""}</a>`).join("")}${"<span></span>".repeat(3 - ex.length)}</div>`;
+}
+function trCard(t) {
+  const our = t.our.length ? `<div class="tr-our">У нас уже: ${t.our.map(o => "@" + esc(o.u) + (o.sx != null ? " · подписки " + xx(o.sx) : "")).join(", ")}</div>` : "";
+  return `<article class="tr-card">${trThumbs(t)}
+    <div class="tr-head"><span class="tr-ty">${TR_TYPE[t.t]}${t.ig ? " · тренд Instagram" : ""}</span>${trSt(t.s)}</div>
+    <div class="tr-lbl">${esc(t.l)}</div>
+    <div class="tr-subs">${trSubs(t)}${t.sn ? `<span>${trDay(t.sd)} · замеры у ${t.sn} ${plu(t.sn, "страницы", "страниц", "страниц")}</span>` : `<span>нет замеров подписчиков</span>`}</div>
+    <div class="tr-meta"><span><b>${t.o}</b> ${plu(t.o, "страница", "страницы", "страниц")}</span><span>охват <b>${xx(t.x)}</b></span><span>с ${dShort(t.f)}</span></div>
+    ${t.ni.length ? `<div class="tr-meta">${t.ni.slice(0, 3).map(esc).join(" · ")}${t.fmt ? " · " + esc(t.fmt) : ""}</div>` : ""}${our}
+    <details class="tr-ex"><summary>Примеры · ${t.ex.length}</summary>${t.ex.map(e => `<a href="${igPost(e)}" target="_blank" rel="noopener"><span>@${esc(e.u)} · ${dShort(e.d)}${e.sd != null ? " · " + trDay(e.sd) + " подписчиков" : ""}</span><b>${e.sx != null ? "подп. " + xx(e.sx) : xx(e.r)}</b>${e.hook || e.x ? `<i>${esc(e.hook || e.x)}</i>` : ""}</a>`).join("")}</details>
+  </article>`;
+}
+function renderTrends() {
+  const el = $("trbento"), D = S.tr;
+  if (!D) {
+    el.innerHTML = S.trErr ? `<section class="t s12"><div class="lab">Тренды</div><div class="empty-t">Не удалось загрузить тренды.</div><button class="pill" type="button" data-trretry style="align-self:flex-start;height:40px">Повторить</button></section>` : skelComp();
+    return;
+  }
+  if (!D.trends.length) { el.innerHTML = `<section class="t s12"><div class="lab">Тренды</div><div class="empty-t">Тренды ещё не посчитаны — сборщик пересчитывает их раз в 3 часа.</div></section>`; return; }
+  const ty = S.trType || "all", st = S.trSt || "subs", pg = S.trPage || "";
+  const by = new Map(D.trends.map(t => [t.id, t]));
+  const fit = t => (ty === "all" || t.t === ty) && (st === "all" || (st === "subs" ? trBrings(t) : st === "live" ? t.s !== "остывает" : st === "hot" ? t.s === "новый" || t.s === "растёт" : t.s === "остывает"));
+  const list = D.trends.filter(fit);
+  const own = Object.keys(D.pages || {}).sort();
+  const X = [];
+  const sb = (k, l, cur, attr) => `<button type="button" data-${attr}="${k}" aria-pressed="${cur === k}">${l}</button>`;
+  const cnt = k => D.trends.filter(t => t.t === k && (st === "subs" ? trBrings(t) : t.s !== "остывает")).length;
+  X.push(`<div class="tr-ctl chips2"><span class="grp"><span class="seg" role="group" aria-label="Тип тренда">${sb("all", "Все", ty, "trty")}${["sound", "copy", "idea", "tag"].filter(k => cnt(k)).map(k => sb(k, `${TR_TYPE[k]} · ${cnt(k)}`, ty, "trty")).join("")}</span>
+    <span class="seg" role="group" aria-label="Статус">${sb("subs", `Приводят подписчиков · ${D.trends.filter(trBrings).length}`, st, "trst")}${sb("live", "Все живые", st, "trst")}${sb("hot", "Новые и растут", st, "trst")}${sb("cool", "Остывают", st, "trst")}</span></span>
+    <select class="tr-pick" id="trPick" aria-label="Подобрать тренды для нашей страницы"><option value="">Подобрать для нашей страницы…</option>${own.map(u => `<option value="${esc(u)}"${u === pg ? " selected" : ""}>@${esc(u)}${D.niches[u] ? " · " + esc(D.niches[u]) : ""}</option>`).join("")}</select></div>`);
+  if (pg) {
+    const items = (D.pages[pg] || []).map(x => ({ ...x, t: by.get(x.id) })).filter(x => x.t);
+    const used = D.trends.filter(t => t.our.some(o => o.u === pg));
+    X.push(`<section class="t lime s12"><div class="lab">Что сделать @${esc(pg)} <span class="tag">${esc(D.niches[pg] || "ниша не размечена")}</span></div>
+      ${items.length ? `<div class="tr-todo">${items.map((x, i) => `<div><span class="k">${i + 1}</span><span><span class="tr-ty" style="color:inherit;opacity:.6">${TR_TYPE[x.t.t]} · ${esc(x.t.s)}</span><br><b style="font-size:15px">${esc(x.t.l)}</b>
+        <div class="w">${x.t.sn ? `подписки ${xx(x.t.sx)} к обычному (${trDay(x.t.sd)})` : "замеров подписчиков нет, охват " + xx(x.t.x)} · ${esc(x.why)}</div>
+        ${x.idea ? `<div class="idea">${x.fit ? "<b>Идея для нас:</b> " : "<b>Не подходит:</b> "}${esc(x.idea)}</div>` : ""}
+        <span style="display:flex;gap:12px;flex-wrap:wrap">${x.t.ex.slice(0, 3).map(e => `<a href="${igPost(e)}" target="_blank" rel="noopener">@${esc(e.u)}${e.sd != null ? " " + trDay(e.sd) : ""} ↗</a>`).join("")}</span></span></div>`).join("")}</div>`
+        : `<div class="empty-t" style="color:inherit;opacity:.7">Для этой страницы живых трендов в её нише сейчас нет.</div>`}
+      ${used.length ? `<div class="sub">Уже была в трендах: ${used.slice(0, 6).map(t => { const o = t.our.find(o => o.u === pg); return esc(t.l.slice(0, 40)) + (o?.sx != null ? " · подписки " + xx(o.sx) : ""); }).join(" · ")}</div>` : ""}</section>`);
+  } else {
+    const top = list[0];
+    if (top) X.push(`<section class="t ink s5"><div class="lab">${st === "subs" ? "Больше всего подписчиков" : "Главный тренд"} ${trSt(top.s)}</div>${trThumbs(top, "tr-hero")}
+      <span class="tr-ty">${TR_TYPE[top.t]}${top.ig ? " · тренд Instagram" : ""}</span><div class="tr-big">${esc(top.l)}</div>
+      <div class="sub">${top.sn ? `подписки ${xx(top.sx)} к обычному, ${trDay(top.sd)} · ` : ""}${top.o} ${plu(top.o, "страница", "страницы", "страниц")}${top.ni.length ? " · " + top.ni.slice(0, 2).map(esc).join(", ") : ""}</div></section>`);
+    const live = D.trends.filter(t => t.s !== "остывает");
+    const nNew = live.filter(t => t.s === "новый" || t.s === "растёт").length, nSubs = D.trends.filter(trBrings).length;
+    const ours = new Set(D.trends.filter(trBrings).flatMap(t => t.our.map(o => o.u)));
+    X.push(`<section class="t ${top ? "s7" : "s12"}"><div class="lab">За ${D.win} дней по всей базе <span class="tag">данные на ${dShort(D.asOf.slice(0, 10))} ${esc(D.asOf.slice(11, 16))}</span></div>
+      <div class="tr-nums"><div><b data-n="${nSubs}" data-fmt="int">${nSubs}</b><span>приводят подписчиков</span></div><div><b data-n="${nNew}" data-fmt="int">${nNew}</b><span>новые и растут</span></div><div><b data-n="${ours.size}" data-fmt="int">${ours.size}</b><span>наших страниц уже взяли такие тренды</span></div></div>
+      <div class="grow"></div><div class="empty-t" style="font-size:12.5px">Тренд — один звук, мем или идея у 3+ разных страниц за ${D.win} дней. «Подписки ×» — во сколько раз быстрее обычного росли подписчики страницы после такого поста (1 — как всегда); «охват ×» — просмотры к обычному. Выберите нашу страницу вверху — покажем, что ей сделать.</div></section>`);
+  }
+  const n = S.trMore || 24;
+  X.push(`<section class="t s12"><div class="lab">${st === "cool" ? "Остывают" : st === "subs" ? "Приводят подписчиков" : "Тренды"} <span class="tag">${list.length}</span></div>
+    ${list.length ? `<div class="tr-grid">${list.slice(0, n).map(trCard).join("")}</div>${list.length > n ? `<button type="button" class="pill vmore" data-trmore style="align-self:center;height:44px">Показать ещё · ${list.length - n}</button>` : ""}`
+      : `<div class="empty-t">Под этот фильтр трендов нет.</div>`}</section>`);
+  el.innerHTML = X.join("");
+}
+$("trbento").addEventListener("click", e => {
+  const b = e.target.closest("[data-trty],[data-trst],[data-trmore],[data-trretry]"); if (!b) return;
+  if (b.dataset.trty) { S.trType = b.dataset.trty; S.trMore = 0; }
+  else if (b.dataset.trst) { S.trSt = b.dataset.trst; S.trMore = 0; }
+  else if ("trmore" in b.dataset) S.trMore = (S.trMore || 24) + 24;
+  else { S.trErr = false; loadTrends(); return; }
+  renderTrends();
+});
+$("trbento").addEventListener("change", e => { if (e.target.id === "trPick") { S.trPage = e.target.value; renderTrends(); window.akmReveal?.($("pageTrd")); } });
+
 /* ---------- router & motion ---------- */
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 function placeInd(animate = true) {
@@ -2893,6 +3040,7 @@ window.akmCount = countUp;
 // порядок = порядок вкладок (направление анимации); hash — адрес вкладки
 const PAGES = { net: { el: "pageNet", hash: "#network", title: "Статистика сетки" },
   cont: { el: "pageCont", hash: "#content", title: "Контент" },
+  trd: { el: "pageTrd", hash: "#trends", title: "Тренды" },
   comp: { el: "pageComp", hash: "#competitors", title: "Конкуренты" } };
 const pageOf = h => h === "#tracked" || h === "#direct" || h === "#content-carousels" ? "comp" : Object.keys(PAGES).find(k => PAGES[k].hash === h) || "net";
 // #direct — сразу «Все конкуренты» → «Прямые конкуренты» (ссылка из окна «Что нового»)
@@ -2903,6 +3051,7 @@ function showPage(p) {
   $("pTitle").textContent = PAGES[p].title;
   document.querySelectorAll("#nav a").forEach(a => a.setAttribute("aria-current", a.dataset.p === p ? "page" : "false"));
   document.querySelectorAll("[data-only]").forEach(b => b.hidden = b.dataset.only !== p);
+  if (p === "trd") loadTrends();
   if (p === "net") { lvFit(); lvChart(); } // пока страница была скрыта, ширина плитки = 0 — счётчик и график мерились неправильно
 }
 const pageEl = p => $(PAGES[p].el);
@@ -3490,14 +3639,14 @@ scan();
    Новость — в NEWS ниже; для следующей новости поменять id — счётчик начнётся заново. Вставляется в обе страницы. */
 (() => {
 const NEWS = {
-  id: "content-ai-2026-10-28",
-  date: "28 октября",
-  title: "Раздел «Контент» и ИИ-разборы",
-  text: "Контент теперь отдельным разделом: что залетает, идеи и «Как вести контент» — разбор каждой нашей страницы от ИИ (когда постить, что заходит, что сделать на неделе). Кнопка «Спросить ИИ» открывает готовые разборы: нажали карточку — получили ответ.",
+  id: "trends-2026-11-06",
+  date: "6 ноября",
+  title: "Вкладка «Тренды»",
+  text: "Что сейчас идёт сразу у нескольких страниц базы — звуки, мемы, которые перезаливают, одинаковые идеи роликов — и главное: после каких из них у страниц растут подписчики. Выберите нашу страницу — покажем, какие тренды ей взять, и ИИ подскажет, как сделать это у нас.",
   cta: "Открыть",
-  href: "index.html#content",
+  href: "index.html#trends",
   // мини-превью: [подпись, плашка, приглушить]
-  demo: [["Как вести контент", "по каждой странице"], ["Готовые ИИ-разборы", "Gemini"], ["Карусели и нарезки", "конкуренты"]],
+  demo: [["Приводят подписчиков", "подписки ×4"], ["Мем перезалили 13 раз", "новый"], ["Идея для нашей страницы", "ИИ"]],
 };
 const NEWS_SHOWS = 2;
 const KEY = "akm_news_" + NEWS.id;
