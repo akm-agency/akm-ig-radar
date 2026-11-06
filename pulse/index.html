@@ -796,7 +796,8 @@ function renderFlow() {
   const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
       <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button></span></div>
     <div class="cards">${list.length ? list.map(cardHtml).join("") : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
-  $("view").innerHTML = hero + livePanel() + track + lst;
+  const A = acc && accByName[acc];
+  $("view").innerHTML = hero + (A && A.face ? profileHtml(A, false) : "") + livePanel() + track + lst;
   paintLive();
 }
 
@@ -885,12 +886,31 @@ function renderAccounts() {
       ${z(r.gen)}${z(r.wait)}${z(r.qu)}${z(r.free)}<span>${r.best == null ? '<span class="z">—</span>' : pw({score: r.best, ratio: 1}, 1)}</span>
       <span class="num">${fmt(r.a.med_reach_10)}</span><span class="num">${r.a.followers_7d > 0 ? "+" : ""}${fmt(r.a.followers_7d)}</span>
       <span><span class="flag ${r.flag === "нужна партия" ? "bad" : r.flag === "ждёт вас" ? "you" : ""}">${r.flag}</span></span></div>`).join("")}</div></section>
-    <section><div class="ph" style="padding:0 6px"><h2>Лицо каналов</h2><span class="hint">паспорт, которого держится конвейер: темы вне него отсеиваются до сборки, критик проверяет каждый пост</span></div>
-    <div class="upl">${D.accounts.filter(a => a.face).map(a => `<article class="panel" style="padding:16px 18px;display:grid;gap:8px"><b>@${esc(a.name)}</b>
-      <p style="font-size:13px;line-height:1.45">${esc(a.face.summary_ru || a.face.promise || "")}</p>
-      ${a.face.rubric ? `<p class="hint">Рубрика: <b>${esc(a.face.rubric.name || "")}</b> — ${esc(a.face.rubric.link || "")}</p>` : ""}
-      ${(a.face.follow_hooks || []).length ? `<details class="more"><summary>Поводы подписаться (${a.face.follow_hooks.length})</summary><ul>${a.face.follow_hooks.map(h => `<li>${esc(h)}</li>`).join("")}</ul></details>` : ""}
-      ${(a.face.never || []).length ? `<details class="more"><summary>Никогда (${a.face.never.length})</summary><ul>${a.face.never.map(h => `<li>${esc(h)}</li>`).join("")}</ul></details>` : ""}</article>`).join("")}</div></section>`;
+    <section><div class="ph" style="padding:0 6px"><h2>Профиль канала</h2><span class="hint">что постим на каждом канале: темы вне профиля отсеиваются до сборки, критик проверяет каждый пост</span></div>
+    <div class="upl">${D.accounts.filter(a => a.face).map(a => profileHtml(a, false)).join("")}</div></section>`;
+}
+
+/* ---------- «Профиль канала»: что сюда постим, чего нет, что приводит подписчиков, тренды конкурентов (06.11) ---------- */
+function profileHtml(a, open) {
+  const f = a.face || {}, P = f.profile_ru || {}, N = a.net || {};
+  const posts = P.posts || (f.pillars || []).map(x => ({name: x.name, share: x.share, examples: x.examples}));
+  const li = xs => `<ul>${xs.map(h => `<li>${esc(h)}</li>`).join("")}</ul>`;
+  const pct = s => s == null ? "" : `<span class="num">${Math.round(100 * s)}%</span> `;
+  const net = (N.items || []);
+  return `<article class="panel prof" style="padding:16px 18px;display:grid;gap:10px">
+    <div style="display:flex;gap:10px;align-items:center">${a.avatar ? `<img src="${a.avatar}" alt="" style="width:34px;height:34px;border-radius:50%">` : ""}<b>Профиль канала @${esc(a.name)}</b></div>
+    ${P.promise || f.promise ? `<p style="font-size:14px;line-height:1.45"><b>Обещание:</b> ${esc(P.promise || f.promise)}</p>` : ""}
+    ${P.origin || f.origin ? `<p class="hint"><b>Истоки</b> (название и описание — не меньше 45% постов): ${esc(P.origin || f.origin)}</p>` : ""}
+    ${posts.length ? `<div><h4 style="margin:2px 0 6px">Что сюда постим</h4><ul style="padding-left:18px;display:grid;gap:7px">${posts.map(x => `<li>${pct(x.share)}<b>${esc(x.name)}</b>${x.what ? " — " + esc(x.what) : ""}
+      ${x.why_followers ? `<div class="hint">Почему приведёт подписчиков: ${esc(x.why_followers)}</div>` : ""}
+      ${(x.examples || []).length ? `<div class="hint">Например: ${x.examples.map(esc).join(" · ")}</div>` : ""}</li>`).join("")}</ul></div>` : ""}
+    ${(P.never || f.never || []).length ? `<details class="more" ${open ? "open" : ""}><summary>Не постим (${(P.never || f.never).length})</summary>${li(P.never || f.never)}</details>` : ""}
+    ${P.follow || (f.follow_hooks || []).length ? `<details class="more"><summary>Как зовём подписаться</summary>${P.follow ? `<p style="margin-top:8px">${esc(P.follow)}</p>` : ""}${(f.follow_hooks || []).length ? li(f.follow_hooks) : ""}</details>` : ""}
+    ${P.cover || P.voice ? `<details class="more"><summary>Обложка и тон</summary>${P.cover ? `<p style="margin-top:8px"><b>Обложка:</b> ${esc(P.cover)}</p>` : ""}${P.voice ? `<p><b>Тон:</b> ${esc(P.voice)}</p>` : ""}</details>` : ""}
+    ${net.length || (N.vs || []).length ? `<details class="more" ${open ? "open" : ""}><summary>Тренды конкурентов по подписчикам (API сетки${N.as_of ? ", данные на " + esc(N.as_of.slice(8, 10) + "." + N.as_of.slice(5, 7)) : ""}${N.stale_days > 3 ? " · устарели на " + N.stale_days + " дн." : ""})</summary>
+      ${net.length ? `<ul>${net.map(x => `<li><b>×${x.subs_x}</b> ${x.kind === "trend" ? `тренд у ${x.owners} стр.` : "одна страница, шумно"} · ${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener">@${esc(x.owner || "")} ↗</a>` : "@" + esc(x.owner || "")}<div class="hint">${esc(x.how_ru || x.label || "")}</div></li>`).join("")}</ul>` : ""}
+      ${(N.vs || []).length ? `<p class="hint" style="margin-top:8px"><b>Мы против конкурентов:</b> ${N.vs.map(v => esc((v.title ? v.title + ": " : "") + (v.text || ""))).join(" · ")}</p>` : ""}</details>` : ""}
+  </article>`;
 }
 
 function render() {
@@ -1011,7 +1031,8 @@ function ideaBlock(p) {
   if (r.follows != null) nums.push(`подписок ${fmt(r.follows)}`);
   if (r.reach) nums.push(`охват ${fmt(r.reach)}`);
   if (r.x_med) nums.push(`лайки ×${r.x_med}`);
-  return `<div class="idea"><h4>Идея поста${I.format ? " · " + esc(I.format) : ""}</h4>${nums.length ? `<div class="nums">${nums.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}
+  if (r.subs_x) nums.push(`приток подписчиков ×${r.subs_x}${(r.owners || 1) > 1 ? " у " + r.owners + " страниц" : ""}`);
+  return `<div class="idea"><h4>Идея поста${I.format ? " · " + esc(I.format) : ""}${p.pillar ? " · рубрика «" + esc(p.pillar) + "»" : ""}</h4>${nums.length ? `<div class="nums">${nums.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}
     <p>${esc(I.text)}</p>${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Открыть пост-основу @${esc(r.acc)} ↗</a>` : ""}</div>`;
 }
 function weakBlock(p) {
