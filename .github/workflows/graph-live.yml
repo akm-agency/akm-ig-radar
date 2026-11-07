@@ -1,0 +1,47 @@
+# Подписчики сетки из официального API — каждый час, без нашего сервера и VPN (см. .github/scripts/graph_live.py)
+name: graph-live
+
+on:
+  schedule:
+    - cron: "20 * * * *"     # :20 — не в одну минуту с выгрузкой сервера (:55)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: graph-live
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: API → data/live.enc, data/network.enc
+        env:
+          GRAPH_TOKENS: ${{ secrets.GRAPH_TOKENS }}
+          AKM_SITE_PIN: ${{ secrets.AKM_SITE_PIN }}
+        run: |
+          git config user.name "AKM graph-live"
+          git config user.email "graph-live@users.noreply.github.com"
+          # репозиторий часто пишут другие (пульт, сервер): не вышло запушить — берём свежий и считаем заново
+          for i in 1 2 3; do
+            python .github/scripts/graph_live.py || exit 1
+            git add data/live.enc data/network.enc
+            git diff --cached --quiet && exit 0
+            git commit -q -m "API: подписчики сетки $(TZ=Europe/Moscow date +'%Y-%m-%d %H:%M')"
+            git push -q && exit 0
+            git fetch -q --depth 1 origin "$GITHUB_REF_NAME"
+            git reset -q --hard "origin/$GITHUB_REF_NAME"
+            sleep 10
+          done
+          exit 1
