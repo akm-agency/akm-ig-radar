@@ -9,9 +9,11 @@ on:
   workflow_dispatch: {}
   push:
     # main + run-now.txt — запуск «прямо сейчас» (принудительно);
-    # graph-kick — пинок с ПК (graph_kick.py, раз в 15 мин): расписание GitHub 08.11 не срабатывало часами
-    branches: [main, graph-kick]
-    paths: [".github/run-now.txt", ".github/kick.txt"]
+    # тег graph-kick — пинок с ПК (graph_kick.py, раз в 15 мин): расписание GitHub 08.11 не срабатывало часами
+    branches: [main]
+    paths: [".github/run-now.txt"]
+    # пинок с ПК — тегом: для тегов фильтр путей не действует (09.11 пинки в ветку GitHub молча пропускал)
+    tags: [graph-kick]
 
 permissions:
   contents: write
