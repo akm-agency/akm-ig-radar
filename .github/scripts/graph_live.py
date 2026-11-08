@@ -274,6 +274,33 @@ def main() -> int:
             x["posts"] = [post(m) for m in (b.get("media") or {}).get("data", [])]
     g["at"] = at
 
+    # почасовой график (network.hourly: 48 слотов с start, по часу): окно — до текущего часа, в него — замер API
+    hr = net.get("hourly")
+    if isinstance(hr, dict) and hr.get("start") and isinstance(hr.get("acc"), dict):
+        n_slots = max((len(v.get("f") or []) for v in hr["acc"].values()), default=48) or 48
+        start = datetime.fromisoformat(hr["start"]).replace(tzinfo=MSK)
+        cur = now.replace(minute=0, second=0, microsecond=0)
+        shift = int((cur - start).total_seconds() // 3600) - (n_slots - 1)
+        if shift > 0:
+            for v in hr["acc"].values():
+                for fld, fill in (("f", None), ("p", 0)):
+                    arr = list(v.get(fld) or [fill] * n_slots)
+                    v[fld] = (arr + [fill] * shift)[-n_slots:] if shift < n_slots else [fill] * n_slots
+            hr["start"] = (start + timedelta(hours=shift)).strftime("%Y-%m-%dT%H:00")
+        start = datetime.fromisoformat(hr["start"]).replace(tzinfo=MSK)
+        for u, b in got.items():
+            v = hr["acc"].setdefault(u, {"f": [None] * n_slots, "p": [0] * n_slots})
+            i = int((cur - start).total_seconds() // 3600)
+            if 0 <= i < len(v["f"]) and b.get("followers_count") is not None:
+                v["f"][i] = b["followers_count"]
+            if with_media:   # посты по часам выхода — из тех же данных API
+                for m in (b.get("media") or {}).get("data", []):
+                    if m.get("timestamp"):
+                        tj = datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z").astimezone(MSK).replace(minute=0, second=0)
+                        j = int((tj - start).total_seconds() // 3600)
+                        if 0 <= j < len(v["p"]) and v["p"][j] == 0:
+                            v["p"][j] = 1
+
     # таблица по дням (понедельники!): сегодняшний день — подписчики из API
     days = net.get("days") or []
     day = next((d for d in days if d.get("date") == today), None)
