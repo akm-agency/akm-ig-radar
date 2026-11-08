@@ -1,0 +1,749 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><script>/* Вход по пинкоду и расшифровка данных сайта (пара к site_crypto.py). export_pages подставляет a48e70ac1f6407cbb092d17883153692.
+   Ключ после верного пинкода хранится в браузере (localStorage + cookie на год), пинкод запоминает менеджер паролей. */
+(() => {
+const SALT = "akm-ig-radar-v1", ITER = 150000, CHECK = "a48e70ac1f6407cbb092d17883153692", NAME = "akm_k";
+const enc = s => new TextEncoder().encode(s);
+const hex = b => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+const unhex = h => new Uint8Array(h.match(/../g).map(x => parseInt(x, 16)));
+const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const W = new Uint32Array(64);
+function sha256(msg) {   // синхронный SHA-256: ключевой поток — тысячи коротких хешей, WebCrypto для этого слишком медленный
+  const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, m = new Uint8Array(nb);
+  m.set(msg); m[l] = 0x80; const bits = l * 8;
+  m[nb - 4] = bits >>> 24; m[nb - 3] = bits >>> 16; m[nb - 2] = bits >>> 8; m[nb - 1] = bits; m[nb - 5] = Math.floor(bits / 2 ** 32);
+  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a, h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+  for (let o = 0; o < nb; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = (m[o + i * 4] << 24) | (m[o + i * 4 + 1] << 16) | (m[o + i * 4 + 2] << 8) | m[o + i * 4 + 3];
+    for (let i = 16; i < 64; i++) {
+      const a = W[i - 15], b = W[i - 2];
+      const s0 = ((a >>> 7) | (a << 25)) ^ ((a >>> 18) | (a << 14)) ^ (a >>> 3), s1 = ((b >>> 17) | (b << 15)) ^ ((b >>> 19) | (b << 13)) ^ (b >>> 10);
+      W[i] = (W[i - 16] + s0 + W[i - 7] + s1) | 0;
+    }
+    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    for (let i = 0; i < 64; i++) {
+      const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7)), ch = (e & f) ^ (~e & g);
+      const t1 = (h + S1 + ch + K[i] + W[i]) | 0;
+      const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10)), mj = (a & b) ^ (a & c) ^ (b & c);
+      const t2 = (S0 + mj) | 0;
+      h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+    }
+    h0 = (h0 + a) | 0; h1 = (h1 + b) | 0; h2 = (h2 + c) | 0; h3 = (h3 + d) | 0; h4 = (h4 + e) | 0; h5 = (h5 + f) | 0; h6 = (h6 + g) | 0; h7 = (h7 + h) | 0;
+  }
+  const out = new Uint8Array(32), dv = new DataView(out.buffer);
+  [h0, h1, h2, h3, h4, h5, h6, h7].forEach((x, i) => dv.setUint32(i * 4, x >>> 0));
+  return out;
+}
+const cat = (...a) => { const r = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let o = 0; for (const x of a) { r.set(x, o); o += x.length; } return r; };
+const good = k => k?.length === 32 && hex(sha256(cat(k, enc("gate")))).slice(0, 32) === CHECK;
+async function derive(pin) {
+  const base = await crypto.subtle.importKey("raw", enc(pin), "PBKDF2", false, ["deriveBits"]);
+  return new Uint8Array(await crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt: enc(SALT), iterations: ITER }, base, 256));
+}
+const path = location.pathname.replace(/[^/]*$/, "");
+function stored() {
+  try { const v = localStorage.getItem(NAME); if (v) return unhex(v); } catch { /* приватный режим */ }
+  const c = document.cookie.split("; ").find(x => x.startsWith(NAME + "="));
+  return c ? unhex(c.slice(NAME.length + 1)) : null;
+}
+function remember(k) {
+  try { localStorage.setItem(NAME, hex(k)); } catch { /* без localStorage — останется cookie */ }
+  document.cookie = `${NAME}=${hex(k)}; max-age=31536000; path=${path}; SameSite=Lax; Secure`;
+}
+function decrypt(buf, k) {
+  if (String.fromCharCode(...buf.slice(0, 4)) !== "AKM1") throw new Error("файл не зашифрован");
+  const nonce = buf.slice(4, 20), ct = buf.subarray(36);
+  if (hex(sha256(cat(k, nonce, enc("ok")))).slice(0, 32) !== hex(buf.slice(20, 36))) throw new Error("неверный ключ — обновите страницу");
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(ct.length);
+  for (let i = 0, o = 0; o < ct.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, ct.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = ct[o + j] ^ s[j];
+  }
+  return out;
+}
+
+function showGate(done) {
+  const css = `#akmGate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;padding:16px;background:radial-gradient(900px circle at 20% 10%,#2b3d34,#0f1714 60%);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff}
+  #akmGate form{width:min(380px,100%);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:30px 26px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.7);backdrop-filter:blur(8px)}
+  #akmGate .lg{font-weight:700;font-size:26px;letter-spacing:-.04em}#akmGate .lg span{color:#D5FF72}
+  #akmGate p{margin:0;font-size:14px;opacity:.72;line-height:1.4}
+  #akmGate input{font:600 24px/1 system-ui,sans-serif;letter-spacing:.3em;text-align:center;border-radius:16px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.25);color:#fff;padding:16px 12px;outline:none}
+  #akmGate input:focus{border-color:#D5FF72;box-shadow:0 0 0 4px rgba(213,255,114,.18)}
+  #akmGate button{font:600 16px system-ui,sans-serif;border:0;border-radius:999px;padding:15px;background:#D5FF72;color:#14251E;cursor:pointer}
+  #akmGate button:disabled{opacity:.6;cursor:wait}
+  #akmGate .hint{font-size:13px;opacity:.6;text-align:center}#akmGate .err{color:#FF9A8A;font-size:13.5px;text-align:center;min-height:18px}
+  #akmGate .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  #akmGate.shake form{animation:akmShake .4s}@keyframes akmShake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}`;
+  const g = document.createElement("div"); g.id = "akmGate";
+  g.innerHTML = `<style>${css}</style><form method="post" action="#" autocomplete="on">
+    <div class="lg">AKM<span>.</span></div><p>Статистика сетки — только для своих. Введите пинкод.</p>
+    <input class="sr" type="text" name="username" autocomplete="username" value="AKM" tabindex="-1" aria-hidden="true">
+    <label class="sr" for="akmPin">Пинкод</label>
+    <input id="akmPin" type="password" name="password" autocomplete="current-password" inputmode="numeric" placeholder="••••••••" required autofocus>
+    <div class="err" role="alert"></div><button type="submit">Войти</button>
+    <div class="hint">Подсказка: пароль от wifi в офисе</div></form>`;
+  const add = () => { document.body.appendChild(g); g.querySelector("#akmPin").focus(); };
+  document.body ? add() : addEventListener("DOMContentLoaded", add);
+  g.querySelector("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const pin = g.querySelector("#akmPin").value.trim(), btn = g.querySelector("button"), err = g.querySelector(".err");
+    btn.disabled = true; err.textContent = "";
+    try {
+      const k = await derive(pin);
+      if (!good(k)) { err.textContent = "Неверный пинкод"; g.classList.remove("shake"); void g.offsetWidth; g.classList.add("shake"); return; }
+      remember(k);
+      try { if (window.PasswordCredential) await navigator.credentials.store(new PasswordCredential({ id: "AKM", password: pin, name: "AKM" })); } catch { /* браузер без Credential API */ }
+      g.remove(); done(k);
+    } catch (x) { err.textContent = "Не получилось: " + x.message; }
+    finally { btn.disabled = false; }
+  });
+}
+
+const k0 = stored();
+window.akmKey = new Promise(res => good(k0) ? res(k0) : showGate(res));
+window.akmData = async name => {
+  const k = await window.akmKey;
+  const r = await fetch("data/" + name.replace(/\.json$/, "") + ".enc?t=" + Date.now(), { cache: "no-store" });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return JSON.parse(new TextDecoder().decode(decrypt(new Uint8Array(await r.arrayBuffer()), k)));
+};
+window.akmOpen = async buf => decrypt(buf, await window.akmKey);   // расшифровать любой зашифрованный файл (картинки и данные пульта)
+window.akmSeal = async bytes => {                                    // зашифровать: пульт пишет решения в репозиторий уже шифром
+  const k = await window.akmKey, nonce = crypto.getRandomValues(new Uint8Array(16));
+  const pre = cat(k, nonce, new Uint8Array(4)), out = new Uint8Array(bytes.length);
+  for (let i = 0, o = 0; o < bytes.length; i++, o += 32) {
+    pre[48] = i >>> 24; pre[49] = i >>> 16; pre[50] = i >>> 8; pre[51] = i;
+    const s = sha256(pre), n = Math.min(32, bytes.length - o);
+    for (let j = 0; j < n; j++) out[o + j] = bytes[o + j] ^ s[j];
+  }
+  return cat(enc("AKM1"), nonce, sha256(cat(k, nonce, enc("ok"))).slice(0, 16), out);
+};
+window.akmLogout = () => { try { localStorage.removeItem(NAME); } catch { /* */ } document.cookie = `${NAME}=; max-age=0; path=${path}`; location.reload(); };
+})();
+</script></head><body><title>Креативщик Коннора</title>
+<style>
+/* Панель ИИ-креативщика Коннора — айдентика пульта сети AKM (/pulse/): камень, белые панели, тёмно-зелёный ink, лайм = «нужно ваше действие».
+   Экраны: Сводка (что работает и что делать) · Кейсы (разбор по порядку) · Пробы (оценка командой) · Как работаем (метод, граница, форматы). */
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"AKM Display";font-weight:200 900;font-display:swap;src:url(../design-assets/unbounded-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-cyrillic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"AKM Text";font-weight:400 900;font-display:swap;src:url(../design-assets/golostext-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{
+  color-scheme:light;
+  --stone:#E9EDE7; --panel:#FFFFFF; --soft:#F3F6EF; --soft-2:#E9EEE3; --ink:#14251E; --ink-2:#22382C; --muted:#5D6B5F; --faint:#8E9A8C; --line:#E2E7DC;
+  --lime:#D5FF72; --lime-soft:#F1FFD0; --lav:#E7E2FA; --peach:#FBE3D6; --blue:#3557ED; --orange:#FA714A;
+  --good:#1F7A4D; --good-2:#7FA34A; --bad:#C24A3A;
+  --r:24px; --r-s:16px;
+  --f:"AKM Text","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif; --fd:"AKM Display","Unbounded",var(--f);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{scrollbar-gutter:stable}
+body{margin:0;background:var(--stone);color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.45;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--stone)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0;text-align:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+a{color:var(--blue)}
+p,h1,h2,h3,h4,ul,dl{margin:0}
+[hidden]{display:none!important}
+.wrap{max-width:1440px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:16px}
+
+header.bar{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:30;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:999px;padding:8px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 0 rgba(20,37,30,.04),0 8px 24px -16px rgba(20,37,30,.25)}
+.logo{display:inline-flex;align-items:center;gap:8px;background:var(--soft);border-radius:999px;height:44px;padding:0 16px;flex:none;font-family:var(--fd);font-weight:600;font-size:14px;letter-spacing:-.04em}
+.logo i{width:10px;height:10px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px var(--ink)}
+.ttl{font-family:var(--fd);font-weight:500;font-size:15px;letter-spacing:-.03em;white-space:nowrap;padding:0 4px}
+.nav{display:flex;background:var(--soft);border-radius:999px;padding:4px;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav button{border-radius:999px;height:36px;padding:0 16px;font-weight:600;color:var(--muted);transition:background .2s,color .2s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
+.nav button:hover{color:var(--ink)}
+.nav button[aria-pressed=true]{background:var(--ink);color:#fff}
+.nav .badge{background:var(--lime);color:var(--ink);border-radius:99px;font-size:11.5px;padding:1px 7px;font-weight:700}
+.tools{margin-left:auto;display:flex;gap:6px;align-items:center}
+.who{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--soft);font-weight:600;font-size:13px;white-space:nowrap}
+.who i{width:8px;height:8px;border-radius:50%;background:var(--faint)} .who.on i{background:var(--good)}
+@media(max-width:980px){header.bar{border-radius:var(--r);flex-wrap:wrap}.tools{margin-left:0}.ttl{display:none}.nav{width:100%}}
+
+.btn{border-radius:999px;height:42px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:13.5px;background:var(--soft);transition:background .2s,transform .15s var(--ease);white-space:nowrap}
+.btn:hover:not(:disabled){background:var(--soft-2)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.go{background:var(--lime);color:var(--ink)}
+.btn.warn{background:var(--peach)}
+.btn.sm{height:34px;padding:0 13px;font-size:12.5px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.on.go{box-shadow:inset 0 0 0 2px var(--ink)} .btn.on.warn{box-shadow:inset 0 0 0 2px var(--bad)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.panel{background:var(--panel);border-radius:var(--r);padding:22px 24px;min-width:0}
+.ph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ph h2{font-family:var(--fd);font-weight:500;font-size:clamp(17px,1.5vw,20px);letter-spacing:-.04em;text-wrap:balance}
+.ph .hint{color:var(--muted);font-size:13px}
+.ph .sp{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.hint{color:var(--muted);font-size:13px}
+.chip{border-radius:999px;background:var(--soft);height:32px;padding:0 13px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+.hero .main{background:var(--ink);color:#fff;border-radius:var(--r);padding:26px 28px;display:flex;flex-direction:column;gap:14px;min-height:220px}
+.hero .main .k{font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#B9C6BA}
+.hero .main .v{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.hero .main .v b{font-size:clamp(56px,6vw,88px);font-weight:600;letter-spacing:-.06em;line-height:.85;color:var(--lime)}
+.hero .main .v span{font-family:var(--fd);font-size:clamp(17px,1.6vw,22px);font-weight:500;letter-spacing:-.04em;max-width:17em;line-height:1.2}
+.hero .main p{color:#CFD9CF;max-width:60ch}
+.hero .stats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.stat{background:var(--panel);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat .k{font-size:12.5px;color:var(--muted);font-weight:500}
+.stat b{font-size:40px;font-weight:600;letter-spacing:-.05em;line-height:1}
+.stat .s{font-size:12.5px;color:var(--muted)}
+.stat.you{background:var(--lime-soft);box-shadow:inset 0 0 0 1.5px #D8F28F}
+@media(max-width:980px){.hero{grid-template-columns:1fr}}
+
+.two{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px}
+@media(max-width:1100px){.two{grid-template-columns:1fr}}
+
+/* сюжеты по силе */
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(150px,220px) 1fr 60px;gap:12px;align-items:center}
+.bar .n{font-weight:600;font-size:13.5px;line-height:1.25}
+.bar .n small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+.bar .t{position:relative;height:30px;background:var(--soft);border-radius:10px;overflow:visible}
+.bar .t i{position:absolute;left:0;top:0;bottom:0;border-radius:10px;background:#CFD8CB}
+.bar.top .t i{background:var(--lime)} .bar.low .t i{background:var(--peach)}
+.bar .t u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
+.bar .t u::after{content:"планка 26";position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:10.5px;color:var(--muted);white-space:nowrap}
+.bar:not(:first-child) .t u::after{display:none}
+.bar .v{font-size:20px;font-weight:600;letter-spacing:-.04em;text-align:right}
+@media(max-width:620px){.bar{grid-template-columns:1fr 50px}.bar .n{grid-column:1/-1}}
+
+/* дела команды */
+.todo{display:grid;gap:8px}
+.todo div{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;background:var(--soft);border-radius:var(--r-s);padding:12px 14px}
+.todo div.you{background:var(--lime-soft);box-shadow:inset 0 0 0 1.5px #D8F28F}
+.todo b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--panel);font-size:13px}
+.todo p{font-size:13.5px} .todo p small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+
+.rules{display:grid;gap:8px;counter-reset:r}
+.rules li{list-style:none;background:var(--soft);border-radius:var(--r-s);padding:12px 14px 12px 46px;position:relative;font-size:13.5px}
+.rules li::before{counter-increment:r;content:counter(r);position:absolute;left:12px;top:11px;width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-size:12px;font-weight:700}
+.rules{padding:0}
+.rules li small{display:block;color:var(--muted);margin-top:3px;font-size:12.5px}
+
+/* кейсы */
+.cases{display:grid;gap:12px}
+.case{background:var(--panel);border-radius:var(--r);padding:16px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;scroll-margin-top:90px}
+.case .ims{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;align-content:start}
+.case .ims img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;background:var(--soft);cursor:zoom-in;display:block}
+.case .ims img:only-child{grid-column:1/-1}
+.case .ims .none{grid-column:1/-1;aspect-ratio:4/3;border-radius:12px;background:var(--soft);display:grid;place-items:center;color:var(--faint);font-size:12.5px;text-align:center;padding:12px}
+.case .bd{display:flex;flex-direction:column;gap:12px;min-width:0}
+.case .top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.case .num{font-family:var(--fd);font-weight:600;font-size:22px;letter-spacing:-.05em}
+.case h3{font-family:var(--fd);font-weight:500;font-size:17px;letter-spacing:-.03em;line-height:1.25;text-wrap:balance}
+.pill{border-radius:99px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.strong{background:var(--lime)} .pill.mid{background:var(--soft-2)} .pill.weak{background:var(--peach)} .pill.info{background:var(--lav)}
+.nums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.nums div{background:var(--soft);border-radius:14px;padding:10px 12px}
+.nums small{display:block;color:var(--muted);font-size:11.5px}
+.nums b{font-size:22px;font-weight:600;letter-spacing:-.04em}
+.nums div.tg{background:var(--ink);color:#fff} .nums div.tg small{color:#B9C6BA} .nums div.tg b{color:var(--lime)}
+.nums div.tg.low b{color:#F5B9A5}
+.qa{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.qa div{border-radius:14px;padding:10px 12px;font-size:13.5px;background:var(--soft)}
+.qa div.take{background:var(--lime-soft)}
+.qa small{display:block;font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.quote{font-size:12.5px;color:var(--muted);background:var(--soft);border-radius:12px;padding:8px 12px;white-space:pre-wrap;max-height:4.6em;overflow:hidden;position:relative;cursor:pointer}
+.quote.open{max-height:none}
+@media(max-width:860px){.case{grid-template-columns:1fr}.case .ims{grid-template-columns:repeat(3,1fr)}.nums{grid-template-columns:repeat(2,1fr)}.qa{grid-template-columns:1fr}}
+
+/* карточки проб */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:14px;align-items:start}
+.pc{background:var(--panel);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-width:0;transition:transform .18s var(--ease),box-shadow .18s}
+.pc:hover{transform:translateY(-2px);box-shadow:0 14px 28px -18px rgba(20,37,30,.4)}
+.pc .cv{position:relative;display:block;width:100%;aspect-ratio:4/5;background:var(--soft);overflow:hidden;cursor:pointer}
+.pc .cv img{width:100%;height:100%;object-fit:cover;display:block}
+.pc .sc{position:absolute;left:10px;top:10px;background:rgba(255,255,255,.94);border-radius:99px;padding:3px 10px;font-weight:700;font-size:13px}
+.pc .sc.hi{background:var(--lime)} .pc .sc.lo{background:var(--peach)}
+.pc .tg{position:absolute;left:10px;bottom:10px;right:10px;display:flex;gap:5px;flex-wrap:wrap}
+.pc .bd .tg.row{position:static;display:flex;gap:5px;flex-wrap:wrap}
+.tg span{background:rgba(20,37,30,.82);color:#fff;border-radius:99px;padding:3px 9px;font-size:11.5px;font-weight:600}
+.tg span.l{background:var(--lime);color:var(--ink)} .tg span.p{background:var(--peach);color:var(--ink)} .tg span.v{background:var(--lav);color:var(--ink)}
+.pc .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.pc h3{font-size:13.5px;font-weight:600;line-height:1.3}
+.pc .mt{font-size:12px;color:var(--muted)}
+.pc .act{padding:0 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pc .note{font-size:12px;background:var(--soft);border-radius:10px;padding:6px 9px}
+
+dialog{border:0;border-radius:var(--r);padding:0;width:min(1060px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--panel);color:var(--ink)}
+dialog::backdrop{background:rgba(20,37,30,.55)}
+.dlg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;background:#000;align-self:start}
+.slides img{flex:0 0 100%;width:100%;scroll-snap-align:start;aspect-ratio:4/5;object-fit:cover}
+.side{padding:20px 22px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 24px);overflow:auto;min-width:0}
+.side h3{font-family:var(--fd);font-weight:500;font-size:19px;letter-spacing:-.04em}
+.box{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:13.5px}
+.box small{display:block;font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.box pre{margin:0;white-space:pre-wrap;font:inherit}
+.box.you{background:var(--lime-soft)}
+.covs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.covs figure{margin:0;display:flex;flex-direction:column;gap:4px}
+.covs img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;cursor:zoom-in;display:block}
+.covs figcaption{font-size:11.5px;line-height:1.3;color:var(--muted)} .covs figcaption b{color:var(--ink)}
+textarea{width:100%;min-height:72px;border:0;border-radius:12px;background:var(--panel);padding:10px 12px;resize:vertical}
+@media(max-width:860px){.dlg{grid-template-columns:1fr}.side{max-height:none}}
+
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+td b{font-weight:600}
+.warnbox{background:var(--peach);border-radius:var(--r-s);padding:14px 16px;font-size:13.5px}
+.empty{background:var(--panel);border-radius:var(--r);padding:44px 24px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--fd);font-weight:500;font-size:18px;margin-bottom:6px;letter-spacing:-.03em}
+.zoom{position:fixed;inset:0;background:rgba(20,37,30,.85);display:grid;place-items:center;z-index:60;padding:16px;cursor:zoom-out}
+.zoom img{max-width:min(720px,100%);max-height:100%;border-radius:12px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="bar">
+    <span class="logo"><i></i>AKM</span>
+    <span class="ttl">Креативщик Коннора</span>
+    <nav class="nav" id="nav">
+      <button data-v="sum" aria-pressed="true">Сводка</button>
+      <button data-v="cases">Кейсы <span class="badge" id="nCases"></span></button>
+      <button data-v="probes">Пробы <span class="badge" id="nProbes"></span></button>
+      <button data-v="how">Как работаем</button>
+    </nav>
+    <div class="tools"><span class="who" id="who"><i></i>Без входа</span></div>
+  </header>
+
+  <main id="sum"></main>
+  <main id="cases" hidden></main>
+  <main id="probes" hidden></main>
+  <main id="how" hidden></main>
+</div>
+
+<dialog id="tkd" style="width:min(520px,calc(100vw - 24px))"><div class="side" style="max-height:none">
+  <h3>Сохранение оценок</h3>
+  <p class="hint" style="font-size:13.5px">Оценки сохраняются файлом в репозитории akm-ig-radar, зашифрованные пинкодом сайта. Нужен токен GitHub — тот же, что для пульта: fine-grained, доступ только к akm-ig-radar, право Contents: Read and write. Если запись в пульте уже подключена в этом браузере, вводить ничего не нужно. Токен хранится только в этом браузере.</p>
+  <label class="hint" for="tk">Токен GitHub</label>
+  <input id="tk" type="password" autocomplete="off" placeholder="github_pat_…" style="height:44px;border:0;border-radius:12px;background:var(--soft);padding:0 14px">
+  <div class="btns"><button class="btn primary" id="tkOk">Сохранить</button><button class="btn" id="tkClose">Отмена</button><button class="btn warn" id="tkDel">Отключить</button></div>
+  <p class="hint" id="tkErr"></p>
+</div></dialog>
+
+<dialog id="dlg"><div class="dlg">
+  <div class="slides" id="dslides"></div>
+  <div class="side">
+    <div class="btns"><span class="chip" id="dfmt"></span><span class="hint" id="dcount"></span><button class="btn sm" id="dclose" style="margin-left:auto" autofocus>Закрыть</button></div>
+    <h3 id="dtitle"></h3>
+    <div class="box"><small>Почему так</small><span id="dwhy"></span></div>
+    <div class="box" id="dlessonBox"><small>Из какого урока</small><span id="dlesson"></span></div>
+    <div class="box"><small>Критик агента</small><span id="dcrit"></span></div>
+    <div class="box" id="dcostBox"><small>Цена создания</small><span id="dcost"></span></div>
+    <div class="box" id="dcoversBox"><small>Обложки для теста</small><div class="covs" id="dcovers"></div></div>
+    <div class="box you" id="dtestBox"><small>План теста</small><span id="dtest"></span></div>
+    <div class="box" id="dscriptBox"><small>Сценарий съёмки</small><pre id="dscript"></pre></div>
+    <div class="box"><small>Подпись к посту</small><pre id="dcap"></pre></div>
+    <div class="box" id="dsrcBox"><small>Источники</small><span id="dsrc"></span></div>
+    <div class="box you"><small>Ваша оценка</small>
+      <div class="btns" style="margin:4px 0 10px"><button class="btn go" id="dup">👍 Запускаем</button><button class="btn warn" id="ddown">👎 Не то</button></div>
+      <label class="hint" for="dnote">Комментарий: что исправить или почему зайдёт</label>
+      <textarea id="dnote" placeholder="Например: обложка слабая, нужен стадион и толпа"></textarea>
+      <div class="btns" style="margin-top:8px"><button class="btn primary sm" id="dsave">Сохранить</button><span class="hint" id="dmsg"></span></div>
+    </div>
+    <div id="dnotes" class="hint"></div>
+  </div>
+</div></dialog>
+
+<script>
+let DATA = /*__DATA__*/null;   // на сайте null: данные расшифровываются после пинкода (connor/data/connor.enc)
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PLANK = 26;
+const VERD = {strong:["сильный","strong"], mid:["средний","mid"], weak:["слабый","weak"], info:["справка","info"], dup:["дубль","info"]};
+let M = {}, CASES = {};
+const SITE = !!window.akmKey;   // страница на сайте сетки (gate.js) или артефакт claude.ai
+const per20 = m => Math.round(m.tg / m.min * 20 * 10) / 10;
+
+let votes = {}, me = null, db = null, userCap = null, names = {};
+function tally(pid){
+  let up=0, down=0, notes=[];
+  for (const [uid, doc] of Object.entries(votes)) {
+    const v = doc[pid]; if (!v) continue;
+    if (v.v === 1) up++; if (v.v === -1) down++;
+    if (v.note) notes.push({uid, v: v.v, note: v.note});
+  }
+  return {up, down, notes, mine: me && votes[me] ? votes[me][pid] : null};
+}
+
+/* ---------- Сводка ---------- */
+function themes(){
+  const g = {};
+  for (const m of DATA.metrics) (g[m.theme] ||= []).push(m);
+  return Object.entries(g).map(([t, ms]) => ({t, ms, tg: ms.reduce((a,m)=>a+per20(m),0)/ms.length}))
+    .sort((a,b) => b.tg - a.tg);
+}
+function renderSum(){
+  const T = themes(), top = T[0];
+  const tested = DATA.metrics.length;
+  const rated = DATA.probes.filter(p => { const t = tally(p.id); return t.up || t.down; }).length;
+  const max = Math.max(...T.map(x => x.tg)) * 1.08;
+  $("#sum").innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:16px">
+  <section class="hero">
+    <div class="main">
+      <span class="k">Что ведёт в ТГ лучше всего</span>
+      <div class="v"><b>${top.tg.toFixed(0)}</b><span>подписчиков в ТГ за 20 минут — сюжет «${esc(top.t)}»</span></div>
+      <p>Это кейсы ${top.ms.map(m=>"#"+m.case).join(", ")}: герой — сам Коннор, которого «боятся букмекеры». Медиана всех ${tested} тестов команды — ${PLANK}. Агент берёт эту механику, но строит её на реальных фактах.</p>
+      <div class="btns" style="margin-top:auto"><button class="btn go" data-go="cases">Разбор кейсов по порядку</button><button class="btn" style="background:#22382C;color:#fff" data-go="probes">Оценить пробы</button></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span class="k">Тестов от команды</span><b>${tested}</b><span class="s">с цифрами IG и ТГ за 20–30 мин</span></div>
+      <div class="stat"><span class="k">Планка ТГ за 20 мин</span><b>${PLANK}</b><span class="s">медиана всех тестов</span></div>
+      <div class="stat"><span class="k">Проб агента</span><b>${DATA.probes.length}</b><span class="s">${DATA.probes.filter(p=>p.mock).length} из них — сценарии съёмки</span></div>
+      <div class="stat you"><span class="k">Оценено командой</span><b>${rated} из ${DATA.probes.length}</b><span class="s">без оценок агент учится только на кейсах</span></div>
+    </div>
+  </section>
+  <div class="two">
+    <section class="panel">
+      <div class="ph"><h2>Сюжеты по силе</h2><span class="hint">подписчики ТГ за 20 минут, среднее по тестам</span></div>
+      <div class="bars">${T.map((x,i) => `
+        <div class="bar ${x.tg >= PLANK + 4 ? "top" : x.tg < PLANK - 4 ? "low" : ""}">
+          <div class="n">${esc(x.t)}<small>${x.ms.length} ${x.ms.length===1?"тест":"теста"} · ${x.ms.map(m=>"#"+m.case).join(" ")}</small></div>
+          <div class="t"><i style="width:${(x.tg/max*100).toFixed(1)}%"></i><u style="left:${(PLANK/max*100).toFixed(1)}%"></u></div>
+          <div class="v">${x.tg.toFixed(0)}</div>
+        </div>`).join("")}</div>
+      <p class="hint" style="margin-top:14px">Лайки почти не предсказывают ТГ: у #16 1136 лайков и 31 подписчик в ТГ, у #22 — 158 лайков и 27.</p>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2>Что нужно от команды</h2></div>
+      <div class="todo">
+        <div class="you"><b>1</b><p>Оценить пробы 👍/👎 с комментарием<small>Вкладка «Пробы». Это главный сигнал для агента.</small></p></div>
+        <div class="you"><b>2</b><p>Прислать в бота скрины реальных выигрышей и отзывов из группы Коннора<small>Нужны для самого сильного сюжета — «Коннор-эксперт» на настоящих фактах.</small></p></div>
+        <div><b>3</b><p>Снять скетч по сценарию агента<small>Своя съёмка дала +29% ТГ к чужому фото (кейс #8 против #2).</small></p></div>
+        <div><b>4</b><p>После публикации прислать в бота цифры за 20 минут<small>Страница, время, лайки, IG, ТГ. Без них следующий шаг — угадывание.</small></p></div>
+      </div>
+    </section>
+  </div>
+  </div>`;
+}
+
+/* ---------- Кейсы ---------- */
+let caseFilter = "all";
+function renderCases(){
+  const R = DATA.reviews.filter(r => r.verdict !== "dup");
+  const order = R.slice().sort((a,b) => a.case - b.case);
+  const shown = order.filter(r => caseFilter === "all" || r.verdict === caseFilter);
+  const cnt = v => order.filter(r => r.verdict === v).length;
+  $("#cases").innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:16px">
+  <section class="panel">
+    <div class="ph"><h2>Все кейсы по порядку</h2><span class="hint">${order.length} разборов · сильный — ТГ выше ${PLANK} за 20 минут</span>
+      <div class="sp chips">
+        ${[["all","Все",order.length],["strong","Сильные",cnt("strong")],["mid","Средние",cnt("mid")],["weak","Слабые",cnt("weak")]].map(([k,l,n]) =>
+          `<button class="chip" data-cf="${k}" aria-pressed="${caseFilter===k}">${l} · ${n}</button>`).join("")}
+      </div></div>
+    <p class="hint">${esc(DATA.notes.casesIntro)}</p>
+  </section>
+  <div class="cases">${shown.map(caseCard).join("")}</div>
+  </div>`;
+}
+function caseCard(r){
+  const m = M[r.case], c = CASES[r.case] || {imgs:[], texts:[]};
+  const [vl, vc] = VERD[r.verdict] || ["", "info"];
+  const imgs = c.imgs.slice(0, 4);
+  const cap = (c.texts || []).find(t => t.length > 120);
+  const tg20 = m ? per20(m) : null;
+  return `<article class="case" id="case-${r.case}">
+    <div class="ims">${imgs.length ? imgs.map(s => `<img src="${s}" alt="Материал кейса #${r.case}" loading="lazy" data-zoom="${s}">`).join("") : `<div class="none">Картинок нет — видео больше 20 МБ или только текст</div>`}</div>
+    <div class="bd">
+      <div class="top"><span class="num">#${r.case}</span><span class="pill ${vc}">${vl}</span>${m ? `<span class="chip">${esc(m.theme)}</span><span class="hint">${esc(m.date)}${m.page && m.page !== "—" ? " · @" + esc(m.page) : ""}</span>` : ""}</div>
+      <h3>${esc(m ? m.story : (c.title || ""))}</h3>
+      <p class="hint" style="font-size:13.5px;color:var(--ink)">${esc(r.what)}</p>
+      ${m ? `<div class="nums">
+        <div class="tg ${tg20 < PLANK ? "low" : ""}"><small>ТГ за 20 мин</small><b>${tg20}</b></div>
+        <div><small>IG</small><b>${m.ig}</b></div>
+        <div><small>Лайки</small><b>${m.likes}</b></div>
+        <div><small>Дошли до ТГ</small><b>${Math.round(100*m.tg/m.ig)}%</b></div>
+      </div>` : ""}
+      ${r.why || r.take ? `<div class="qa">
+        <div><small>Почему так</small>${esc(r.why)}</div>
+        <div class="take"><small>Что берёт агент</small>${esc(r.take)}</div>
+      </div>` : ""}
+      ${cap ? `<div class="quote" title="Нажмите, чтобы раскрыть">${esc(cap)}</div>` : ""}
+    </div>
+  </article>`;
+}
+
+/* ---------- Пробы ---------- */
+function renderProbes(){
+  const P = DATA.probes;
+  $("#probes").innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:16px">
+  <section class="panel">
+    <div class="ph"><h2>Пробы агента</h2><span class="hint">откройте карточку: слайды, подпись, сценарий, источники · оценка сохраняется для всей команды</span></div>
+    <p class="hint">Пробы не публиковались. 👍 — «запускаем в тест», 👎 — «не то», комментарий — что поменять.</p>
+  </section>
+  <div class="cards">${P.map(p => {
+    const t = tally(p.id);
+    const sc = p.score >= 8 ? "hi" : p.score < 7 ? "lo" : "";
+    return `<article class="pc">
+      <div class="cv" data-open="${p.id}"><img src="${p.imgs[0]}" alt="Обложка: ${esc(p.heads[0])}" loading="lazy">
+        <span class="sc ${sc}" title="Балл критика агента">${p.score ?? "—"}/10</span></div>
+      <div class="bd"><div class="tg row"><span class="l">${esc(p.format)}</span>${p.mock ? `<span class="p">сценарий съёмки</span>` : ""}${(p.covers||[]).length ? `<span class="l">${p.covers.length + 1} обложки</span>` : ""}<span class="v">${p.imgs.length} сл.</span></div><h3>${esc(p.title)}</h3><div class="mt">${esc(p.id.slice(0,4).replace(/(\d\d)(\d\d)/,"$2.$1"))}${p.cost ? ` · создание ≈ ${p.cost.rub} ₽` : ""}</div>
+        ${t.notes.slice(0,2).map(n => `<div class="note">${n.v===1?"👍":n.v===-1?"👎":"💬"} ${esc(names[n.uid]||"Коллега")}: ${esc(n.note)}</div>`).join("")}</div>
+      <div class="act">
+        <button class="btn go sm ${t.mine?.v===1?"on":""}" data-vote="1" data-p="${p.id}" ${db?"":"disabled"}>👍 ${t.up}</button>
+        <button class="btn warn sm ${t.mine?.v===-1?"on":""}" data-vote="-1" data-p="${p.id}" ${db?"":"disabled"}>👎 ${t.down}</button>
+      </div></article>`;
+  }).join("")}</div>
+  </div>`;
+}
+let cur = null;
+function openProbe(id){
+  const p = DATA.probes.find(x => x.id === id); if (!p) return; cur = p;
+  $("#dslides").innerHTML = p.imgs.map((s,i) => `<img src="${s}" alt="Слайд ${i+1}: ${esc(p.heads[i]||"")}">`).join("");
+  $("#dfmt").textContent = p.format; $("#dcount").textContent = p.imgs.length > 1 ? `${p.imgs.length} слайда · листайте вбок` : "1 слайд";
+  $("#dtitle").textContent = p.title; $("#dwhy").textContent = p.why;
+  $("#dlessonBox").hidden = !p.lesson; $("#dlesson").textContent = p.lesson || "";
+  $("#dcrit").textContent = `${p.score}/10. ${p.critic}`;
+  $("#dcostBox").hidden = !p.cost; $("#dcost").innerHTML = p.cost ? costText(p.cost) : "";
+  $("#dscriptBox").hidden = !p.script; $("#dscript").textContent = p.script || "";
+  const covs = p.covers || [];
+  $("#dcoversBox").hidden = !covs.length;
+  $("#dcovers").innerHTML = covs.length ? [[p.imgs[0], p.heads[0]], ...covs.map((s,i) => [s, (p.cover_heads||[])[i]])]
+    .map(([s,h],i) => `<figure><img src="${s}" alt="Обложка ${"ABC"[i]}" data-zoom="${s}"><figcaption><b>${"ABC"[i]}</b> ${esc(h||"")}</figcaption></figure>`).join("") : "";
+  $("#dtestBox").hidden = !p.test; $("#dtest").textContent = p.test || "";
+  $("#dcap").textContent = p.caption;
+  $("#dsrcBox").hidden = !p.sources.length;
+  $("#dsrc").innerHTML = p.sources.map(u => /^https?:/.test(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>` : esc(u)).join("<br>");
+  fillVote(); $("#dmsg").textContent = db ? "" : (SITE ? "Чтобы оценивать, нажмите «Подключить оценки» вверху справа" : "Оценки сохраняются только у вошедших в claude.ai");
+  $("#dlg").showModal();
+}
+function fillVote(){
+  if (!cur) return;
+  const t = tally(cur.id);
+  $("#dup").classList.toggle("on", t.mine?.v === 1); $("#ddown").classList.toggle("on", t.mine?.v === -1);
+  $("#dup").textContent = `👍 Запускаем · ${t.up}`; $("#ddown").textContent = `👎 Не то · ${t.down}`;
+  if (document.activeElement !== $("#dnote")) $("#dnote").value = t.mine?.note || "";
+  for (const b of ["#dup","#ddown","#dsave"]) $(b).disabled = !db;
+  $("#dnotes").innerHTML = t.notes.map(n => `<div>${n.v===1?"👍":n.v===-1?"👎":"💬"} ${esc(names[n.uid]||"Коллега")}: ${esc(n.note)}</div>`).join("");
+}
+async function saveVote(pid, v, note){
+  if (!db || !me) return;
+  const mine = Object.assign({}, votes[me] || {});
+  const prev = mine[pid] || {};
+  mine[pid] = {v: v ?? prev.v ?? 0, note: note ?? prev.note ?? "", at: new Date().toISOString()};
+  try {
+    if (SITE) { await ghPutMine(mine); votes[me] = mine; renderAll(); }
+    else await db.doc("votes/" + me).set(mine);
+    $("#dmsg").textContent = "Сохранено";
+  }
+  catch (e) { $("#dmsg").textContent = "Не сохранилось: " + (e.code === "not_granted" ? "нет права оценивать — попросите владельца дать доступ «может взаимодействовать»" : e.message); }
+}
+
+function costText(c){
+  return `<b>≈ ${c.rub} ₽</b> · картинки: ${c.serper} поисков Google (Serper) ≈ ${c.serper_rub} ₽` +
+    (c.bing ? `, ${c.bing} — бесплатный Bing` : "") +
+    ` · текст, факты, выбор кадров, вёрстка, критик — Claude по подписке ≈ ${c.claude_rub} ₽ (оценка по доле лимита, не счёт)`;
+}
+
+/* ---------- Как работаем ---------- */
+function renderHow(){
+  const F = [
+    ["F3","«Букмекеры боятся выигрывающих»","реальные случаи лимитов → Коннор как эксперт","факты с источником"],
+    ["F8","Новость дня + тезис","громкая реальная новость на обложке → честная связка с бесплатной группой","свежая новость, 2–3 обложки"],
+    ["F2","Доказательство Коннора","реальный выигрыш или отзыв из группы","скрины от команды Коннора"],
+    ["F1","Реальная история-новость","задокументированный выигрыш беттора из СМИ","источник в подписи"],
+    ["F7","Скетч с актёрами","свои актёры, суперкар или стадион, открыто как сценка","съёмка командой"],
+    ["F4","«Connor called it»","залетевший момент недели + реальный прогноз Коннора","прогнозы Коннора"],
+    ["F6","Прогноз-тизер","«сегодняшний бесплатный прогноз — в группе»","расписание игр"],
+    ["F5","Мем беттора","узнаваемая боль «1 leg away»","—"],
+  ];
+  const tried = new Set(DATA.probes.map(p => p.format));
+  $("#how").innerHTML = `
+  <div style="display:flex;flex-direction:column;gap:16px">
+  <div class="two">
+    <section class="panel">
+      <div class="ph"><h2>Цикл агента</h2><span class="hint">часть правил — из плейбука коллеги по рекламным креативам</span></div>
+      <ol class="rules">
+        <li>Сначала данные нашей сети<small>Тесты команды из бота → залёты и реклама на наших страницах (API сетки) → форматы каперов-конкурентов → общие соображения.</small></li>
+        <li>Перед тестом — охват страницы<small>${esc(DATA.notes.reach)}</small></li>
+        <li>Одна идея — 2–3 обложки<small>Обложка — отдельная переменная: смена только обложки дала +26% ТГ (кейс #24 против #22).</small></li>
+        <li>Тест в один день на нескольких страницах, в их лучшие окна<small>Сравниваем ТГ за 20 минут и кратность к медиане страницы, а не лайки.</small></li>
+        <li>Победителя разносим, проигравший формат не полируем<small>Возвращаемся к выбору идеи.</small></li>
+        <li>Цифры теста — в бота<small>Страница, время, лайки, IG, ТГ. Агент разбирает каждый кейс и переписывает правила.</small></li>
+        <li>Проверка перед сдачей<small>Обложка читается с телефона, нет чужих водяных знаков, нет ложных утверждений, ник Коннора актуальный.</small></li>
+      </ol>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2>Граница</h2></div>
+      <div class="warnbox">${esc(DATA.notes.boundary)}</div>
+      <p style="margin-top:12px;font-size:13.5px">Агент берёт работающую механику — Коннор-эксперт, новость дня, своя съёмка, 2–3 обложки — и строит её на реальном: случаи лимитов на выигрывающих, настоящие новости, скрины из группы, открытые скетчи.</p>
+      <p class="hint" style="margin-top:10px">В каждой подписи: #sponsored и «21+ | 1-800-GAMBLER». Никаких «гарантий» и «лёгких денег».</p>
+    </section>
+  </div>
+  <section class="panel">
+    <div class="ph"><h2>Форматы агента</h2><span class="hint">по ожидаемой силе для ТГ</span></div>
+    <div class="tbl"><table><thead><tr><th>#</th><th>Формат</th><th>Как устроен</th><th>Что нужно</th><th>Статус</th></tr></thead><tbody>
+    ${F.map(([k,n,m,need]) => `<tr><td><b>${k}</b></td><td><b>${n}</b></td><td>${m}</td><td>${need}</td><td>${tried.has(k) ? `<span class="pill strong">есть пробы</span>` : `<span class="pill mid">ещё нет</span>`}</td></tr>`).join("")}
+    </tbody></table></div>
+  </section>
+  <section class="panel">
+    <div class="ph"><h2>Каперы-конкуренты в IG</h2><span class="hint">${DATA.competitors.length} проектов: бесплатно → VIP, цифры соцдоказательства, слово в директ</span></div>
+    <div class="tbl"><table><thead><tr><th>Аккаунт</th><th>Подписчики</th><th>Воронка</th><th>Био</th></tr></thead><tbody>
+    ${DATA.competitors.slice(0,15).map(c => `<tr><td><a href="https://instagram.com/${esc(c.u)}" target="_blank" rel="noopener">@${esc(c.u)}</a></td><td>${c.f >= 1000 ? Math.round(c.f/1000) + " тыс." : c.f}</td><td>${esc(c.offer)}</td><td style="min-width:240px">${esc(c.bio)}</td></tr>`).join("")}
+    </tbody></table></div>
+  </section>
+  </div>`;
+}
+
+/* ---------- навигация ---------- */
+const VIEWS = ["sum","cases","probes","how"];
+function show(v){
+  if (!VIEWS.includes(v)) v = "sum";
+  for (const b of document.querySelectorAll("#nav button")) b.setAttribute("aria-pressed", b.dataset.v === v);
+  for (const s of VIEWS) $("#"+s).hidden = s !== v;
+}
+function renderAll(){
+  $("#nCases").textContent = DATA.reviews.filter(r => r.verdict !== "dup").length;
+  const unrated = DATA.probes.filter(p => !tally(p.id).mine).length;
+  $("#nProbes").textContent = db ? unrated : DATA.probes.length;
+  renderSum(); renderCases(); renderProbes(); fillVote();
+}
+document.addEventListener("click", e => {
+  const nb = e.target.closest("#nav button, [data-go]");
+  if (nb) { const v = nb.dataset.v || nb.dataset.go; show(v); try { history.replaceState(null, "", "#" + v); } catch {} window.scrollTo({top:0}); return; }
+  const cf = e.target.closest("[data-cf]"); if (cf) { caseFilter = cf.dataset.cf; renderCases(); return; }
+  const z = e.target.closest("[data-zoom]");
+  if (z) { const d = document.createElement("div"); d.className = "zoom"; d.innerHTML = `<img src="${z.currentSrc || z.src || z.dataset.zoom}" alt="">`; d.onclick = () => d.remove(); ($("#dlg").open ? $("#dlg") : document.body).append(d); return; }
+  const q = e.target.closest(".quote"); if (q) { q.classList.toggle("open"); return; }
+  if (e.target.closest("#who") && SITE) { openToken(); return; }
+  const o = e.target.closest("[data-open]"); if (o) { openProbe(o.dataset.open); return; }
+  const v = e.target.closest("[data-vote]");
+  if (v) { const pid = v.dataset.p, val = +v.dataset.vote; saveVote(pid, tally(pid).mine?.v === val ? 0 : val); }
+});
+$("#dclose").onclick = () => $("#dlg").close();
+$("#dlg").addEventListener("click", e => { if (e.target === $("#dlg")) $("#dlg").close(); });
+$("#dup").onclick = () => saveVote(cur.id, tally(cur.id).mine?.v === 1 ? 0 : 1, $("#dnote").value.trim());
+$("#ddown").onclick = () => saveVote(cur.id, tally(cur.id).mine?.v === -1 ? 0 : -1, $("#dnote").value.trim());
+$("#dsave").onclick = () => saveVote(cur.id, null, $("#dnote").value.trim());
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+/* ---------- запуск ---------- */
+async function boot(){
+  if (!DATA && window.akmData) DATA = await window.akmData("connor");
+  M = Object.fromEntries(DATA.metrics.map(m => [m.case, m]));
+  CASES = Object.fromEntries(DATA.cases.map(c => [c.id, c]));
+  renderAll(); renderHow(); show(location.hash.slice(1));
+  if (SITE) siteStore(); else artifactStore();
+}
+
+/* артефакт claude.ai: оценки в БД артефакта */
+async function artifactStore(){
+  if (!window.claude?.use) return;
+  const [d, u] = await Promise.all([claude.use("db"), claude.use("user")]);
+  userCap = u;
+  if (!d) return;
+  try { me = u ? await u.id() : null; } catch { me = null; }
+  if (!me) return;
+  db = d;
+  $("#who").classList.add("on"); $("#who").lastChild.textContent = "Оценки сохраняются";
+  renderAll();
+  db.collection("votes").onSnapshot(async snap => {
+    votes = {}; for (const doc of snap.docs) votes[doc.id] = doc.data() || {};
+    const ids = Object.keys(votes);
+    if (userCap && ids.length) { try { const ps = await userCap.profiles(ids); for (const id of ids) names[id] = ps[id]?.name || ""; } catch {} }
+    renderAll();
+  }, () => {});
+}
+
+/* сайт сетки: картинки и оценки зашифрованы пинкодом. Картинки «enc:путь» расшифровываются, когда появляются на странице.
+   Оценки — один файл connor/inbox/votes.enc в ветке connor-inbox ({логин GitHub: {проба: {v, note, at}}}):
+   читать может любой вошедший, писать — с токеном GitHub (тот же, что в пульте: ключ akm-gh в этом браузере). */
+const GH = {repo: "akm-agency/akm-ig-radar", branch: "connor-inbox", path: "connor/inbox/votes.enc"};
+let token = ""; try { token = localStorage.getItem("akm-gh") || ""; } catch {}
+const blobs = {};
+function hydrate(){
+  for (const im of document.querySelectorAll('img[src^="enc:"]')) {   // все сразу, параллельно: по одной кейсы грузились секундами
+    const p = im.getAttribute("src").slice(4);
+    im.setAttribute("src", "data:image/gif;base64,R0lGODlhAQABAAAAACw=");
+    if (!blobs[p]) blobs[p] = (async () => {
+      const r = await fetch(p + "?v=" + (DATA.v || ""), {cache: "force-cache"});
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return URL.createObjectURL(new Blob([await window.akmOpen(new Uint8Array(await r.arrayBuffer()))], {type: "image/jpeg"}));
+    })();
+    blobs[p].then(u => { im.src = u; }, e => { im.alt = "Картинка не загрузилась: " + e.message; });
+  }
+}
+if (SITE) new MutationObserver(() => hydrate()).observe(document.body, {childList: true, subtree: true});
+const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
+const gh = (path, opt = {}) => fetch("https://api.github.com/repos/" + GH.repo + "/" + path, {...opt, cache: "no-store",
+  headers: {Authorization: "Bearer " + token, Accept: "application/vnd.github+json", ...(opt.headers || {})}});
+async function ghRead(){
+  if (token) {
+    const r = await gh("contents/" + GH.path + "?ref=" + GH.branch);
+    if (r.status === 404) return {map: {}, sha: null};
+    if (!r.ok) throw new Error("GitHub " + r.status);
+    const j = await r.json();
+    const raw = await gh("git/blobs/" + j.sha, {headers: {Accept: "application/vnd.github.raw+json"}});
+    if (!raw.ok) throw new Error("GitHub " + raw.status);
+    return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(new Uint8Array(await raw.arrayBuffer())))), sha: j.sha};
+  }
+  const r = await fetch(`https://raw.githubusercontent.com/${GH.repo}/${GH.branch}/${GH.path}?t=${Date.now()}`, {cache: "no-store"});
+  if (!r.ok) return {map: {}, sha: null};
+  return {map: JSON.parse(new TextDecoder().decode(await window.akmOpen(new Uint8Array(await r.arrayBuffer())))), sha: null};
+}
+async function ghPutMine(mine){
+  if (!token || !me) throw new Error("подключите оценки — кнопка вверху справа");
+  for (let n = 0; n < 4; n++) {
+    const {map, sha} = await ghRead();
+    map[me] = mine;
+    const body = {message: "Коннор: оценка " + me, branch: GH.branch, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
+    if (sha) body.sha = sha;
+    const r = await gh("contents/" + GH.path, {method: "PUT", body: JSON.stringify(body)});
+    if (r.ok) return;
+    if (r.status === 401 || r.status === 403) throw new Error("токен GitHub не принят — подключите оценки заново");
+    if (r.status !== 409 && r.status !== 422) throw new Error("GitHub " + r.status);
+  }
+  throw new Error("конфликт записи, попробуйте ещё раз");
+}
+function whoLabel(){
+  const w = $("#who"); w.classList.toggle("on", !!(token && me)); w.style.cursor = "pointer"; w.setAttribute("role", "button"); w.tabIndex = 0;
+  w.lastChild.textContent = token && me ? me + " · оценки сохраняются" : "Подключить оценки";
+}
+async function siteRefresh(){
+  try { votes = (await ghRead()).map; for (const id of Object.keys(votes)) names[id] = id; renderAll(); } catch (e) { console.warn(e); }
+}
+async function siteStore(){
+  whoLabel();
+  if (token) {
+    try {
+      const u = await fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + token}}).then(r => r.ok ? r.json() : null);
+      if (u) { me = u.login; names[me] = me; db = {site: true}; }
+    } catch {}
+  }
+  whoLabel(); await siteRefresh();
+  setInterval(() => { if (!document.hidden) siteRefresh(); }, 45000);
+}
+function openToken(){ $("#tkd").showModal(); $("#tkErr").textContent = ""; $("#tkDel").hidden = !token; }
+$("#tkOk").onclick = async () => {
+  const v = $("#tk").value.trim(); if (!v) return;
+  $("#tkErr").textContent = "Проверяю…";
+  try {
+    const u = await fetch("https://api.github.com/user", {headers: {Authorization: "Bearer " + v}}).then(r => { if (!r.ok) throw new Error("токен не принят (" + r.status + ")"); return r.json(); });
+    const t = await fetch(`https://api.github.com/repos/${GH.repo}`, {headers: {Authorization: "Bearer " + v}});
+    if (!t.ok) throw new Error("у токена нет доступа к репозиторию akm-ig-radar");
+    token = v; try { localStorage.setItem("akm-gh", token); } catch {}
+    me = u.login; names[me] = me; db = {site: true};
+    $("#tkd").close(); whoLabel(); await siteRefresh();
+  } catch (e) { $("#tkErr").textContent = e.message; }
+};
+$("#tkDel").onclick = () => { try { localStorage.removeItem("akm-gh"); } catch {} token = ""; me = null; db = null; $("#tkd").close(); whoLabel(); renderAll(); };
+$("#tkClose").onclick = () => $("#tkd").close();
+
+boot().catch(e => document.body.insertAdjacentHTML("beforeend", '<p style="padding:24px;font:14px system-ui">Панель не загрузилась: ' + esc(e.message || e) + ". Обновите страницу.</p>"));
+</script>
+</body></html>
