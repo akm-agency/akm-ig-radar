@@ -7,9 +7,11 @@ on:
     # а скрипт сам решает: сервер выгружал < 70 мин назад или цифры API свежее 50 мин — ничего не делает
     - cron: "5,20,35,50 * * * *"
   workflow_dispatch: {}
-  push:                      # запуск «прямо сейчас» без кнопки: изменить и отправить этот файл
-    branches: [main]
-    paths: [".github/run-now.txt"]
+  push:
+    # main + run-now.txt — запуск «прямо сейчас» (принудительно);
+    # graph-kick — пинок с ПК (graph_kick.py, раз в 15 мин): расписание GitHub 08.11 не срабатывало часами
+    branches: [main, graph-kick]
+    paths: [".github/run-now.txt", ".github/kick.txt"]
 
 permissions:
   contents: write
@@ -25,6 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: main            # пинок приходит в ветку graph-kick, а работаем всегда с main
           fetch-depth: 1
 
       - uses: actions/setup-python@v6
@@ -44,9 +47,9 @@ jobs:
             git add data/live.enc data/network.enc
             git diff --cached --quiet && exit 0
             git commit -q -m "API: подписчики сетки $(TZ=Europe/Moscow date +'%Y-%m-%d %H:%M')"
-            git push -q && exit 0
-            git fetch -q --depth 1 origin "$GITHUB_REF_NAME"
-            git reset -q --hard "origin/$GITHUB_REF_NAME"
+            git push -q origin HEAD:main && exit 0
+            git fetch -q --depth 1 origin main
+            git reset -q --hard origin/main
             sleep 10
           done
           exit 1

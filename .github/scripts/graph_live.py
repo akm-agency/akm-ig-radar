@@ -155,6 +155,12 @@ SERVER_FRESH_MIN = 70   # сервер выгружал позже — сайт 
 API_EVERY_MIN = 50      # сами обновляем не чаще раза в час (запуски каждые 15 мин, GitHub часть пропускает)
 
 
+def forced_run() -> bool:
+    """Запуск руками (кнопка или run-now.txt в main) — делаем сразу и письмо не откладываем."""
+    ev = os.environ.get("GITHUB_EVENT_NAME")
+    return ev == "workflow_dispatch" or (ev == "push" and os.environ.get("GITHUB_REF_NAME") == "main")
+
+
 def age_min(get, now: datetime) -> float:
     """Сколько минут назад (∞, если не прочитать)."""
     try:
@@ -172,7 +178,7 @@ def server_check(k: bytes, now: datetime) -> None:
     except Exception as e:  # noqa: BLE001
         hours, at = None, f"не прочитать health.enc: {e}"
     if hours is None or hours > STALE_H:
-        if not (now.hour % 3 == 0 and now.minute < 20) and os.environ.get("GITHUB_EVENT_NAME") == "schedule":
+        if not (now.hour % 3 == 0 and now.minute < 20) and not forced_run():
             print(f"сервер молчит {hours or 0:.1f} ч (письмо — раз в 3 ч, в начале часа, кратного 3)")
             return
         msg = (f"СЕРВЕР НЕ ВЫГРУЖАЕТ ДАННЫЕ: последняя выгрузка {at} ({hours:.1f} ч назад)" if hours is not None else str(at)) + \
@@ -204,7 +210,9 @@ def main() -> int:
         return 1
 
     now = datetime.now(MSK)
-    forced = os.environ.get("GITHUB_EVENT_NAME") in ("workflow_dispatch", "push")
+    ev = os.environ.get("GITHUB_EVENT_NAME")
+    # кнопка или run-now.txt в main — принудительно; пинок с ПК (ветка graph-kick) и расписание — по правилам ниже
+    forced = ev == "workflow_dispatch" or (ev == "push" and os.environ.get("GITHUB_REF_NAME") == "main")
     server_age = age_min(lambda: load("health", k)["at"], now)
     api_age = age_min(lambda: net.get("apiAt"), now)
     if not forced and server_age < SERVER_FRESH_MIN:
