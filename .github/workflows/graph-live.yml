@@ -45,3 +45,12 @@ jobs:
             sleep 10
           done
           exit 1
+
+      # сервер не выгружал дольше 3 ч — запуск помечается ошибкой, GitHub шлёт письмо
+      - name: Сервер выгружает данные?
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/server_stale.txt" ]; then
+            echo "::error::$(cat "$RUNNER_TEMP/server_stale.txt")"
+            exit 1
+          fi

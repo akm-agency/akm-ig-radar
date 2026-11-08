@@ -135,6 +135,28 @@ def post(m: dict) -> dict:
             "x": (m.get("caption") or "")[:120]}
 
 
+STALE_H = 3
+
+
+def server_check(k: bytes, now: datetime) -> None:
+    """Сервер давно не выгружал (data/health.enc пишет только он) — помечаем, и workflow завершится ошибкой:
+    GitHub сам пришлёт письмо о сбое. Так о поломке узнают сразу, а не через сутки."""
+    try:
+        at = datetime.fromisoformat(load("health", k)["at"])
+        hours = (now - at).total_seconds() / 3600
+    except Exception as e:  # noqa: BLE001
+        hours, at = None, f"не прочитать health.enc: {e}"
+    if hours is None or hours > STALE_H:
+        msg = (f"СЕРВЕР НЕ ВЫГРУЖАЕТ ДАННЫЕ: последняя выгрузка {at} ({hours:.1f} ч назад)" if hours is not None else str(at)) + \
+              ". Подписчики наших страниц идут из API, остальная статистика (конкуренты, радар) стоит. " \
+              "Проверьте сервер: окно сборщика, VPN, data/run.log."
+        print(msg)
+        flag = Path(os.environ.get("RUNNER_TEMP", ".")) / "server_stale.txt"
+        flag.write_text(msg, encoding="utf-8")
+    else:
+        print(f"сервер выгружал {hours:.1f} ч назад — ок")
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     tokens = [t.strip() for t in re.split(r"[\s,]+", os.environ.get("GRAPH_TOKENS", "")) if t.strip()]
@@ -221,6 +243,7 @@ def main() -> int:
 
     save("live", live, k)
     save("network", net, k)
+    server_check(k, now)
     print(f"API: {len(got)}/{len(users)} страниц{', с постами' if with_media else ''} · запросов {api.calls}, "
           f"лимит {api.usage}% · выход {c}" + (f" · ошибки: {'; '.join(errs[:3])}" if errs else ""))
     return 0
