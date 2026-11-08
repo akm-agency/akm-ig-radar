@@ -115,14 +115,29 @@ def country() -> str:
         return "?"
 
 
-def pick_token(api: Api, tokens: list[str], probe: str) -> tuple[str, str]:
-    """(ig_id, токен), с которых проходит business_discovery (у части токенов нет нужных прав)."""
+LIMIT_RE = re.compile(r"^(4|17|32|613|80001|80002):|limit|too many", re.I)
+
+
+def pick_token(api: Api, tokens: list[str], probes: list[str]) -> tuple[str, str]:
+    """(ig_id, токен), с которых проходит business_discovery (у части токенов нет нужных прав).
+    Пробуем на нескольких страницах: одна может быть закрыта/переименована."""
+    limited = False
     for t in tokens:
         r = api.get("me/assigned_instagram_accounts", t, fields="id,username", limit=100)
+        limited |= bool(LIMIT_RE.search(r.get("error", "") or ""))
         for a in r.get("data", []):
-            if "error" not in api.get(a["id"], t, fields=f"business_discovery.username({probe}){{id}}"):
-                return a["id"], t
-    raise Stop("ни один токен не дал business_discovery — проверьте секрет GRAPH_TOKENS")
+            for u in probes:
+                x = api.get(a["id"], t, fields=f"business_discovery.username({u}){{id}}")
+                if "error" not in x:
+                    return a["id"], t
+                limited |= bool(LIMIT_RE.search(x["error"]))
+    if limited:
+        raise Stop("лимит запросов приложения Meta (общий с сервером) — пропускаю этот час")
+    raise BadConfig("ни один токен не дал business_discovery — проверьте секрет GRAPH_TOKENS")
+
+
+class BadConfig(Exception):
+    pass
 
 
 def post(m: dict) -> dict:
@@ -180,7 +195,7 @@ def main() -> int:
     api = Api()
     got, errs = {}, []
     try:
-        me_id, tok = pick_token(api, tokens, users[0])
+        me_id, tok = pick_token(api, tokens, users[:3])
         for u in users:
             f = ("business_discovery.username(" + u + "){id,followers_count,follows_count,media_count"
                  + (f",media.limit({MEDIA_PER_ACC}){{id,caption,media_type,media_product_type,timestamp,permalink,"
@@ -192,9 +207,16 @@ def main() -> int:
             got[u] = r["business_discovery"]
     except Stop as e:
         print(f"остановлен: {e}")
-    if not got:
-        print("ни одной страницы не получено; " + "; ".join(errs[:5]))
+    except BadConfig as e:
+        print(e)
+        server_check(k, now)
         return 1
+    if not got:
+        limited = any(LIMIT_RE.search(x.split(": ", 1)[-1]) for x in errs) or api.usage >= USAGE_STOP or not errs
+        print("ни одной страницы не получено; " + ("; ".join(errs[:5]) or "лимит"))
+        server_check(k, now)
+        # лимит — не поломка: цифры прошлого часа и сервера остаются на сайте, следующий запуск через час
+        return 0 if limited else 1
 
     ts, at = int(now.timestamp()), now.isoformat(timespec="minutes")
     today = now.date().isoformat()
