@@ -151,6 +151,16 @@ def post(m: dict) -> dict:
 
 
 STALE_H = 3
+SERVER_FRESH_MIN = 70   # сервер выгружал позже — сайт обновляет он
+API_EVERY_MIN = 50      # сами обновляем не чаще раза в час (запуски каждые 15 мин, GitHub часть пропускает)
+
+
+def age_min(get, now: datetime) -> float:
+    """Сколько минут назад (∞, если не прочитать)."""
+    try:
+        return (now - datetime.fromisoformat(get())).total_seconds() / 60
+    except Exception:  # noqa: BLE001
+        return float("inf")
 
 
 def server_check(k: bytes, now: datetime) -> None:
@@ -162,6 +172,9 @@ def server_check(k: bytes, now: datetime) -> None:
     except Exception as e:  # noqa: BLE001
         hours, at = None, f"не прочитать health.enc: {e}"
     if hours is None or hours > STALE_H:
+        if not (now.hour % 3 == 0 and now.minute < 20) and os.environ.get("GITHUB_EVENT_NAME") == "schedule":
+            print(f"сервер молчит {hours or 0:.1f} ч (письмо — раз в 3 ч, в начале часа, кратного 3)")
+            return
         msg = (f"СЕРВЕР НЕ ВЫГРУЖАЕТ ДАННЫЕ: последняя выгрузка {at} ({hours:.1f} ч назад)" if hours is not None else str(at)) + \
               ". Подписчики наших страниц идут из API, остальная статистика (конкуренты, радар) стоит. " \
               "Проверьте сервер: окно сборщика, VPN, data/run.log."
@@ -191,6 +204,16 @@ def main() -> int:
         return 1
 
     now = datetime.now(MSK)
+    forced = os.environ.get("GITHUB_EVENT_NAME") in ("workflow_dispatch", "push")
+    server_age = age_min(lambda: load("health", k)["at"], now)
+    api_age = age_min(lambda: net.get("apiAt"), now)
+    if not forced and server_age < SERVER_FRESH_MIN:
+        print(f"сервер выгружал {server_age:.0f} мин назад — он и обновляет сайт, API не трогаю (лимит Meta общий)")
+        return 0
+    if not forced and api_age < API_EVERY_MIN:
+        print(f"цифры API обновлены {api_age:.0f} мин назад — следующие через час")
+        server_check(k, now)
+        return 0
     with_media = now.hour % MEDIA_EVERY_H == 0
     api = Api()
     got, errs = {}, []
