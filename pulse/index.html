@@ -155,19 +155,25 @@ header.bar{position:sticky;top:8px;z-index:30;background:rgba(255,255,255,.92);b
 .logo{display:inline-flex;align-items:center;background:var(--soft);border-radius:999px;height:44px;padding:0 16px;flex:none}
 .logo svg{height:18px;width:auto;display:block}
 .ttl{font-family:var(--fd);font-weight:500;font-size:15px;letter-spacing:-.03em;white-space:nowrap;padding:0 4px}
-.nav{display:flex;background:var(--soft);border-radius:999px;padding:4px;gap:2px}
+.nav{display:flex;background:var(--soft);border-radius:999px;padding:4px;gap:2px;min-width:0;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
 .nav button{border-radius:999px;height:36px;padding:0 16px;font-weight:600;color:var(--muted);transition:background .2s,color .2s;white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
 .nav button:hover{color:var(--ink)}
 .nav button[aria-pressed=true]{background:var(--ink);color:#fff}
 .nav .badge{background:var(--lime);color:var(--ink);border-radius:99px;font-size:11.5px;padding:1px 7px;font-weight:700}
-.tools{margin-left:auto;display:flex;gap:6px;align-items:center}
-.sel{border:0;background:var(--soft);border-radius:999px;height:44px;padding:0 36px 0 16px;font-weight:600;max-width:250px;appearance:none;-webkit-appearance:none;cursor:pointer;
+.tools{margin-left:auto;display:flex;gap:6px;align-items:center;min-width:0}
+.sel{border:0;background:var(--soft);border-radius:999px;height:44px;padding:0 36px 0 16px;font-weight:600;max-width:250px;min-width:0;appearance:none;-webkit-appearance:none;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%2314251E' stroke-width='1.8' stroke-linecap='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-.who{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--soft);font-weight:600;font-size:13px;white-space:nowrap}
+.who{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:999px;background:var(--soft);font-weight:600;font-size:13px;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;flex:none}
+.icon-btn{flex:none}
 .who i{width:8px;height:8px;border-radius:50%;background:var(--faint)} .who.on i{background:var(--good)}
 .who.off{background:var(--blue);color:#fff} .who.off i{background:#fff}
 .icon-btn{width:44px;height:44px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--muted);font-size:18px}
-@media(max-width:980px){header.bar{border-radius:var(--r);flex-wrap:wrap}.tools{margin-left:0;width:100%}.sel{flex:1;max-width:none}.ttl{display:none}}
+/* 10.11: шапка не помещалась в 980–1200 px (кнопки «Подключить запись» и «Выйти» уезжали за край) — название прячем раньше, в две строки переходим раньше */
+@media(max-width:1280px){.ttl{display:none}}
+@media(max-width:1140px){header.bar{border-radius:var(--r);flex-wrap:wrap}.tools{margin-left:0;width:100%}.sel{flex:1;max-width:none}}
+.who .sw{display:none}
+@media(max-width:560px){.logo{display:none}.nav{flex:1 1 100%}.nav button{padding:0 7px;font-size:12.5px;gap:4px;flex:1 0 auto;justify-content:center}.nav .badge{padding:1px 5px}.who .lw{display:none}.who .sw{display:inline}}
 
 /* кнопки */
 .btn{border-radius:999px;height:42px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:13.5px;background:var(--soft);transition:background .2s,transform .15s var(--ease);white-space:nowrap}
@@ -466,6 +472,22 @@ textarea{resize:vertical;min-height:76px}
 .rsn{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}
 .rsn .chip{height:28px;font-size:12px}
 .cap-prev{font-size:12px;color:var(--muted);max-height:4.2em;overflow:hidden}
+/* 10.11: архив для ручной заливки, «Опубликовано вручную», повод подписаться */
+.hand{display:flex;flex-wrap:wrap;gap:6px}
+.hand .btn{flex:1 1 auto}
+.pc .fo{border-radius:99px;padding:1px 8px;background:var(--soft);font-weight:600;color:var(--muted);white-space:nowrap}
+.pc .fo.hi{background:var(--lime-soft);color:var(--good)} .pc .fo.lo{background:var(--peach);color:var(--bad)}
+.hbox{background:var(--soft);border-radius:var(--r-s);padding:12px 14px;display:grid;gap:8px;margin:12px 0}
+.hbox>b{font-size:13px}
+.hbox .btn:not(.primary){background:var(--panel)} .hbox .btn:not(.primary):hover:not(:disabled){background:var(--soft-2)}
+.mslots{display:grid;gap:8px;margin-top:12px}
+.mslot{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;background:var(--soft);border-radius:var(--r-s);padding:11px 14px;text-align:left;width:100%;transition:background .2s}
+.mslot:hover:not(:disabled){background:var(--soft-2)}
+.mslot:disabled{opacity:.5;cursor:default}
+.mslot b{font-weight:600;font-size:14px}
+.mslot small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.mslot.best{background:var(--lime-soft);box-shadow:inset 0 0 0 1.5px #D8F28F}
+.mslot.now{grid-template-columns:1fr;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
 .lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
 .lb img{max-width:min(100%,600px);max-height:100%;border-radius:14px}
 .lb .xb{position:absolute;top:12px;right:14px;color:#fff;font-size:28px;width:44px;height:44px}
@@ -502,7 +524,7 @@ textarea{resize:vertical;min-height:76px}
 
 <script>
 window.akmKey.then(() => window.akmData('pulse')).then(async D => {
-const PARTS = [[["stop"],"обложка"],[["spread","share"],"переслать"],[["follow"],"подписка"],[["fit"],"аудитория"],[["save"],"сохранить"],[["trust","facts"],"факты"],[["comment"],"коммент"],[["images"],"картинки"]];
+const PARTS = [[["follow"],"подписка"],[["stop"],"обложка"],[["spread","share"],"переслать"],[["fit"],"аудитория"],[["save"],"сохранить"],[["trust","facts"],"факты"],[["comment"],"коммент"],[["images"],"картинки"]];
 const partVal = (pr, keys) => { for (const k of keys) if (pr[k] != null) return pr[k]; return null; };
 const TYPE = {spreader: "разгон", converter: "подписка"};
 const FMT = {series: "серия, день", keyword: "слово в комментарии", hit: "хит конкурента"};
@@ -594,10 +616,11 @@ function baseBucket(p) {
 function bucket(p) {
   if (p.status === "published") return "pub";
   const d = decisions[p.key];
-  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", unapprove: "wait", reject: "off"}[d.decision] || baseBucket(p);
+  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", unapprove: "wait", reject: "off", uploaded: "pub"}[d.decision] || baseBucket(p);
   return baseBucket(p);
 }
 const pending = p => { const d = decisions[p.key]; return !!d && p.decision_at !== d.at; };
+const manualPub = p => !!p && p.status !== "published" && pending(p) && decisions[p.key].decision === "uploaded";   // «опубликовано вручную», конвейер ещё не применил
 function stageOf(p) {
   const b = bucket(p);
   if (b === "pub") return "pub"; if (b === "ok") return "queue"; if (b === "redo") return "edit"; if (b === "off") return "off"; if (b === "wait") return "wait";
@@ -613,7 +636,7 @@ const STAGES = [
   ["wait",  "you", "Ждут вас",      "одобрить или вернуть"],
   ["edit",  "you", "Правки",        "ИИ исправляет"],
   ["queue", "out", "Очередь",       "одобрены, ждут слота"],
-  ["pub",   "out", "Вышли",         "в Instagram"],
+  ["pub",   "out", "Вышли",         "архив · в Instagram"],
 ];
 const PHASE = {ai: ["ИИ готовит", "без вас"], you: ["Ваш ход", "решения редактора"], out: ["Выход", "по слотам"]};
 const BSTAGE = {planned: "plan", draft: "write", imaged: "img"};
@@ -633,21 +656,23 @@ function slotModel(name) {
   const days = [];
   for (let n = -1; n <= 7; n++) { const date = addDays(today, n); days.push({date, wdi: wdOf(date), today: n === 0}); }
   // опубликованные без слота — в окно, где вышли
+  const winKey = iso => { if (!iso) return null; const h = +iso.slice(11, 13), w = c.windows.find(w => { const [s, e] = w.split("-").map(Number); return h >= s && h < e; });
+    return w ? `${iso.slice(0, 10)} ${pad(wStart(w))}:05` : null; };
   mine.filter(p => p.status === "published" && p.published_at).forEach(q => {
     if (Object.values(occ).includes(q.key)) return;
-    const d = q.published_at.slice(0, 10), h = +q.published_at.slice(11, 13), w = c.windows.find(w => { const [s, e] = w.split("-").map(Number); return h >= s && h < e; });
-    if (w) occ[`${d} ${pad(wStart(w))}:05`] = q.key;
+    const sk = winKey(q.published_at); if (sk) occ[sk] = q.key;
   });
   // решения, ещё не применённые конвейером
   const drop = k => { for (const sk in occ) if (occ[sk] === k) delete occ[sk]; };
   for (const [k, d] of Object.entries(decisions)) {
     const p = byKey[k]; if (!p || p.account !== name || p.status === "published" || p.decision_at === d.at) continue;
     if (d.decision === "approved") { drop(k); if (d.slot) occ[d.slot] = k; }
+    else if (d.decision === "uploaded") { drop(k); const sk = d.slot || winKey(d.uploaded_at); if (sk) occ[sk] = k; }
     else if (["unapprove", "reject", "rework"].includes(d.decision)) drop(k);
   }
   const rows = c.windows.map(w => ({win: w, hour: wStart(w), cells: days.map(day => {
     const key = `${day.date} ${pad(wStart(w))}:05`, past = key < now, p = occ[key] && byKey[occ[key]];
-    const st = p ? (p.status === "published" ? "published" : (past ? "late" : "booked")) : (past ? "missed" : "free");
+    const st = p ? (p.status === "published" || manualPub(p) ? "published" : (past ? "late" : "booked")) : (past ? "missed" : "free");
     return {key, past, p, st, str: strength(name, wStart(w), day.wdi), wdi: day.wdi};
   })}));
   const fut = rows.flatMap(r => r.cells).filter(s => !s.past).sort((x, y) => x.key.localeCompare(y.key));
@@ -662,6 +687,14 @@ const bestFree = n => {   // самый сильный свободный сло
   const near = f.filter(s => s.key <= lim);
   return (near.length ? near : f.slice(0, 1)).reduce((b, s) => (s.str?.score ?? 40) > (b.str?.score ?? 40) ? s : b);
 };
+/* слоты для «Опубликовано вручную»: свободные на 7 дней, свой слот поста и пропущенные за последние 12 ч (выложили раньше, отмечают сейчас).
+   Сверху — самые залетающие: сила слота по охвату прошлых постов аккаунта в этот час и день недели. */
+function manualSlots(p) {
+  const m = slotModel(p.account), lo = new Date(Date.now() + (3 - 12) * 3600e3).toISOString().slice(0, 16).replace("T", " ");
+  return m.rows.flatMap(r => r.cells)
+    .filter(s => s.key >= lo && (s.st === "free" || s.st === "missed" || s.p?.key === p.key))
+    .sort((x, y) => (y.str?.score ?? -1) - (x.str?.score ?? -1) || x.key.localeCompare(y.key));
+}
 
 /* ---------- ЖИВОЙ ЖУРНАЛ: pulse/live.enc в ветке pulse-live (live_watch.py, каждые 15 с) ----------
    procs — процессы конвейера с пульсом, events — последние действия, posts — последнее действие по каждому посту. */
@@ -747,6 +780,7 @@ function cardHtml(p) {
   if (capPend) tags.push('<span class="v">✎ подпись</span>');
   if (!p.building && pending(p)) tags.push("<span>ждёт применения</span>");
   if (p.collab) tags.push("<span>совместный</span>");
+  if (p.manual_upload || manualPub(p)) tags.push('<span class="l">вручную</span>');
   const hw = (p.weak || []).filter(w => w.sev === "high").length;
   if (hw) tags.push(`<span class="wtag">⚠ ${hw}</span>`);
   let cover;
@@ -760,13 +794,14 @@ function cardHtml(p) {
   if (p.stage === "queue") { const sl = (pending(p) && dcs?.slot) || p.slot; const s = sl && strength(p.account, +sl.slice(11, 13), wdOf(sl.slice(0, 10)));
     extra = `<div class="mt"><b>${sl ? slotLabel(sl) : "слот назначится"}</b>${s ? pw(s, 1) : ""}</div>`; }
   if (p.stage === "pub") extra = `<div class="mt">${p.result ? `<b>${esc(p.result.verdict)} · ${"×" + p.result.x_reach}</b><span>охват ${fmt(p.result.reach)}</span>` : "<span>итог через 24 ч</span>"}</div>`;
+  const hand = p.building ? "" : manualBtns(p, "sm");
   if (p.stage === "wait") {
     const s = bestFree(p.account);
     act = `<div class="act"><button class="btn go sm wide" data-quick="${esc(p.key)}" ${db && s ? "" : "disabled"}>${s ? "Одобрить · " + slotLabel(s.key) : "Нет свободных слотов"}</button>
-      ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}</div>`;
-  }
+      ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}${hand}</div>`;
+  } else if (p.stage === "queue" && hand) act = `<div class="act">${hand}</div>`;
   return `<article class="pc">${cover}<div class="bd"><h3>${esc(flat(p.headline))}</h3>
-    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span></div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
+    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
 }
 
 function renderFlow() {
@@ -938,15 +973,14 @@ $("view").addEventListener("click", async e => {
   if (t.closest("[data-feedall]")) { liveFeedAll = !liveFeedAll; return paintLive(); }
   b = t.closest("[data-dl]"); if (b) return downloadSlides(byKey[b.dataset.dl], b);
   b = t.closest("[data-copy]"); if (b) { const p = byKey[b.dataset.copy]; navigator.clipboard.writeText(edits[p.key]?.caption ?? p.caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
+  b = t.closest("[data-zip]"); if (b) return downloadZip(byKey[b.dataset.zip], b);
+  b = t.closest("[data-manual]"); if (b) return openManual(byKey[b.dataset.manual]);
   b = t.closest("[data-up]");
   if (b && !db) {                                   // без токена: отметка в этом браузере; статус «вышел» конвейер ставит сам, найдя пост в ленте
     const k = b.dataset.up; upMarks[k] = upMarks[k] ? 0 : Date.now();
     try { localStorage.setItem("akm-up", JSON.stringify(upMarks)); } catch (e) {}
     toast(upMarks[k] ? "Отмечено. Конвейер сам найдёт пост в ленте за ~15 мин" : "Отметка снята"); return render(); }
-  if (b && db) { const p = byKey[b.dataset.up]; b.disabled = true; b.textContent = "Сохраняю…";
-    try { await decide(p, "uploaded", "", {uploaded_at: nowMsk().replace(" ", "T")}); toast("Отмечено: залит"); render(); }
-    catch (err) { b.disabled = false; b.textContent = "Залито ✓"; toast("Не сохранилось: " + err.message, 1); }
-    return; }
+  if (b && db) return openManual(byKey[b.dataset.up]);   // 10.11: с записью — тот же выбор слота, что у «Опубликовано вручную»
   b = t.closest("[data-pick]"); if (b) { acc = b.dataset.pick; if (view === "accs") view = "flow"; saveLocal(); render(); return window.scrollTo({top: 0}); }
   b = t.closest("[data-sort]"); if (b) { sortBy = b.dataset.sort; return render(); }
   b = t.closest(".hours [data-hour]"); if (b) { const h = +b.dataset.hour, c = cfgOf(accByName[acc]);
@@ -1020,6 +1054,15 @@ dlg.addEventListener("click", async e => {
   if (un && db) { un.disabled = true; un.textContent = "Сохраняю…";
     try { await decide(byKey[un.dataset.unslot], "unapprove", ""); dlg.close(); render(); toast("Пост снят со слота и вернулся в «Ждут вас»"); }
     catch (err) { un.disabled = false; un.textContent = "Не вышло"; toast("Не сохранилось: " + err.message, 1); } }
+  const ms = e.target.closest("[data-mslot]");
+  if (ms && db) {
+    const p = byKey[ms.dataset.mk], sk = ms.dataset.mslot, label = ms.innerHTML;
+    dlg.querySelectorAll("[data-mslot]").forEach(x => x.disabled = true); ms.querySelector("b").textContent = "Сохраняю…";
+    try {
+      await decide(p, "uploaded", "", sk === "now" ? {uploaded_at: nowMsk().replace(" ", "T")} : {slot: sk, uploaded_at: sk.replace(" ", "T")});
+      dlg.close(); render(); toast(`В архиве «Вышли»${sk === "now" ? "" : " · слот " + slotLabel(sk)}. Конвейер найдёт пост в ленте и снимет итоги`);
+    } catch (err) { dlg.querySelectorAll("[data-mslot]").forEach(x => x.disabled = false); ms.innerHTML = label; toast("Не сохранилось: " + err.message, 1); }
+  }
 });
 
 /* ---------- идея, слабые места, место среди своих и конкурентов, кадры ---------- */
@@ -1080,20 +1123,95 @@ async function downloadSlides(p, btn) {
   } catch (e) { if (e.name !== "AbortError") toast("Не скачалось: " + e.message, 1); }
   btn.disabled = false; btn.textContent = label;
 }
+/* ---------- 10.11: архив поста для ручной публикации — слайды 1080×1350 по порядку + caption.txt + info.txt одним .zip.
+   ZIP собирается в браузере (метод store: JPEG и так сжат), подпись сразу копируется в буфер — открыть Instagram и вставить. ---------- */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function makeZip(files) {
+  const te = new TextEncoder(), out = [], dir = [], d = new Date();
+  const tm = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), dt = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  const put = (v, fields) => fields.forEach(([o, x, s]) => s === 4 ? v.setUint32(o, x, true) : v.setUint16(o, x, true));
+  let off = 0;
+  for (const f of files) {
+    const nm = te.encode(f.name), crc = crc32(f.data), n = f.data.length;
+    const h = new DataView(new ArrayBuffer(30));          // локальный заголовок; флаг 0x0800 — имена в UTF-8
+    put(h, [[0, 0x04034b50, 4], [4, 20, 2], [6, 0x0800, 2], [8, 0, 2], [10, tm, 2], [12, dt, 2], [14, crc, 4], [18, n, 4], [22, n, 4], [26, nm.length, 2], [28, 0, 2]]);
+    out.push(h, nm, f.data);
+    const c = new DataView(new ArrayBuffer(46));          // запись центрального каталога
+    put(c, [[0, 0x02014b50, 4], [4, 20, 2], [6, 20, 2], [8, 0x0800, 2], [10, 0, 2], [12, tm, 2], [14, dt, 2], [16, crc, 4], [20, n, 4], [24, n, 4],
+            [28, nm.length, 2], [30, 0, 2], [32, 0, 2], [34, 0, 2], [36, 0, 2], [38, 0, 4], [42, off, 4]]);
+    dir.push(c, nm);
+    off += 30 + nm.length + n;
+  }
+  const size = dir.reduce((s, x) => s + x.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+  put(e, [[0, 0x06054b50, 4], [8, files.length, 2], [10, files.length, 2], [12, size, 4], [16, off, 4]]);
+  return new Blob([...out, ...dir, e], {type: "application/zip"});
+}
+async function downloadZip(p, btn) {
+  if (!p || btn.disabled) return;
+  const cap = edits[p.key]?.caption ?? p.caption ?? "";
+  try { navigator.clipboard?.writeText(cap).catch(() => {}); } catch (e) {}     // до первого await: Safari копирует только «по свежему» нажатию
+  const label = btn.innerHTML; btn.disabled = true; btn.textContent = "Собираю…";
+  try {
+    let imgs, hq = true;
+    try { if (!(p.full || []).length) throw new Error("нет полноразмерных"); imgs = await Promise.all(p.full.map(fullBlob)); }
+    catch (e) { hq = false; imgs = await Promise.all((p.slides || []).map(s => encUrl(s).then(u => fetch(u)).then(r => r.blob()))); }   // запасной путь: превью 720×900
+    if (!imgs.length) throw new Error("у поста нет слайдов");
+    const te = new TextEncoder(), sl = (pending(p) && decisions[p.key]?.slot) || p.slot, best = p.status === "published" ? null : bestFree(p.account);
+    const info = [`@${p.account}`, flat(p.headline), "",
+      `Слайдов: ${imgs.length} — выкладывать по порядку 01 → ${pad(imgs.length)}${hq ? " (1080×1350)" : " (превью 720×900: полноразмерные появятся после пересборки пульта)"}`,
+      sl ? `Слот по плану: ${slotLabel(sl)} МСК` : "",
+      best ? `Самый залетающий свободный слот в ближайшие 48 ч: ${slotLabel(best.key)} МСК${best.str ? " · сила " + best.str.score + ", " + xr(best.str) + " к обычному охвату" : ""}` : "",
+      "Подпись — в caption.txt (уже скопирована в буфер обмена).", "После публикации нажмите на пульте «Опубликовано вручную» и выберите слот."]
+      .filter((x, i) => x || i === 2).join("\r\n");
+    const files = [...await Promise.all(imgs.map(async (b, j) => ({name: pad(j + 1) + ".jpg", data: new Uint8Array(await b.arrayBuffer())}))),
+                   {name: "caption.txt", data: te.encode(cap)}, {name: "info.txt", data: te.encode(info)}];
+    const slug = (p.key.split("__")[1] || "post").replace(/[^a-z0-9-]+/gi, "-").slice(0, 48);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(makeZip(files)); a.download = `${p.account}_${slug}.zip`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    toast(`Архив: ${imgs.length} слайд. + подпись${hq ? "" : " (превью-качество)"} · подпись в буфере`);
+  } catch (e) { toast("Архив не собрался: " + e.message, 1); }
+  btn.disabled = false; btn.innerHTML = label;
+}
+function manualBtns(p, cls) {
+  if (!p.slides?.length || p.status === "published" || manualPub(p)) return "";
+  return `<div class="hand"><button class="btn ${cls}" data-zip="${esc(p.key)}" title="Слайды 1080×1350 + caption.txt одним .zip; подпись сразу копируется в буфер">⬇ Архив</button>`
+    + `<button class="btn ${cls}" data-manual="${esc(p.key)}" title="Пост выложен руками: выбрать слот и перенести в архив «Вышли»">Опубликовано вручную</button></div>`;
+}
+function followChip(p) {
+  const v = p.critic?.parts?.follow; if (v == null) return "";
+  return `<span class="fo ${v >= 7 ? "hi" : v <= 4 ? "lo" : ""}" title="Повод подписаться по оценке критика, 1–10">подписка ${v}</span>`;
+}
+/* «Опубликовано вручную»: выбор слота (сверху самые залетающие) → решение uploaded → пост в архиве «Вышли» */
+function openManual(p) {
+  if (!p) return;
+  if (pdlg.open) pdlg.close();
+  const slots = manualSlots(p);
+  const row = (s, i) => { const st = s.str, own = s.p?.key === p.key;
+    const sub = [i === 0 && st ? "★ самый залетающий" : "", st ? `${xr(st)} к обычному · ${esc(st.metric)} ≈ ${fmt(st.expect)}` : "мало истории для силы слота",
+                 own ? "слот этого поста" : s.past ? "уже прошёл — если выложили тогда" : ""].filter(Boolean).join(" · ");
+    return `<button class="mslot ${i === 0 && st ? "best" : ""}" data-mslot="${s.key}" data-mk="${esc(p.key)}" ${db ? "" : "disabled"}><span><b>${slotLabel(s.key)}</b><small>${sub}</small></span>${pw(st, 1)}</button>`; };
+  dlg.innerHTML = xbtn + `<h2>Опубликовано вручную</h2><p class="state">@${esc(p.account)} · ${esc(flat(p.headline))}</p>
+    <p class="hint" style="margin-top:8px">В какой слот пост вышел или поставлен в отложенные в Instagram? Сверху — самые залетающие: сила слота по охвату прошлых постов аккаунта в этот час и день недели.
+    Пост уйдёт в архив «Вышли», конвейер найдёт его в ленте и снимет итоги.</p>${needDb()}
+    <div class="mslots">${slots.map(row).join("") || `<p class="state">Свободных слотов на 7 дней нет.</p>`}
+      <button class="mslot now" data-mslot="now" data-mk="${esc(p.key)}" ${db ? "" : "disabled"}><span><b>Только что, вне слотов</b><small>время выхода — сейчас</small></span></button></div>`;
+  dlg.showModal();
+}
 let upMarks = {}; try { upMarks = JSON.parse(localStorage.getItem("akm-up") || "{}"); } catch (e) {}
 function renderUpload() {
   const man = [...new Set(D.posts.filter(p => p.manual).map(p => p.account))];
   const list = D.posts.filter(p => p.manual && (!acc || p.account === acc) && ["ok", "pub"].includes(bucket(p)))
     .sort((x, y) => (bucket(x) === "pub") - (bucket(y) === "pub") || ((pending(x) && decisions[x.key]?.slot) || x.slot || "~").localeCompare((pending(y) && decisions[y.key]?.slot) || y.slot || "~"));
   const todo = list.filter(p => bucket(p) === "ok");
-  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Заливка</h2><span class="n">${todo.length}</span><span class="hint">ручные каналы (${man.length}) · одобренные посты по времени слота. «Скачать» на телефоне сохраняет слайды в галерею. Выложенный пост конвейер сам находит в ленте за ~15 мин и переносит в «Вышли» — вход и токен не нужны</span></div>
-    <div class="upl">${list.length ? list.map(p => { const sl = (pending(p) && decisions[p.key]?.slot) || p.slot, done = bucket(p) === "pub";
+  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Заливка</h2><span class="n">${todo.length}</span><span class="hint">ручные каналы (${man.length}) · одобренные посты по времени слота. «Архив» — слайды и подпись одним .zip, «Скачать» на телефоне сохраняет слайды в галерею. Выложенный пост конвейер сам находит в ленте за ~15 мин и переносит в «Вышли» — вход и токен не нужны</span></div>
+    <div class="upl">${list.length ? list.map(p => { const sl = (pending(p) && decisions[p.key]?.slot) || p.slot, done = bucket(p) === "pub", mp = manualPub(p);
       const mine = !done && upMarks[p.key];
       return `<article class="uc ${done || mine ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
-      <div class="ub"><span class="hint">@${esc(p.account)} · ${done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
+      <div class="ub"><span class="hint">@${esc(p.account)} · ${mp ? "отмечен «опубликовано вручную»" + (sl ? " · слот " + slotLabel(sl) : "") : done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
         <h3>${esc(flat(p.headline))}</h3><div class="cap-prev">${esc(edits[p.key]?.caption ?? p.caption)}</div>
-        <div class="btns"><button class="btn sm go" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
-        ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Залито ✓"}</button>`}</div></div></article>`; }).join("")
+        <div class="btns"><button class="btn sm go" data-zip="${esc(p.key)}">⬇ Архив .zip</button><button class="btn sm" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
+        ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Опубликовано вручную"}</button>`}</div></div></article>`; }).join("")
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
 }
 
@@ -1112,7 +1230,11 @@ function card(p) {
   const slotStr = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
   const free = p.status === "published" ? [] : freeSlots(p.account);
   const best = bestFree(p.account);
-  const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено"};
+  const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено", uploaded: "опубликован вручную"};
+  if (b === "pub" && (p.manual_upload || manualPub(p))) pill[1] = "опубликован вручную";
+  const hbox = p.status === "published" ? "" : `<div class="hbox"><b>Выложить руками</b><div class="btns"><button class="btn primary" data-act="zip">⬇ Архив для заливки (.zip)</button>
+      ${manualPub(p) ? `<span class="state">отмечен «опубликовано вручную»${dcs.slot ? " · слот " + slotLabel(dcs.slot) : ""} — ждёт применения</span>` : `<button class="btn" data-act="manual">Опубликовано вручную</button>`}</div>
+      <p class="hint">В архиве слайды 1080×1350 по порядку, caption.txt и info.txt с самым залетающим свободным слотом. Подпись копируется в буфер сразу. Выложили — нажмите «Опубликовано вручную» и выберите слот.</p></div>`;
   return `<article class="post" data-key="${esc(p.key)}">
   <div class="gal"><button class="main" data-j="0" aria-label="Открыть слайды"><img data-enc="${p.slides[0] || ""}" id="galMain" alt=""></button>
     <div class="th">${p.slides.map((s, j) => `<button data-th="${j}" aria-current="${j === 0}" aria-label="Слайд ${j + 1}"><img data-enc="${s}" alt=""></button>`).join("")}</div></div>
@@ -1122,7 +1244,7 @@ function card(p) {
   <h3>${esc(p.headline)}</h3>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${weakBlock(p)}${ideaBlock(p)}
-  ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : "") : `
+  ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : hbox + `
   <div class="decide">
     ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? " (ждёт применения)" : ""} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
     <label class="f" for="sl-${i}">Слот публикации</label>
@@ -1168,6 +1290,8 @@ pdlg.addEventListener("click", async e => {
   const rb = e.target.closest("[data-r]");
   if (rb) { const k = rb.closest("[data-rsn]").dataset.rsn, r = rb.dataset.r, cur = new Set(rsnSel[k] || []);
     cur.has(r) ? cur.delete(r) : cur.add(r); rsnSel[k] = [...cur]; rb.setAttribute("aria-pressed", cur.has(r)); return; }
+  const hb = e.target.closest('[data-act="zip"],[data-act="manual"]');     // архив — без записи; выбор слота сам подскажет про запись
+  if (hb) return hb.dataset.act === "zip" ? downloadZip(p, hb) : openManual(p);
   const btn = e.target.closest("[data-act]"); if (!btn || !db) return;
   const act = btn.dataset.act, label = btn.textContent;
   btn.disabled = true; btn.textContent = "Сохраняю…";
@@ -1258,7 +1382,7 @@ async function refresh() {
   } catch (e) { $("meta").textContent = metaText() + " · не удалось обновить решения: " + e.message; }
 }
 const metaText = () => `Данные обновлены ${D.updated} · публикация только после «Одобрить» · решения применяются за 1–2 минуты`;
-function ghLabel() { const g = $("gh"); g.className = "who " + (token ? "on" : "off"); g.innerHTML = token ? `<i></i>${me ? esc(me) : "запись включена"}` : `<i></i>Подключить запись`; db = token ? store : null; }
+function ghLabel() { const g = $("gh"); g.className = "who " + (token ? "on" : "off"); g.innerHTML = token ? `<i></i>${me ? esc(me) : "запись включена"}` : `<i></i><span class="lw">Подключить запись</span><span class="sw">Запись</span>`; db = token ? store : null; }
 $("gh").onclick = () => {
   dlg.innerHTML = xbtn + `<h2>Запись решений</h2>
     <p class="state" style="margin:6px 0 12px">Решения («Одобрить», «Снять», слоты, окна, подписи) сохраняются файлами в репозитории akm-ig-radar. Нужен токен GitHub: fine-grained, только репозиторий akm-ig-radar, право Contents: Read and write. Токен хранится только в этом браузере.</p>
