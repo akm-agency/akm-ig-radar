@@ -426,6 +426,8 @@ dialog::backdrop{background:rgba(13,13,15,.45)}
 .ga-c i{width:100%;height:var(--h);min-height:3px;background:var(--ink);border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:gxRise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j)*70ms)}
 .ga-c b{font-size:14px;font-weight:600}
 .ga-c span{font-size:12px;opacity:.75;white-space:nowrap}
+.ga-c{min-width:0}
+@media (max-width:520px){.ga-cols{gap:4px}.ga-c b{font-size:11px;letter-spacing:-.02em}.ga-c span{font-size:10px}}
 .gs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
 .gs-donut{width:150px;height:150px;flex:none}
 .gs-donut circle{transition:stroke-dasharray .9s}
@@ -2266,6 +2268,7 @@ function openAccount(u, M = S.M) {
       <div class="kvs">${kv("За 4 недели", signed(a.w4))}${kv("Публикаций", fmt(L.media))}${kv("Ср. лайки", fmt(L.likes))}${kv("ER", L.er != null ? L.er.toLocaleString("ru-RU") + "%" : "—")}</div></section>
     ${M === S.cM ? simSection(a.u) : ownDirectSection(a.u)}
     ${graphSection(a.u)}
+    ${audSection(a.u)}
     ${a.sig.length ? `<section class="t peach d6"><div class="lab">Сигналы</div><div class="sgn">${a.sig.map(s => `<div><span class="dt ${s.lvl}"></span><span>${esc(s.text)}</span></div>`).join("")}</div></section>` : ""}
     ${S.extra?.hourly?.acc?.[a.u] ? `<section class="t" style="grid-column:1/-1"><div class="lab">По часам · 48 ч <span class="tag">замеры каждый час</span></div><div id="accHourly"></div></section>` : ""}
     <section class="t d6"><div class="lab">Подписчики · 45 дней</div><div id="accChart"></div></section>
@@ -2311,12 +2314,13 @@ function geoLib() {   // карта грузится один раз и толь
 }
 const per1k = (a, b) => a != null && b ? (a / b * 1000).toLocaleString("ru-RU", { maximumFractionDigits: a / b * 1000 < 10 ? 1 : 0 }) : "—";
 const share = (a, b) => a != null && b ? (a / b * 100).toLocaleString("ru-RU", { maximumFractionDigits: a / b * 100 < 10 ? 1 : 0 }) + "%" : "—";
+const p1 = v => v != null ? (+v).toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";   // готовый процент, как в статистике Instagram
 const gPlink = p => `https://www.instagram.com/${p.k === "reel" ? "reel" : "p"}/${encodeURIComponent(p.c)}/`;
 const gWhen = t => t ? `${dShort(t.slice(0, 10))} · ${t.slice(11, 16)}` : "—";
 const gKind = k => k === "reel" ? "Reels" : k === "carousel" ? "карусель" : "пост";
 
 async function geoMount(el) {
-  const counts = JSON.parse(el.dataset.geo || "[]"), total = +el.dataset.total || counts.reduce((s, x) => s + x[1], 0);
+  const counts = JSON.parse(el.dataset.geo || "[]"), total = +el.dataset.total || counts.reduce((s, x) => s + x[1], 0), isPct = el.dataset.pct === "1";
   if (!counts.length) return;
   el.innerHTML = `<div class="geo-skel">карта загружается…</div>`;
   let world;
@@ -2338,18 +2342,19 @@ async function geoMount(el) {
     const p = e.target.closest("path[data-c]");
     if (!p) { tip.hidden = true; return; }
     const r = el.getBoundingClientRect();
-    tip.innerHTML = `<b>${esc(geoName(p.dataset.c))}</b><span>${fmt(+p.dataset.v)} подписчиков · ${share(+p.dataset.v, total)}</span>`;
+    tip.innerHTML = `<b>${esc(geoName(p.dataset.c))}</b><span>${isPct ? `${p1(p.dataset.v)} подписчиков` : `${fmt(+p.dataset.v)} подписчиков · ${share(+p.dataset.v, total)}`}</span>`;
     tip.hidden = false; tip.style.left = Math.min(r.width - 180, e.clientX - r.left + 12) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px";
   });
   el.querySelector("svg").addEventListener("pointerleave", () => tip.hidden = true);
 }
 function graphMount(root) { root.querySelectorAll("[data-geo]").forEach(geoMount); }
 
-function geoBlock(counts, total, cities) {
+// pct — в counts уже проценты (скриншоты статистики), а не число подписчиков: в подсказке карты только доля
+function geoBlock(counts, total, cities, pct = false) {
   if (!counts?.length) return "";
   const top = [...counts].sort((a, b) => b[1] - a[1]).slice(0, 8), mx = top[0][1] || 1;
-  return `<div class="geo-wrap"><div class="geo" data-geo='${esc(JSON.stringify(counts))}' data-total="${total}"></div>
-    <div class="geo-list">${top.map(([c, v], i) => `<div class="geo-row" style="--j:${i}"><span class="geo-cc">${esc(c)}</span><span class="geo-nm">${esc(geoName(c))}</span><b>${share(v, total)}</b><i style="--w:${(v / mx * 100).toFixed(1)}%"></i></div>`).join("")}
+  return `<div class="geo-wrap"><div class="geo" data-geo='${esc(JSON.stringify(counts))}' data-total="${total}"${pct ? ' data-pct="1"' : ""}></div>
+    <div class="geo-list">${top.map(([c, v], i) => `<div class="geo-row" style="--j:${i}"><span class="geo-cc">${esc(c)}</span><span class="geo-nm">${esc(geoName(c))}</span><b>${pct ? p1(v) : share(v, total)}</b><i style="--w:${(v / mx * 100).toFixed(1)}%"></i></div>`).join("")}
       ${cities?.length ? `<div class="geo-cities">${cities.slice(0, 6).map(([k, v]) => `<span>${esc(k.split(",")[0])} <b>${compact(v)}</b></span>`).join("")}</div>` : ""}</div></div>`;
 }
 
@@ -2368,6 +2373,36 @@ function postBoard(ps, full) {
       : [p.l != null && `♥ ${compact(p.l)}`, p.cm && `💬 ${compact(p.cm)}`].filter(Boolean).map(x => `<span>${x}</span>`).join("")}</span></a>`).join("")}</div>`;
 }
 
+const audTag = tag => tag ? ` <span class="tag">${tag}</span>` : "";
+// ages: [["18-24", n], …]; total — от чего доля (подписчики или 100, если в ages уже проценты)
+function ageBlock(ages, total, tag = "", fv = v => share(v, total)) {
+  if (!ages?.length) return "";
+  const amx = Math.max(1, ...ages.map(x => x[1]));
+  return `<section class="t lime d3"><div class="lab">Возраст${audTag(tag)}</div><div class="ga-cols">${ages.slice().sort((a, b) => a[0].localeCompare(b[0])).map(([k, v], j) => `<div class="ga-c" style="--j:${j}"><b>${fv(v)}</b><i style="--h:${(v / amx * 100).toFixed(1)}%"></i><span>${esc(k)}</span></div>`).join("")}</div></section>`;
+}
+// sex: [["M", n], ["F", n], …] — первый показывается в центре кольца
+function sexBlock(sex, tag = "", fv) {
+  if (!sex?.length) return "";
+  const stot = sex.reduce((s, x) => s + x[1], 0) || 1, col = i => ["var(--geo-hi)", "var(--faint)", "var(--orange)"][i % 3];
+  fv ||= v => share(v, stot);
+  let acc = 0;
+  const donut = sex.map(([k, v], i) => { const a0 = acc / stot, a1 = (acc += v) / stot, r = 42, C = 2 * Math.PI * r;
+    return `<circle r="${r}" cx="60" cy="60" fill="none" stroke="${col(i)}" stroke-width="16" stroke-dasharray="${(a1 - a0) * C} ${C}" stroke-dashoffset="${-a0 * C}" transform="rotate(-90 60 60)"/>`; }).join("");
+  return `<section class="t d3"><div class="lab">Пол${audTag(tag)}</div><div class="gs"><svg viewBox="0 0 120 120" class="gs-donut">${donut}<text x="60" y="58" text-anchor="middle">${fv(sex[0][1])}</text><text x="60" y="74" text-anchor="middle" class="gs-sub">${esc(G_SEX[sex[0][0]] || sex[0][0])}</text></svg>
+      <div class="gs-leg">${sex.map(([k, v], i) => `<span><i style="background:${col(i)}"></i>${esc(G_SEX[k] || k)} <b>${fv(v)}</b></span>`).join("")}</div></div></section>`;
+}
+
+/* Аудитория со скриншотов статистики Instagram (own_audience.json → network.json "aud"): проценты, страны — топ-5.
+   У страниц, подключённых к Graph API, вместо неё — живые данные API (graphSection). */
+function audSection(u) {
+  const A = S.extra?.aud?.[u], api = S.extra?.graph?.acc?.[u]?.ins?.aud;
+  if (!A || (api && Object.keys(api).length)) return "";
+  const when = A.asof ? (A.exact ? `30 дней до ${dShort(A.asof)}` : `на ${dShort(A.asof)}`) : "30 дней";
+  return `${A.country?.length ? `<section class="t d6"><div class="lab">География подписчиков <span class="tag">топ-${A.country.length} стран · статистика Instagram · ${when}</span></div>${geoBlock(A.country, 100, null, true)}</section>` : ""}
+    ${ageBlock(A.age, 100, when, p1)}
+    ${sexBlock(A.gender, when, p1)}`;
+}
+
 function graphSection(u) {
   const g = S.extra?.graph?.acc?.[u]; if (!g) return "";
   const I = g.ins;
@@ -2381,11 +2416,7 @@ function graphSection(u) {
   const isum = inter.reduce((s, x) => s + (x[1] || 0), 0) || 1;
   const reachX = f && d.reach ? d.reach / f : null;
   const days = Object.entries(I.days || {}).sort();
-  const ages = A.age || [], amx = Math.max(1, ...ages.map(x => x[1]));
-  const sex = A.gender || [], stot = sex.reduce((s, x) => s + x[1], 0) || 1;
-  let acc = 0;
-  const donut = sex.map(([k, v], i) => { const a0 = acc / stot, a1 = (acc += v) / stot, r = 42, C = 2 * Math.PI * r;
-    return `<circle r="${r}" cx="60" cy="60" fill="none" stroke="${["var(--geo-hi)", "var(--faint)", "var(--orange)"][i % 3]}" stroke-width="16" stroke-dasharray="${(a1 - a0) * C} ${C}" stroke-dashoffset="${-a0 * C}" transform="rotate(-90 60 60)"/>`; }).join("");
+  const ages = A.age || [], sex = A.gender || [], stot = sex.reduce((s, x) => s + x[1], 0) || 1;
   return `<section class="t ink d6 gx-hero"><div class="lab">Instagram изнутри · 28 дней <span class="tag">закрытые данные Instagram · ${I.date ? "на " + dShort(I.date) : ""}</span></div>
       ${reachX ? `<div class="gx-head">Охват — <b>${reachX.toLocaleString("ru-RU", { maximumFractionDigits: 1 })}×</b> от числа подписчиков: контент видят далеко за пределами базы</div>` : ""}
       <div class="gx-grid">
@@ -2402,33 +2433,49 @@ function graphSection(u) {
       ${days.length >= 2 ? `<div class="gx-days"><div class="gx-mix-l">Охват по дням</div><div class="gx-cols">${days.slice(-30).map(([dd, x]) => { const m = Math.max(...days.map(y => y[1].reach || 0)) || 1; return `<i style="--h:${((x.reach || 0) / m * 100).toFixed(1)}%" title="${dShort(dd)}: ${fmt(x.reach)}"></i>`; }).join("")}</div></div>` : ""}
     </section>
     ${A.country?.length ? `<section class="t d6"><div class="lab">География подписчиков <span class="tag">${A.country.length} ${plu(A.country.length, "страна", "страны", "стран")}</span></div>${geoBlock(A.country, f, A.city)}</section>` : ""}
-    ${ages.length ? `<section class="t lime d3"><div class="lab">Возраст</div><div class="ga-cols">${ages.slice().sort((a, b) => a[0].localeCompare(b[0])).map(([k, v], j) => `<div class="ga-c" style="--j:${j}"><b>${share(v, f || stot)}</b><i style="--h:${(v / amx * 100).toFixed(1)}%"></i><span>${esc(k)}</span></div>`).join("")}</div></section>` : ""}
-    ${sex.length ? `<section class="t d3"><div class="lab">Пол</div><div class="gs"><svg viewBox="0 0 120 120" class="gs-donut">${donut}<text x="60" y="58" text-anchor="middle">${share(sex[0][1], stot)}</text><text x="60" y="74" text-anchor="middle" class="gs-sub">${esc(G_SEX[sex[0][0]] || sex[0][0])}</text></svg>
-      <div class="gs-leg">${sex.map(([k, v], i) => `<span><i style="background:${["var(--geo-hi)", "var(--faint)", "var(--orange)"][i % 3]}"></i>${esc(G_SEX[k] || k)} <b>${share(v, stot)}</b></span>`).join("")}</div></div></section>` : ""}
+    ${ageBlock(ages, f || stot)}
+    ${sexBlock(sex)}
     ${(I.posts || []).length ? `<section class="t d6"><div class="lab">Топ постов · 14 дней <span class="tag">охват ↗ репосты ⌑ сохранения ▶ ср. просмотр</span></div>${postBoard(I.posts, true)}</section>` : ""}`;
 }
 
-/* плитка на главной: вся сетка глазами Instagram API */
+/* плитка на главной: вся сетка — потенциал просмотров в месяц и аудитория всех страниц.
+   Просмотры: у подключённых к API — views за 28 дней (живые), у остальных — «views in the last 30 days» со скриншота
+   профессиональной панели (own_audience.json). География: у API — число подписчиков по странам, у остальных — топ-5 стран
+   в % × текущие подписчики (оценка). */
 function graphTile() {
-  const G = S.extra?.graph?.acc; if (!G) return "";
+  const G = S.extra?.graph?.acc || {}, AU = S.extra?.aud || {};
+  const own = S.M?.accounts || [];
+  const fOf = u => G[u]?.f || (a => a?.cur ?? a?.lastOk?.followers)(own.find(a => a.u === u)) || 0;
+  const users = [...new Set([...own.map(a => a.u), ...Object.keys(G), ...Object.keys(AU)])];
+  const views = [];
+  for (const u of users) {
+    const api = G[u]?.ins?.d28?.views;
+    if (api != null) views.push({ u, v: api, src: "API · 28 дн." });
+    else if (AU[u]?.views30) views.push({ u, v: AU[u].views30, src: AU[u].asof ? "на " + dShort(AU[u].asof) : "", d: AU[u].asof });
+  }
+  const geo = {}; let gtot = 0, gn = 0;
+  for (const u of users) {
+    const ac = G[u]?.ins?.aud?.country, sc = AU[u]?.country, f = fOf(u);
+    if (ac?.length) { gn++; gtot += G[u].f || 0; for (const [c, v] of ac) geo[c] = (geo[c] || 0) + v; }
+    else if (sc?.length && f) { gn++; gtot += f; for (const [c, p] of sc) geo[c] = (geo[c] || 0) + Math.round(f * p / 100); }
+  }
+  if (!views.length && !gn) return "";
+  const sum = views.reduce((s, x) => s + x.v, 0);
+  const top = [...views].sort((a, b) => b.v - a.v).slice(0, 7), mx = top[0]?.v || 1;
+  const ds = views.map(x => x.d).filter(Boolean).sort();
+  const total = own.length || users.length;
+  // Reels за 7 дней из API — вторичной строкой, как было
   const since = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
-  const reels = Object.entries(G).flatMap(([u, g]) => (g.posts || []).filter(p => p.k === "reel" && p.v != null && p.t >= since).map(p => ({ ...p, u })));
-  if (!reels.length) return "";
-  const sum = reels.reduce((s, p) => s + p.v, 0);
-  const best = new Map(); for (const p of reels) if (!best.has(p.u) || best.get(p.u).v < p.v) best.set(p.u, p);   // по лучшему ролику каждой страницы
-  const top = [...best.values()].sort((a, b) => b.v - a.v).slice(0, 7), mx = top[0].v || 1;
-  const conn = Object.entries(G).filter(([, g]) => g.ins);
-  const geo = {}; let gtot = 0;
-  for (const [, g] of conn) { gtot += g.f || 0; for (const [c, v] of g.ins.aud?.country || []) geo[c] = (geo[c] || 0) + v; }
-  const reach = conn.reduce((s, [, g]) => s + (g.ins.d28?.reach || 0), 0);
-  return `<section class="t ink s12 gt"><div class="lab">Instagram API · вся сетка <span class="tag">официальные данные Meta, каждый час</span></div>
+  const reels = Object.values(G).flatMap(g => (g.posts || []).filter(p => p.k === "reel" && p.v != null && p.t >= since));
+  const rsum = reels.reduce((s, p) => s + p.v, 0);
+  return `<section class="t ink s12 gt"><div class="lab">Instagram · вся сетка <span class="tag">статистика Instagram и API Meta</span></div>
     <div class="gt-grid"><div class="gt-l">
-      <div class="gx-l">просмотры Reels сетки за 7 дней</div>
+      <div class="gx-l">потенциальные просмотры сетки в месяц</div>
       <div class="big gt-big" data-n="${sum}" data-fmt="huge">${hugeNum(sum)}</div>
-      <div class="sub">${reels.length} ${plu(reels.length, "ролик", "ролика", "роликов")} в ${best.size} ${plu(best.size, "аккаунте", "аккаунтах", "аккаунтах")}${conn.length ? ` · охват подключённых за 28 дней <b>${compact(reach)}</b>` : ""}</div>
-      <div class="gx-l" style="margin-top:18px">лучший ролик каждой страницы</div><div class="gt-top" style="margin-top:8px">${top.map((p, j) => `<button type="button" class="gt-r" data-u="${esc(p.u)}" style="--j:${j}"><span class="gt-u">@${esc(p.u)}<small>${gWhen(p.t)}</small></span><span class="gt-bar"><i style="--w:${(p.v / mx * 100).toFixed(1)}%"></i></span><b>${compact(p.v)}</b></button>`).join("")}</div>
+      <div class="sub">по последней статистике Instagram ${views.length} из ${total} ${plu(total, "страницы", "страниц", "страниц")}${ds.length ? ` · данные ${dShort(ds[0])}–${dShort(ds[ds.length - 1])}` : ""}${reels.length ? ` · Reels за 7 дней по API <b>${compact(rsum)}</b>` : ""}</div>
+      <div class="gx-l" style="margin-top:18px">просмотры за месяц по страницам</div><div class="gt-top" style="margin-top:8px">${top.map((x, j) => `<button type="button" class="gt-r" data-u="${esc(x.u)}" style="--j:${j}"><span class="gt-u">@${esc(x.u)}<small>${esc(x.src)}</small></span><span class="gt-bar"><i style="--w:${(x.v / mx * 100).toFixed(1)}%"></i></span><b>${compact(x.v)}</b></button>`).join("")}</div>
     </div>
-    ${Object.keys(geo).length ? `<div class="gt-r2"><div class="gx-l">где живёт аудитория подключённых страниц · ${conn.length} из ${Object.keys(G).length}</div>${geoBlock(Object.entries(geo), gtot, null)}</div>` : ""}</div></section>`;
+    ${Object.keys(geo).length ? `<div class="gt-r2"><div class="gx-l">где живёт аудитория сетки · ${gn} из ${total} ${plu(total, "страницы", "страниц", "страниц")} · ≈ по топ-5 стран</div>${geoBlock(Object.entries(geo), gtot, null)}</div>` : ""}</div></section>`;
 }
 
 /* ---------- competitors ---------- */
