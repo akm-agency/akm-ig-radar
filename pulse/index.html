@@ -173,7 +173,7 @@ header.bar{position:sticky;top:8px;z-index:30;background:rgba(255,255,255,.92);b
 @media(max-width:1280px){.ttl{display:none}}
 @media(max-width:1140px){header.bar{border-radius:var(--r);flex-wrap:wrap}.tools{margin-left:0;width:100%}.sel{flex:1;max-width:none}}
 .who .sw{display:none}
-@media(max-width:560px){.logo{display:none}.nav{flex:1 1 100%}.nav button{padding:0 7px;font-size:12.5px;gap:4px;flex:1 0 auto;justify-content:center}.nav .badge{padding:1px 5px}.who .lw{display:none}.who .sw{display:inline}}
+@media(max-width:560px){.logo{display:none}.nav{flex:1 1 100%;flex-wrap:wrap;border-radius:20px}.nav button{padding:0 7px;font-size:12.5px;gap:4px;flex:1 0 auto;justify-content:center}.nav .badge{padding:1px 5px}.who .lw{display:none}.who .sw{display:inline}}
 
 /* кнопки */
 .btn{border-radius:999px;height:42px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:13.5px;background:var(--soft);transition:background .2s,transform .15s var(--ease);white-space:nowrap}
@@ -1088,7 +1088,7 @@ function renderLearn() {
       <div class="stat"><span class="k">Правок человека</span><b>${fmt(T.corrections || 0)}</b><span class="s">снял, вернул, комментарий, переписал подпись</span></div>
       <div class="stat"><span class="k">Вычленено уроков</span><b>${fmt(T.lessons || 0)}</b><span class="s">новые правила в плейбуках</span></div>
       <div class="stat"><span class="k">Изменений работы</span><b>${fmt(T.changes || 0)}</b><span class="s">веса, промпты, калибровка, стратегия</span></div>
-      <div class="stat ${T.posts && !T.follows ? "alert" : ""}"><span class="k">Хитов по охвату</span><b>${fmt(T.hits || 0)}</b><span class="s">провалов ${fmt(T.flops || 0)} · из ${fmt(T.posts || 0)}</span></div>
+      <div class="stat"><span class="k">Хитов по охвату</span><b>${fmt(T.hits || 0)}</b><span class="s">провалов ${fmt(T.flops || 0)} · из ${fmt(T.posts || 0)}</span></div>
     </div></section>
   <section class="panel"><div class="ph"><h2>Посты по неделям</h2><span class="hint">итог 72 ч (или 24 ч), все аккаунты</span></div>
     ${W.length ? `<div class="lw-weeks">${W.map(w => `<div class="lw-wk"><span class="lw-wd">с ${w.week.slice(8)}.${w.week.slice(5, 7)}</span>
