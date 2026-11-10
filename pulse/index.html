@@ -550,6 +550,41 @@ textarea{resize:vertical;min-height:76px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;border-radius:99px;padding:12px 20px;font-weight:600;font-size:13.5px;opacity:0;transition:opacity .25s,transform .25s var(--ease);z-index:80;pointer-events:none;max-width:calc(100vw - 32px)}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .toast.err{background:var(--bad)}
+/* 10.11: экран «Обучение» */
+.lw-hero .main .v span{max-width:22em}
+.lw-sub{font-size:13px;color:#B9C6BA;max-width:44em}
+.lw-weeks{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.lw-wk{flex:0 0 132px;background:var(--soft);border-radius:var(--r-s);padding:12px;display:flex;flex-direction:column;gap:2px;font-size:12px}
+.lw-wk b{font-size:20px;font-weight:600;letter-spacing:-.03em;line-height:1.1} .lw-wk b.hi{color:var(--good)} .lw-wk b.zero{color:var(--bad)}
+.lw-wk small{color:var(--muted);font-size:11.5px}
+.lw-wd{font-weight:700;font-size:12px;color:var(--muted)}
+.lw-bars{display:flex;align-items:flex-end;gap:4px;height:56px;margin:4px 0 6px}
+.lw-bars i{flex:1;border-radius:6px 6px 3px 3px;min-height:2px}
+.lw-bars i.p,.lw-key.p{background:#CFD8CB} .lw-bars i.f,.lw-key.f{background:var(--good)}
+.lw-key{display:inline-block;width:10px;height:10px;border-radius:3px;margin:0 4px 0 10px;vertical-align:-1px}
+.lw-feed{display:grid;gap:14px}
+.lw-day{display:grid;gap:8px}
+.lw-day h4{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:0 6px}
+.lw-ev{display:grid;grid-template-columns:36px 1fr;gap:10px;background:var(--panel);border-radius:var(--r-s);padding:12px 14px;min-width:0}
+.lw-ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:var(--soft)}
+.lw-ev.edit .lw-ic{background:var(--peach)} .lw-ev.lesson .lw-ic{background:var(--lav)} .lw-ev.change .lw-ic{background:var(--lime-soft)} .lw-ev.result .lw-ic{background:#E3EEF9}
+.lw-bd{min-width:0;display:grid;gap:5px;font-size:13px;overflow-wrap:anywhere}
+.lw-mt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:var(--muted)}
+.lw-k{font-weight:700;color:var(--ink)}
+.lw-mt time{margin-left:auto}
+.lw-acc{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--ink-2)}
+.lw-acc img{width:18px;height:18px;border-radius:50%;object-fit:cover}
+.lw-by{background:var(--soft);border-radius:99px;padding:1px 8px}
+.lw-post,.lw-link{color:var(--blue);text-align:left;font-weight:600;display:block}
+.lw-link{display:inline;font-weight:500}
+.lw-post:disabled{color:var(--ink-2);cursor:default}
+.lw-bd q{display:block;background:var(--soft);border-radius:10px;padding:7px 10px;font-style:italic}
+.lw-tags{display:flex;flex-wrap:wrap;gap:5px} .lw-tags i{font-style:normal;background:var(--soft);border-radius:99px;padding:1px 8px;font-size:12px}
+.lw-text{font-size:13.5px} .lw-text.off{text-decoration:line-through;color:var(--muted)}
+.lw-area{justify-self:start;background:var(--lime-soft);border-radius:99px;padding:1px 9px;font-size:12px;font-weight:600}
+.lw-res{display:flex;flex-wrap:wrap;gap:6px} .lw-res span{background:var(--soft);border-radius:99px;padding:1px 9px;font-size:12px}
+.lw-res .hi{background:var(--lime-soft);color:var(--good);font-weight:700} .lw-res .lo{background:var(--peach);color:var(--bad);font-weight:700}
+.lw-diff summary{cursor:pointer;color:var(--blue);font-size:12.5px} .lw-diff div{display:grid;gap:3px;margin-top:6px} .lw-diff p{white-space:pre-wrap;background:var(--soft);border-radius:10px;padding:7px 10px;font-size:12.5px}
 </style></head><body>
 
 <div class="wrap">
@@ -1010,14 +1045,72 @@ function profileHtml(a, open) {
   </article>`;
 }
 
+/* ---------- 10.11: экран «Обучение» — журнал обучения (journal.py → D.learning): правки человека → что вычленено → как изменилась работа → итоги ---------- */
+const LK = {edit: ["✎", "Правка человека"], lesson: ["◆", "Вычленено"], change: ["⚙", "Изменение работы"], result: ["▲", "Итог поста"]};
+let lf = "all";
+const dayRu = iso => { const d = (iso || "").slice(0, 10); if (!d) return "без даты"; const t = nowMsk().slice(0, 10);
+  return d === t ? "сегодня" : d === addDays(t, -1) ? "вчера" : WD[wdOf(d)] + " " + d.slice(8) + "." + d.slice(5, 7); };
+function learnEvent(e) {
+  const [ic, kl] = LK[e.kind] || ["•", e.kind], p = e.post && byKey[e.acc + "__" + e.post];
+  const who = e.by ? `<span class="lw-by">${esc(e.by)}</span>` : "";
+  const acc = e.acc ? `<span class="lw-acc">${avatarOf(e.acc) ? `<img src="${avatarOf(e.acc)}" alt="">` : ""}@${esc(e.acc)}</span>` : "";
+  const post = e.post ? `<button class="lw-post" ${p ? `data-open="${esc(p.key)}"` : "disabled"}>${esc(flat(e.headline || p?.headline || e.post))}</button>` : "";
+  let body = "";
+  if (e.kind === "edit") {
+    if (e.what === "caption") body = `<b>переписал подпись</b>${post}<details class="lw-diff"><summary>было → стало</summary><div><small>было</small><p>${esc(e.before || "—")}</p><small>стало</small><p>${esc(e.after || "")}</p></div></details>`;
+    else if (e.what === "windows") body = `<b>окна публикации</b> ${esc((e.before || []).join(", "))} → <b>${esc((e.after || []).join(", "))}</b>`;
+    else body = `<b>${esc(e.decision_ru || e.decision || "")}</b>${e.slot ? ` · слот ${esc(slotLabel(e.slot))}` : ""}${post}${e.comment ? `<q>${esc(e.comment)}</q>` : ""}${(e.reasons || []).length ? `<span class="lw-tags">${e.reasons.map(r => `<i>${esc(r)}</i>`).join("")}</span>` : ""}`;
+  } else if (e.kind === "lesson") {
+    body = `<b>${e.status === "removed" ? "снят урок" : e.section === "dont" ? "не делать" : "делать"}</b><p class="lw-text ${e.status === "removed" ? "off" : ""}">${esc(e.text)}</p>
+      ${e.basis || (e.posts || []).length ? `<span class="hint">основание: ${esc(e.basis || "")}${(e.posts || []).length ? " · посты: " + e.posts.slice(0, 4).map(x => { const q = byKey[e.acc + "__" + x]; return q ? `<button class="lw-link" data-open="${esc(q.key)}">${esc(flat(q.headline).slice(0, 40))}</button>` : esc(x); }).join(", ") : ""}</span>` : ""}`;
+  } else if (e.kind === "change") {
+    body = `${e.area ? `<span class="lw-area">${esc(e.area)}</span>` : ""}<p class="lw-text">${esc(e.what)}</p>${e.why ? `<span class="hint">почему: ${esc(e.why)}</span>` : ""}`;
+  } else if (e.kind === "result") {
+    const x = e.x_reach != null ? "×" + String(e.x_reach).replace(".", ",") : e.x_likes != null ? "лайки ×" + String(e.x_likes).replace(".", ",") : "";
+    body = `<b>${e.hours || 24} ч</b>${post}<span class="lw-res"><span class="${e.verdict === "хит" ? "hi" : e.verdict === "провал" ? "lo" : ""}">${esc(e.verdict || "")}</span>
+      ${e.reach != null ? `<span>охват ${fmt(e.reach)} ${x}</span>` : x ? `<span>${x}</span>` : ""}<span class="${e.follows ? "hi" : ""}">подписок ${fmt(e.follows || 0)}</span>${e.shares != null ? `<span>репостов ${fmt(e.shares)}</span>` : ""}
+      ${e.human_edits ? `<span>правок человека: ${e.human_edits}</span>` : ""}${e.manual ? "<span>вручную</span>" : ""}</span>`;
+  }
+  return `<article class="lw-ev ${e.kind}"><span class="lw-ic" title="${kl}">${ic}</span><div class="lw-bd"><div class="lw-mt"><span class="lw-k">${kl}</span>${acc}${who}<time>${esc((e.at || "").slice(11, 16))}</time></div>${body}</div></article>`;
+}
+function renderLearn() {
+  const L = D.learning || {events: [], weeks: [], total: {}};
+  const T = L.total || {}, ev = (L.events || []).filter(e => (!acc || !e.acc || e.acc === acc) && (lf === "all" || e.kind === lf));
+  const n = k => (L.events || []).filter(e => e.kind === k && (!acc || !e.acc || e.acc === acc)).length;
+  const W = L.weeks || [], maxP = Math.max(1, ...W.map(w => w.posts)), maxF = Math.max(1, ...W.map(w => w.follows));
+  const groups = []; let cur = null;
+  ev.forEach(e => { const d = dayRu(e.at); if (!cur || cur.d !== d) groups.push(cur = {d, list: []}); cur.list.push(e); });
+  $("view").innerHTML = `<section class="hero lw-hero">
+    <div class="main"><span class="k">Как учится конвейер</span>
+      <div class="v"><b>${fmt(T.follows || 0)}</b><span>подписок принесли посты конвейера — из ${fmt(T.posts || 0)} постов с замером${T.posts_with_follows ? ", с подписками " + T.posts_with_follows : ""}</span></div>
+      <p class="lw-sub">Цепочка: правки человека → что модель вычленила → как изменилась работа → как залетели посты. Главная метрика — подписки с поста.</p></div>
+    <div class="stats">
+      <div class="stat"><span class="k">Правок человека</span><b>${fmt(T.corrections || 0)}</b><span class="s">снял, вернул, комментарий, переписал подпись</span></div>
+      <div class="stat"><span class="k">Вычленено уроков</span><b>${fmt(T.lessons || 0)}</b><span class="s">новые правила в плейбуках</span></div>
+      <div class="stat"><span class="k">Изменений работы</span><b>${fmt(T.changes || 0)}</b><span class="s">веса, промпты, калибровка, стратегия</span></div>
+      <div class="stat ${T.posts && !T.follows ? "alert" : ""}"><span class="k">Хитов по охвату</span><b>${fmt(T.hits || 0)}</b><span class="s">провалов ${fmt(T.flops || 0)} · из ${fmt(T.posts || 0)}</span></div>
+    </div></section>
+  <section class="panel"><div class="ph"><h2>Посты по неделям</h2><span class="hint">итог 72 ч (или 24 ч), все аккаунты</span></div>
+    ${W.length ? `<div class="lw-weeks">${W.map(w => `<div class="lw-wk"><span class="lw-wd">с ${w.week.slice(8)}.${w.week.slice(5, 7)}</span>
+      <div class="lw-bars"><i class="p" style="height:${100 * w.posts / maxP}%" title="постов ${w.posts}"></i><i class="f" style="height:${w.follows ? Math.max(6, 100 * w.follows / maxF) : 0}%" title="подписок ${w.follows}"></i></div>
+      <b>${w.posts}</b><small>постов</small><b class="${w.follows ? "hi" : "zero"}">${w.follows}</b><small>подписок</small><small>медиана ${w.med_x != null ? "×" + String(w.med_x).replace(".", ",") : "—"}</small>
+      <small>${w.hits} хит. · ${w.flops} пров.</small>${w.edited ? `<small>с правками ${w.edited}: ×${w.med_x_edited ?? "—"} / без ×${w.med_x_plain ?? "—"}</small>` : ""}</div>`).join("")}</div>
+      <p class="hint" style="margin-top:8px"><i class="lw-key p"></i>постов <i class="lw-key f"></i>подписок</p>` : `<p class="state">Итогов пока нет — появятся через 24 ч после первых публикаций.</p>`}</section>
+  <section><div class="ph" style="padding:0 6px"><h2>Журнал</h2><span class="n">${ev.length}</span><span class="hint">${acc ? "@" + esc(acc) : "все аккаунты"} · новые сверху</span>
+    <span class="sp">${[["all", "Всё", (L.events || []).length], ["edit", "Правки", n("edit")], ["lesson", "Уроки", n("lesson")], ["change", "Изменения", n("change")], ["result", "Итоги", n("result")]]
+      .map(([k, l, c]) => `<button class="chip" data-lf="${k}" aria-pressed="${lf === k}">${l} · ${c}</button>`).join("")}</span></div>
+    <div class="lw-feed">${groups.length ? groups.map(g => `<div class="lw-day"><h4>${esc(g.d)}</h4>${g.list.map(learnEvent).join("")}</div>`).join("")
+      : `<div class="empty"><b>Здесь пока пусто</b>События появятся с первыми решениями на пульте и итогами постов.</div>`}</div></section>`;
+}
+
 function render() {
   const w = items().filter(p => p.stage === "wait").length;
   const upN = D.posts.filter(p => p.manual && bucket(p) === "ok").length;
-  $("nav").innerHTML = [["flow", "Конвейер", w], ["upload", "Заливка", upN], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0]].map(([k, l, n]) =>
+  $("nav").innerHTML = [["flow", "Конвейер", w], ["upload", "Заливка", upN], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0], ["learn", "Обучение", 0]].map(([k, l, n]) =>
     `<button data-v="${k}" aria-pressed="${view === k}">${l}${n ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
   $("accSel").innerHTML = `<option value="">Все аккаунты · ${D.accounts.length}</option>` + D.accounts.map(a => `<option value="${esc(a.name)}" ${acc === a.name ? "selected" : ""}>@${esc(a.name)}</option>`).join("");
   $("accSel").hidden = D.accounts.length < 2;
-  if (view === "flow") renderFlow(); else if (view === "upload") renderUpload(); else if (view === "slots") renderSlots(); else renderAccounts();
+  if (view === "flow") renderFlow(); else if (view === "upload") renderUpload(); else if (view === "slots") renderSlots(); else if (view === "learn") renderLearn(); else renderAccounts();
   hydrate();
 }
 $("accSel").onchange = e => { acc = e.target.value; saveLocal(); render(); };
@@ -1044,6 +1137,7 @@ $("view").addEventListener("click", async e => {
   if (b && db) return openManual(byKey[b.dataset.up]);   // 10.11: с записью — тот же выбор слота, что у «Опубликовано вручную»
   b = t.closest("[data-pick]"); if (b) { acc = b.dataset.pick; if (view === "accs") view = "flow"; saveLocal(); render(); return window.scrollTo({top: 0}); }
   b = t.closest("[data-sort]"); if (b) { sortBy = b.dataset.sort; return render(); }
+  b = t.closest("[data-lf]"); if (b) { lf = b.dataset.lf; return render(); }
   b = t.closest(".hours [data-hour]"); if (b) { const h = +b.dataset.hour, c = cfgOf(accByName[acc]);
     if (c.windows.some(w => wStart(w) === h)) { toast(`Окно ${pad(h)}:05 уже есть`); return; }
     pick[acc] = pick[acc] === h ? null : h; return render(); }
