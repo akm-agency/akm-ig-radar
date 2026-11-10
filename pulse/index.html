@@ -488,6 +488,58 @@ textarea{resize:vertical;min-height:76px}
 .mslot small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
 .mslot.best{background:var(--lime-soft);box-shadow:inset 0 0 0 1.5px #D8F28F}
 .mslot.now{grid-template-columns:1fr;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+/* 10.11: лого канала кружком, шапка правой панели, «Когда постить» с картой недели, музыка */
+.ava{border-radius:50%;object-fit:cover;background:var(--soft);flex:none;display:inline-block;vertical-align:middle}
+.ava.ini{display:inline-grid;place-items:center;color:#fff;font-weight:700;letter-spacing:-.02em;line-height:1}
+.pc .ava.av{display:grid}
+.uacc{display:flex;align-items:center;gap:7px;font-size:12.5px;min-width:0} .uacc b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.phead .ava{box-shadow:0 0 0 2px var(--panel),0 0 0 3.5px var(--line)}
+.phead .pa{display:flex;flex-direction:column;min-width:0;flex:1 1 120px;line-height:1.25}
+.phead .pa b{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.phead .pa small{font-size:12.5px;color:var(--muted)}
+.phead .pr{margin-left:auto;margin-right:46px;display:flex;align-items:center;gap:10px;flex:none}
+.phead .big-score{margin:0}
+@media(max-width:820px){.phead .pr{margin-right:0}}
+.when,.mus{background:var(--soft);border-radius:var(--r-s);padding:14px 16px;display:grid;gap:10px;min-width:0}
+.when h4,.mus h4{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.wtop{display:flex;align-items:center;gap:14px;justify-content:space-between}
+.wbest{display:grid;gap:3px;min-width:0}
+.wbest .wk{font-size:12px;font-weight:700;color:var(--good)}
+.wbest b{font-family:var(--fd);font-weight:500;font-size:clamp(20px,2.2vw,26px);letter-spacing:-.04em;line-height:1.1}
+.wbest b small{font-family:var(--f);font-size:13px;color:var(--muted);font-weight:600;letter-spacing:0}
+.wbest .wsub{font-size:12.5px;color:var(--muted);line-height:1.4}
+.wscore{flex:none;width:68px;height:68px;border-radius:50%;background:var(--panel);display:grid;place-content:center;text-align:center;box-shadow:inset 0 0 0 3px var(--faint)}
+.wscore b{font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1} .wscore small{font-size:9.5px;color:var(--muted);line-height:1.1}
+.wscore.hi{box-shadow:inset 0 0 0 3px var(--good)} .wscore.hi b{color:var(--good)}
+.wscore.mid{box-shadow:inset 0 0 0 3px var(--good-2)} .wscore.lo{box-shadow:inset 0 0 0 3px var(--bad)} .wscore.lo b{color:var(--bad)}
+.wmap{display:grid;grid-template-columns:40px repeat(var(--n,7),minmax(0,1fr));gap:4px;align-items:stretch}
+.wmap .wd{font-size:11px;color:var(--muted);text-align:center;line-height:1.15;padding-bottom:2px}
+.wmap .wd b{display:block;font-size:13px;color:var(--ink)}
+.wmap .wd.today,.wmap .wd.today b{color:var(--blue)}
+.wmap .wh{font-size:11.5px;font-weight:600;align-self:center;white-space:nowrap}
+.wc{height:34px;border-radius:9px;display:grid;place-items:center;font-size:11.5px;font-weight:700;background:var(--panel);color:var(--muted);min-width:0;position:relative;padding:0}
+.wc.free{cursor:pointer;transition:transform .12s var(--ease),box-shadow .12s}
+.wc.free:hover{transform:translateY(-1px)}
+.wc.free.hi{background:#D9EFE0;color:var(--good)} .wc.free.mid{background:#ECF4D6;color:#58772A} .wc.free.lo{background:#FBE4DE;color:var(--bad)}
+.wc.booked,.wc.mine{background:var(--lime);color:var(--ink)} .wc.mine{cursor:pointer}
+.wc.pub{background:var(--lav);color:var(--ink)} .wc.late{background:var(--peach);color:var(--ink)}
+.wc.past{background:repeating-linear-gradient(135deg,transparent 0 5px,rgba(20,37,30,.06) 5px 10px)}
+.wc.best::after{content:"★";position:absolute;top:-7px;right:-3px;font-size:12px;color:#B7791F;text-shadow:0 0 2px #fff}
+.wc.sel{box-shadow:0 0 0 2px var(--ink)}
+.wleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--muted)}
+.wleg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.wleg i.hi{background:#D9EFE0;box-shadow:inset 0 0 0 1px #9FCFAE} .wleg i.mid{background:#ECF4D6;box-shadow:inset 0 0 0 1px #C3D88E} .wleg i.lo{background:#FBE4DE;box-shadow:inset 0 0 0 1px #EBB3A6}
+.wleg i.bk{background:var(--lime)} .wleg i.pb{background:var(--lav)}
+.wpick{font-size:13px;color:var(--muted)} .wpick b{color:var(--ink)}
+.mus .mh{display:flex;align-items:baseline;gap:10px;justify-content:space-between}
+.mt0{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--panel);border-radius:12px;padding:8px}
+.mico{width:40px;height:40px;border-radius:10px;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-size:18px}
+.mtt{min-width:0;display:flex;flex-direction:column;line-height:1.25} .mtt b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .mtt small{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt0 .btn{background:var(--soft)}
+.malt{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.malt .chip{height:28px;font-size:12px;background:var(--panel);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:560px){.wmap{grid-template-columns:34px repeat(var(--n,7),minmax(0,1fr));gap:3px}.wc{height:30px;font-size:10.5px;border-radius:7px}.wmap .wh{font-size:10.5px}.wscore{width:56px;height:56px}.wscore b{font-size:20px}.when,.mus{padding:12px}}
 .lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
 .lb img{max-width:min(100%,600px);max-height:100%;border-radius:14px}
 .lb .xb{position:absolute;top:12px;right:14px;color:#fff;font-size:28px;width:44px;height:44px}
@@ -540,6 +592,14 @@ D.posts.forEach((p, i) => p._i = i);
 const byKey = Object.fromEntries(D.posts.map(p => [p.key, p]));
 const accByName = Object.fromEntries(D.accounts.map(a => [a.name, a]));
 const avatarOf = n => accByName[n]?.avatar || "";
+/* 10.11: лого канала кружком везде; нет аватарки — инициалы на круге постоянного цвета (по имени аккаунта) */
+const AVC = ["#3557ED", "#FA714A", "#1F7A4D", "#7A4DD8", "#C24A3A", "#0F7C8C", "#B7791F", "#22382C"];
+function ava(name, size, cls) {
+  const src = avatarOf(name), st = `width:${size}px;height:${size}px`;
+  if (src) return `<img class="ava ${cls || ""}" src="${src}" alt="" style="${st}">`;
+  let h = 0; for (const ch of String(name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return `<span class="ava ini ${cls || ""}" style="${st};background:${AVC[h % AVC.length]};font-size:${Math.round(size * .4)}px" aria-hidden="true">${esc(String(name).replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase())}</span>`;
+}
 let decisions = {}, edits = {}, slotcfg = {}, db = null, me = null, names = {};
 let view = "flow", stg = "wait", acc = "", sortBy = "wait";
 const pick = {}, confirmRm = {};
@@ -785,10 +845,10 @@ function cardHtml(p) {
   if (hw) tags.push(`<span class="wtag">⚠ ${hw}</span>`);
   let cover;
   if (p.slides?.[0]) cover = `<button class="cv" data-open="${esc(p.key)}" aria-label="Открыть пост"><img class="s" data-enc="${p.slides[0]}" alt="">
-      ${sc != null ? `<span class="sc ${sc >= 8 ? "hi" : sc < 6 ? "lo" : ""}">${sc}</span>` : ""}${avatarOf(p.account) ? `<img class="av" src="${avatarOf(p.account)}" alt="">` : ""}
+      ${sc != null ? `<span class="sc ${sc >= 8 ? "hi" : sc < 6 ? "lo" : ""}">${sc}</span>` : ""}${ava(p.account, 30, "av")}
       ${tags.length ? `<span class="tg">${tags.join("")}</span>` : ""}</button>`;
   else cover = `<button class="cv build ${p.live ? "on" : ""}" data-open="${esc(p.key)}" aria-label="Открыть"><span class="bi">${ICON[p.stage] || ICON.plan}${STAGES.find(x => x[0] === p.stage)?.[2] || ""}</span>
-      ${avatarOf(p.account) ? `<img class="av" src="${avatarOf(p.account)}" alt="">` : ""}${tags.length ? `<span class="tg">${tags.join("")}</span>` : ""}</button>`;
+      ${ava(p.account, 30, "av")}${tags.length ? `<span class="tg">${tags.join("")}</span>` : ""}</button>`;
   let extra = "", act = "";
   if (p.stage === "edit") { const c = (dcs && pending(p) ? dcs.comment : p.editor_comment) || ""; if (c) extra = `<div class="note">${esc(c)}</div>`; }
   if (p.stage === "queue") { const sl = (pending(p) && dcs?.slot) || p.slot; const s = sl && strength(p.account, +sl.slice(11, 13), wdOf(sl.slice(0, 10)));
@@ -851,7 +911,7 @@ function renderNet() {
   $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Слоты сети</h2><span class="n">${D.accounts.length}</span><span class="hint">сверху — у кого свободные слоты и нет постов. Нажмите на аккаунт: окна, сила по часам и календарь</span></div>
     <div class="net">${rows.map(({a, m, q}) => {
       const pubN = m.pub7, tot = m.total || 1;
-      return `<div class="nrow"><button class="nm" data-pick="${esc(a.name)}">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<span>@${esc(a.name)}</span></button>
+      return `<div class="nrow"><button class="nm" data-pick="${esc(a.name)}">${ava(a.name, 36)}<span>@${esc(a.name)}</span></button>
         <div class="nmid"><div class="wch">${m.c.windows.map(w => `<span>${pad(wStart(w))}:05 ${pw(strength(a.name, wStart(w), null), 1)}</span>`).join("") || '<span class="hint">окон нет</span>'}</div>
         <div class="load"><div class="bar"><i class="b" style="width:${100 * m.booked / tot}%"></i></div><small>занято ${m.booked} из ${m.total} на 7 дней${q ? " · постов в запасе " + q : " · запаса нет"}</small></div></div>
         <div class="freeN ${m.free.length ? "" : "zero"}">${m.free.length}<small>свободно</small></div>
@@ -884,7 +944,7 @@ function renderSlots() {
           ${s.p ? `<span class="tt">${esc(flat(s.p.headline))}</span>` : ""}${s.st !== "missed" ? pw(s.str, 1) : ""}</button>`; }).join("")}`).join("")}
     </div></div>`;
   $("view").innerHTML = `<section class="acc-top">
-    <div class="panel"><div class="acc-id">${a.avatar ? `<img src="${a.avatar}" alt="">` : ""}<div><h2>@${esc(acc)}</h2><p>${c.windows.length} окон в день · публикаций до ${c.max_per_day} в сутки</p></div></div>
+    <div class="panel"><div class="acc-id">${ava(acc, 52)}<div><h2>@${esc(acc)}</h2><p>${c.windows.length} окон в день · публикаций до ${c.max_per_day} в сутки</p></div></div>
       <div class="kv3"><div><small>свободно, 7 дн.</small><b>${m.free.length}</b></div><div><small>занято</small><b>${m.booked}</b></div><div><small>в запасе постов</small><b>${q + w}</b></div></div>
       <div class="ph" style="margin-bottom:10px"><h2 style="font-size:16px">Окна публикации</h2><span class="hint">по Москве</span></div>
       <div class="wins">${winRows}</div>
@@ -918,7 +978,7 @@ function renderAccounts() {
   const bad = rows.filter(r => r.flag === "нужна партия").length;
   $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Аккаунты</h2><span class="n">${D.accounts.length}</span><span class="hint">${bad ? bad + " без запаса постов" : "у всех есть запас"} · строка открывает конвейер аккаунта</span></div>
     <div class="tbl"><div class="tr hd">${th("name", "Аккаунт")}${th("gen", "ИИ готовит")}${th("wait", "Ждут вас")}${th("qu", "Очередь")}${th("free", "Свободно")}${th("best", "Лучший слот")}${th("reach", "Охват, мед.")}${th("fol", "Подп. 7 дн.")}${th("flag", "Статус")}</div>
-    ${rows.map(r => `<div class="tr" data-pick="${esc(r.a.name)}"><span class="nm">${r.a.avatar ? `<img src="${r.a.avatar}" alt="">` : ""}<span>@${esc(r.a.name)}</span></span>
+    ${rows.map(r => `<div class="tr" data-pick="${esc(r.a.name)}"><span class="nm">${ava(r.a.name, 32)}<span>@${esc(r.a.name)}</span></span>
       ${z(r.gen)}${z(r.wait)}${z(r.qu)}${z(r.free)}<span>${r.best == null ? '<span class="z">—</span>' : pw({score: r.best, ratio: 1}, 1)}</span>
       <span class="num">${fmt(r.a.med_reach_10)}</span><span class="num">${r.a.followers_7d > 0 ? "+" : ""}${fmt(r.a.followers_7d)}</span>
       <span><span class="flag ${r.flag === "нужна партия" ? "bad" : r.flag === "ждёт вас" ? "you" : ""}">${r.flag}</span></span></div>`).join("")}</div></section>
@@ -934,7 +994,7 @@ function profileHtml(a, open) {
   const pct = s => s == null ? "" : `<span class="num">${Math.round(100 * s)}%</span> `;
   const net = (N.items || []);
   return `<article class="panel prof" style="padding:16px 18px;display:grid;gap:10px">
-    <div style="display:flex;gap:10px;align-items:center">${a.avatar ? `<img src="${a.avatar}" alt="" style="width:34px;height:34px;border-radius:50%">` : ""}<b>Профиль канала @${esc(a.name)}</b></div>
+    <div style="display:flex;gap:10px;align-items:center">${ava(a.name, 34)}<b>Профиль канала @${esc(a.name)}</b></div>
     ${P.promise || f.promise ? `<p style="font-size:14px;line-height:1.45"><b>Обещание:</b> ${esc(P.promise || f.promise)}</p>` : ""}
     ${P.origin || f.origin ? `<p class="hint"><b>Истоки</b> (название и описание — не меньше 45% постов): ${esc(P.origin || f.origin)}</p>` : ""}
     ${posts.length ? `<div><h4 style="margin:2px 0 6px">Что сюда постим</h4><ul style="padding-left:18px;display:grid;gap:7px">${posts.map(x => `<li>${pct(x.share)}<b>${esc(x.name)}</b>${x.what ? " — " + esc(x.what) : ""}
@@ -1162,6 +1222,7 @@ async function downloadZip(p, btn) {
       `Слайдов: ${imgs.length} — выкладывать по порядку 01 → ${pad(imgs.length)}${hq ? " (1080×1350)" : " (превью 720×900: полноразмерные появятся после пересборки пульта)"}`,
       sl ? `Слот по плану: ${slotLabel(sl)} МСК` : "",
       best ? `Самый залетающий свободный слот в ближайшие 48 ч: ${slotLabel(best.key)} МСК${best.str ? " · сила " + best.str.score + ", " + xr(best.str) + " к обычному охвату" : ""}` : "",
+      p.status === "published" ? "" : (mu => `Музыка (${mu.m.ru}): ${trackName(mu.pick[0])} · запасные: ${mu.pick.slice(1).map(trackName).join(", ")} — фрагмент: припев или кульминация`)(musicOf(p)),
       "Подпись — в caption.txt (уже скопирована в буфер обмена).", "После публикации нажмите на пульте «Опубликовано вручную» и выберите слот."]
       .filter((x, i) => x || i === 2).join("\r\n");
     const files = [...await Promise.all(imgs.map(async (b, j) => ({name: pad(j + 1) + ".jpg", data: new Uint8Array(await b.arrayBuffer())}))),
@@ -1208,11 +1269,103 @@ function renderUpload() {
     <div class="upl">${list.length ? list.map(p => { const sl = (pending(p) && decisions[p.key]?.slot) || p.slot, done = bucket(p) === "pub", mp = manualPub(p);
       const mine = !done && upMarks[p.key];
       return `<article class="uc ${done || mine ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
-      <div class="ub"><span class="hint">@${esc(p.account)} · ${mp ? "отмечен «опубликовано вручную»" + (sl ? " · слот " + slotLabel(sl) : "") : done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
+      <div class="ub"><span class="uacc">${ava(p.account, 22)}<b>@${esc(p.account)}</b></span><span class="hint">${mp ? "отмечен «опубликовано вручную»" + (sl ? " · слот " + slotLabel(sl) : "") : done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
         <h3>${esc(flat(p.headline))}</h3><div class="cap-prev">${esc(edits[p.key]?.caption ?? p.caption)}</div>
         <div class="btns"><button class="btn sm go" data-zip="${esc(p.key)}">⬇ Архив .zip</button><button class="btn sm" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
         ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Опубликовано вручную"}</button>`}</div></div></article>`; }).join("")
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
+}
+
+/* ---------- 10.11: «Когда постить» — рекомендуемый слот крупно и карта слотов аккаунта на 7 дней (клик по свободной клетке выбирает слот) ---------- */
+function whenBlock(p, selKey) {
+  const m = slotModel(p.account), best = bestFree(p.account), s = best?.str, today = nowMsk().slice(0, 10);
+  const days = m.days.filter(d => d.date >= today).slice(0, 7);
+  const top = best
+    ? `<div class="wbest"><span class="wk">★ Рекомендуем постить</span><b>${slotLabel(best.key)} <small>МСК</small></b>
+        <span class="wsub">${s ? `${sWord(s)[0].toUpperCase() + sWord(s).slice(1)} слот: в это время посты набирают ${xr(s)} к обычному охвату · ожидаемый ${esc(s.metric)} ≈ ${fmt(s.expect)} при медиане ${fmt(s.med)} · уверенность ${s.conf}`
+          : "Силу слота не посчитать: мало постов с замером — это ближайший свободный слот"}</span></div>${s ? `<span class="wscore ${sCls(s)}"><b>${s.score}</b><small>сила из 100</small></span>` : ""}`
+    : `<div class="wbest"><span class="wk">Свободных слотов нет</span><span class="wsub">На 7 дней всё занято — снимите пост со слота или добавьте окно на экране «Слоты».</span></div>`;
+  const cell = c => {
+    if (!c) return "<span></span>";
+    const t = slotLabel(c.key) + (c.str ? ` · сила ${c.str.score}, ${xr(c.str)} к обычному` : "");
+    if (c.p?.key === p.key && !c.past && bucket(p) === "ok")
+      return `<button class="wc mine ${c.key === selKey ? "sel" : ""}" data-pslot="${c.key}" title="${t} · слот этого поста">●</button>`;
+    if (c.st === "free") return `<button class="wc free ${sCls(c.str)} ${best && c.key === best.key ? "best" : ""} ${c.key === selKey ? "sel" : ""}" data-pslot="${c.key}" title="${t} · свободен" aria-label="${t}">${c.str ? c.str.score : "·"}</button>`;
+    if (c.st === "published") return `<span class="wc pub" title="${slotLabel(c.key)} · вышел: ${esc(flat(c.p?.headline || ""))}">✓</span>`;
+    if (c.st === "booked") return `<span class="wc booked" title="${slotLabel(c.key)} · занят: ${esc(flat(c.p?.headline || ""))}">●</span>`;
+    if (c.st === "late") return `<span class="wc late" title="${slotLabel(c.key)} · просрочен">!</span>`;
+    return `<span class="wc past" title="${slotLabel(c.key)} · прошёл"></span>`;
+  };
+  const map = m.rows.length ? `<div class="wmap" style="--n:${days.length}"><span></span>${days.map(d => `<span class="wd ${d.today ? "today" : ""}">${d.today ? "сег." : WD[d.wdi]}<b>${+d.date.slice(8)}</b></span>`).join("")}
+      ${m.rows.map(r => `<span class="wh">${pad(r.hour)}:05</span>` + days.map(d => cell(r.cells.find(x => x.key.startsWith(d.date)))).join("")).join("")}</div>
+    <div class="wleg"><span><i class="hi"></i>сильный</span><span><i class="mid"></i>средний</span><span><i class="lo"></i>слабый</span><span><i class="bk"></i>занят</span><span><i class="pb"></i>вышел</span><span>★ рекомендуем</span><span>цифра — сила слота</span></div>`
+    : `<p class="hint">У аккаунта нет окон публикации — добавьте их на экране «Слоты».</p>`;
+  return `<div class="when"><div class="wtop">${top}</div>
+    <h4>Карта слотов @${esc(p.account)} на неделю</h4>${map}
+    <p class="wpick" data-wpick>${selKey ? `Выбран: <b>${slotLabel(selKey)} МСК</b> — нажмите «${bucket(p) === "ok" ? "Переставить" : "Одобрить"}» ниже` : "Выберите свободную клетку на карте"}</p></div>`;
+}
+function pickSlot(art, key) {
+  const sel = art.querySelector('select.f[id^="sl-"]'); if (!sel) return;
+  if (![...sel.options].some(o => o.value === key)) sel.add(new Option(slotLabel(key), key));
+  sel.value = key;
+  art.querySelectorAll(".wc.sel").forEach(x => x.classList.remove("sel"));
+  art.querySelector(`.wc[data-pslot="${key}"]`)?.classList.add("sel");
+  const ap = art.querySelector('[data-act="approved"]'); if (ap) ap.textContent = ap.dataset.base + " · " + slotLabel(key);
+  const wp = art.querySelector("[data-wpick]"); if (wp) wp.innerHTML = `Выбран: <b>${slotLabel(key)} МСК</b> — нажмите «${esc(ap?.dataset.base || "Одобрить")}» ниже`;
+}
+
+/* ---------- 10.11: музыка к посту — настроение по словам заголовка/темы/рубрики + настроение канала; только реальные известные треки ---------- */
+const MOOD = {
+  mystery: {ru: "тайна", why: "Тайна и поворот — тёмный медленный трек держит интригу до последнего слайда",
+    re: /bible|biblical|ancient|pharaoh|egypt|vatican|secret|hidden|myster|conspira|\bcia\b|\bfbi\b|classified|cover.?up|legend|prophe|apocalyp|histor|archae|библ|тайн|древн|заговор|истори|пророч|секрет/g,
+    lib: [["Little Dark Age", "MGMT"], ["After Dark", "Mr.Kitty"], ["Experience", "Ludovico Einaudi"], ["Lacrimosa", "W. A. Mozart"], ["Time", "Hans Zimmer"], ["Snowfall", "Øneheart & reidenshi"]]},
+  horror: {ru: "жуть", why: "Жуть — узнаваемая мрачная мелодия добавляет мурашек и удерживает при листании",
+    re: /horror|haunt|ghost|demon|killer|murder|serial|curse|creep|scary|terrif|nightmare|freddy|krueger|exorcis|possess|zombie|vampire|dracula|witch|ужас|призрак|демон|маньяк|проклят|страш|жут/g,
+    lib: [["Mary On A Cross", "Ghost"], ["Tubular Bells", "Mike Oldfield"], ["Halloween Theme", "John Carpenter"], ["Sweet Dreams (Are Made of This)", "Marilyn Manson"], ["In the Hall of the Mountain King", "Edvard Grieg"], ["Little Dark Age", "MGMT"]]},
+  epic: {ru: "масштаб", why: "Масштаб стихии — эпичный нарастающий саундтрек усиливает «вау» от кадров",
+    re: /earthquake|volcan|erupt|tsunami|avalanche|landslide|rockfall|storm|tornado|hurricane|lightning|glacier|cliff|canyon|mountain|planet|earth|space|asteroid|nature|disaster|обвал|скал|вулкан|землетряс|стихи|цунами|лавин|природ|гор[аыу]/g,
+    lib: [["Time", "Hans Zimmer"], ["Cornfield Chase", "Hans Zimmer"], ["Run Boy Run", "Woodkid"], ["Experience", "Ludovico Einaudi"], ["Snowfall", "Øneheart & reidenshi"], ["Lux Aeterna", "Clint Mansell"]]},
+  hype: {ru: "драйв", why: "Спорт и сила — энергичный трек с битом под быстрое листание",
+    re: /football|\bnfl\b|quarterback|touchdown|super bowl|athlete|fighter|fight|boxing|\bufc\b|\bmma\b|training|muscle|\bgym\b|workout|coach|rookie|футбол|боец|бой|спорт|тренир|мышц/g,
+    lib: [["Remember the Name", "Fort Minor"], ["Till I Collapse", "Eminem"], ["Believer", "Imagine Dragons"], ["Enemy", "Imagine Dragons"], ["Metamorphosis", "INTERWORLD"], ["Murder In My Mind", "Kordhell"]]},
+  romance: {ru: "близость", why: "Отношения и близость — мягкий романтичный трек, такой пост хочется отправить партнёру",
+    re: /couple|intima|kiss|\blove|romant|\bsex|s\*x|partner|girlfriend|boyfriend|\bwife|husband|\bbed\b|cuddl|spoon|naked|arous|attract|flirt|интим|поцелу|любов|секс|влеч|пар[аы]\b/g,
+    lib: [["Sweater Weather", "The Neighbourhood"], ["Until I Found You", "Stephen Sanchez"], ["Die With A Smile", "Lady Gaga & Bruno Mars"], ["lovely", "Billie Eilish & Khalid"], ["Daylight", "David Kushner"], ["Earned It", "The Weeknd"]]},
+  drama: {ru: "драма", why: "Измена и драма — трек с узнаваемым надрывом, комментарии разгораются",
+    re: /cheat|affair|betray|divorce|unfaithful|mistress|\blie|lying|toxic|jealous|измен|развод|предат|ревн|любовни/g,
+    lib: [["Somebody That I Used to Know", "Gotye"], ["Jealous", "Labrinth"], ["Cry Me a River", "Justin Timberlake"], ["Another Love", "Tom Odell"], ["Unholy", "Sam Smith & Kim Petras"], ["Before He Cheats", "Carrie Underwood"]]},
+  party: {ru: "вечеринка", why: "Напитки и вечеринки — весёлый узнаваемый трек, сразу ассоциация с баром",
+    re: /drink|beer|alcohol|wine|vodka|whisk|tequila|cocktail|\bbar\b|hangover|drunk|party|\bshots?\b|liver|напит|пиво|алкогол|вино|похмел|вечерин/g,
+    lib: [["One More Time", "Daft Punk"], ["Tequila", "The Champs"], ["I Gotta Feeling", "Black Eyed Peas"], ["Red Red Wine", "UB40"], ["Escapism", "RAYE"], ["Espresso", "Sabrina Carpenter"]]},
+  chill: {ru: "уют", why: "Еда — тёплый лёгкий трек, уютное настроение и желание сохранить пост",
+    re: /food|cook|recipe|chef|kitchen|bake|meal|pasta|pizza|breakfast|snack|\beat|еда|готов|рецепт|кухн|блюд/g,
+    lib: [["Lovely Day", "Bill Withers"], ["Le Festin", "Camille"], ["Put Your Records On", "Corinne Bailey Rae"], ["Sunday Best", "Surfaces"], ["Banana Pancakes", "Jack Johnson"], ["Home", "Edward Sharpe & The Magnetic Zeros"]]},
+  fun: {ru: "мужской юмор", why: "Мужские моменты — мемный узнаваемый трек, такое пересылают друзьям",
+    re: /\bguys?\b|\bbros?\b|\bboys\b|prank|\bbet\b|bachelor|funny|hilarious|guy code|парн|пацан|розыгрыш|прикол/g,
+    lib: [["Gangsta's Paradise", "Coolio"], ["Bad Boys", "Inner Circle"], ["Metamorphosis", "INTERWORLD"], ["Can't Hold Us", "Macklemore & Ryan Lewis"], ["SICKO MODE", "Travis Scott"], ["Murder In My Mind", "Kordhell"]]},
+};
+const ACC_MOOD = {rocksfalls: "epic", americanfootballfights: "hype", conspiracytheoriesus: "mystery", scaryridesus: "horror", spookflix: "horror",
+  firstandlastdrink: "party", cheatingaround: "drama", cookskillchief: "chill", boysmomentsus: "fun"};
+function musicOf(p) {
+  const t = [p.headline, p.topic, p.pillar].join(" ").toLowerCase(), def = ACC_MOOD[p.account] || "mystery";
+  let mood = def, top = 0;
+  for (const [k, m] of Object.entries(MOOD)) { const n = (t.match(m.re) || []).length + (k === def ? 1.5 : 0); if (n > top) { top = n; mood = k; } }
+  let h = 0; for (const ch of p.key) h = (h * 33 + ch.charCodeAt(0)) >>> 0;     // разные посты канала — разные треки, у одного поста — всегда тот же
+  const lib = MOOD[mood].lib, i0 = h % lib.length;
+  return {mood, m: MOOD[mood], pick: [0, 1, 2].map(j => lib[(i0 + j) % lib.length])};
+}
+const trackName = t => `${t[0]} — ${t[1]}`;
+function copyText(text) {        // буфер обмена; запасной путь — скрытое поле + execCommand (старый Safari, страница без фокуса)
+  const old = () => { const ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+    (document.querySelector("dialog[open]") || document.body).appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove(); return ok ? Promise.resolve() : Promise.reject(new Error("copy")); };
+  try { return navigator.clipboard ? navigator.clipboard.writeText(text).catch(old) : old(); } catch (e) { return old(); }
+}
+function musicBlock(p) {
+  const {m, pick} = musicOf(p), [t0, ...alts] = pick, q = t => `${t[0]} ${t[1]}`;
+  return `<div class="mus"><div class="mh"><h4>Музыка</h4><span class="hint">настроение: ${esc(m.ru)}</span></div>
+    <div class="mt0"><span class="mico" aria-hidden="true">♪</span><span class="mtt"><b>${esc(t0[0])}</b><small>${esc(t0[1])}</small></span><button class="btn sm" data-music="${esc(q(t0))}">Копировать</button></div>
+    <div class="malt"><span class="hint">Запасные:</span>${alts.map(t => `<button class="chip" data-music="${esc(q(t))}" title="Копировать название для поиска">${esc(trackName(t))}</button>`).join("")}</div>
+    <p class="hint">${esc(m.why)}. В Instagram: «Добавить музыку» → вставьте название в поиск; фрагмент — самое узнаваемое место (припев или кульминация). Трека нет в библиотеке — берите запасной.</p></div>`;
 }
 
 /* причины решений редактора: уходят в decisions.reasons → state.editor_reasons → learn.py (уроки в плейбук) */
@@ -1234,22 +1387,23 @@ function card(p) {
   if (b === "pub" && (p.manual_upload || manualPub(p))) pill[1] = "опубликован вручную";
   const hbox = p.status === "published" ? "" : `<div class="hbox"><b>Выложить руками</b><div class="btns"><button class="btn primary" data-act="zip">⬇ Архив для заливки (.zip)</button>
       ${manualPub(p) ? `<span class="state">отмечен «опубликовано вручную»${dcs.slot ? " · слот " + slotLabel(dcs.slot) : ""} — ждёт применения</span>` : `<button class="btn" data-act="manual">Опубликовано вручную</button>`}</div>
-      <p class="hint">В архиве слайды 1080×1350 по порядку, caption.txt и info.txt с самым залетающим свободным слотом. Подпись копируется в буфер сразу. Выложили — нажмите «Опубликовано вручную» и выберите слот.</p></div>`;
+      <p class="hint">В архиве слайды 1080×1350 по порядку, caption.txt и info.txt с самым залетающим свободным слотом и музыкой. Подпись копируется в буфер сразу. Выложили — нажмите «Опубликовано вручную» и выберите слот.</p></div>`;
+  const fmtType = FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""));
+  const selKey = (b === "ok" && slotKey) ? slotKey : (best?.key || "");
   return `<article class="post" data-key="${esc(p.key)}">
   <div class="gal"><button class="main" data-j="0" aria-label="Открыть слайды"><img data-enc="${p.slides[0] || ""}" id="galMain" alt=""></button>
     <div class="th">${p.slides.map((s, j) => `<button data-th="${j}" aria-current="${j === 0}" aria-label="Слайд ${j + 1}"><img data-enc="${s}" alt=""></button>`).join("")}</div></div>
   <div class="info">
-  <div class="top"><span class="pill ${pill[0]}">${pill[1]}</span><span class="hint">@${esc(p.account)} · ${FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""))}</span>${p.collab ? `<span class="pill">совместно с @${esc(p.collab)}</span>` : ""}
-    <span class="big-score">${c.score ?? "—"}<small>/10</small></span></div>
+  <div class="phead">${ava(p.account, 40)}<span class="pa"><b>@${esc(p.account)}</b><small>${fmtType || "пост"}${p.collab ? " · совместно с @" + esc(p.collab) : ""}</small></span>
+    <span class="pr"><span class="pill ${pill[0]}">${pill[1]}</span><span class="big-score">${c.score ?? "—"}<small>/10</small></span></span></div>
   <h3>${esc(p.headline)}</h3>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
-  ${weakBlock(p)}${ideaBlock(p)}
-  ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : hbox + `
+  ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
   <div class="decide">
     ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? " (ждёт применения)" : ""} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
-    <label class="f" for="sl-${i}">Слот публикации</label>
+    <label class="f" for="sl-${i}">Слот публикации <span class="hint" style="font-weight:500">· можно выбрать и на карте недели выше</span></label>
     <select class="f" id="sl-${i}">${b === "ok" && slotKey ? `<option value="${slotKey}">Оставить: ${slotLabel(slotKey)}${slotStr ? " · сила " + slotStr.score : ""}</option>` : ""}${best ? `<option value="${best.key}">★ ${slotLabel(best.key)}${best.str ? " · сила " + best.str.score : ""} (лучший в ближайшие 48 ч)</option>` : ""}${free.filter(s => !best || s.key !== best.key).map(s => `<option value="${s.key}">${slotLabel(s.key)}${s.str ? " · сила " + s.str.score : ""}</option>`).join("")}${free.length ? "" : `<option value="">свободных слотов нет — ближайший при синхронизации</option>`}</select>
-    <div class="btns"><button class="btn go" data-act="approved" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}</button>
+    <div class="btns"><button class="btn go" data-act="approved" data-base="${b === "ok" ? "Переставить" : "Одобрить"}" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}${selKey ? " · " + slotLabel(selKey) : ""}</button>
       ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
       ${b !== "off" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
     <label class="f">Причина (одним нажатием — конвейер учится на этом)</label>
@@ -1259,6 +1413,7 @@ function card(p) {
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Отправить на доработку</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
   </div>`}
+  ${weakBlock(p)}${ideaBlock(p)}
   ${rankBlock(p)}
   <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
@@ -1279,6 +1434,9 @@ function openPost(key) {
     return pdlg.showModal(); }
   pdlg.className = "wide"; pdlg.innerHTML = xbtn + card(p); pdlg.showModal(); hydrate(true);
 }
+pdlg.addEventListener("change", e => {        // слот выбрали в списке — подсветить его на карте недели
+  const sel = e.target.closest('select.f[id^="sl-"]'), art = sel?.closest(".post"); if (art && sel.value) pickSlot(art, sel.value);
+});
 pdlg.addEventListener("click", async e => {
   if (e.target === pdlg || e.target.closest("[data-close]")) return pdlg.close();
   const art = e.target.closest(".post"); if (!art) return;
@@ -1290,6 +1448,9 @@ pdlg.addEventListener("click", async e => {
   const rb = e.target.closest("[data-r]");
   if (rb) { const k = rb.closest("[data-rsn]").dataset.rsn, r = rb.dataset.r, cur = new Set(rsnSel[k] || []);
     cur.has(r) ? cur.delete(r) : cur.add(r); rsnSel[k] = [...cur]; rb.setAttribute("aria-pressed", cur.has(r)); return; }
+  const ps = e.target.closest("[data-pslot]"); if (ps) return pickSlot(art, ps.dataset.pslot);
+  const mu = e.target.closest("[data-music]");
+  if (mu) { copyText(mu.dataset.music).then(() => toast("Скопировано: " + mu.dataset.music + " — вставьте в поиск музыки Instagram"), () => toast("Не скопировалось", 1)); return; }
   const hb = e.target.closest('[data-act="zip"],[data-act="manual"]');     // архив — без записи; выбор слота сам подскажет про запись
   if (hb) return hb.dataset.act === "zip" ? downloadZip(p, hb) : openManual(p);
   const btn = e.target.closest("[data-act]"); if (!btn || !db) return;
