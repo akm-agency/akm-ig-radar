@@ -13,7 +13,8 @@ on:
     branches: [main]
     paths: [".github/run-now.txt"]
     # пинок с ПК — тегом: для тегов фильтр путей не действует (09.11 пинки в ветку GitHub молча пропускал)
-    tags: [graph-kick]
+    # тег server-pulse — пульс сервера (server_pulse.py сборщика, раз в 15 мин): запуск не зависит от ПК с graph_kick.py
+    tags: [graph-kick, server-pulse]
 
 permissions:
   contents: write

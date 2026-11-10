@@ -152,7 +152,7 @@ def post(m: dict) -> dict:
 
 STALE_H = 3
 SERVER_FRESH_MIN = 70   # сервер выгружал позже — сайт обновляет он
-API_EVERY_MIN = 50      # сами обновляем не чаще раза в час (запуски каждые 15 мин, GitHub часть пропускает)
+API_EVERY_MIN = 50      # без почасового графика — не чаще раза в час; с ним правило по слоту часа (hour_missing)
 
 
 def forced_run() -> bool:
@@ -167,6 +167,24 @@ def age_min(get, now: datetime) -> float:
         return (now - datetime.fromisoformat(get())).total_seconds() / 60
     except Exception:  # noqa: BLE001
         return float("inf")
+
+
+def hour_missing(net: dict, users: list[str], now: datetime) -> list[str] | None:
+    """Страницы без замера в слоте текущего часа почасового графика (network.hourly); None — графика нет.
+    Окно ещё не сдвинуто до текущего часа — значит, замеров в нём нет ни у кого."""
+    hr = net.get("hourly")
+    if not (isinstance(hr, dict) and hr.get("start") and isinstance(hr.get("acc"), dict)):
+        return None
+    try:
+        start = datetime.fromisoformat(hr["start"]).replace(tzinfo=MSK)
+    except (TypeError, ValueError):
+        return None
+    i = int((now.replace(minute=0, second=0, microsecond=0) - start).total_seconds() // 3600)
+
+    def has(u: str) -> bool:
+        f = (hr["acc"].get(u) or {}).get("f") or []
+        return 0 <= i < len(f) and f[i] is not None
+    return [u for u in users if not has(u)]
 
 
 def server_check(k: bytes, now: datetime) -> None:
@@ -214,26 +232,52 @@ def main() -> int:
     # кнопка или run-now.txt в main — принудительно; пинок с ПК (ветка graph-kick) и расписание — по правилам ниже
     forced = ev == "workflow_dispatch" or (ev == "push" and os.environ.get("GITHUB_REF_NAME") == "main")
     server_age = age_min(lambda: load("health", k)["at"], now)
-    api_age = age_min(lambda: net.get("apiAt"), now)
     if not forced and server_age < SERVER_FRESH_MIN:
         print(f"сервер выгружал {server_age:.0f} мин назад — он и обновляет сайт, API не трогаю (лимит Meta общий)")
         return 0
-    if not forced and api_age < API_EVERY_MIN:
-        print(f"цифры API обновлены {api_age:.0f} мин назад — следующие через час")
-        server_check(k, now)
-        return 0
+    hour = now.strftime("%Y-%m-%dT%H")
+    prev_bad = net.get("apiBad") if isinstance(net.get("apiBad"), dict) else {}
+    bad = set(prev_bad.get("u") or []) if prev_bad.get("h") == hour else set()
+    targets, partial = users, False
+    missing = None if forced else hour_missing(net, users, now)
+    if missing is None and not forced:   # почасового графика нет — старое правило: не чаще раза в 50 мин
+        api_age = age_min(lambda: net.get("apiAt"), now)
+        if api_age < API_EVERY_MIN:
+            print(f"цифры API обновлены {api_age:.0f} мин назад — следующие через час")
+            server_check(k, now)
+            return 0
+    elif missing is not None:
+        # 10.11 часы заполнялись не целиком (19:00 — 4 из 38): запуск упирался в лимит Meta на середине списка,
+        # а правило «раз в 50 мин» не давало добрать остальных в тот же час. Теперь каждый пинок (15 мин)
+        # добирает только страницы без замера в текущем часе; страницы с ошибкой API — один раз за час.
+        retry = [u for u in missing if u not in bad]
+        if not retry:
+            print(f"в {now:%H}:00 замеры есть у {len(users) - len(missing)}/{len(users)} страниц"
+                  + (f"; с ошибкой API (повтор в следующем часе): {', '.join(sorted(missing))}" if missing else ""))
+            server_check(k, now)
+            return 0
+        partial = len(missing) < len(users)
+        targets = retry
+        if partial:
+            print(f"в {now:%H}:00 нет замера у {len(missing)}/{len(users)} страниц — добираю {len(retry)}: {', '.join(retry)}")
     with_media = now.hour % MEDIA_EVERY_H == 0
     api = Api()
-    got, errs = {}, []
+    got, errs, new_bad = {}, [], set()
+    done: set[str] = set()
     try:
-        me_id, tok = pick_token(api, tokens, users[:3])
-        for u in users:
+        # проба токена — на уже замеренных в этом часе (они точно отвечают), потом на самих добираемых
+        probes = ([u for u in users if u not in targets and u not in bad][:3] + targets[:3])[:3]
+        me_id, tok = pick_token(api, tokens, probes)
+        for u in targets:
             f = ("business_discovery.username(" + u + "){id,followers_count,follows_count,media_count"
                  + (f",media.limit({MEDIA_PER_ACC}){{id,caption,media_type,media_product_type,timestamp,permalink,"
                     "like_count,comments_count,view_count}" if with_media else "") + "}")
             r = api.get(me_id, tok, fields=f)
+            done.add(u)
             if "error" in r:
                 errs.append(f"{u}: {r['error'][:80]}")
+                if not LIMIT_RE.search(r["error"]):
+                    new_bad.add(u)
                 continue
             got[u] = r["business_discovery"]
     except Stop as e:
@@ -242,12 +286,19 @@ def main() -> int:
         print(e)
         server_check(k, now)
         return 1
+    for x in errs:   # причина по каждой странице — в лог запуска
+        print(f"  ошибка API: {x}")
+    left = [u for u in targets if u not in done]
+    if left:
+        print(f"  не дошла очередь ({len(left)}, лимит приложения {api.usage}%): {', '.join(left)}")
     if not got:
         limited = any(LIMIT_RE.search(x.split(": ", 1)[-1]) for x in errs) or api.usage >= USAGE_STOP or not errs
         print("ни одной страницы не получено; " + ("; ".join(errs[:5]) or "лимит"))
         server_check(k, now)
-        # лимит — не поломка: цифры прошлого часа и сервера остаются на сайте, следующий запуск через час
-        return 0 if limited else 1
+        # лимит — не поломка: цифры прошлого часа и сервера остаются на сайте, следующий запуск через час.
+        # Добор отдельных страниц — тоже не поломка: одна закрытая страница не должна краснить каждый пинок
+        return 0 if limited or partial else 1
+    net["apiBad"] = {"h": hour, "u": sorted(bad | new_bad)}
 
     ts, at = int(now.timestamp()), now.isoformat(timespec="minutes")
     today = now.date().isoformat()
