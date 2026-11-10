@@ -381,7 +381,8 @@ dialog h2{font-family:var(--fd);font-size:19px;font-weight:500;letter-spacing:-.
 
 /* карточка поста */
 .post{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px}
-@media(max-width:820px){.post{grid-template-columns:1fr}}
+@media(max-width:820px){.post{grid-template-columns:minmax(0,1fr)}}   /* 10.11: было 1fr — длинные пункты списка слотов растягивали карточку на телефоне до 540 px */
+select.f{min-width:0;max-width:100%;text-overflow:ellipsis}
 .gal .main{aspect-ratio:4/5;border-radius:var(--r-s);overflow:hidden;background:var(--soft);display:block;width:100%}
 .gal .main img{width:100%;height:100%;object-fit:cover;display:block}
 .gal .th{display:flex;gap:6px;overflow-x:auto;margin-top:8px;padding-bottom:4px;scrollbar-width:thin}
@@ -498,7 +499,7 @@ textarea{resize:vertical;min-height:76px}
 .phead .pa{display:flex;flex-direction:column;min-width:0;flex:1 1 120px;line-height:1.25}
 .phead .pa b{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .phead .pa small{font-size:12.5px;color:var(--muted)}
-.phead .pr{margin-left:auto;margin-right:46px;display:flex;align-items:center;gap:10px;flex:none}
+.phead .pr{margin-left:auto;margin-right:36px;display:flex;align-items:center;gap:10px;flex:none}
 .phead .big-score{margin:0}
 @media(max-width:820px){.phead .pr{margin-right:0}}
 .when,.mus{background:var(--soft);border-radius:var(--r-s);padding:14px 16px;display:grid;gap:10px;min-width:0}
@@ -1282,8 +1283,8 @@ function whenBlock(p, selKey) {
   const days = m.days.filter(d => d.date >= today).slice(0, 7);
   const top = best
     ? `<div class="wbest"><span class="wk">★ Рекомендуем постить</span><b>${slotLabel(best.key)} <small>МСК</small></b>
-        <span class="wsub">${s ? `${sWord(s)[0].toUpperCase() + sWord(s).slice(1)} слот: в это время посты набирают ${xr(s)} к обычному охвату · ожидаемый ${esc(s.metric)} ≈ ${fmt(s.expect)} при медиане ${fmt(s.med)} · уверенность ${s.conf}`
-          : "Силу слота не посчитать: мало постов с замером — это ближайший свободный слот"}</span></div>${s ? `<span class="wscore ${sCls(s)}"><b>${s.score}</b><small>сила из 100</small></span>` : ""}`
+        <span class="wsub">${s ? `${sWord(s)[0].toUpperCase() + sWord(s).slice(1)} слот: в это время посты набирают ${xr(s)} к обычному · прогноз: ${esc(s.metric)} ≈ ${fmt(s.expect)} при медиане ${fmt(s.med)} · уверенность ${s.conf}`
+          : "Силу слота не посчитать: мало постов с замером — это ближайший свободный слот"}</span></div>${s ? `<span class="wscore ${sCls(s)}" title="Сила слота из 100"><b>${s.score}</b><small>из 100</small></span>` : ""}`
     : `<div class="wbest"><span class="wk">Свободных слотов нет</span><span class="wsub">На 7 дней всё занято — снимите пост со слота или добавьте окно на экране «Слоты».</span></div>`;
   const cell = c => {
     if (!c) return "<span></span>";
