@@ -771,9 +771,10 @@ function slotModel(name) {
   }
   // строки сетки — все часы, которые встречаются в окнах хоть одного дня; час вне окон этого дня = "off"
   const hrs = [...new Set((c.wd ? days.flatMap(d => dayWins(c, d.wdi)) : c.windows).map(wStart))].sort((x, y) => x - y);
+  const perDay = {}; Object.keys(occ).forEach(k => perDay[k.slice(0, 10)] = (perDay[k.slice(0, 10)] || 0) + 1);   // лимит постов в сутки выбран — свободных клеток в этот день нет
   const rows = hrs.map(hr => ({win: `${pad(hr)}-${pad(hr + 1)}`, hour: hr, cells: days.map(day => {
     const key = `${day.date} ${pad(hr)}:05`, past = key < now, p = occ[key] && byKey[occ[key]];
-    const on = dayWins(c, day.wdi).some(w => wStart(w) === hr);
+    const on = dayWins(c, day.wdi).some(w => wStart(w) === hr) && (perDay[day.date] || 0) < (c.max_per_day || 99);
     const st = p ? (p.status === "published" || manualPub(p) ? "published" : (past ? "late" : "booked")) : !on ? "off" : (past ? "missed" : "free");
     return {key, past, p, st, str: strength(name, hr, day.wdi), wdi: day.wdi};
   })}));
