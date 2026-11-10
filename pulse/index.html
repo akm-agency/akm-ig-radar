@@ -318,7 +318,8 @@ header.bar{position:sticky;top:8px;z-index:30;background:rgba(255,255,255,.92);b
 .cell .st{font-size:11.5px;font-weight:600;color:var(--muted)}
 .cell .tt{font-size:12px;font-weight:600;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .cell .pw{margin-top:auto}
-.cell.off,.wc.off{background:transparent;box-shadow:inset 0 0 0 1px var(--line);min-height:0}
+.cell.off,.wc.off{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.cell.off .st{color:var(--faint)} .wc.off{color:var(--faint)}
 .cell.free{background:#fff;box-shadow:inset 0 0 0 1.5px #B9D7C1}
 .cell.free .st{color:var(--good)}
 .cell.free .plus{position:absolute;right:9px;top:7px;font-size:18px;color:var(--good);font-weight:500;line-height:1}
@@ -770,13 +771,16 @@ function slotModel(name) {
     else if (["unapprove", "reject", "rework"].includes(d.decision)) drop(k);
   }
   // строки сетки — все часы, которые встречаются в окнах хоть одного дня; час вне окон этого дня = "off"
-  const hrs = [...new Set((c.wd ? days.flatMap(d => dayWins(c, d.wdi)) : c.windows).map(wStart))].sort((x, y) => x - y);
+  // + часы уже занятых слотов в видимых днях (пост одобрен на старый час — он должен остаться в сетке, а не пропасть)
+  const vis = new Set(days.map(d => d.date));
+  const hrs = [...new Set([...(c.wd ? days.flatMap(d => dayWins(c, d.wdi)) : c.windows).map(wStart),
+                           ...Object.keys(occ).filter(k => vis.has(k.slice(0, 10))).map(k => +k.slice(11, 13))])].sort((x, y) => x - y);
   const perDay = {}; Object.keys(occ).forEach(k => perDay[k.slice(0, 10)] = (perDay[k.slice(0, 10)] || 0) + 1);   // лимит постов в сутки выбран — свободных клеток в этот день нет
   const rows = hrs.map(hr => ({win: `${pad(hr)}-${pad(hr + 1)}`, hour: hr, cells: days.map(day => {
     const key = `${day.date} ${pad(hr)}:05`, past = key < now, p = occ[key] && byKey[occ[key]];
-    const on = dayWins(c, day.wdi).some(w => wStart(w) === hr) && (perDay[day.date] || 0) < (c.max_per_day || 99);
-    const st = p ? (p.status === "published" || manualPub(p) ? "published" : (past ? "late" : "booked")) : !on ? "off" : (past ? "missed" : "free");
-    return {key, past, p, st, str: strength(name, hr, day.wdi), wdi: day.wdi};
+    const win = dayWins(c, day.wdi).some(w => wStart(w) === hr), full = (perDay[day.date] || 0) >= (c.max_per_day || 99);
+    const st = p ? (p.status === "published" || manualPub(p) ? "published" : (past ? "late" : "booked")) : (!win || full) ? "off" : (past ? "missed" : "free");
+    return {key, past, p, st, why: !p && st === "off" ? (win ? "full" : "nowin") : null, str: strength(name, hr, day.wdi), wdi: day.wdi};
   })}));
   const fut = rows.flatMap(r => r.cells).filter(s => !s.past && s.st !== "off").sort((x, y) => x.key.localeCompare(y.key));
   // занятые слоты вне окон (окно убрали, а пост уже стоит) — тоже показываем в очереди, но не в сетке
@@ -983,7 +987,9 @@ function renderSlots() {
       <div></div>${m.days.map(d => `<div class="dh ${d.today ? "today" : ""}"><b>${d.today ? "Сегодня" : WD[d.wdi]}</b>${d.date.slice(8)}.${d.date.slice(5, 7)}</div>`).join("")}
       ${m.rows.map(r => `<div class="rh">${pad(r.hour)}:05<small>${pw(strength(acc, r.hour, null), 1)}</small></div>${r.cells.map(s => {
         const SL = {free: "свободен", booked: "одобрен", published: "вышел", late: "просрочен", missed: "пропущен", off: "не окно этого дня"};
-        if (s.st === "off") return `<div class="cell off" title="${slotLabel(s.key)} · в этот день недели час слабее — окна нет"></div>`;
+        if (s.st === "off") return s.why === "full"
+          ? `<div class="cell off full" title="${slotLabel(s.key)} · лимит постов на этот день уже выбран"><span class="st">лимит дня выбран</span></div>`
+          : `<div class="cell off" title="${slotLabel(s.key)} · в этот день недели час слабее — окна нет"><span class="st">не окно этого дня</span></div>`;
         return `<button class="cell ${s.st}" data-sk="${s.key}" ${s.st === "missed" ? "disabled" : ""} title="${slotLabel(s.key)} · ${SL[s.st]}${s.str ? " · сила " + s.str.score : ""}">
           ${s.st === "free" ? '<span class="plus">+</span>' : ""}<span class="st">${SL[s.st]}${s.p && pending(s.p) ? " · ждёт" : ""}</span>
           ${s.p ? `<span class="tt">${esc(flat(s.p.headline))}</span>` : ""}${s.st !== "missed" ? pw(s.str, 1) : ""}</button>`; }).join("")}`).join("")}
@@ -1398,7 +1404,7 @@ function whenBlock(p, selKey) {
     if (c.st === "published") return `<span class="wc pub" title="${slotLabel(c.key)} · вышел: ${esc(flat(c.p?.headline || ""))}">✓</span>`;
     if (c.st === "booked") return `<span class="wc booked" title="${slotLabel(c.key)} · занят: ${esc(flat(c.p?.headline || ""))}">●</span>`;
     if (c.st === "late") return `<span class="wc late" title="${slotLabel(c.key)} · просрочен">!</span>`;
-    if (c.st === "off") return `<span class="wc off" title="${slotLabel(c.key)} · в этот день недели окна нет"></span>`;
+    if (c.st === "off") return `<span class="wc off" title="${slotLabel(c.key)} · ${c.why === "full" ? "лимит постов на этот день уже выбран" : "в этот день недели окна нет"}">${c.why === "full" ? "—" : ""}</span>`;
     return `<span class="wc past" title="${slotLabel(c.key)} · прошёл"></span>`;
   };
   const map = m.rows.length ? `<div class="wmap" style="--n:${days.length}"><span></span>${days.map(d => `<span class="wd ${d.today ? "today" : ""}">${d.today ? "сег." : WD[d.wdi]}<b>${+d.date.slice(8)}</b></span>`).join("")}
