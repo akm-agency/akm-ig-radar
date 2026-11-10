@@ -1440,7 +1440,14 @@ const MOOD = {
     lib: [["Gangsta's Paradise", "Coolio"], ["Bad Boys", "Inner Circle"], ["Metamorphosis", "INTERWORLD"], ["Can't Hold Us", "Macklemore & Ryan Lewis"], ["SICKO MODE", "Travis Scott"], ["Murder In My Mind", "Kordhell"]]},
 };
 const ACC_MOOD = {rocksfalls: "epic", americanfootballfights: "hype", conspiracytheoriesus: "mystery", scaryridesus: "horror", spookflix: "horror",
-  firstandlastdrink: "party", cheatingaround: "drama", cookskillchief: "chill", boysmomentsus: "fun"};
+  firstandlastdrink: "party", cheatingaround: "drama", cookskillchief: "chill", boysmomentsus: "fun",
+  // 10.11: остальные каналы сети (подключены к фабрике контента)
+  "lastnightchat.s": "drama", the_30bs: "romance", privatehoroscope: "mystery", fempulseofficial: "romance", fitnessforallus: "hype",
+  coverededit: "fun", spottedhollywood: "drama", scaryshowcases: "horror", mensbeingshappy: "fun", chiefchefskills: "chill",
+  dangerworksplanet: "epic", bestbeatboxmoments: "hype", dangerconstruction: "epic", angrycustomersus: "drama", rageroads: "hype",
+  icehockeyfights: "hype", dangerelectricus: "epic", peoplesbadday: "fun", wrestlingmomentsus: "hype", walmartmoments: "fun",
+  womandrivings: "fun", monstrousmovies: "horror", nightcreepyvideo: "horror", basketballmomentsus: "hype", djtransitionsworlds: "party",
+  anesthesiareactiontopeople: "fun", rockclimbermoments: "epic", insectpanic: "horror", foodservicecrash: "fun"};
 function musicOf(p) {
   const t = [p.headline, p.topic, p.pillar].join(" ").toLowerCase(), def = ACC_MOOD[p.account] || "mystery";
   let mood = def, top = 0;
