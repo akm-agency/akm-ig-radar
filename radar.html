@@ -426,6 +426,8 @@ dialog::backdrop{background:rgba(13,13,15,.45)}
 .ga-c i{width:100%;height:var(--h);min-height:3px;background:var(--ink);border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:gxRise .8s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--j)*70ms)}
 .ga-c b{font-size:14px;font-weight:600}
 .ga-c span{font-size:12px;opacity:.75;white-space:nowrap}
+.ga-c{min-width:0}
+@media (max-width:520px){.ga-cols{gap:4px}.ga-c b{font-size:11px;letter-spacing:-.02em}.ga-c span{font-size:10px}}
 .gs{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:6px}
 .gs-donut{width:150px;height:150px;flex:none}
 .gs-donut circle{transition:stroke-dasharray .9s}
