@@ -541,6 +541,8 @@ textarea{resize:vertical;min-height:76px}
 .mtt{min-width:0;display:flex;flex-direction:column;line-height:1.25} .mtt b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .mtt small{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mt0 .btn{background:var(--soft)}
 .malt{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.mplay{border:0;cursor:pointer;font-size:15px} .mplay:hover{filter:brightness(1.15)}
+.malt1{display:inline-flex;align-items:center;gap:4px;max-width:100%} .mp{width:28px;height:28px;flex:none;border:0;border-radius:8px;background:var(--ink);color:var(--lime);cursor:pointer;font-size:11px}
 .malt .chip{height:28px;font-size:12px;background:var(--panel);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.wmap{grid-template-columns:34px repeat(var(--n,7),minmax(0,1fr));gap:3px}.wc{height:30px;font-size:10.5px;border-radius:7px}.wmap .wh{font-size:10.5px}.wscore{width:56px;height:56px}.wscore b{font-size:20px}.when,.mus{padding:12px}}
 .lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
@@ -1478,11 +1480,21 @@ function copyText(text) {        // буфер обмена; запасной п
     (document.querySelector("dialog[open]") || document.body).appendChild(ta); ta.select(); const ok = document.execCommand("copy"); ta.remove(); return ok ? Promise.resolve() : Promise.reject(new Error("copy")); };
   try { return navigator.clipboard ? navigator.clipboard.writeText(text).catch(old) : old(); } catch (e) { return old(); }
 }
+let player = null, playBtn = null;
+function togglePlay(btn) {                // одно превью за раз; повторный клик — пауза
+  if (playBtn === btn && player && !player.paused) { player.pause(); btn.textContent = "▶"; return; }
+  if (player) { player.pause(); if (playBtn) playBtn.textContent = "▶"; }
+  player = new Audio(btn.dataset.play); playBtn = btn; btn.textContent = "❚❚";
+  player.onended = () => { btn.textContent = "▶"; };
+  player.play().catch(() => { btn.textContent = "▶"; toast("Превью не воспроизвелось", 1); });
+}
 function musicBlock(p) {
   const {m, pick} = musicOf(p), [t0, ...alts] = pick, q = t => `${t[0]} ${t[1]}`;
+  const src = t => (D.music || {})[`${t[0]}|${t[1]}`];      // 11.11: 30-секундное превью (iTunes) — послушать прямо в карточке
+  const play = (t, cls) => src(t) ? `<button class="${cls}" data-play="${esc(src(t))}" aria-label="Слушать: ${esc(trackName(t))}" title="Слушать 30 секунд">▶</button>` : "";
   return `<div class="mus"><div class="mh"><h4>Музыка</h4><span class="hint">настроение: ${esc(m.ru)}</span></div>
-    <div class="mt0"><span class="mico" aria-hidden="true">♪</span><span class="mtt"><b>${esc(t0[0])}</b><small>${esc(t0[1])}</small></span><button class="btn sm" data-music="${esc(q(t0))}">Копировать</button></div>
-    <div class="malt"><span class="hint">Запасные:</span>${alts.map(t => `<button class="chip" data-music="${esc(q(t))}" title="Копировать название для поиска">${esc(trackName(t))}</button>`).join("")}</div>
+    <div class="mt0">${play(t0, "mico mplay") || '<span class="mico" aria-hidden="true">♪</span>'}<span class="mtt"><b>${esc(t0[0])}</b><small>${esc(t0[1])}</small></span><button class="btn sm" data-music="${esc(q(t0))}">Копировать</button></div>
+    <div class="malt"><span class="hint">Запасные:</span>${alts.map(t => `<span class="malt1">${play(t, "mp")}<button class="chip" data-music="${esc(q(t))}" title="Копировать название для поиска">${esc(trackName(t))}</button></span>`).join("")}</div>
     <p class="hint">${esc(m.why)}. В Instagram: «Добавить музыку» → вставьте название в поиск; фрагмент — самое узнаваемое место (припев или кульминация). Трека нет в библиотеке — берите запасной.</p></div>`;
 }
 
@@ -1567,6 +1579,7 @@ pdlg.addEventListener("click", async e => {
   if (rb) { const k = rb.closest("[data-rsn]").dataset.rsn, r = rb.dataset.r, cur = new Set(rsnSel[k] || []);
     cur.has(r) ? cur.delete(r) : cur.add(r); rsnSel[k] = [...cur]; rb.setAttribute("aria-pressed", cur.has(r)); return; }
   const ps = e.target.closest("[data-pslot]"); if (ps) return pickSlot(art, ps.dataset.pslot);
+  const pl = e.target.closest("[data-play]"); if (pl) return togglePlay(pl);
   const mu = e.target.closest("[data-music]");
   if (mu) { copyText(mu.dataset.music).then(() => toast("Скопировано: " + mu.dataset.music + " — вставьте в поиск музыки Instagram"), () => toast("Не скопировалось", 1)); return; }
   const hb = e.target.closest('[data-act="zip"],[data-act="manual"]');     // архив — без записи; выбор слота сам подскажет про запись
