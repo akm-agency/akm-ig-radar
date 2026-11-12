@@ -625,6 +625,7 @@ textarea{resize:vertical;min-height:76px}
 .monitor-table thead th{font-weight:500;color:var(--muted);font-size:11px}.monitor-table th:first-child{width:28%;text-align:left;font-weight:500}
 .monitor-table th:last-child{width:15%}.monitor-table td{font-weight:500}.monitor-comments{max-height:280px;overflow:auto;padding-left:20px}
 .monitor-comments li{margin:10px 0;overflow-wrap:anywhere}.monitor-comments .comment-text{white-space:pre-wrap}.monitor-stale{color:var(--bad);font-size:12px}
+.monitor-metric-stale{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:3px}
 .formula-history{display:grid;gap:12px}.formula-history details{border-top:1px solid var(--line);padding-top:12px}.formula-history summary{cursor:pointer;overflow-wrap:anywhere}.formula-history p,.formula-history li{overflow-wrap:anywhere;white-space:pre-wrap}
 @media(max-width:560px){.post-filters{gap:10px;padding:12px}.post-filters .filter-sort{flex-basis:100%}.post-filters .filter-score{flex:1 1 calc(50% - 10px)}.post-filters .filter-date{flex:1 1 calc(50% - 10px)}.post-filters .btn{min-height:44px}}
 </style></head><body>
@@ -1701,7 +1702,7 @@ function monitorBlock(m) {
   const valid = n => typeof n === "number" && Number.isFinite(n), num = n => valid(n) ? fmt(n) : "—";
   const metrics = [["likes", "Лайки"], ["comments", "Комментарии"], ["views", "Просмотры"], ["plays", "Воспроизведения"], ["reach", "Охват"], ["shares", "Репосты"], ["saves", "Сохранения"], ["follows", "Подписки"]];
   const comp = m.comparison || {}, current = m.metrics || {}, baselines = comp.metrics || {};
-  const baseline = b => b && valid(b.mean) && valid(b.n) && b.n > 0;
+  const baseline = b => b && !b.stale && valid(b.mean) && valid(b.n) && b.n > 0;
   const hasBaseline = metrics.some(([k]) => baseline(baselines[k]));
   const age = valid(comp.age_hours) ? comp.age_hours : m.age_hours;
   const match = valid(age) && valid(comp.tolerance_minutes) && valid(comp.lookback_days)
@@ -1710,7 +1711,8 @@ function monitorBlock(m) {
   const rows = metrics.map(([k, label]) => {
     const b = baselines[k], available = baseline(b);
     const ratio = available && b.mean > 0 && valid(current[k]) && valid(b.ratio) ? "×" + num(b.ratio) : "—";
-    return `<tr data-monitor-metric="${k}"><th scope="row">${label}</th><td>${num(current[k])}</td><td>${available ? num(b.mean) : "—"}</td><td>${ratio}</td><td>${num(b?.n)}</td></tr>`;
+    const observed = m.metrics_observed_at?.[k], measured = observed ? ` title="Замер: ${esc(observed)}"` : "";
+    return `<tr data-monitor-metric="${k}"${measured}><th scope="row">${label}${b?.stale ? `<small class="monitor-metric-stale">замер устарел</small>` : ""}</th><td>${num(current[k])}</td><td>${available ? num(b.mean) : "—"}</td><td>${ratio}</td><td>${b?.stale ? "—" : num(b?.n)}</td></tr>`;
   }).join("");
   const comments = Array.isArray(m.comments_text) ? m.comments_text : [];
   const statuses = {ok: "Комментарии получены", available: "Комментарии получены", partial: "Доступная часть комментариев", no_comments: "Комментариев нет", collected: "Комментарии получены", unavailable: "Комментарии недоступны", not_collected: "Комментарии ещё не собраны", pending: "Комментарии ещё не собраны", error: "Ошибка получения комментариев", disabled: "Комментарии отключены", empty: "Комментариев нет"};
@@ -1719,7 +1721,8 @@ function monitorBlock(m) {
   const list = comments.length ? `<ul class="monitor-comments">${comments.map(c => `<li><b>@${esc(c.user || "?")}</b><div class="comment-text">${esc(c.text || "")}</div><small class="hint">Лайки ${num(c.likes)} · ответы ${num(c.replies)} · ${stamp(c.at)}</small></li>`).join("")}</ul>` : `<p class="hint">${m.comments_status === "no_comments" || m.comments_status === "empty" ? "Комментариев нет по последнему замеру." : "Тексты комментариев не получены."}</p>`;
   return `<section class="publication-monitor" aria-label="Мониторинг публикации"><h4>Мониторинг публикации</h4>
     <p class="hint">Возраст на момент замера: ${num(m.age_hours)} ч · источник: ${esc(m.source || "не указан")}</p>
-    <p class="hint">Замер: ${stamp(m.observed_at)}<br>Проверено: ${stamp(m.checked_at)}</p>
+    <p class="hint">Последний достоверный замер: ${stamp(m.observed_at)}<br>Проверено: ${stamp(m.checked_at)}</p>
+    ${m.metrics_observed_at ? `<p class="hint">Время замеров метрик может различаться; точное время — в подсказке строки.</p>` : ""}
     ${m.stale ? `<p class="monitor-stale" role="status">Данные устарели — показан последний доступный замер.</p>` : ""}
     ${m.error ? `<p class="monitor-stale">Не удалось обновить: ${esc(m.error)}</p>` : ""}
     <table class="monitor-table" aria-label="Текущие метрики и средние при том же возрасте поста"><thead><tr><th scope="col">Метрика</th><th scope="col">Сейчас</th><th scope="col">Среднее в том же возрасте</th><th scope="col">К среднему</th><th scope="col" title="Число постов в выборке">Постов</th></tr></thead><tbody>${rows}</tbody></table>
