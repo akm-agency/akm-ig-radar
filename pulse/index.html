@@ -941,7 +941,7 @@ function createdDay(p) {
 function formulaMeta(p) {
   const code = p.formula_code || p.formula || "", name = p.formula_name || code || "Формула не указана";
   const version = p.formula_version == null || p.formula_version === "" ? "версия не зафиксирована" : "версия " + p.formula_version;
-  return `<div class="formula-meta"><b>${esc(name)}${code && code !== name ? " · " + esc(code) : ""}</b> · ${esc(version)}</div>`;
+  return `<div class="formula-meta"><b>${esc(name)}${code && code !== name ? " · " + esc(code) : ""}</b> · ${esc(version)}${p.formula_recheck_version ? `<br>Повторная проверка: ${esc(p.formula_recheck_version)}` : ""}</div>`;
 }
 function filterPosts(posts) {
   const f = postFilters, score = p => p.critic?.score == null || p.critic.score === "" ? null : Number(p.critic.score);
