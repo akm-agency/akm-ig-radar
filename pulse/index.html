@@ -943,6 +943,12 @@ function formulaMeta(p) {
   const version = p.formula_version == null || p.formula_version === "" ? "версия не зафиксирована" : "версия " + p.formula_version;
   return `<div class="formula-meta"><b>${esc(name)}${code && code !== name ? " · " + esc(code) : ""}</b> · ${esc(version)}${p.formula_recheck_version ? `<br>Повторная проверка: ${esc(p.formula_recheck_version)}` : ""}</div>`;
 }
+function publicationMeta(p) {
+  const n = Array.isArray(p.slides) ? p.slides.length : 0;
+  if (!n) return "";
+  const word = n % 10 === 1 && n % 100 !== 11 ? "кадр" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? "кадра" : "кадров";
+  return `<div class="formula-meta"><b>${n === 1 ? "Один кадр" : "Карусель"} · ${n} ${word}</b>${n === 1 && p.publication_single ? " · история в подписи" : ""}</div>`;
+}
 function filterPosts(posts) {
   const f = postFilters, score = p => p.critic?.score == null || p.critic.score === "" ? null : Number(p.critic.score);
   return posts.filter(p => {
@@ -996,7 +1002,7 @@ function cardHtml(p) {
       ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}${hand}</div>`;
   } else if (p.stage === "queue" && hand) act = `<div class="act">${hand}</div>`;
   return `<article class="pc">${cover}<div class="bd"><h3>${esc(flat(p.headline))}</h3>
-    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${formulaMeta(p)}<div class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) : "Дата создания не зафиксирована"}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
+    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${publicationMeta(p)}${formulaMeta(p)}<div class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) : "Дата создания не зафиксирована"}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
 }
 
 function renderFlow() {
@@ -1720,7 +1726,7 @@ function card(p) {
   <div class="phead">${ava(p.account, 40)}<span class="pa"><b>@${esc(p.account)}</b><small>${fmtType || "пост"}${p.collab ? " · совместно с @" + esc(p.collab) : ""}</small></span>
     <span class="pr"><span class="pill ${pill[0]}">${pill[1]}</span><span class="big-score">${c.score ?? "—"}<small>/10</small></span></span></div>
   <h3>${esc(p.headline)}</h3>
-  ${formulaMeta(p)}<p class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) + " · Москва" : "Дата создания не зафиксирована"}</p>
+  ${publicationMeta(p)}${formulaMeta(p)}<p class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) + " · Москва" : "Дата создания не зафиксирована"}</p>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
   <div class="decide">
