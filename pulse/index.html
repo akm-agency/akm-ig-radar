@@ -626,6 +626,9 @@ textarea{resize:vertical;min-height:76px}
 
 <script>
 window.akmKey.then(() => window.akmData('pulse')).then(async D => {
+const knownAccounts = new Set((D.accounts || []).map(a => a.name));
+D.posts = (D.posts || []).filter(p => knownAccounts.has(p.account));
+D.building = (D.building || []).filter(p => knownAccounts.has(p.account));
 const PARTS = [[["follow"],"подписка"],[["stop"],"обложка"],[["spread","share"],"переслать"],[["fit"],"аудитория"],[["save"],"сохранить"],[["trust","facts"],"факты"],[["comment"],"коммент"],[["images"],"картинки"]];
 const partVal = (pr, keys) => { for (const k of keys) if (pr[k] != null) return pr[k]; return null; };
 const TYPE = {spreader: "разгон", converter: "подписка"};
