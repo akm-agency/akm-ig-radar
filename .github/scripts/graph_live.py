@@ -28,7 +28,8 @@ MSK = timezone(timedelta(hours=3))
 USAGE_STOP = 70          # % лимита приложения: дальше не идём — лимит общий с сервером
 USAGE_STOP_ALONE = 95    # сервер молчит > 3 ч — лимит тратим только мы (12.11 стоп на 70% оставил дыру 12–16 ч)
 MEDIA_EVERY_H = 3        # посты — раз в 3 ч (тяжёлый запрос), подписчики — каждый час
-MEDIA_PER_ACC = 15
+MEDIA_PER_ACC = 8
+MEDIA_USAGE_MAX = 50     # посты — вторым проходом и только пока лимит ниже: подписчики важнее
 CODE_RE = re.compile(r"/(?:p|reel|tv)/([A-Za-z0-9_-]+)")
 
 # ---- шифрование сайта (как site_crypto.py сборщика и gate.js) ----
@@ -277,9 +278,9 @@ def main() -> int:
         probes = ([u for u in users if u not in targets and u not in bad][:3] + targets[:3])[:3]
         me_id, tok = pick_token(api, tokens, probes)
         for u in targets:
-            f = ("business_discovery.username(" + u + "){id,followers_count,follows_count,media_count"
-                 + (f",media.limit({MEDIA_PER_ACC}){{id,caption,media_type,media_product_type,timestamp,permalink,"
-                    "like_count,comments_count,view_count}" if with_media else "") + "}")
+            # только подписчики — лёгкий запрос. 12.11 посты в том же запросе выедали лимит Meta по времени
+            # (total_time 97%) в часы 12/15/…, и почасовой замер подписчиков пропадал целиком
+            f = "business_discovery.username(" + u + "){id,followers_count,follows_count,media_count}"
             r = api.get(me_id, tok, fields=f)
             done.add(u)
             if "error" in r:
@@ -290,6 +291,19 @@ def main() -> int:
                     raise Stop("Meta ответила «лимит» 3 раза подряд")   # не жжём запросы впустую, добор — следующий пинок
                 continue
             got[u] = r["business_discovery"]
+        if with_media:   # посты — вторым проходом, раз в 3 ч на страницу, пока запас лимита есть
+            gacc = (net.get("graph") or {}).get("acc") or {}
+            for u in list(got):
+                if api.usage >= MEDIA_USAGE_MAX:
+                    print(f"  посты отложены: лимит {api.usage}%")
+                    break
+                if age_min(lambda: gacc.get(u, {}).get("postsAt"), now) < MEDIA_EVERY_H * 60 - 20:
+                    continue
+                r = api.get(me_id, tok, fields=f"business_discovery.username({u}){{media.limit({MEDIA_PER_ACC})"
+                            "{id,caption,media_type,media_product_type,timestamp,permalink,"
+                            "like_count,comments_count,view_count}}")
+                if "error" not in r:
+                    got[u]["media"] = r["business_discovery"].get("media") or {"data": []}
     except Stop as e:
         print(f"остановлен: {e}")
     except BadConfig as e:
@@ -333,8 +347,9 @@ def main() -> int:
     for u, b in got.items():
         x = g.setdefault("acc", {}).setdefault(u, {})
         x.update({"f": b.get("followers_count"), "media": b.get("media_count"), "at": at})
-        if with_media:
-            x["posts"] = [post(m) for m in (b.get("media") or {}).get("data", [])]
+        if "media" in b:
+            x["posts"] = [post(m) for m in b["media"].get("data", [])]
+            x["postsAt"] = at
     g["at"] = at
 
     # почасовой график (network.hourly: 48 слотов с start, по часу): окно — до текущего часа, в него — замер API
@@ -356,7 +371,7 @@ def main() -> int:
             i = int((cur - start).total_seconds() // 3600)
             if 0 <= i < len(v["f"]) and b.get("followers_count") is not None:
                 v["f"][i] = b["followers_count"]
-            if with_media:   # посты по часам выхода — из тех же данных API
+            if "media" in b:   # посты по часам выхода — из тех же данных API
                 for m in (b.get("media") or {}).get("data", []):
                     if m.get("timestamp"):
                         tj = datetime.strptime(m["timestamp"], "%Y-%m-%dT%H:%M:%S%z").astimezone(MSK).replace(minute=0, second=0)
@@ -388,7 +403,7 @@ def main() -> int:
     save("live", live, k)
     save("network", net, k)
     server_check(k, now)
-    print(f"API: {len(got)}/{len(users)} страниц{', с постами' if with_media else ''} · запросов {api.calls}, "
+    print(f"API: {len(got)}/{len(users)} страниц · с постами {sum('media' in b for b in got.values())} · запросов {api.calls}, "
           f"лимит {api.usage}% · выход {c}" + (f" · ошибки: {'; '.join(errs[:3])}" if errs else ""))
     return 0
 
