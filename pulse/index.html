@@ -452,6 +452,11 @@ textarea{resize:vertical;min-height:76px}
 .weak li b{flex:none;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;border-radius:99px;padding:2px 7px;background:var(--bad);color:#fff}
 .weak li b.mid{background:var(--orange)}
 .weak.none{background:var(--soft);border-color:transparent}
+.repair-pick{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:8px;min-width:0}
+.repair-pick legend{font-weight:600;font-size:14px}
+.repair-option{display:flex;gap:10px;align-items:flex-start;padding:10px 0;min-height:44px;font-size:14px;line-height:1.5;cursor:pointer}
+.repair-option input{flex:none;margin-top:4px;width:18px;height:18px}
+.repair-option span{overflow-wrap:anywhere}
 .ranks{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 .ranks h4{grid-column:1/-1}
 .rk{background:var(--soft);border-radius:var(--r-s);padding:10px 12px;font-size:12px;color:var(--muted);display:grid;gap:2px}
@@ -719,34 +724,38 @@ function baseBucket(p) {
 function bucket(p) {
   if (p.status === "published") return "pub";
   const d = decisions[p.key];
-  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", unapprove: "wait", reject: "off", uploaded: "pub"}[d.decision] || baseBucket(p);
+  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", rescue: "wait", unapprove: "wait", reject: "off", uploaded: "pub"}[d.decision] || baseBucket(p);
   return baseBucket(p);
 }
 const pending = p => { const d = decisions[p.key]; return !!d && p.decision_at !== d.at; };
 const manualPub = p => !!p && p.status !== "published" && pending(p) && decisions[p.key].decision === "uploaded";   // «опубликовано вручную», конвейер ещё не применил
 function stageOf(p) {
+  if (p.stalled && !pending(p)) return "stalled";
   const b = bucket(p);
   if (b === "pub") return "pub"; if (b === "ok") return "queue"; if (b === "redo") return "edit"; if (b === "off") return "off"; if (b === "wait") return "wait";
   if (p.status === "imaged") return "img"; if (p.status === "draft") return "write";
+  if (p.status === "needs_frames") return "frames";
   return p.critic?.score == null ? "check" : "fail";
 }
 const STAGES = [
   ["plan",  "ai",  "Тема выбрана",  "ждёт сборщика"],
   ["write", "ai",  "Пишется",       "текст и факты"],
   ["img",   "ai",  "Картинки",      "подбор кадров"],
+  ["frames", "ai", "Ждёт ИИ-кадр",  "очередь генерации"],
   ["check", "ai",  "Оценка ИИ",     "критик ставит балл"],
-  ["fail",  "ai",  "Слабый балл",   "ниже порога"],
+  ["fail",  "ai",  "Слабый балл",   "проверить замечания"],
+  ["stalled", "ai", "Зависло",      "нет изменений > 6 ч"],
   ["wait",  "you", "Ждут вас",      "одобрить или вернуть"],
   ["edit",  "you", "Правки",        "ИИ исправляет"],
   ["queue", "out", "Очередь",       "одобрены, ждут слота"],
   ["pub",   "out", "Вышли",         "архив · в Instagram"],
 ];
 const PHASE = {ai: ["ИИ готовит", "без вас"], you: ["Ваш ход", "решения редактора"], out: ["Выход", "по слотам"]};
-const BSTAGE = {planned: "plan", draft: "write", imaged: "img"};
+const BSTAGE = {planned: "plan", draft: "write", text: "write", text_ok: "img", imaged: "img", needs_frames: "frames"};
 function items(all) {
   const A = acc && !all ? (x => x.account === acc) : () => true;
   const posts = D.posts.map(p => ({...p, stage: stageOf(p)}));
-  const bld = (D.building || []).filter(b => !byKey[b.key]).map(b => ({...b, slides: [], critic: {}, building: true, stage: BSTAGE[b.status] || "plan"}));
+  const bld = (D.building || []).filter(b => !byKey[b.key]).map(b => ({...b, slides: [], critic: {}, building: true, stage: b.stalled ? "stalled" : BSTAGE[b.status] || "plan"}));
   return [...posts, ...bld].filter(A);
 }
 
@@ -771,7 +780,7 @@ function slotModel(name) {
     const p = byKey[k]; if (!p || p.account !== name || p.status === "published" || p.decision_at === d.at) continue;
     if (d.decision === "approved") { drop(k); if (d.slot) occ[d.slot] = k; }
     else if (d.decision === "uploaded") { drop(k); const sk = d.slot || winKey(d.uploaded_at); if (sk) occ[sk] = k; }
-    else if (["unapprove", "reject", "rework"].includes(d.decision)) drop(k);
+    else if (["unapprove", "reject", "rework", "rescue"].includes(d.decision)) drop(k);
   }
   // строки сетки — все часы, которые встречаются в окнах хоть одного дня; час вне окон этого дня = "off"
   // + часы уже занятых слотов в видимых днях (пост одобрен на старый час — он должен остаться в сетке, а не пропасть)
@@ -1064,7 +1073,7 @@ function profileHtml(a, open) {
 }
 
 /* ---------- 10.11: экран «Обучение» — журнал обучения (journal.py → D.learning): правки человека → что вычленено → как изменилась работа → итоги ---------- */
-const LK = {edit: ["✎", "Правка человека"], lesson: ["◆", "Вычленено"], change: ["⚙", "Изменение работы"], result: ["▲", "Итог поста"]};
+const LK = {edit: ["✎", "Правка человека"], repair: ["✎", "Результат исправления"], lesson: ["◆", "Вычленено"], change: ["⚙", "Изменение работы"], result: ["▲", "Итог поста"]};
 let lf = "all";
 const dayRu = iso => { const d = (iso || "").slice(0, 10); if (!d) return "без даты"; const t = nowMsk().slice(0, 10);
   return d === t ? "сегодня" : d === addDays(t, -1) ? "вчера" : WD[wdOf(d)] + " " + d.slice(8) + "." + d.slice(5, 7); };
@@ -1078,6 +1087,10 @@ function learnEvent(e) {
     if (e.what === "caption") body = `<b>переписал подпись</b>${post}<details class="lw-diff"><summary>было → стало</summary><div><small>было</small><p>${esc(e.before || "—")}</p><small>стало</small><p>${esc(e.after || "")}</p></div></details>`;
     else if (e.what === "windows") body = `<b>окна публикации</b> ${esc((e.before || []).join(", "))} → <b>${esc((e.after || []).join(", "))}</b>`;
     else body = `<b>${esc(e.decision_ru || e.decision || "")}</b>${e.slot ? ` · слот ${esc(slotLabel(e.slot))}` : ""}${post}${e.comment ? `<q>${esc(e.comment)}</q>` : ""}${(e.reasons || []).length ? `<span class="lw-tags">${e.reasons.map(r => `<i>${esc(r)}</i>`).join("")}</span>` : ""}`;
+  } else if (e.kind === "repair") {
+    body = `<b>${e.ok ? "Исправлено" : e.rolled_back ? "Ошибка — оригинал восстановлен" : "Исправлено частично — нужна проверка"}</b>${post}<p>${esc(e.error || (e.why || []).join("; "))}</p>
+      <span class="hint">${fmt(e.rub || 0)} ₽ · ${(e.images || []).map(x => "замена фото на слайде " + (x.slide + 1)).join(", ")}</span>
+      ${(e.changes || []).length ? `<details class="lw-diff"><summary>Что изменилось${e.rolled_back ? " (откачено)" : ""}</summary>${e.changes.map(x => `<div><small>${esc(x.field)}</small><p>${esc(x.before || "—")} → ${esc(x.after || "")}</p></div>`).join("")}</details>` : ""}`;
   } else if (e.kind === "lesson") {
     body = `<b>${e.status === "removed" ? "снят урок" : e.section === "dont" ? "не делать" : "делать"}</b><p class="lw-text ${e.status === "removed" ? "off" : ""}">${esc(e.text)}</p>
       ${e.basis || (e.posts || []).length ? `<span class="hint">основание: ${esc(e.basis || "")}${(e.posts || []).length ? " · посты: " + e.posts.slice(0, 4).map(x => { const q = byKey[e.acc + "__" + x]; return q ? `<button class="lw-link" data-open="${esc(q.key)}">${esc(flat(q.headline).slice(0, 40))}</button>` : esc(x); }).join(", ") : ""}</span>` : ""}`;
@@ -1108,6 +1121,7 @@ function renderLearn() {
       <div class="stat"><span class="k">Изменений работы</span><b>${fmt(T.changes || 0)}</b><span class="s">веса, промпты, калибровка, стратегия</span></div>
       <div class="stat"><span class="k">Хитов по охвату</span><b>${fmt(T.hits || 0)}</b><span class="s">провалов ${fmt(T.flops || 0)} · из ${fmt(T.posts || 0)}</span></div>
     </div></section>
+  ${repairDailyBlock(L)}
   <section class="panel"><div class="ph"><h2>Посты по неделям</h2><span class="hint">итог 72 ч (или 24 ч), все аккаунты</span></div>
     ${W.length ? `<div class="lw-weeks">${W.map(w => `<div class="lw-wk"><span class="lw-wd">с ${w.week.slice(8)}.${w.week.slice(5, 7)}</span>
       <div class="lw-bars"><i class="p" style="height:${100 * w.posts / maxP}%" title="постов ${w.posts}"></i><i class="f" style="height:${w.follows ? Math.max(6, 100 * w.follows / maxF) : 0}%" title="подписок ${w.follows}"></i></div>
@@ -1115,12 +1129,20 @@ function renderLearn() {
       <small>${w.hits} хит. · ${w.flops} пров.</small>${w.edited ? `<small>с правками ${w.edited}: ×${w.med_x_edited ?? "—"} / без ×${w.med_x_plain ?? "—"}</small>` : ""}</div>`).join("")}</div>
       <p class="hint" style="margin-top:8px"><i class="lw-key p"></i>постов <i class="lw-key f"></i>подписок</p>` : `<p class="state">Итогов пока нет — появятся через 24 ч после первых публикаций.</p>`}</section>
   <section><div class="ph" style="padding:0 6px"><h2>Журнал</h2><span class="n">${ev.length}</span><span class="hint">${acc ? "@" + esc(acc) : "все аккаунты"} · новые сверху</span>
-    <span class="sp">${[["all", "Всё", (L.events || []).length], ["edit", "Правки", n("edit")], ["lesson", "Уроки", n("lesson")], ["change", "Изменения", n("change")], ["result", "Итоги", n("result")]]
+    <span class="sp">${[["all", "Всё", (L.events || []).length], ["edit", "Правки", n("edit")], ["repair", "Исправления", n("repair")], ["lesson", "Уроки", n("lesson")], ["change", "Изменения", n("change")], ["result", "Итоги", n("result")]]
       .map(([k, l, c]) => `<button class="chip" data-lf="${k}" aria-pressed="${lf === k}">${l} · ${c}</button>`).join("")}</span></div>
     <div class="lw-feed">${groups.length ? groups.map(g => `<div class="lw-day"><h4>${esc(g.d)}</h4>${g.list.map(learnEvent).join("")}</div>`).join("")
       : `<div class="empty"><b>Здесь пока пусто</b>События появятся с первыми решениями на пульте и итогами постов.</div>`}</div></section>`;
 }
 
+function repairDailyBlock(L) {
+  const rows = (L.repair_daily || []).filter(x => (x.account || "") === (acc || ""));
+  return `<section class="panel"><div class="ph"><h2>Исправления за день</h2><span class="hint">Москва · последние 7 дней</span></div>
+    <p class="hint">Возврат без правок — сигнал несогласия с критиком. Частые замечания стоит разобрать; правила автоматически не меняются.</p>
+    ${rows.map(x => `<details class="more"><summary>${esc(x.day)} · запросов ${x.requested} · без правок ${x.rescued} · успешно ${x.succeeded} · не прошло ${x.failed} · ${x.rub} ₽</summary>
+      <p><b>Что просили исправить</b></p>${Object.keys(x.reasons || {}).length ? `<ul>${Object.entries(x.reasons).map(([r, n]) => `<li>${esc(r)} — ${n}</li>`).join("")}</ul>` : `<p class="hint">Запросов нет.</p>`}
+      <p><b>С чем не согласились</b></p>${Object.keys(x.overrides || {}).length ? `<ul>${Object.entries(x.overrides).map(([r, n]) => `<li>${esc(r)} — ${n}</li>`).join("")}</ul>` : `<p class="hint">Возвратов без правок нет.</p>`}</details>`).join("") || `<p class="state">Сводка появится после обновления данных.</p>`}</section>`;
+}
 function render() {
   const w = items().filter(p => p.stage === "wait").length;
   const upN = D.posts.filter(p => p.manual && bucket(p) === "ok").length;
@@ -1256,7 +1278,7 @@ function ideaBlock(p) {
 function weakBlock(p) {
   const W = p.weak || [];
   if (!W.length) return `<div class="weak none"><h4>Слабые места</h4><p class="hint">Явных слабых мест конвейер не нашёл.</p></div>`;
-  return `<div class="weak"><h4>Слабые места · ${W.length}</h4><ul>${W.map(w => `<li><b class="${w.sev}">${w.sev === "high" ? "брак" : "риск"}</b><span>${esc(w.t)}</span></li>`).join("")}</ul></div>`;
+  return `<div class="weak"><h4>Замечания · ${W.length}</h4><ul>${W.map(w => `<li><b class="mid">заметка</b><span>${esc(w.t)}</span></li>`).join("")}</ul></div>`;
 }
 function rankBlock(p) {
   const R = p.rank, C = p.comp_rank; if (!R && !C) return "";
@@ -1570,7 +1592,7 @@ function card(p) {
   const slotStr = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
   const free = p.status === "published" ? [] : freeSlots(p.account);
   const best = bestFree(p.account);
-  const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено", uploaded: "опубликован вручную"};
+  const DL = {approved: "одобрен", rework: "на доработку", rescue: "возвращён без правок", reject: "снят", unapprove: "одобрение отменено", uploaded: "опубликован вручную"};
   if (b === "pub" && (p.manual_upload || manualPub(p))) pill[1] = "опубликован вручную";
   const hbox = p.status === "published" ? "" : `<div class="hbox"><b>Выложить руками</b><div class="btns"><button class="btn primary" data-act="zip">⬇ Архив для заливки (.zip)</button><button class="btn tgb" data-act="tg">✈ Выслать пост в ТГ-канал</button>
       ${manualPub(p) ? `<span class="state">отмечен «опубликовано вручную»${dcs.slot ? " · слот " + slotLabel(dcs.slot) : ""} — ждёт применения</span>` : `<button class="btn" data-act="manual">Опубликовано вручную</button>`}</div>
@@ -1587,6 +1609,8 @@ function card(p) {
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
   <div class="decide">
+    ${p.editor_request_error ? `<p class="note">${esc(p.editor_request_error)}</p>` : ""}
+    ${b === "low" ? `<div class="btns"><button class="btn go" data-act="rescue" ${db ? "" : "disabled"}>В «Ждут вас» без правок</button></div><p class="hint">Текст и картинки останутся как есть. Замечания сохранятся в журнале как несогласие с критиком.</p>` : ""}
     ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? " (ждёт применения)" : ""} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
     <label class="f" for="sl-${i}">Слот публикации <span class="hint" style="font-weight:500">· можно выбрать и на карте недели выше</span></label>
     <select class="f" id="sl-${i}">${b === "ok" && slotKey ? `<option value="${slotKey}">Оставить: ${slotLabel(slotKey)}${slotStr ? " · сила " + slotStr.score : ""}</option>` : ""}${best ? `<option value="${best.key}">★ ${slotLabel(best.key)}${best.str ? " · сила " + best.str.score : ""} (лучший в ближайшие 48 ч)</option>` : ""}${free.filter(s => !best || s.key !== best.key).map(s => `<option value="${s.key}">${slotLabel(s.key)}${s.str ? " · сила " + s.str.score : ""}</option>`).join("")}${free.length ? "" : `<option value="">свободных слотов нет — ближайший при синхронизации</option>`}</select>
@@ -1595,9 +1619,11 @@ function card(p) {
       ${b !== "off" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
     <label class="f">Причина (одним нажатием — конвейер учится на этом)</label>
     <div class="rsn" data-rsn="${esc(p.key)}">${REASONS.map(r => `<button class="chip" data-r="${esc(r)}" aria-pressed="${(rsnSel[p.key] || []).includes(r)}">${esc(r)}</button>`).join("")}</div>
-    <label class="f" for="cm-${i}">Что поправить (для доработки — комментарий или причина)</label>
+    <fieldset class="repair-pick"><legend>Что исправить</legend><p class="hint">Отметьте только нужное. Остальные части поста сохранятся.</p>
+      ${(p.repair_options || []).map((x, j) => `<label class="repair-option"><input type="checkbox" data-issue="${j}"><span>${x.critical ? "Критичный брак: " : "Рекомендация: "}${esc(x.label)}</span></label>`).join("") || `<p class="hint">Готовых замечаний нет — опишите точечную правку ниже.</p>`}</fieldset>
+    <label class="f" for="cm-${i}">Дополнение к выбранным замечаниям (необязательно)</label>
     <textarea id="cm-${i}" placeholder="Слайд, текст, картинка…">${esc(pend ? dcs?.comment || "" : "")}</textarea>
-    <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Отправить на доработку</button></div>
+    <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Исправить выбранное</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
   </div>`}
   ${weakBlock(p)}${ideaBlock(p)}
@@ -1617,7 +1643,7 @@ function card(p) {
 function openPost(key) {
   const p = byKey[key];
   if (!p) { const b = (D.building || []).find(x => x.key === key); if (!b) return;
-    pdlg.className = ""; pdlg.innerHTML = xbtn + `<h2>${esc(b.headline)}</h2><p class="state">@${esc(b.account)} · ${STAGES.find(s => s[0] === BSTAGE[b.status])?.[2] || b.status} · обновлено ${ago(b.updated)}${b.live ? " · идёт сейчас" : ""}</p><p class="hint" style="margin-top:10px">Пост ещё собирается. Обложка, слайды и оценка появятся, когда конвейер дойдёт до проверки.</p>`;
+    pdlg.className = ""; pdlg.innerHTML = xbtn + `<h2>${esc(b.headline)}</h2><p class="state">@${esc(b.account)} · ${STAGES.find(s => s[0] === BSTAGE[b.status])?.[2] || b.status} · обновлено ${ago(b.updated)}${b.stalled ? " · нет продвижения более 6 часов" : b.live ? " · менялся недавно" : ""}</p>${b.error ? `<p class="note">${esc(b.error)}</p>` : ""}<p class="hint" style="margin-top:10px">${b.stalled ? "Остаток остановленной сборки. Пост сохранён, автоматическое возобновление не запущено." : "Пост ещё собирается. Обложка, слайды и оценка появятся, когда конвейер дойдёт до проверки."}</p>`;
     return pdlg.showModal(); }
   pdlg.className = "wide"; pdlg.innerHTML = xbtn + card(p); pdlg.showModal(); hydrate(true);
 }
@@ -1649,13 +1675,16 @@ pdlg.addEventListener("click", async e => {
       await store.put("edits", p.key, {caption: art.querySelector("#cap-" + i).value.trim(), by: me, at: new Date().toISOString(), headline: p.headline});
       btn.textContent = "Сохранено"; btn.disabled = false; toast("Подпись сохранена");
     } else {
-      const ta = art.querySelector("#cm-" + i), reasons = rsnSel[p.key] || [];
-      const comment = (ta ? ta.value.trim() : "") || (act === "rework" && reasons.length ? "Исправить: " + reasons.join(", ") : "");
-      if (act === "rework" && !comment) { ta.focus(); ta.placeholder = "Напишите, что поправить — без комментария доработку не отправить"; btn.disabled = false; btn.textContent = label; return; }
+      const ta = art.querySelector("#cm-" + i), selected = [...art.querySelectorAll("[data-issue]:checked")].map(x => p.repair_options[+x.dataset.issue]);
+      const comment = ta ? ta.value.trim() : "";
+      const issues = [...selected];
+      if (act === "rework" && !issues.length && comment) issues.push({kind: "auto", label: comment});
+      if (act === "rework" && !issues.length) { toast("Отметьте замечания или опишите точечную правку", 1); btn.disabled = false; btn.textContent = label; return; }
+      const reasons = act === "rescue" ? (selected.length ? selected : p.repair_options || []).map(x => x.label) : act === "rework" ? issues.map(x => x.label) : rsnSel[p.key] || [];
       const sel = art.querySelector("#sl-" + i), slot = act === "approved" ? (sel?.value || "") : "";
-      await decide(p, act, comment, {...(slot ? {slot} : {}), reasons});
+      await decide(p, act, comment, {...(slot ? {slot} : {}), reasons, ...(["rescue", "rework"].includes(act) ? {repair_mode: "selected", version: p.version, issues} : {})});
       pdlg.close(); render();
-      toast({approved: "Одобрен" + (slot ? " · " + slotLabel(slot) : ""), rework: "Отправлен на доработку", reject: "Снят", unapprove: "Одобрение отменено"}[act] || "Сохранено");
+      toast({approved: "Одобрен" + (slot ? " · " + slotLabel(slot) : ""), rework: "Выбранные исправления отправлены", rescue: "Возвращён без правок", reject: "Снят", unapprove: "Одобрение отменено"}[act] || "Сохранено");
     }
   } catch (err) { btn.disabled = false; btn.textContent = label; toast("Не сохранилось: " + err.message, 1); }
 });
