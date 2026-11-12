@@ -815,12 +815,12 @@ const bestFree = n => {   // самый сильный свободный сло
   return (near.length ? near : f.slice(0, 1)).reduce((b, s) => (s.str?.score ?? 40) > (b.str?.score ?? 40) ? s : b);
 };
 /* слоты для «Опубликовано вручную»: свободные на 7 дней, свой слот поста и пропущенные за последние 12 ч (выложили раньше, отмечают сейчас).
-   Сверху — самые залетающие: сила слота по охвату прошлых постов аккаунта в этот час и день недели. */
+   По дате и времени; сильные слоты выделяются независимо от места в списке. */
 function manualSlots(p) {
   const m = slotModel(p.account), lo = new Date(Date.now() + (3 - 12) * 3600e3).toISOString().slice(0, 16).replace("T", " ");
   return m.rows.flatMap(r => r.cells)
     .filter(s => s.key >= lo && (s.st === "free" || s.st === "missed" || s.p?.key === p.key))
-    .sort((x, y) => (y.str?.score ?? -1) - (x.str?.score ?? -1) || x.key.localeCompare(y.key));
+    .sort((x, y) => x.key.localeCompare(y.key));
 }
 
 /* ---------- ЖИВОЙ ЖУРНАЛ: pulse/live.enc в ветке pulse-live (live_watch.py, каждые 15 с) ----------
@@ -1450,17 +1450,18 @@ function followChip(p) {
   const v = p.critic?.parts?.follow; if (v == null) return "";
   return `<span class="fo ${v >= 7 ? "hi" : v <= 4 ? "lo" : ""}" title="Повод подписаться по оценке критика, 1–10">подписка ${v}</span>`;
 }
-/* «Опубликовано вручную»: выбор слота (сверху самые залетающие) → решение uploaded → пост в архиве «Вышли» */
+/* «Опубликовано вручную»: слоты по времени, сильные выделены. */
 function openManual(p) {
   if (!p) return;
   if (pdlg.open) pdlg.close();
   const slots = manualSlots(p);
-  const row = (s, i) => { const st = s.str, own = s.p?.key === p.key;
-    const sub = [i === 0 && st ? "★ самый залетающий" : "", st ? `${xr(st)} к обычному · ${esc(st.metric)} ≈ ${fmt(st.expect)}` : "мало истории для силы слота",
+  const bestScore = Math.max(0, ...slots.map(s => s.str?.score || 0));
+  const row = s => { const st = s.str, own = s.p?.key === p.key, strong = (st?.score || 0) >= 68;
+    const sub = [strong ? (st.score === bestScore ? "★ самый сильный" : "★ сильный слот") : "", st ? `${xr(st)} к обычному · ${esc(st.metric)} ≈ ${fmt(st.expect)}` : "мало истории для силы слота",
                  own ? "слот этого поста" : s.past ? "уже прошёл — если выложили тогда" : ""].filter(Boolean).join(" · ");
-    return `<button class="mslot ${i === 0 && st ? "best" : ""}" data-mslot="${s.key}" data-mk="${esc(p.key)}" ${db ? "" : "disabled"}><span><b>${slotLabel(s.key)}</b><small>${sub}</small></span>${pw(st, 1)}</button>`; };
+    return `<button class="mslot ${strong ? "best" : ""}" data-mslot="${s.key}" data-mk="${esc(p.key)}" ${db ? "" : "disabled"}><span><b>${slotLabel(s.key)}</b><small>${sub}</small></span>${pw(st, 1)}</button>`; };
   dlg.innerHTML = xbtn + `<h2>Опубликовано вручную</h2><p class="state">@${esc(p.account)} · ${esc(flat(p.headline))}</p>
-    <p class="hint" style="margin-top:8px">В какой слот пост вышел или поставлен в отложенные в Instagram? Сверху — самые залетающие: сила слота по охвату прошлых постов аккаунта в этот час и день недели.
+    <p class="hint" style="margin-top:8px">В какой слот пост вышел или поставлен в отложенные в Instagram? Слоты идут от ранних к поздним. Сильные выделены зелёным: оценка по прошлым постам аккаунта в этот час и день недели.
     Пост уйдёт в архив «Вышли», конвейер найдёт его в ленте и снимет итоги.</p>${needDb()}
     <div class="mslots">${slots.map(row).join("") || `<p class="state">Свободных слотов на 7 дней нет.</p>`}
       <button class="mslot now" data-mslot="now" data-mk="${esc(p.key)}" ${db ? "" : "disabled"}><span><b>Только что, вне слотов</b><small>время выхода — сейчас</small></span></button></div>`;
