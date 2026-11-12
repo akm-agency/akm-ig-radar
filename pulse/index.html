@@ -556,7 +556,7 @@ textarea{resize:vertical;min-height:76px}
 .malt .chip{height:28px;font-size:12px;background:var(--panel);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.wmap{grid-template-columns:34px repeat(var(--n,7),minmax(0,1fr));gap:3px}.wc{height:30px;font-size:10.5px;border-radius:7px}.wmap .wh{font-size:10.5px}.wscore{width:56px;height:56px}.wscore b{font-size:20px}.when,.mus{padding:12px}}
 /* 12.11: просмотр — тоже <dialog> (showModal): карточка поста сидит в «верхнем слое» браузера, обычный z-index её не перекрывал */
-.lb{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;background:rgba(13,22,17,.95);padding:56px 12px;overflow:hidden;display:none;align-items:center;justify-content:center}
+.lb{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;background:rgba(13,22,17,.97);padding:56px 12px;overflow:hidden;display:none;align-items:center;justify-content:center}
 .lb[open]{display:flex} .lb::backdrop{background:transparent;backdrop-filter:none}
 .lbw{position:relative;display:flex;max-width:min(100%,600px);max-height:100%;touch-action:pan-y}
 .lb img{display:block;max-width:100%;max-height:calc(100vh - 112px);max-height:calc(100dvh - 112px);border-radius:14px;object-fit:contain;user-select:none;-webkit-user-select:none}
@@ -568,6 +568,7 @@ textarea{resize:vertical;min-height:76px}
 .lb .ez:hover span,.lb .ez:focus-visible span{opacity:1}
 @media(hover:none){.lb .ez span{opacity:.55}}
 .lb.one .ez,.lb.one .nv{display:none}
+@media(max-width:600px){.lb .nv{display:none}}
 .lb .xb{position:absolute;top:12px;right:14px;color:#fff;font-size:28px;width:44px;height:44px}
 .lb .nv{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:30px;width:52px;height:52px;background:rgba(255,255,255,.12);border-radius:50%}
 .lb .p{left:12px} .lb .n{right:12px}
