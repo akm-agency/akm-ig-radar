@@ -26,6 +26,7 @@ DATA = Path(__file__).resolve().parents[2] / "data"
 API = "https://graph.facebook.com/v21.0"
 MSK = timezone(timedelta(hours=3))
 USAGE_STOP = 70          # % лимита приложения: дальше не идём — лимит общий с сервером
+USAGE_STOP_ALONE = 95    # сервер молчит > 3 ч — лимит тратим только мы (12.11 стоп на 70% оставил дыру 12–16 ч)
 MEDIA_EVERY_H = 3        # посты — раз в 3 ч (тяжёлый запрос), подписчики — каждый час
 MEDIA_PER_ACC = 15
 CODE_RE = re.compile(r"/(?:p|reel|tv)/([A-Za-z0-9_-]+)")
@@ -75,11 +76,12 @@ class Stop(Exception):
 
 
 class Api:
-    def __init__(self):
+    def __init__(self, stop: int = USAGE_STOP):
         self.usage = self.calls = 0
+        self.stop = stop
 
     def get(self, path: str, token: str, **params) -> dict:
-        if self.usage >= USAGE_STOP:
+        if self.usage >= self.stop:
             raise Stop(f"лимит приложения {self.usage}%")
         url = f"{API}/{path}?{urllib.parse.urlencode({**params, 'access_token': token})}"
         try:
@@ -261,7 +263,13 @@ def main() -> int:
         if partial:
             print(f"в {now:%H}:00 нет замера у {len(missing)}/{len(users)} страниц — добираю {len(retry)}: {', '.join(retry)}")
     with_media = now.hour % MEDIA_EVERY_H == 0
-    api = Api()
+    api = Api(USAGE_STOP_ALONE if server_age > STALE_H * 60 else USAGE_STOP)
+
+    def journal(got_n: int, note: str) -> None:
+        """Журнал запусков в зашифрованном network.enc (логи Actions без входа в GitHub не прочитать)."""
+        runs = net.get("apiRuns") if isinstance(net.get("apiRuns"), list) else []
+        runs.append([now.strftime("%d.%m %H:%M"), len(targets), got_n, api.usage, api.calls, note[:160]])
+        net["apiRuns"] = runs[-96:]
     got, errs, new_bad = {}, [], set()
     done: set[str] = set()
     try:
@@ -278,6 +286,8 @@ def main() -> int:
                 errs.append(f"{u}: {r['error'][:80]}")
                 if not LIMIT_RE.search(r["error"]):
                     new_bad.add(u)
+                elif sum(1 for x in errs[-3:] if LIMIT_RE.search(x.split(": ", 1)[-1])) >= 3:
+                    raise Stop("Meta ответила «лимит» 3 раза подряд")   # не жжём запросы впустую, добор — следующий пинок
                 continue
             got[u] = r["business_discovery"]
     except Stop as e:
@@ -294,6 +304,8 @@ def main() -> int:
     if not got:
         limited = any(LIMIT_RE.search(x.split(": ", 1)[-1]) for x in errs) or api.usage >= USAGE_STOP or not errs
         print("ни одной страницы не получено; " + ("; ".join(errs[:5]) or "лимит"))
+        journal(0, "; ".join(errs[:2]) or f"лимит {api.usage}%")
+        save("network", net, k)
         server_check(k, now)
         # лимит — не поломка: цифры прошлого часа и сервера остаются на сайте, следующий запуск через час.
         # Добор отдельных страниц — тоже не поломка: одна закрытая страница не должна краснить каждый пинок
@@ -371,6 +383,7 @@ def main() -> int:
         day["collectedAt"] = max(day.get("collectedAt") or "", at)
     net["updatedAt"] = max(net.get("updatedAt") or "", at)
     net["apiAt"] = at
+    journal(len(got), "; ".join(errs[:2]) + (f"; не дошла очередь {len(left)}" if left else ""))
 
     save("live", live, k)
     save("network", net, k)
