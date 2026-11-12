@@ -1366,11 +1366,10 @@ async function sendTg(p, btn) {
     }
     await tgCall("sendMessage", {chat_id: chat, text: cap || "(подписи нет)", link_preview_options: {is_disabled: true}});
     const {sl, best} = recSlots(p), mu = musicOf(p), h = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const slotKey = sl || best?.key, st = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
-    const why = st ? `в этот час посты канала набирают ${xr(st)} к обычному охвату` : "мало истории для силы слота";
+    const slotKey = sl || best?.key;      // дата числом, без «завтра»: сообщение читают и через день
+    const dated = k => `${k.slice(8, 10)}.${k.slice(5, 7)} (${["вс", "пн", "вт", "ср", "чт", "пт", "сб"][new Date(k.slice(0, 10) + "T12:00:00Z").getUTCDay()]}) ${k.slice(11, 16)}`;
     const info = [`<b>📍 Канал:</b> @${h(p.account)}`,
-      slotKey ? `<b>🕒 Выложить:</b> ${h(slotLabel(slotKey))} МСК\n<i>${sl ? "слот по плану" : "★ лучший свободный слот"} · ${h(why)}</i>` : `<b>🕒 Выложить:</b> свободных слотов нет — в ближайшее окно`,
-      sl && best && best.key !== sl ? `<i>самый залетающий свободный: ${h(slotLabel(best.key))}${best.str ? " (" + h(xr(best.str)) + ")" : ""}</i>` : "",
+      `<b>🕒 Выложить:</b> ${slotKey ? h(dated(slotKey)) + " МСК" : "в ближайшее окно"}`,
       `<b>🎵 Музыка</b> (${h(mu.m.ru)}): <code>${h(trackName(mu.pick[0]))}</code>\n<i>запасные:</i> <code>${h(trackName(mu.pick[1]))}</code>, <code>${h(trackName(mu.pick[2]))}</code>`,
       `<b>🖼 Слайдов:</b> ${imgs.length}, по порядку 01 → ${pad(imgs.length)}${hq ? "" : " (превью 720×900)"}`].filter(Boolean).join("\n");
     await tgCall("sendMessage", {chat_id: chat, text: info, parse_mode: "HTML"});
