@@ -555,8 +555,19 @@ textarea{resize:vertical;min-height:76px}
 .malt1{display:inline-flex;align-items:center;gap:4px;max-width:100%} .mp{width:28px;height:28px;flex:none;border:0;border-radius:8px;background:var(--ink);color:var(--lime);cursor:pointer;font-size:11px}
 .malt .chip{height:28px;font-size:12px;background:var(--panel);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:560px){.wmap{grid-template-columns:34px repeat(var(--n,7),minmax(0,1fr));gap:3px}.wc{height:30px;font-size:10.5px;border-radius:7px}.wmap .wh{font-size:10.5px}.wscore{width:56px;height:56px}.wscore b{font-size:20px}.when,.mus{padding:12px}}
-.lb{position:fixed;inset:0;background:rgba(13,22,17,.95);z-index:60;display:flex;align-items:center;justify-content:center;padding:56px 12px}
-.lb img{max-width:min(100%,600px);max-height:100%;border-radius:14px}
+/* 12.11: просмотр — тоже <dialog> (showModal): карточка поста сидит в «верхнем слое» браузера, обычный z-index её не перекрывал */
+.lb{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;background:rgba(13,22,17,.95);padding:56px 12px;overflow:hidden;display:none;align-items:center;justify-content:center}
+.lb[open]{display:flex} .lb::backdrop{background:transparent;backdrop-filter:none}
+.lbw{position:relative;display:flex;max-width:min(100%,600px);max-height:100%;touch-action:pan-y}
+.lb img{display:block;max-width:100%;max-height:calc(100vh - 112px);max-height:calc(100dvh - 112px);border-radius:14px;object-fit:contain;user-select:none;-webkit-user-select:none}
+.lb .ez{position:absolute;top:0;bottom:0;width:34%;border:0;padding:0;background:transparent;color:#fff;font-size:34px;display:flex;align-items:center;-webkit-tap-highlight-color:transparent}
+.lb .ez.l{left:0;cursor:w-resize;justify-content:flex-start;padding-left:10px;border-radius:14px 0 0 14px}
+.lb .ez.r{right:0;cursor:e-resize;justify-content:flex-end;padding-right:10px;border-radius:0 14px 14px 0}
+.lb .ez span{width:40px;height:40px;border-radius:50%;background:rgba(13,22,17,.45);display:grid;place-items:center;opacity:0;transition:opacity .15s;line-height:1}
+.lb .ez.l:hover{background:linear-gradient(90deg,rgba(13,22,17,.35),transparent)} .lb .ez.r:hover{background:linear-gradient(270deg,rgba(13,22,17,.35),transparent)}
+.lb .ez:hover span,.lb .ez:focus-visible span{opacity:1}
+@media(hover:none){.lb .ez span{opacity:.55}}
+.lb.one .ez,.lb.one .nv{display:none}
 .lb .xb{position:absolute;top:12px;right:14px;color:#fff;font-size:28px;width:44px;height:44px}
 .lb .nv{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:30px;width:52px;height:52px;background:rgba(255,255,255,.12);border-radius:50%}
 .lb .p{left:12px} .lb .n{right:12px}
@@ -618,11 +629,13 @@ textarea{resize:vertical;min-height:76px}
 <dialog id="dlg"></dialog>
 <dialog id="pdlg" class="wide"></dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Слайды">
+<dialog class="lb" id="lb" aria-label="Слайды">
   <button class="xb" id="lbX" aria-label="Закрыть">×</button>
-  <button class="nv p" id="lbP" aria-label="Назад">‹</button><img id="lbImg" alt=""><button class="nv n" id="lbN" aria-label="Вперёд">›</button>
+  <button class="nv p" id="lbP" aria-label="Назад">‹</button>
+  <div class="lbw"><img id="lbImg" alt=""><button class="ez l" id="lbZP" aria-label="Предыдущий слайд" tabindex="-1"><span>‹</span></button><button class="ez r" id="lbZN" aria-label="Следующий слайд" tabindex="-1"><span>›</span></button></div>
+  <button class="nv n" id="lbN" aria-label="Вперёд">›</button>
   <div class="c" id="lbC"></div>
-</div>
+</dialog>
 
 <script>
 window.akmKey.then(() => window.akmData('pulse')).then(async D => {
@@ -1707,17 +1720,29 @@ pdlg.addEventListener("click", async e => {
 });
 
 let lp = null, lj = 0;
-function openLb(p, j) { lp = p; lj = j; showLb(); $("lb").hidden = false; $("lbX").focus(); }
-function showLb() { lj = (lj + lp.slides.length) % lp.slides.length; encUrl(lp.slides[lj]).then(u => { if (lp.slides[lj] && $("lbImg")) $("lbImg").src = u; }); $("lbC").textContent = `${lj + 1} / ${lp.slides.length} · @${lp.account}`; }
-$("lbX").onclick = () => $("lb").hidden = true;
-$("lbP").onclick = () => { lj--; showLb(); };
-$("lbN").onclick = () => { lj++; showLb(); };
-$("lb").addEventListener("click", e => { if (e.target.id === "lb") $("lb").hidden = true; });
+// 12.11: просмотр — модальный <dialog>, открывается поверх карточки (pdlg); закрытие возвращает в карточку.
+// Листание по кругу: края картинки (по трети ширины), кнопки ‹ ›, стрелки ←/→, свайп; Esc закрывает только просмотр.
+const lb = $("lb");
+function openLb(p, j) { if (!p?.slides?.length) return; lp = p; lj = j; lb.classList.toggle("one", p.slides.length < 2); showLb(); if (!lb.open) lb.showModal(); $("lbX").focus(); }
+function showLb() { const n = lp.slides.length, want = lj = (lj % n + n) % n, img = $("lbImg");
+  encUrl(lp.slides[want]).then(u => { if (lp && lj === want && lb.open) img.src = u; }).catch(() => { img.alt = "не загрузилось"; });
+  img.alt = `Слайд ${want + 1}`; $("lbC").textContent = `${want + 1} / ${n} · @${lp.account}`; }
+const lbGo = d => { if (lp && lp.slides.length > 1) { lj += d; showLb(); } };
+const lbClose = () => { if (lb.open) lb.close(); };
+$("lbX").onclick = lbClose;
+$("lbP").onclick = $("lbZP").onclick = () => lbGo(-1);
+$("lbN").onclick = $("lbZN").onclick = () => lbGo(1);
+lb.addEventListener("click", e => { if (e.target === lb) lbClose(); });
+lb.addEventListener("cancel", e => { e.preventDefault(); lbClose(); });     // Esc: закрыть просмотр, карточку не трогать
+let lbX0 = null;
+lb.addEventListener("touchstart", e => { lbX0 = e.touches.length === 1 ? e.touches[0].clientX : null; }, {passive: true});
+lb.addEventListener("touchend", e => { if (lbX0 == null) return; const dx = e.changedTouches[0].clientX - lbX0; lbX0 = null;
+  if (Math.abs(dx) > 50) { e.preventDefault(); lbGo(dx < 0 ? 1 : -1); } });
 document.addEventListener("keydown", e => {
-  if ($("lb").hidden) return;
-  if (e.key === "Escape") $("lb").hidden = true;
-  if (e.key === "ArrowLeft") { lj--; showLb(); }
-  if (e.key === "ArrowRight") { lj++; showLb(); }
+  if (!lb.open) return;
+  if (e.key === "Escape") { e.preventDefault(); lbClose(); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); lbGo(-1); }
+  else if (e.key === "ArrowRight") { e.preventDefault(); lbGo(1); }
 });
 
 function hydrate(now) {
