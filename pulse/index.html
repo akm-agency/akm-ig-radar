@@ -181,7 +181,7 @@ header.bar{position:sticky;top:8px;z-index:30;background:rgba(255,255,255,.92);b
 .btn:active:not(:disabled){transform:scale(.97)}
 .btn.primary{background:var(--ink);color:#fff} .btn.primary:hover:not(:disabled){background:var(--ink-2)}
 .btn.go{background:var(--lime);color:var(--ink)} .btn.go:hover:not(:disabled){background:#C8F25E}
-.btn.tg{background:#229ED9;color:#fff;border-color:#229ED9} .btn.tg:hover:not(:disabled){background:#1B8BC2}
+.btn.tgb{background:#229ED9;color:#fff;border-color:#229ED9} .btn.tgb:hover:not(:disabled){background:#1B8BC2}
 .btn.warn{background:var(--peach)} .btn.warn:hover:not(:disabled){background:#F5D2BF}
 .btn.danger{color:var(--bad)}
 .btn.sm{height:34px;padding:0 13px;font-size:12.5px}
@@ -1365,12 +1365,15 @@ async function sendTg(p, btn) {
       else await tgCall("sendMediaGroup", fd);
     }
     await tgCall("sendMessage", {chat_id: chat, text: cap || "(подписи нет)", link_preview_options: {is_disabled: true}});
-    const {sl, best} = recSlots(p), mu = musicOf(p);
-    const when = best ? `${slotLabel(best.key)} МСК${best.str ? ` (сила ${best.str.score}, ${xr(best.str)} к обычному охвату)` : ""}` : sl ? `${slotLabel(sl)} МСК` : "свободных слотов нет — ближайший";
-    const info = [`Канал: @${p.account}`, `Время: ${when}${sl && best && sl !== best.key ? ` · по плану ${slotLabel(sl)}` : ""}`,
-      `Музыка: ${trackName(mu.pick[0])} (${mu.m.ru}) · запасные: ${mu.pick.slice(1).map(trackName).join(", ")}`,
-      `Слайдов: ${imgs.length}, по порядку 01 → ${pad(imgs.length)}${hq ? "" : " (превью 720×900)"}`].join("\n");
-    await tgCall("sendMessage", {chat_id: chat, text: info});
+    const {sl, best} = recSlots(p), mu = musicOf(p), h = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const slotKey = sl || best?.key, st = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
+    const why = st ? `в этот час посты канала набирают ${xr(st)} к обычному охвату` : "мало истории для силы слота";
+    const info = [`<b>📍 Канал:</b> @${h(p.account)}`,
+      slotKey ? `<b>🕒 Выложить:</b> ${h(slotLabel(slotKey))} МСК\n<i>${sl ? "слот по плану" : "★ лучший свободный слот"} · ${h(why)}</i>` : `<b>🕒 Выложить:</b> свободных слотов нет — в ближайшее окно`,
+      sl && best && best.key !== sl ? `<i>самый залетающий свободный: ${h(slotLabel(best.key))}${best.str ? " (" + h(xr(best.str)) + ")" : ""}</i>` : "",
+      `<b>🎵 Музыка</b> (${h(mu.m.ru)}): <code>${h(trackName(mu.pick[0]))}</code>\n<i>запасные:</i> <code>${h(trackName(mu.pick[1]))}</code>, <code>${h(trackName(mu.pick[2]))}</code>`,
+      `<b>🖼 Слайдов:</b> ${imgs.length}, по порядку 01 → ${pad(imgs.length)}${hq ? "" : " (превью 720×900)"}`].filter(Boolean).join("\n");
+    await tgCall("sendMessage", {chat_id: chat, text: info, parse_mode: "HTML"});
     toast(`Отправлено в Telegram: ${imgs.length} слайд. + подпись + время/музыка`);
   } catch (e) { toast("В Telegram не ушло: " + e.message, 1); }
   btn.disabled = false; btn.innerHTML = label;
@@ -1403,7 +1406,7 @@ async function downloadZip(p, btn) {
 function manualBtns(p, cls) {
   if (!p.slides?.length || p.status === "published" || manualPub(p)) return "";
   return `<div class="hand"><button class="btn ${cls}" data-zip="${esc(p.key)}" title="Слайды 1080×1350 + caption.txt одним .zip; подпись сразу копируется в буфер">⬇ Архив</button>`
-    + `<button class="btn ${cls} tg" data-tg="${esc(p.key)}" title="Слайды файлами без сжатия, подпись и время/музыку/канал — в Telegram-канал заливки">✈ В ТГ</button>`
+    + `<button class="btn ${cls} tgb" data-tg="${esc(p.key)}" title="Слайды файлами без сжатия, подпись и время/музыку/канал — в Telegram-канал заливки">✈ В ТГ</button>`
     + `<button class="btn ${cls}" data-manual="${esc(p.key)}" title="Пост выложен руками: выбрать слот и перенести в архив «Вышли»">Опубликовано вручную</button></div>`;
 }
 function followChip(p) {
@@ -1438,7 +1441,7 @@ function renderUpload() {
       return `<article class="uc ${done || mine ? "done" : ""}"><button class="uimg" data-open="${esc(p.key)}" aria-label="Открыть пост"><img data-enc="${p.slides[0] || ""}" alt=""></button>
       <div class="ub"><span class="uacc">${ava(p.account, 22)}<b>@${esc(p.account)}</b></span><span class="hint">${mp ? "отмечен «опубликовано вручную»" + (sl ? " · слот " + slotLabel(sl) : "") : done ? "вышел " + esc((p.published_at || "").slice(5, 16).replace("T", " ")) + (p.permalink ? ` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">в ленте ↗</a>` : "") : mine ? "отмечен вами — ждём, когда пост появится в ленте" : sl ? "залить " + slotLabel(sl) + " МСК" : "время не назначено"}</span>
         <h3>${esc(flat(p.headline))}</h3><div class="cap-prev">${esc(edits[p.key]?.caption ?? p.caption)}</div>
-        <div class="btns"><button class="btn sm go" data-zip="${esc(p.key)}">⬇ Архив .zip</button><button class="btn sm tg" data-tg="${esc(p.key)}">✈ В ТГ-канал</button><button class="btn sm" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
+        <div class="btns"><button class="btn sm go" data-zip="${esc(p.key)}">⬇ Архив .zip</button><button class="btn sm tgb" data-tg="${esc(p.key)}">✈ В ТГ-канал</button><button class="btn sm" data-dl="${esc(p.key)}">Скачать ${p.slides.length} слайд.</button><button class="btn sm" data-copy="${esc(p.key)}">Копировать подпись</button>
         ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Опубликовано вручную"}</button>`}</div></div></article>`; }).join("")
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
 }
@@ -1570,7 +1573,7 @@ function card(p) {
   const best = bestFree(p.account);
   const DL = {approved: "одобрен", rework: "на доработку", reject: "снят", unapprove: "одобрение отменено", uploaded: "опубликован вручную"};
   if (b === "pub" && (p.manual_upload || manualPub(p))) pill[1] = "опубликован вручную";
-  const hbox = p.status === "published" ? "" : `<div class="hbox"><b>Выложить руками</b><div class="btns"><button class="btn primary" data-act="zip">⬇ Архив для заливки (.zip)</button><button class="btn tg" data-act="tg">✈ Выслать пост в ТГ-канал</button>
+  const hbox = p.status === "published" ? "" : `<div class="hbox"><b>Выложить руками</b><div class="btns"><button class="btn primary" data-act="zip">⬇ Архив для заливки (.zip)</button><button class="btn tgb" data-act="tg">✈ Выслать пост в ТГ-канал</button>
       ${manualPub(p) ? `<span class="state">отмечен «опубликовано вручную»${dcs.slot ? " · слот " + slotLabel(dcs.slot) : ""} — ждёт применения</span>` : `<button class="btn" data-act="manual">Опубликовано вручную</button>`}</div>
       <p class="hint">В архиве слайды 1080×1350 по порядку, caption.txt и info.txt с самым залетающим свободным слотом и музыкой. Подпись копируется в буфер сразу. Выложили — нажмите «Опубликовано вручную» и выберите слот.</p></div>`;
   const fmtType = FMT[p.format] ? FMT[p.format] + (p.series_day ? " " + p.series_day + "/7" : "") : (TYPE[p.type] || esc(p.type || ""));
