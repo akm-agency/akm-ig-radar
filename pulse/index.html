@@ -618,6 +618,13 @@ textarea{resize:vertical;min-height:76px}
 .post-filters .filter-sort{flex:1 1 210px}.post-filters .filter-score{flex:0 1 86px}.post-filters .filter-date{flex:1 1 140px}
 .post-filters .filter-result{flex-basis:100%;font-size:12px;color:var(--muted)}
 .formula-meta{font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}.formula-meta b{font-weight:500;color:var(--ink)}
+.publication-monitor{margin:16px 0;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.publication-monitor h4{font-size:14px;margin-bottom:6px}.publication-monitor p{margin:6px 0;overflow-wrap:anywhere}
+.monitor-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;font-variant-numeric:tabular-nums}
+.monitor-table th,.monitor-table td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right;overflow-wrap:anywhere;vertical-align:top}
+.monitor-table thead th{font-weight:500;color:var(--muted);font-size:11px}.monitor-table th:first-child{width:28%;text-align:left;font-weight:500}
+.monitor-table th:last-child{width:15%}.monitor-table td{font-weight:500}.monitor-comments{max-height:280px;overflow:auto;padding-left:20px}
+.monitor-comments li{margin:10px 0;overflow-wrap:anywhere}.monitor-comments .comment-text{white-space:pre-wrap}.monitor-stale{color:var(--bad);font-size:12px}
 .formula-history{display:grid;gap:12px}.formula-history details{border-top:1px solid var(--line);padding-top:12px}.formula-history summary{cursor:pointer;overflow-wrap:anywhere}.formula-history p,.formula-history li{overflow-wrap:anywhere;white-space:pre-wrap}
 @media(max-width:560px){.post-filters{gap:10px;padding:12px}.post-filters .filter-sort{flex-basis:100%}.post-filters .filter-score{flex:1 1 calc(50% - 10px)}.post-filters .filter-date{flex:1 1 calc(50% - 10px)}.post-filters .btn{min-height:44px}}
 </style></head><body>
@@ -1688,6 +1695,39 @@ function musicBlock(p) {
 /* причины решений редактора: уходят в decisions.reasons → state.editor_reasons → learn.py (уроки в плейбук) */
 const REASONS = ["скучная обложка", "не по нише", "картинки мимо", "выдумка/фейк", "пустой или чёрный слайд", "нет повода подписаться", "текст длинный", "уже было", "отличный пост"];
 const rsnSel = {};
+/* Снимки сравниваются только при одинаковом возрасте постов; пустые значения не означают ноль. */
+function monitorBlock(m) {
+  if (!m) return "";
+  const valid = n => typeof n === "number" && Number.isFinite(n), num = n => valid(n) ? fmt(n) : "—";
+  const metrics = [["likes", "Лайки"], ["comments", "Комментарии"], ["views", "Просмотры"], ["plays", "Воспроизведения"], ["reach", "Охват"], ["shares", "Репосты"], ["saves", "Сохранения"], ["follows", "Подписки"]];
+  const comp = m.comparison || {}, current = m.metrics || {}, baselines = comp.metrics || {};
+  const baseline = b => b && valid(b.mean) && valid(b.n) && b.n > 0;
+  const hasBaseline = metrics.some(([k]) => baseline(baselines[k]));
+  const age = valid(comp.age_hours) ? comp.age_hours : m.age_hours;
+  const match = valid(age) && valid(comp.tolerance_minutes) && valid(comp.lookback_days)
+    ? `Сравнение снимков в возрасте ${num(age)} ч (допуск ±${num(comp.tolerance_minutes)} мин) с постами того же канала за ${num(comp.lookback_days)} дней.`
+    : "Параметры сопоставления по возрасту не зафиксированы.";
+  const rows = metrics.map(([k, label]) => {
+    const b = baselines[k], available = baseline(b);
+    const ratio = available && b.mean > 0 && valid(current[k]) && valid(b.ratio) ? "×" + num(b.ratio) : "—";
+    return `<tr data-monitor-metric="${k}"><th scope="row">${label}</th><td>${num(current[k])}</td><td>${available ? num(b.mean) : "—"}</td><td>${ratio}</td><td>${num(b?.n)}</td></tr>`;
+  }).join("");
+  const comments = Array.isArray(m.comments_text) ? m.comments_text : [];
+  const statuses = {ok: "Комментарии получены", available: "Комментарии получены", partial: "Доступная часть комментариев", no_comments: "Комментариев нет", collected: "Комментарии получены", unavailable: "Комментарии недоступны", not_collected: "Комментарии ещё не собраны", pending: "Комментарии ещё не собраны", error: "Ошибка получения комментариев", disabled: "Комментарии отключены", empty: "Комментариев нет"};
+  const status = statuses[m.comments_status] || m.comments_status || "Статус комментариев не зафиксирован";
+  const stamp = v => v ? esc(String(v).replace("T", " ")) : "—";
+  const list = comments.length ? `<ul class="monitor-comments">${comments.map(c => `<li><b>@${esc(c.user || "?")}</b><div class="comment-text">${esc(c.text || "")}</div><small class="hint">Лайки ${num(c.likes)} · ответы ${num(c.replies)} · ${stamp(c.at)}</small></li>`).join("")}</ul>` : `<p class="hint">${m.comments_status === "no_comments" || m.comments_status === "empty" ? "Комментариев нет по последнему замеру." : "Тексты комментариев не получены."}</p>`;
+  return `<section class="publication-monitor" aria-label="Мониторинг публикации"><h4>Мониторинг публикации</h4>
+    <p class="hint">Возраст на момент замера: ${num(m.age_hours)} ч · источник: ${esc(m.source || "не указан")}</p>
+    <p class="hint">Замер: ${stamp(m.observed_at)}<br>Проверено: ${stamp(m.checked_at)}</p>
+    ${m.stale ? `<p class="monitor-stale" role="status">Данные устарели — показан последний доступный замер.</p>` : ""}
+    ${m.error ? `<p class="monitor-stale">Не удалось обновить: ${esc(m.error)}</p>` : ""}
+    <table class="monitor-table" aria-label="Текущие метрики и средние при том же возрасте поста"><thead><tr><th scope="col">Метрика</th><th scope="col">Сейчас</th><th scope="col">Среднее в том же возрасте</th><th scope="col">К среднему</th><th scope="col" title="Число постов в выборке">Постов</th></tr></thead><tbody>${rows}</tbody></table>
+    ${hasBaseline ? "" : `<p class="hint">Сравнение недоступно: нет подходящих замеров в том же возрасте.</p>`}
+    <p class="hint">${esc(match)} Среднее и размер выборки указаны отдельно для каждой метрики. «—» — нет данных; отношение к нулевому среднему не рассчитывается.</p>
+    ${comp.note ? `<p class="hint">${esc(comp.note)}</p>` : ""}
+    <details class="more"><summary>Тексты комментариев · ${comments.length}</summary><p class="hint">${esc(status)}</p>${list}</details></section>`;
+}
 /* ---------- живая статистика вышедшего поста (12.11: сервер ig_network/post_stats.py → akm-ig-api/post_stats.json → dash.py, поле ig) ---------- */
 function igBlock(g) {
   if (!g) return "";
@@ -1698,7 +1738,7 @@ function igBlock(g) {
   const dg = d ? `<p>${esc(d.summary)} <span class="state">(${esc(d.tone)})</span></p>${li("Нравится", d.likes)}${li("Не нравится", d.dislikes)}${li("Спорят", d.debates)}${li("Просят", d.asks)}${d.for_factory ? `<p class="hint"><b>Вывод:</b> ${esc(d.for_factory)}</p>` : ""}${d.quote ? `<p class="hint">«${esc(d.quote)}»</p>` : ""}`
     : (g.comments_collected ? `<p class="hint">Выжимка появится, когда под постом наберётся от 3 комментариев (собрано ${g.comments_collected}).</p>` : "");
   const tc = (g.top_comments || []).length ? `<details class="more"><summary>Комментарии · ${g.comments_collected}</summary><ul>${g.top_comments.map(c => `<li><b>@${esc(c.u || "?")}</b>${c.l ? " ♥" + c.l : ""}: ${esc(c.t)}</li>`).join("")}</ul></details>` : "";
-  return `<dt>В Instagram сейчас</dt><dd>${nums}<br>${x}${dg}${tc}<p class="hint">данные на ${esc((g.built_at || "").slice(5, 16).replace("T", " "))}</p></dd>`;
+  return `<dt>Сводка Instagram · 7 дней</dt><dd>${nums}<br>${x}<p class="hint">Здесь сравниваются накопленные показатели постов за 7 дней, без выравнивания по возрасту.</p>${dg}${tc}<p class="hint">данные на ${esc((g.built_at || "").slice(5, 16).replace("T", " "))}</p></dd>`;
 }
 /* ---------- карточка поста ---------- */
 function card(p) {
@@ -1746,7 +1786,7 @@ function card(p) {
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Исправить выбранное</button></div>
     ${db ? "" : `<p class="note">Кнопки заработают после «Подключить запись» (токен GitHub, один раз на браузер).</p>`}
   </div>`}
-  ${p.status === "published" ? weakBlock(p) : ""}${ideaBlock(p)}
+  ${p.status === "published" ? monitorBlock(p.monitor) + weakBlock(p) : ""}${ideaBlock(p)}
   ${rankBlock(p)}
   <div class="why"><h4>Почему этот пост</h4><p>${esc(c.why_viral || p.why || "—")}</p>
     <dl class="kv"><dt>Тема</dt><dd>${esc(p.topic)}</dd>${p.source ? `<dt>Источник</dt><dd>${esc(p.source)}</dd>` : ""}${p.keyword ? `<dt>Слово</dt><dd>${esc(p.keyword)} → в личку уходит список</dd>` : ""}<dt>Сильное</dt><dd>${esc(c.best || "—")}</dd><dt>Слабое</dt><dd>${esc(c.worst || "—")}</dd>
