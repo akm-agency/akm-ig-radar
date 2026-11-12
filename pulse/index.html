@@ -1218,7 +1218,7 @@ function formulaHistoryBlock() {
       const name = text(x.name || x.formula_name || x.code), code = text(x.code || x.formula_code), version = text(x.version || x.formula_version);
       const changes = x.changelog || x.reason || "", entries = Array.isArray(changes) ? changes.map(text).filter(Boolean) : [text(changes)].filter(Boolean);
       return `<details><summary><b>${esc(name || "Формула")}${code && code !== name ? " · " + esc(code) : ""}</b> · ${version ? "версия " + esc(version) : "версия не зафиксирована"}${createdDay(x) ? " · " + esc(createdDay(x).split("-").reverse().join(".")) : ""}</summary>
-        ${entries.length ? `<ul>${entries.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : `<p class="hint">Описание изменений не зафиксировано.</p>`}</details>`;
+        ${entries.length ? `<ul>${entries.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : `<p class="hint">Описание изменений не зафиксировано.</p>`}${Array.isArray(x.changed_files) && x.changed_files.length ? `<p class="hint">Файлы: ${x.changed_files.map(text).filter(Boolean).map(esc).join(", ")}</p>` : ""}</details>`;
     }).join("") || `<p class="state">Версии формул пока не зафиксированы.</p>`}</div></section>`;
 }
 function repairDailyBlock(L) {
