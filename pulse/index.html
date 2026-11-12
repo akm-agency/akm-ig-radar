@@ -1281,10 +1281,10 @@ function ideaBlock(p) {
 }
 function repairOptions(p) {
   const out = [...(p.repair_options || [])];
-  for (const label of [...(p.weak || []).map(x => x.t), ...(p.critic?.fixes || [])]) {
+  for (const label of p.editor_audit ? [] : [...(p.weak || []).map(x => x.t), ...(p.critic?.fixes || [])]) {
     if (typeof label === "string" && !out.some(x => x.label === label)) out.push({kind: "auto", label, critical: false});
   }
-  const level = x => x.critical ? "bad" : /подпис|ниже прежнего порога/i.test(x.label) ? "note" : /картин.*не по тексту|обложка не про|связн.*истори|обещание.*не выполн|не чита|[0-4]\/10|неверн.*факт|чужой ниш/i.test(x.label) ? "risk" : "note";
+  const level = x => x.critical ? "bad" : /подпис|ниже прежнего порога/i.test(x.label) ? "note" : ["bad", "risk", "note"].includes(x.level) ? x.level : /картин.*не по тексту|обложка не про|связн.*истори|обещание.*не выполн|не чита|[0-4]\/10|неверн.*факт|чужой ниш/i.test(x.label) ? "risk" : "note";
   return out.map(x => ({...x, level: level(x)})).sort((a, b) => ({bad: 0, risk: 1, note: 2}[a.level] - {bad: 0, risk: 1, note: 2}[b.level]));
 }
 function weakBlock(p) {
@@ -1621,6 +1621,7 @@ function card(p) {
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
   <div class="decide">
+    ${p.editor_audit ? `<p class="state"><b>Редакторская проверка</b><br>${esc(p.editor_audit.summary)}</p>${(p.editor_audit.overreach || []).length ? `<details class="more"><summary>Какие претензии сняты · ${p.editor_audit.overreach.length}</summary><ul>${p.editor_audit.overreach.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}` : ""}
     ${p.editor_request_error ? `<p class="note">${esc(p.editor_request_error)}</p>` : ""}
     ${b === "low" ? `<div class="btns"><button class="btn go" data-act="rescue" ${db ? "" : "disabled"}>В «Ждут вас» без правок</button></div><p class="hint">Текст и картинки останутся как есть. Замечания сохранятся в журнале как несогласие с критиком.</p>` : ""}
     ${dcs ? `<p class="state">Решение: <b>${DL[dcs.decision] || esc(dcs.decision)}</b>${pend ? " (ждёт применения)" : ""} · ${esc(who)}${dcs.comment ? `<br>«${esc(dcs.comment)}»` : ""}</p>` : ""}
