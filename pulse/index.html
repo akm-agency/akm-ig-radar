@@ -611,6 +611,15 @@ textarea{resize:vertical;min-height:76px}
 .lw-res{display:flex;flex-wrap:wrap;gap:6px} .lw-res span{background:var(--soft);border-radius:99px;padding:1px 9px;font-size:12px}
 .lw-res .hi{background:var(--lime-soft);color:var(--good);font-weight:700} .lw-res .lo{background:var(--peach);color:var(--bad);font-weight:700}
 .lw-diff summary{cursor:pointer;color:var(--blue);font-size:12.5px} .lw-diff div{display:grid;gap:3px;margin-top:6px} .lw-diff p{white-space:pre-wrap;background:var(--soft);border-radius:10px;padding:7px 10px;font-size:12.5px}
+.post-filters{display:flex;flex-wrap:wrap;gap:12px;align-items:end;background:var(--panel);border-radius:var(--r);padding:16px;margin:8px 0 16px}
+.post-filters label{display:grid;gap:5px;font-size:12px;color:var(--muted);min-width:0}
+.post-filters input,.post-filters select{background:var(--soft);border:1px solid transparent;border-radius:8px;min-height:44px;padding:8px 10px;color:var(--ink);width:100%;min-width:0}
+.post-filters input:focus-visible,.post-filters select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.post-filters .filter-sort{flex:1 1 210px}.post-filters .filter-score{flex:0 1 86px}.post-filters .filter-date{flex:1 1 140px}
+.post-filters .filter-result{flex-basis:100%;font-size:12px;color:var(--muted)}
+.formula-meta{font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}.formula-meta b{font-weight:500;color:var(--ink)}
+.formula-history{display:grid;gap:12px}.formula-history details{border-top:1px solid var(--line);padding-top:12px}.formula-history summary{cursor:pointer;overflow-wrap:anywhere}.formula-history p,.formula-history li{overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:560px){.post-filters{gap:10px;padding:12px}.post-filters .filter-sort{flex-basis:100%}.post-filters .filter-score{flex:1 1 calc(50% - 10px)}.post-filters .filter-date{flex:1 1 calc(50% - 10px)}.post-filters .btn{min-height:44px}}
 </style></head><body>
 
 <div class="wrap">
@@ -669,6 +678,8 @@ function ava(name, size, cls) {
 }
 let decisions = {}, edits = {}, slotcfg = {}, db = null, me = null, names = {};
 let view = "flow", stg = "wait", acc = "", sortBy = "wait";
+// Post ordering deliberately starts with score on every page load; never restore it from storage.
+const postFilters = {sort: "score", min: "", max: "", from: "", to: ""};
 const pick = {}, confirmRm = {};
 try { view = localStorage.getItem("akm-view2") || "flow"; stg = localStorage.getItem("akm-stg") || "wait"; acc = localStorage.getItem("akm-acc") || ""; } catch (e) {}
 if (acc && !accByName[acc]) acc = "";
@@ -842,7 +853,7 @@ function manualSlots(p) {
 let LIVE = null, liveErr = "", liveFeedAll = false;
 const PN = {rework: "Доработка по правкам", builder: "Сборщик постов", cycle: "Цикл дня", factory: "Фабрика постов", publish: "Публикация",
   daily: "Статистика", early: "Ранние признаки", frames: "Кадры", fix_dark: "Починка чёрных слайдов", hf_bridge: "Chrome → Higgsfield", pulse_watch: "Наблюдатель пульта", live_watch: "Живой журнал", setup: "Настройка", editor_audit: "Разбор слабого балла", ready_verify: "Проверка готовых постов"};
-const procLabel = name => name?.startsWith("cost_trial_") ? "Замер новых постов" : PN[name] || name || "";
+const procLabel = name => name?.startsWith("pipeline_test_") ? "Тест конвейера" : name?.startsWith("cost_trial_") ? "Замер новых постов" : PN[name] || name || "";
 const secAgo = iso => iso ? Math.max(0, Math.round((Date.now() - ts(iso)) / 1000)) : 1e9;
 const agoS = iso => { const s = secAgo(iso); return s < 60 ? s + " с назад" : s < 3600 ? Math.round(s / 60) + " мин назад" : s < 86400 ? Math.round(s / 3600) + " ч назад" : Math.round(s / 86400) + " дн назад"; };
 const hm = iso => iso ? iso.slice(11, 16) : "";
@@ -915,6 +926,47 @@ const ICON = {
   write: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4"/></svg>',
   img: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>',
 };
+function createdTime(p) {
+  const value = p.created_at;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T| |$)/.test(value)) return null;
+  const calendarDay = Date.parse(value.slice(0, 10) + "T00:00:00Z");
+  if (!Number.isFinite(calendarDay) || new Date(calendarDay).toISOString().slice(0, 10) !== value.slice(0, 10)) return null;
+  const time = value.length === 10 ? Date.parse(value + "T00:00:00+03:00") : ts(value);
+  return Number.isFinite(time) ? time : null;
+}
+function createdDay(p) {
+  const time = createdTime(p);
+  return time == null ? "" : new Date(time + 3 * 3600e3).toISOString().slice(0, 10);
+}
+function formulaMeta(p) {
+  const code = p.formula_code || p.formula || "", name = p.formula_name || code || "Формула не указана";
+  const version = p.formula_version == null || p.formula_version === "" ? "версия не зафиксирована" : "версия " + p.formula_version;
+  return `<div class="formula-meta"><b>${esc(name)}${code && code !== name ? " · " + esc(code) : ""}</b> · ${esc(version)}</div>`;
+}
+function filterPosts(posts) {
+  const f = postFilters, score = p => p.critic?.score == null || p.critic.score === "" ? null : Number(p.critic.score);
+  return posts.filter(p => {
+    const s = score(p), d = createdDay(p);
+    return (!(f.min || f.max) || (s != null && Number.isFinite(s))) &&
+      (f.min === "" || s >= Number(f.min)) && (f.max === "" || s <= Number(f.max)) &&
+      (!(f.from || f.to) || !!d) && (!f.from || d >= f.from) && (!f.to || d <= f.to);
+  }).sort((a, b) => {
+    if (f.sort === "score") return (score(b) ?? -Infinity) - (score(a) ?? -Infinity);
+    const x = createdTime(a), y = createdTime(b);
+    return x == null ? (y == null ? 0 : 1) : y == null ? -1 : f.sort === "newest" ? y - x : x - y;
+  });
+}
+function postFilterBar(total, count) {
+  const f = postFilters, active = f.min !== "" || f.max !== "" || f.from || f.to;
+  return `<div class="post-filters" role="group" aria-label="Фильтры постов">
+    <label class="filter-sort">Порядок<select data-post-filter="sort">${[["score", "Сначала высокий балл"], ["newest", "Сначала новые"], ["oldest", "Сначала старые"]].map(([v, l]) => `<option value="${v}" ${f.sort === v ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+    <label class="filter-score">Балл от<input type="number" min="0" max="10" step="0.1" placeholder="0" data-post-filter="min" value="${esc(f.min)}"></label>
+    <label class="filter-score">Балл до<input type="number" min="0" max="10" step="0.1" placeholder="10" data-post-filter="max" value="${esc(f.max)}"></label>
+    <label class="filter-date">Дата создания от<input type="date" data-post-filter="from" value="${esc(f.from)}"></label>
+    <label class="filter-date">Дата создания до<input type="date" data-post-filter="to" value="${esc(f.to)}"></label>
+    <button class="btn sm" data-post-reset ${active ? "" : "disabled"}>Сбросить фильтры</button>
+    <span class="filter-result" role="status">Показано ${count} из ${total}${f.min !== "" && f.max !== "" && Number(f.min) > Number(f.max) ? " · Минимальный балл больше максимального" : f.from && f.to && f.from > f.to ? " · Начало периода позже конца" : " · Даты создания по Москве"}</span></div>`;
+}
 function cardHtml(p) {
   const sc = p.critic?.score, ed = edits[p.key], capPend = ed && ed.caption !== p.caption && p.status !== "published", dcs = decisions[p.key];
   const tags = [];
@@ -923,7 +975,6 @@ function cardHtml(p) {
   if (!p.building && pending(p)) tags.push("<span>ждёт применения</span>");
   if (p.collab) tags.push("<span>совместный</span>");
   if (p.manual_upload || manualPub(p)) tags.push('<span class="l">вручную</span>');
-  if (p.formula) tags.push('<span class="l" title="Собран по формуле «упор на подписчиков» (с 10.11)">новая формула</span>');
   const hw = (p.weak || []).filter(w => w.sev === "high").length;
   if (hw) tags.push(`<span class="wtag">⚠ ${hw}</span>`);
   let cover;
@@ -945,7 +996,7 @@ function cardHtml(p) {
       ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}${hand}</div>`;
   } else if (p.stage === "queue" && hand) act = `<div class="act">${hand}</div>`;
   return `<article class="pc">${cover}<div class="bd"><h3>${esc(flat(p.headline))}</h3>
-    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
+    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${formulaMeta(p)}<div class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) : "Дата создания не зафиксирована"}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
 }
 
 function renderFlow() {
@@ -969,13 +1020,12 @@ function renderFlow() {
     const n = by[k].length, live = by[k].some(p => p.live);
     return `<button class="step ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="c">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</div></section>`;
   const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : cur[2];
-  const sc = p => p.critic?.score || 0;
-  const list = [...(by[stg] || [])].sort(stg === "wait" ? (x, y) => sc(y) - sc(x) : stg === "queue" ? (x, y) => (x.slot || "~").localeCompare(y.slot || "~") : stg === "pub" ? (x, y) => (y.published_at || "").localeCompare(x.published_at || "") : (x, y) => (y.updated || "").localeCompare(x.updated || ""));
+  const source = by[stg] || [], list = filterPosts(source);
   const EMPTY = {wait: ["Новых постов на проверку нет", "Сборщик добавит их при следующем запуске. Пока можно настроить слоты."], plan: ["Тем в плане нет", "Новый план появится при следующем запуске сборщика."], queue: ["Очередь пуста", "Одобренные посты стоят здесь до своего слота."], edit: ["Правок нет", "Посты, отправленные «На доработку», появятся здесь."]};
   const em = EMPTY[stg] || ["Здесь пока пусто", "Посты этого этапа появятся по мере работы конвейера."];
   const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
       <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button></span></div>
-    <div class="cards">${list.length ? list.map(cardHtml).join("") : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
+    ${postFilterBar(source.length, list.length)}<div class="cards">${list.length ? list.map(cardHtml).join("") : source.length ? `<div class="empty"><b>Нет постов по этим фильтрам</b>Измените диапазон балла или даты создания.</div>` : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
   const A = acc && accByName[acc];
   $("view").innerHTML = hero + (A && A.face ? profileHtml(A, false) : "") + livePanel() + track + lst;
   paintLive();
@@ -1145,6 +1195,7 @@ function renderLearn() {
       <div class="stat"><span class="k">Изменений работы</span><b>${fmt(T.changes || 0)}</b><span class="s">веса, промпты, калибровка, стратегия</span></div>
       <div class="stat"><span class="k">Хитов по охвату</span><b>${fmt(T.hits || 0)}</b><span class="s">провалов ${fmt(T.flops || 0)} · из ${fmt(T.posts || 0)}</span></div>
     </div></section>
+  ${formulaHistoryBlock()}
   ${repairDailyBlock(L)}
   <section class="panel"><div class="ph"><h2>Посты по неделям</h2><span class="hint">итог 72 ч (или 24 ч), все аккаунты</span></div>
     ${W.length ? `<div class="lw-weeks">${W.map(w => `<div class="lw-wk"><span class="lw-wd">с ${w.week.slice(8)}.${w.week.slice(5, 7)}</span>
@@ -1159,6 +1210,17 @@ function renderLearn() {
       : `<div class="empty"><b>Здесь пока пусто</b>События появятся с первыми решениями на пульте и итогами постов.</div>`}</div></section>`;
 }
 
+function formulaHistoryBlock() {
+  const history = Array.isArray(D.formula_history) ? D.formula_history.filter(x => x && typeof x === "object") : [];
+  const text = value => typeof value === "string" || typeof value === "number" ? String(value) : "";
+  return `<section class="panel"><div class="ph"><h2>История формул</h2><span class="hint">версии и изменения · только просмотр</span></div>
+    <div class="formula-history">${history.map(x => {
+      const name = text(x.name || x.formula_name || x.code), code = text(x.code || x.formula_code), version = text(x.version || x.formula_version);
+      const changes = x.changelog || x.reason || "", entries = Array.isArray(changes) ? changes.map(text).filter(Boolean) : [text(changes)].filter(Boolean);
+      return `<details><summary><b>${esc(name || "Формула")}${code && code !== name ? " · " + esc(code) : ""}</b> · ${version ? "версия " + esc(version) : "версия не зафиксирована"}${createdDay(x) ? " · " + esc(createdDay(x).split("-").reverse().join(".")) : ""}</summary>
+        ${entries.length ? `<ul>${entries.map(t => `<li>${esc(t)}</li>`).join("")}</ul>` : `<p class="hint">Описание изменений не зафиксировано.</p>`}</details>`;
+    }).join("") || `<p class="state">Версии формул пока не зафиксированы.</p>`}</div></section>`;
+}
 function repairDailyBlock(L) {
   const rows = (L.repair_daily || []).filter(x => (x.account || "") === (acc || ""));
   return `<section class="panel"><div class="ph"><h2>Исправления за день</h2><span class="hint">Москва · последние 7 дней</span></div>
@@ -1178,6 +1240,12 @@ function render() {
   hydrate();
 }
 $("accSel").onchange = e => { acc = e.target.value; saveLocal(); render(); };
+$("view").addEventListener("change", e => {
+  const field = e.target.dataset.postFilter;
+  if (!Object.hasOwn(postFilters, field) || !e.target.validity.valid) return;
+  postFilters[field] = e.target.value; render();
+  document.querySelector(`[data-post-filter="${field}"]`)?.focus({preventScroll: true});
+});
 $("nav").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; view = b.dataset.v; saveLocal(); render(); window.scrollTo({top: 0}); });
 
 /* ---------- действия на экранах ---------- */
@@ -1187,6 +1255,7 @@ async function saveWindows(name, wins) {
 }
 $("view").addEventListener("click", async e => {
   const t = e.target;
+  if (t.closest("[data-post-reset]")) { Object.assign(postFilters, {min: "", max: "", from: "", to: ""}); render(); return; }
   let b = t.closest("[data-stg]"); if (b) { stg = b.dataset.stg; saveLocal(); render(); return; }
   if (t.closest("[data-feedall]")) { liveFeedAll = !liveFeedAll; return paintLive(); }
   b = t.closest("[data-dl]"); if (b) return downloadSlides(byKey[b.dataset.dl], b);
@@ -1651,6 +1720,7 @@ function card(p) {
   <div class="phead">${ava(p.account, 40)}<span class="pa"><b>@${esc(p.account)}</b><small>${fmtType || "пост"}${p.collab ? " · совместно с @" + esc(p.collab) : ""}</small></span>
     <span class="pr"><span class="pill ${pill[0]}">${pill[1]}</span><span class="big-score">${c.score ?? "—"}<small>/10</small></span></span></div>
   <h3>${esc(p.headline)}</h3>
+  ${formulaMeta(p)}<p class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) + " · Москва" : "Дата создания не зафиксирована"}</p>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
   <div class="decide">
