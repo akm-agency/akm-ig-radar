@@ -937,6 +937,7 @@ function cardHtml(p) {
   if (p.stage === "queue") { const sl = (pending(p) && dcs?.slot) || p.slot; const s = sl && strength(p.account, +sl.slice(11, 13), wdOf(sl.slice(0, 10)));
     extra = `<div class="mt"><b>${sl ? slotLabel(sl) : "слот назначится"}</b>${s ? pw(s, 1) : ""}</div>`; }
   if (p.stage === "pub") extra = `<div class="mt">${p.result ? `<b>${esc(p.result.verdict)} · ${"×" + p.result.x_reach}</b><span>охват ${fmt(p.result.reach)}</span>` : "<span>итог через 24 ч</span>"}</div>`;
+  if (p.stage === "pub" && p.ig) extra += `<div class="mt igm"><b>${p.ig.x7 != null ? "×" + p.ig.x7 + " к 7 дн." : "♥ " + fmt(p.ig.likes)}</b><span>♥ ${fmt(p.ig.likes)} · 💬 ${fmt(p.ig.comments)}${p.ig.digest ? " · " + esc(p.ig.digest.tone) : ""}</span></div>`;
   const hand = p.building ? "" : manualBtns(p, "sm");
   if (p.stage === "wait") {
     const s = bestFree(p.account);
@@ -1612,13 +1613,25 @@ function musicBlock(p) {
 /* причины решений редактора: уходят в decisions.reasons → state.editor_reasons → learn.py (уроки в плейбук) */
 const REASONS = ["скучная обложка", "не по нише", "картинки мимо", "выдумка/фейк", "пустой или чёрный слайд", "нет повода подписаться", "текст длинный", "уже было", "отличный пост"];
 const rsnSel = {};
+/* ---------- живая статистика вышедшего поста (12.11: сервер ig_network/post_stats.py → akm-ig-api/post_stats.json → dash.py, поле ig) ---------- */
+function igBlock(g) {
+  if (!g) return "";
+  const nums = [["лайки", g.likes], ["комменты", g.comments], ["ответы", g.replies], ["просмотры", g.plays], ["охват", g.reach], ["репосты", g.shares], ["сохранения", g.saves]]
+    .filter(x => x[1] != null).map(([k, v]) => `${k} ${fmt(v)}`).join(" · ");
+  const x = g.x7 != null ? `<b>×${g.x7}</b> к среднему канала (${g.x7_by === "plays" ? "просмотры" : "лайки"}, ${esc(g.x7_window || "7 дн.")}: в среднем ${fmt(Math.round(g.x7_avg))} у ${g.x7_n} постов)${g.x7_comments != null ? `, комменты ×${g.x7_comments}` : ""}${g.age_h < 24 ? ` · посту ${Math.round(g.age_h)} ч, цифры ещё растут` : ""}` : "к среднему канала — мало соседних постов";
+  const d = g.digest, li = (t, a) => a && a.length ? `<p class="hint"><b>${t}:</b> ${a.map(esc).join("; ")}</p>` : "";
+  const dg = d ? `<p>${esc(d.summary)} <span class="state">(${esc(d.tone)})</span></p>${li("Нравится", d.likes)}${li("Не нравится", d.dislikes)}${li("Спорят", d.debates)}${li("Просят", d.asks)}${d.for_factory ? `<p class="hint"><b>Вывод:</b> ${esc(d.for_factory)}</p>` : ""}${d.quote ? `<p class="hint">«${esc(d.quote)}»</p>` : ""}`
+    : (g.comments_collected ? `<p class="hint">Выжимка появится, когда под постом наберётся от 3 комментариев (собрано ${g.comments_collected}).</p>` : "");
+  const tc = (g.top_comments || []).length ? `<details class="more"><summary>Комментарии · ${g.comments_collected}</summary><ul>${g.top_comments.map(c => `<li><b>@${esc(c.u || "?")}</b>${c.l ? " ♥" + c.l : ""}: ${esc(c.t)}</li>`).join("")}</ul></details>` : "";
+  return `<dt>В Instagram сейчас</dt><dd>${nums}<br>${x}${dg}${tc}<p class="hint">данные на ${esc((g.built_at || "").slice(5, 16).replace("T", " "))}</p></dd>`;
+}
 /* ---------- карточка поста ---------- */
 function card(p) {
   const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p), i = p._i;
   const pill = {wait: ["wait", "ждёт решения"], ok: ["ok", "одобрен"], redo: ["redo", "на доработке"], pub: ["pub", "опубликован"], low: ["", "черновик"], off: ["", "снят"]}[b];
   const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}` : "";
   const r72 = p.result72 ? `<dt>Итог 72 ч</dt><dd>${p.result72.likes != null ? `лайков ${fmt(p.result72.likes)} (×${p.result72.x_likes} к медиане канала)` : `охват ${fmt(p.result72.reach)} (×${p.result72.x_reach}), подписок ${fmt(p.result72.follows)}, репостов ${fmt(p.result72.shares)}`} — ${esc(p.result72.verdict)}</dd>` : "";
-  const res = (p.result ? `<dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd>` : "") + r72;
+  const res = igBlock(p.ig) + (p.result ? `<dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd>` : "") + r72;
   const ed = edits[p.key], capText = ed?.caption ?? p.caption, capPend = ed && ed.caption !== p.caption;
   const slotKey = (pend && dcs.decision === "approved" && dcs.slot) ? dcs.slot : p.slot;
   const slotStr = slotKey && strength(p.account, +slotKey.slice(11, 13), wdOf(slotKey.slice(0, 10)));
