@@ -457,6 +457,10 @@ textarea{resize:vertical;min-height:76px}
 .repair-option{display:flex;gap:10px;align-items:flex-start;padding:10px 0;min-height:44px;font-size:14px;line-height:1.5;cursor:pointer}
 .repair-option input{flex:none;margin-top:4px;width:18px;height:18px}
 .repair-option span{overflow-wrap:anywhere}
+.repair-severity{display:inline-block;padding:2px 7px;margin:0 6px 3px 0;border-radius:5px;font-size:10px;line-height:1.5;font-weight:700;letter-spacing:.04em;vertical-align:1px}
+.repair-severity.bad{background:#FCE4DF;color:#972F23}
+.repair-severity.risk{background:#FFF0D4;color:#865000}
+.repair-severity.note{background:#EDF0ED;color:#4D5B52}
 .ranks{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 .ranks h4{grid-column:1/-1}
 .rk{background:var(--soft);border-radius:var(--r-s);padding:10px 12px;font-size:12px;color:var(--muted);display:grid;gap:2px}
@@ -1280,7 +1284,8 @@ function repairOptions(p) {
   for (const label of [...(p.weak || []).map(x => x.t), ...(p.critic?.fixes || [])]) {
     if (typeof label === "string" && !out.some(x => x.label === label)) out.push({kind: "auto", label, critical: false});
   }
-  return out;
+  const level = x => x.critical ? "bad" : /подпис|ниже прежнего порога/i.test(x.label) ? "note" : /картин.*не по тексту|обложка не про|связн.*истори|обещание.*не выполн|не чита|[0-4]\/10|неверн.*факт|чужой ниш/i.test(x.label) ? "risk" : "note";
+  return out.map(x => ({...x, level: level(x)})).sort((a, b) => ({bad: 0, risk: 1, note: 2}[a.level] - {bad: 0, risk: 1, note: 2}[b.level]));
 }
 function weakBlock(p) {
   const W = p.weak || [];
@@ -1625,7 +1630,7 @@ function card(p) {
       ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
       ${b !== "off" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
     <fieldset class="repair-pick"><legend>Замечания · ${repairOptions(p).length}</legend><p class="hint">Отметьте, что исправить. Неотмеченное останется как есть.</p>
-      ${repairOptions(p).map((x, j) => `<label class="repair-option"><input type="checkbox" data-issue="${j}"><span>${x.critical ? "Критичный брак: " : ""}${esc(x.label)}</span></label>`).join("") || `<p class="hint">Замечаний нет — при необходимости опишите точечную правку ниже.</p>`}</fieldset>
+      ${repairOptions(p).map((x, j) => `<label class="repair-option"><input type="checkbox" data-issue="${j}"><span><b class="repair-severity ${x.level}">${{bad: "БРАК", risk: "РИСК", note: "ЗАМЕЧАНИЕ"}[x.level]}</b>${esc(x.label)}</span></label>`).join("") || `<p class="hint">Замечаний нет — при необходимости опишите точечную правку ниже.</p>`}</fieldset>
     <label class="f" for="cm-${i}">Дополнение к выбранным замечаниям (необязательно)</label>
     <textarea id="cm-${i}" placeholder="Слайд, текст, картинка…">${esc(pend ? dcs?.comment || "" : "")}</textarea>
     <div class="btns"><button class="btn warn" data-act="rework" ${db ? "" : "disabled"}>Исправить выбранное</button></div>
