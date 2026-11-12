@@ -725,13 +725,14 @@ function baseBucket(p) {
   if (p.status === "rejected") return "off";
   return p.status === "ready" ? "wait" : "low";
 }
+const decisionStamp = iso => !iso ? 0 : (Date.parse(/Z$|[+-]\d\d:\d\d$/.test(iso) ? iso : iso + "+03:00") || 0);
 function bucket(p) {
   if (p.status === "published") return "pub";
   const d = decisions[p.key];
-  if (d && p.decision_at !== d.at) return {approved: "ok", rework: "redo", rescue: "wait", unapprove: "wait", reject: "off", uploaded: "pub"}[d.decision] || baseBucket(p);
+  if (d && decisionStamp(d.at) > decisionStamp(p.decision_at)) return {approved: "ok", rework: "redo", rescue: "wait", unapprove: "wait", reject: "off", uploaded: "pub"}[d.decision] || baseBucket(p);
   return baseBucket(p);
 }
-const pending = p => { const d = decisions[p.key]; return !!d && p.decision_at !== d.at; };
+const pending = p => { const d = decisions[p.key]; return !!d && decisionStamp(d.at) > decisionStamp(p.decision_at); };
 const manualPub = p => !!p && p.status !== "published" && pending(p) && decisions[p.key].decision === "uploaded";   // «опубликовано вручную», конвейер ещё не применил
 function stageOf(p) {
   if (p.stalled && !pending(p)) return "stalled";
@@ -781,7 +782,7 @@ function slotModel(name) {
   // решения, ещё не применённые конвейером
   const drop = k => { for (const sk in occ) if (occ[sk] === k) delete occ[sk]; };
   for (const [k, d] of Object.entries(decisions)) {
-    const p = byKey[k]; if (!p || p.account !== name || p.status === "published" || p.decision_at === d.at) continue;
+    const p = byKey[k]; if (!p || p.account !== name || p.status === "published" || decisionStamp(d.at) <= decisionStamp(p.decision_at)) continue;
     if (d.decision === "approved") { drop(k); if (d.slot) occ[d.slot] = k; }
     else if (d.decision === "uploaded") { drop(k); const sk = d.slot || winKey(d.uploaded_at); if (sk) occ[sk] = k; }
     else if (["unapprove", "reject", "rework", "rescue"].includes(d.decision)) drop(k);
