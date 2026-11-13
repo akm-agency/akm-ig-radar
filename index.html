@@ -2074,7 +2074,7 @@ function h48(el, slots, { line = false } = {}) {
     svg += `<rect x="${X(k) + 1.5}" y="${s.g >= 0 ? z - h : z}" width="${Math.max(2, bw - 3)}" height="${h}" rx="2" fill="${s.g >= 0 ? "var(--up)" : "var(--down)"}" fill-opacity=".85"/>`;
   });
   // часы с публикациями
-  slots.forEach((s, k) => { if (s.p) svg += `<circle cx="${X(k) + bw / 2}" cy="${PT + 3}" r="${Math.min(6, 2.5 + s.p)}" fill="var(--orange)"/>`; });
+  if (line) slots.forEach((s, k) => { if (s.p) svg += `<circle cx="${X(k) + bw / 2}" cy="${PT + 3}" r="${Math.min(6, 2.5 + s.p)}" fill="var(--orange)"/>`; });
   // наши ИИ-посты: фиолетовая пунктирная линия через весь час + ромб под осью
   const AIC = "#7B4DFF";
   slots.forEach((s, k) => { if (!s.ai?.length) return; const cx = X(k) + bw / 2;
@@ -2085,7 +2085,7 @@ function h48(el, slots, { line = false } = {}) {
     svg += `<rect x="${X(k)}" y="${LT}" width="${bw}" height="${PT + 8 - LT}" fill="transparent"><title>${d} ${String(h).padStart(2, "0")}:00${s.f != null ? " · подписчиков " + fmt(s.f) : ""}${s.g != null ? " · за час " + signed(s.g) : " · замера не было"}${s.m && s.m > 1 ? ` (${s.m} акк.)` : ""}${s.p ? " · постов: " + s.p : ""}${(s.ai || []).map(x => `\nИИ-пост @${esc(x.u)}: ${esc(x.h)}`).join("")}</title></rect>`; });
   const nAI = slots.reduce((n, s) => n + (s.ai?.length || 0), 0);
   el.innerHTML = `<svg class="h48" viewBox="0 0 ${W} ${H}" role="img" aria-label="Прирост по часам за 48 часов">${svg}</svg>
-    <div class="legend"><span><i style="background:var(--up)"></i>прирост за час</span><span><i style="background:var(--down)"></i>отток</span>${line ? `<span><i style="background:var(--blue)"></i>подписчики</span>` : ""}<span><i style="background:var(--orange);border-radius:50%"></i>в этот час выходили посты</span>${nAI ? `<span><i style="background:${AIC};transform:rotate(45deg);border-radius:2px"></i>наш ИИ-пост (${nAI})</span>` : ""}</div>
+    <div class="legend"><span><i style="background:var(--up)"></i>прирост за час</span><span><i style="background:var(--down)"></i>отток</span>${line ? `<span><i style="background:var(--blue)"></i>подписчики</span>` : ""}${line ? `<span><i style="background:var(--orange);border-radius:50%"></i>в этот час выходили посты</span>` : ""}${nAI ? `<span><i style="background:${AIC};transform:rotate(45deg);border-radius:2px"></i>наш ИИ-пост (${nAI})</span>` : ""}</div>
     ${slots.some(s => s.ai?.length) ? `<div class="h48-ai">${slots.filter(s => s.ai?.length).flatMap(s => s.ai.map(x => { const [h, d] = hh(s.t); return `<a href="${esc(x.url || "#")}" target="_blank" rel="noopener"><b>${d} ${String(h).padStart(2, "0")}:${x.t.slice(14, 16)}</b> @${esc(x.u)} — ${esc(x.h)}${s.g != null ? ` <span>${line ? "канал" : "сетка"} ${signed(s.g)} за час</span>` : ""}</a>`; })).join("")}</div>` : ""}`;
 }
 function hourlyTile() {
