@@ -261,6 +261,7 @@ a{color:inherit}
 
 #tblLab{justify-content:flex-start}#tblLab .hq{margin-left:8px}
 .h48{display:block;width:100%;height:auto}
+.h48-ai{display:flex;flex-direction:column;gap:4px;margin-top:10px;font-size:13px}.h48-ai a{color:var(--ink);text-decoration:none;padding:6px 10px;border-radius:10px;background:#7B4DFF14;border-left:3px solid #7B4DFF}.h48-ai a:hover{background:#7B4DFF26}.h48-ai b{color:#7B4DFF;margin-right:4px}.h48-ai span{color:var(--muted);margin-left:6px}
 mark.hl{color:inherit;background:linear-gradient(104deg,transparent .3em,#FFE45C .4em,#FFE45C 92%,transparent 96%);background-size:100% 62%;background-position:0 78%;background-repeat:no-repeat;padding:0 .12em;margin:0 -.04em;border-radius:.18em;-webkit-box-decoration-break:clone;box-decoration-break:clone}mark.hl[data-u]{cursor:pointer}mark.hl[data-u]:hover{background-size:100% 100%;background-position:0 50%}
 /* скелетоны на время загрузки (как на YouTube): плитки той же сетки, серые полосы и бегущий блик */
 .skt{position:relative;overflow:hidden;gap:14px;pointer-events:none}
@@ -2019,9 +2020,23 @@ function h48Slots(us) {
       if (a.f[k] != null) { f += a.f[k]; fn++; }
       if (k && a.f[k] != null && a.f[k - 1] != null) { g += a.f[k] - a.f[k - 1]; m++; }
     }
-    return { t: t0 + k * 36e5, g: m ? g : null, m, p, f: fn === A.length ? f : null };
+    const t = t0 + k * 36e5;
+    const ai = AIP.filter(x => us.includes(x.u) && x.ms >= t && x.ms < t + 36e5);
+    return { t, g: m ? g : null, m, p, f: fn === A.length ? f : null, ai };
   });
 }
+// 13.11 (владелец: «ИИ-посты тут надо вообще выделять особо»): вышедшие посты конвейера ig_autopost — pulse/data/ai_posts.enc
+// (пульт контента кладёт при каждой сборке). Тот же ключ сайта. Нет файла — графики как раньше.
+let AIP = [];
+const H48 = new Map();
+function h48For(el, us, opts = {}) { if (!el) return; H48.set(el.id, [us, opts]); h48(el, h48Slots(us), opts); }
+(async () => {
+  try {
+    AIP = (await akmData("../pulse/data/ai_posts.json"))      // → data/../pulse/data/ai_posts.enc
+      .map(x => ({ ...x, ms: Date.parse(x.t + ":00+03:00") })).filter(x => !isNaN(x.ms));
+    for (const [id, [us, opts]] of H48) { const el = document.getElementById(id); if (el) h48(el, h48Slots(us), opts); }
+  } catch { /* без меток ИИ-постов */ }
+})();
 function h48(el, slots, { line = false } = {}) {
   if (!el) return;
   if (!slots || slots.filter(s => s.g != null).length < 2) { el.innerHTML = `<div class="vp-empty">Почасовые замеры наших страниц идут круглосуточно — график заполнится после пары часов замеров.</div>`; return; }
@@ -2060,11 +2075,18 @@ function h48(el, slots, { line = false } = {}) {
   });
   // часы с публикациями
   slots.forEach((s, k) => { if (s.p) svg += `<circle cx="${X(k) + bw / 2}" cy="${PT + 3}" r="${Math.min(6, 2.5 + s.p)}" fill="var(--orange)"/>`; });
+  // наши ИИ-посты: фиолетовая пунктирная линия через весь час + ромб под осью
+  const AIC = "#7B4DFF";
+  slots.forEach((s, k) => { if (!s.ai?.length) return; const cx = X(k) + bw / 2;
+    svg += `<line x1="${cx}" x2="${cx}" y1="${LT}" y2="${PT - 4}" stroke="${AIC}" stroke-width="1.6" stroke-dasharray="3 3" opacity=".75"/>`
+      + `<path d="M${cx},${PT - 5} l6,8 l-6,8 l-6,-8 z" fill="${AIC}" stroke="#fff" stroke-width="1.2"/>`; });
   // подсказки на весь столбец часа
   slots.forEach((s, k) => { const [h, d] = hh(s.t);
-    svg += `<rect x="${X(k)}" y="${LT}" width="${bw}" height="${PT + 8 - LT}" fill="transparent"><title>${d} ${String(h).padStart(2, "0")}:00${s.f != null ? " · подписчиков " + fmt(s.f) : ""}${s.g != null ? " · за час " + signed(s.g) : " · замера не было"}${s.m && s.m > 1 ? ` (${s.m} акк.)` : ""}${s.p ? " · постов: " + s.p : ""}</title></rect>`; });
+    svg += `<rect x="${X(k)}" y="${LT}" width="${bw}" height="${PT + 8 - LT}" fill="transparent"><title>${d} ${String(h).padStart(2, "0")}:00${s.f != null ? " · подписчиков " + fmt(s.f) : ""}${s.g != null ? " · за час " + signed(s.g) : " · замера не было"}${s.m && s.m > 1 ? ` (${s.m} акк.)` : ""}${s.p ? " · постов: " + s.p : ""}${(s.ai || []).map(x => `\nИИ-пост @${esc(x.u)}: ${esc(x.h)}`).join("")}</title></rect>`; });
+  const nAI = slots.reduce((n, s) => n + (s.ai?.length || 0), 0);
   el.innerHTML = `<svg class="h48" viewBox="0 0 ${W} ${H}" role="img" aria-label="Прирост по часам за 48 часов">${svg}</svg>
-    <div class="legend"><span><i style="background:var(--up)"></i>прирост за час</span><span><i style="background:var(--down)"></i>отток</span>${line ? `<span><i style="background:var(--blue)"></i>подписчики</span>` : ""}<span><i style="background:var(--orange);border-radius:50%"></i>в этот час выходили посты</span></div>`;
+    <div class="legend"><span><i style="background:var(--up)"></i>прирост за час</span><span><i style="background:var(--down)"></i>отток</span>${line ? `<span><i style="background:var(--blue)"></i>подписчики</span>` : ""}<span><i style="background:var(--orange);border-radius:50%"></i>в этот час выходили посты</span>${nAI ? `<span><i style="background:${AIC};transform:rotate(45deg);border-radius:2px"></i>наш ИИ-пост (${nAI})</span>` : ""}</div>
+    ${slots.some(s => s.ai?.length) ? `<div class="h48-ai">${slots.filter(s => s.ai?.length).flatMap(s => s.ai.map(x => { const [h, d] = hh(s.t); return `<a href="${esc(x.url || "#")}" target="_blank" rel="noopener"><b>${d} ${String(h).padStart(2, "0")}:${x.t.slice(14, 16)}</b> @${esc(x.u)} — ${esc(x.h)}${s.g != null ? ` <span>${line ? "канал" : "сетка"} ${signed(s.g)} за час</span>` : ""}</a>`; })).join("")}</div>` : ""}`;
 }
 function hourlyTile() {
   const sl = h48Slots(S.M.accounts.map(a => a.u)); if (!sl) return "";
@@ -2153,7 +2175,7 @@ function renderBento() {
   $("bento").innerHTML = T.join("");
   LV.pts = M.net.filter(p => p.d >= shift(M.latest, -30));
   lvChart();
-  h48($("netHourly"), h48Slots(A.map(a => a.u)));
+  h48For($("netHourly"), A.map(a => a.u));
   liveMount(total);
   markDirect($("bento"));
   graphMount($("bento"));
@@ -2277,7 +2299,7 @@ function openAccount(u, M = S.M) {
     <section class="t lime d6" id="accBest"></section>
     <section class="t d6"><div class="lab">По дням · клик по столбику выше подсветит день</div><div class="daylist"><table><thead><tr><th scope="col">Дата</th><th scope="col">Подписчики</th><th scope="col">Прирост</th><th scope="col" style="text-align:left">Публикации</th></tr></thead><tbody id="accDays"></tbody></table></div></section>
   </div>`;
-  h48($("accHourly"), h48Slots([a.u]), { line: true });
+  h48For($("accHourly"), [a.u], { line: true });
   graphMount($("accBody"));
   chart($("accChart"), a.pts.filter(p => p.d > shift(M.latest, -46)).map(p => ({ d: p.d, y: p.followers })), { w: 820, h: 200 });
   const recent = a.daily.filter(x => x.d > shift(M.latest, -31));
