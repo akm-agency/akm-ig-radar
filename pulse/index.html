@@ -759,6 +759,7 @@ function baseBucket(p) {
   if (p.status === "approved") return "ok";
   if (p.status === "rework") return "redo";
   if (p.status === "rejected") return "off";
+  if (p.status === "outdated") return "old";           // 14.11: архив «Неактуальная формула»
   return p.status === "ready" ? "wait" : "low";
 }
 const decisionStamp = iso => !iso ? 0 : (Date.parse(/Z$|[+-]\d\d:\d\d$/.test(iso) ? iso : iso + "+03:00") || 0);
@@ -773,7 +774,7 @@ const manualPub = p => !!p && p.status !== "published" && pending(p) && decision
 function stageOf(p) {
   if (p.stalled && !pending(p)) return "stalled";
   const b = bucket(p);
-  if (b === "pub") return "pub"; if (b === "ok") return "queue"; if (b === "redo") return "edit"; if (b === "off") return "off"; if (b === "wait") return "wait";
+  if (b === "pub") return "pub"; if (b === "ok") return "queue"; if (b === "redo") return "edit"; if (b === "off") return "off"; if (b === "old") return "old"; if (b === "wait") return "wait";
   if (p.status === "imaged") return "img"; if (p.status === "draft") return "write";
   if (p.status === "needs_frames") return "frames";
   return p.critic?.score == null ? "check" : "fail";
@@ -1001,6 +1002,7 @@ function cardHtml(p) {
   if (p.stage === "edit") { const c = (dcs && pending(p) ? dcs.comment : p.editor_comment) || ""; if (c) extra = `<div class="note">${esc(c)}</div>`; }
   if (p.stage === "queue") { const sl = (pending(p) && dcs?.slot) || p.slot; const s = sl && strength(p.account, +sl.slice(11, 13), wdOf(sl.slice(0, 10)));
     extra = `<div class="mt"><b>${sl ? slotLabel(sl) : "слот назначится"}</b>${s ? pw(s, 1) : ""}</div>`; }
+  if (p.stage === "old" && p.outdated) extra = `<div class="mt"><span style="color:var(--bad)">${esc((p.outdated.why || []).join("; "))}</span></div>`;
   if (p.stage === "pub") extra = `<div class="mt">${p.result ? `<b>${esc(p.result.verdict)} · ${"×" + p.result.x_reach}</b><span>охват ${fmt(p.result.reach)}</span>` : "<span>итог через 24 ч</span>"}</div>`;
   if (p.stage === "pub" && p.ig) extra += `<div class="mt igm"><b>${p.ig.x7 != null ? "×" + p.ig.x7 + " к 7 дн." : "♥ " + fmt(p.ig.likes)}</b><span>♥ ${fmt(p.ig.likes)} · 💬 ${fmt(p.ig.comments)}${p.ig.digest ? " · " + esc(p.ig.digest.tone) : ""}</span></div>`;
   const hand = p.building ? "" : manualBtns(p, "sm");
@@ -1014,7 +1016,7 @@ function cardHtml(p) {
 }
 
 function renderFlow() {
-  const all = items(), by = {}; STAGES.forEach(s => by[s[0]] = []); by.off = [];
+  const all = items(), by = {}; STAGES.forEach(s => by[s[0]] = []); by.off = []; by.old = [];
   all.forEach(p => (by[p.stage] ||= []).push(p));
   const names = acc ? [acc] : D.accounts.map(a => a.name);
   const models = names.map(slotModel), freeN = models.reduce((s, m) => s + m.free.length, 0), booked = models.reduce((s, m) => s + m.booked, 0);
@@ -1033,12 +1035,12 @@ function renderFlow() {
   const track = `<section class="panel"><div class="ph"><h2>Конвейер</h2><span class="hint">нажмите на этап, чтобы увидеть посты</span></div><div class="track">${["ai", "you", "out"].map(ph => `<div class="phase ${ph}"><div class="pl">${PHASE[ph][0]} <em>· ${PHASE[ph][1]}</em></div><div class="steps">${STAGES.filter(s => s[1] === ph).map(([k, , l, d]) => {
     const n = by[k].length, live = by[k].some(p => p.live);
     return `<button class="step ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="c">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</div></section>`;
-  const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : cur[2];
+  const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : stg === "old" ? "Неактуальная формула" : cur[2];
   const source = by[stg] || [], list = filterPosts(source);
   const EMPTY = {wait: ["Новых постов на проверку нет", "Сборщик добавит их при следующем запуске. Пока можно настроить слоты."], plan: ["Тем в плане нет", "Новый план появится при следующем запуске сборщика."], queue: ["Очередь пуста", "Одобренные посты стоят здесь до своего слота."], edit: ["Правок нет", "Посты, отправленные «На доработку», появятся здесь."]};
   const em = EMPTY[stg] || ["Здесь пока пусто", "Посты этого этапа появятся по мере работы конвейера."];
-  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
-      <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button></span></div>
+  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : stg === "old" ? "собраны по старой формуле — в текущем виде не выкладывать; причина на карточке" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
+      <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button><button class="chip" data-stg="old" aria-pressed="${stg === "old"}">Неактуальная формула · ${by.old.length}</button></span></div>
     ${postFilterBar(source.length, list.length)}<div class="cards">${list.length ? list.map(cardHtml).join("") : source.length ? `<div class="empty"><b>Нет постов по этим фильтрам</b>Измените диапазон балла или даты создания.</div>` : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
   const A = acc && accByName[acc];
   $("view").innerHTML = hero + (A && A.face ? profileHtml(A, false) : "") + livePanel() + track + lst;
@@ -1746,7 +1748,7 @@ function igBlock(g) {
 /* ---------- карточка поста ---------- */
 function card(p) {
   const c = p.critic || {}, pr = c.parts || {}, dcs = decisions[p.key], b = bucket(p), pend = pending(p), i = p._i;
-  const pill = {wait: ["wait", "ждёт решения"], ok: ["ok", "одобрен"], redo: ["redo", "на доработке"], pub: ["pub", "опубликован"], low: ["", "черновик"], off: ["", "снят"]}[b];
+  const pill = {wait: ["wait", "ждёт решения"], ok: ["ok", "одобрен"], redo: ["redo", "на доработке"], pub: ["pub", "опубликован"], low: ["", "черновик"], off: ["", "снят"], old: ["", "неактуальная формула"]}[b];
   const who = dcs ? `${names[dcs.by] || "редактор"} · ${new Date(dcs.at).toLocaleString("ru-RU", {day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"})}` : "";
   const r72 = p.result72 ? `<dt>Итог 72 ч</dt><dd>${p.result72.likes != null ? `лайков ${fmt(p.result72.likes)} (×${p.result72.x_likes} к медиане канала)` : `охват ${fmt(p.result72.reach)} (×${p.result72.x_reach}), подписок ${fmt(p.result72.follows)}, репостов ${fmt(p.result72.shares)}`} — ${esc(p.result72.verdict)}</dd>` : "";
   const res = igBlock(p.ig) + (p.result ? `<dt>Итог 24 ч</dt><dd>охват ${fmt(p.result.reach)} (×${p.result.x_reach} медианы), репосты ${p.result.shares_per_1k}/1000, подписки ${p.result.follows_per_1k}/1000 — ${esc(p.result.verdict)}</dd>` : "") + r72;
@@ -1781,7 +1783,7 @@ function card(p) {
     <select class="f" id="sl-${i}">${b === "ok" && slotKey ? `<option value="${slotKey}">Оставить: ${slotLabel(slotKey)}${slotStr ? " · сила " + slotStr.score : ""}</option>` : ""}${best ? `<option value="${best.key}">★ ${slotLabel(best.key)}${best.str ? " · сила " + best.str.score : ""} (лучший в ближайшие 48 ч)</option>` : ""}${free.filter(s => !best || s.key !== best.key).map(s => `<option value="${s.key}">${slotLabel(s.key)}${s.str ? " · сила " + s.str.score : ""}</option>`).join("")}${free.length ? "" : `<option value="">свободных слотов нет — ближайший при синхронизации</option>`}</select>
     <div class="btns"><button class="btn go" data-act="approved" data-base="${b === "ok" ? "Переставить" : "Одобрить"}" ${db ? "" : "disabled"}>${b === "ok" ? "Переставить" : "Одобрить"}${selKey ? " · " + slotLabel(selKey) : ""}</button>
       ${b === "ok" ? `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Отменить одобрение</button>` : ""}
-      ${b !== "off" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
+      ${b !== "off" && b !== "old" ? `<button class="btn danger" data-act="reject" ${db ? "" : "disabled"}>Снять</button>` : `<button class="btn" data-act="unapprove" ${db ? "" : "disabled"}>Вернуть в проверку</button>`}</div>
     <fieldset class="repair-pick"><legend>Замечания · ${repairOptions(p).length}</legend><p class="hint">Отметьте, что исправить. Неотмеченное останется как есть.</p>
       ${repairOptions(p).map((x, j) => `<label class="repair-option"><input type="checkbox" data-issue="${j}"><span><b class="repair-severity ${x.level}">${{bad: "БРАК", risk: "РИСК", note: "ЗАМЕЧАНИЕ"}[x.level]}</b>${esc(x.label)}</span></label>`).join("") || `<p class="hint">Замечаний нет — при необходимости опишите точечную правку ниже.</p>`}</fieldset>
     <label class="f" for="cm-${i}">Дополнение к выбранным замечаниям (необязательно)</label>
