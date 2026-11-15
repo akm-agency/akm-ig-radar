@@ -2852,7 +2852,11 @@ function renderRef() {
       ${list.length > n ? `<button type="button" class="pill vmore" data-dxmore="1">Показать ещё · ${list.length - n}</button>` : ""}</section>`);
   }
   // отслеживаемые — таблица (замер каждый час)
-  const Tk = TK(), TA = (Tk.acc || []).filter(a => !inN || inN.has(a.u) || S.cFilter === "all");
+  const Tk = TK(), tG = S.tGrp || "all", tGr = (Tk.groups || []).find(g => g.name === tG);
+  const TA = (Tk.acc || []).filter(a => (!inN || inN.has(a.u) || S.cFilter === "all") && (tG === "all" || a.g === tG));
+  // 15.11 группы отслеживаемых — кнопками; у групп с all_posts (Новости) ниже лента всех постов
+  const tgb = (k, l) => `<button type="button" class="chip" data-tgrp="${esc(k)}" aria-pressed="${tG === k}">${esc(l)}</button>`;
+  const tChips = (Tk.groups || []).length > 1 ? `<div class="chips2" role="group" aria-label="Группа отслеживаемых" style="margin:6px 0 10px">${tgb("all", "Все группы")}${Tk.groups.map(g => tgb(g.name, g.name)).join("")}</div>` : "";
   if (TA.length) {
     const k = S.tSort.k, dir = S.tSort.dir, dxBy = new Map((C?.direct || []).map(d => [d.u, d]));
     const dxTag = u => { const d = dxBy.get(u); return d ? ` <span class="trk-dx" title="Прямой конкурент нашей @${esc(d.o)} · похожесть ${d.p}%">похож на нашу @${esc(d.o)}</span>` : ""; };
@@ -2860,12 +2864,26 @@ function renderRef() {
     const rows = [...TA].sort((x, y) => { if (k === "u") return dir * x.u.localeCompare(y.u); const p = key(x), q = key(y); return p == null ? 1 : q == null ? -1 : dir * (p - q) || x.u.localeCompare(y.u); });
     const shown = S.tAll ? rows : rows.slice(0, 15);
     const th = (kk, label, extra = "") => `<th ${extra} aria-sort="${k === kk ? (dir > 0 ? "ascending" : "descending") : "none"}"><button type="button" class="ts" data-ts="${kk}">${label}${k === kk ? (dir > 0 ? " ↑" : " ↓") : ""}</button></th>`;
-    T.push(`<section class="t s12"><div class="lab">Отслеживаемые · ${TA.length} <span class="tag"><i class="tk-dot"></i>список команды · замер каждый час</span></div>
+    T.push(`<section class="t s12" id="trkSec"><div class="lab">Отслеживаемые · ${TA.length} <span class="tag"><i class="tk-dot"></i>список команды · замер каждый час</span></div>${tChips}
       <div class="tbl-wrap"><table class="rank trk"><thead><tr><th>#</th>${th("u", "Аккаунт", 'style="text-align:left"')}${th("f", "Подписчики")}${th("rate", "За сутки")}${th("d7", "7 дней", 'class="c-hide"')}${th("p7", "Постов · 7 дн", 'class="c-hide"')}${th("mv", "Просмотры", 'class="c-hide" title="Медиана просмотров последних 12 роликов"')}<th class="c-hide">7 дней по часам</th></tr></thead><tbody>
       ${shown.map((a, i) => { const r = tRate(a); return `<tr class="acc" tabindex="0" data-tu="${esc(a.u)}"><td class="num">${i + 1}</td><td style="text-align:left"><b>@${esc(a.u)}</b>${dxTag(a.u)}<div class="nich">${esc(a.g)}${a.st === "notfound" ? ' · <span class="neg">не найден</span>' : a.st === "private" ? ' · <span class="neg">закрыт</span>' : ""}</div></td>
         <td class="n">${a.f != null ? compact(a.f) : '<span class="muted">—</span>'}</td><td class="n ${cls(r?.v)}">${r ? (r.est ? "≈" : "") + signed(Math.round(r.v), compact) : "—"}</td><td class="n c-hide ${cls(a.d7)}">${signed(a.d7, compact)}</td>
         <td class="n c-hide">${fmt(a.p7)}</td><td class="n c-hide">${a.mv != null ? compact(a.mv) : "—"}</td><td class="c-hide">${tSpark(a)}</td></tr>`; }).join("")}</tbody></table></div>
       ${rows.length > 15 ? `<button type="button" class="linkbtn" data-tall="1" style="align-self:flex-start">${S.tAll ? "Свернуть" : `Все ${rows.length}`}</button>` : ""}</section>`);
+  }
+  if (tGr?.all_posts) {   // лента всех постов группы: время с поясом, подпись целиком
+    const us = new Set(tGr.accounts.map(u => u.toLowerCase()));
+    const feed = (Tk.posts || []).filter(p => us.has(p.u) && p.at).sort((x, y) => (y.at > x.at ? 1 : y.at < x.at ? -1 : 0));
+    const fn = S.tFeedN || 40, nf = v => v != null ? compact(v) : "—";
+    const emptyA = tGr.accounts.filter(u => !feed.some(p => p.u === u.toLowerCase()));
+    T.push(`<section class="t s12"><div class="lab">Лента · ${esc(tGr.name)} · ${feed.length} постов за 7 дней <span class="tag"><i class="tk-dot"></i>все посты, время МСК</span></div>
+      <div class="tbl-wrap"><table class="rank"><thead><tr><th style="text-align:left">Когда</th><th style="text-align:left">Аккаунт</th><th style="text-align:left">Подпись</th><th>Лайки</th><th>Комм.</th></tr></thead><tbody>
+      ${feed.slice(0, fn).map(p => `<tr><td style="text-align:left;white-space:nowrap">${esc(tWhen(p.at.slice(0, 16)))}</td><td style="text-align:left"><a href="https://www.instagram.com/p/${esc(p.c)}/" target="_blank" rel="noopener"><b>@${esc(p.u)}</b></a></td>
+        <td style="text-align:left;max-width:640px"><div style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-line" title="${esc(p.x || "")}">${esc(p.x || "—")}</div></td>
+        <td class="n">${nf(p.l)}</td><td class="n">${nf(p.cm)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">Постов пока нет — сборщик только начал замер</td></tr>`}
+      </tbody></table></div>
+      ${feed.length > fn ? `<button type="button" class="linkbtn" data-tfeed="1" style="align-self:flex-start">Показать ещё · ${feed.length - fn}</button>` : ""}
+      ${emptyA.length ? `<p class="foot">Ещё нет постов: ${emptyA.map(u => "@" + esc(u)).join(", ")} — появятся после первых замеров.</p>` : ""}</section>`);
   }
   // все конкуренты (снежный ком) — рейтинг по похожести или росту
   if (M?.latest) {
@@ -3189,6 +3207,8 @@ compPages.addEventListener("click", e => {
   const cg = e.target.closest("[data-cg]"); if (cg) { keep(() => { S.cFilter = cg.dataset.cg; S.dxMore = 12; }); dxAnim("dxAll"); return; }
   if (e.target.closest('[data-act="rank"]')) { keep(() => { S.cAllRank = !S.cAllRank; }); return; }
   if (e.target.closest("[data-tall]")) { keep(() => { S.tAll = !S.tAll; }); return; }
+  const tgr = e.target.closest("[data-tgrp]"); if (tgr) { keep(() => { S.tGrp = tgr.dataset.tgrp; S.tFeedN = 40; }); return; }
+  if (e.target.closest("[data-tfeed]")) { keep(() => { S.tFeedN = (S.tFeedN || 40) + 60; }); return; }
   if (e.target.closest("[data-sall]")) { keep(() => { S.sAll = !S.sAll; }); return; }
   const os = e.target.closest("[data-osrc]"); if (os) { keep(() => { S.oSrc = os.dataset.osrc; S.vMore = { ...(S.vMore || {}), cont: 12 }; }); enter($("cCont")); return; }
   const ts = e.target.closest("[data-ts]");

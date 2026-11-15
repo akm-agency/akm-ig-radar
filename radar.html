@@ -1536,13 +1536,14 @@ tr.acc.fresh td{background:color-mix(in srgb,var(--lime) 9%,#fff)}
       <span class="logo"><svg class="akm" viewBox="17 7 124 31" role="img" aria-label="AKM"><path fill="#69A282" d="M41 8H49V12.6L45.6 18H45V13H44L36 24H40L37 29H31L25 37H18Z"/><path fill="#0D1611" d="M48.4 20.5H49V37H36Z"/><path fill="#0D1611" d="M58 8H64V37H58Z"/><path fill="#0D1611" d="M81 8H89L76.3 21L77.6 24L90 37H82L71 25.4H64V20H69.3Z"/><path fill="#0D1611" d="M98 8H104V37H98ZM133 8H139V37H133ZM99 8H106L118 30L130 8H137L121.5 37H114.5Z"/></svg></span>
       <div><h1 id="pTitle">Радар рекламодателей</h1><div class="meta" id="meta"><i class="skm" aria-label="Загрузка"></i></div></div>
     </div>
-    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a class="ext" href="index.html" target="_blank" rel="noopener">Сетка ↗</a><a href="#ads" data-p="ads" aria-current="page">Рекламодатели <span class="cnt" id="brandCnt"></span></a></nav>
+    <nav class="nav" id="nav" aria-label="Разделы"><span class="ind" id="navInd"></span><a class="ext" href="index.html" target="_blank" rel="noopener">Сетка ↗</a><a href="#ads" data-p="ads" aria-current="page">Рекламодатели <span class="cnt" id="brandCnt"></span></a><a href="#news" data-p="news">Новости <span class="cnt" id="newsCnt"></span></a></nav>
     <div class="pills">
       <button class="pill" type="button" id="crmBtn">CRM · <b id="crmWho" style="font-weight:600">войти</b></button>
       <button class="pill dark" type="button" id="aiOpen"><span class="ai-spark" aria-hidden="true"></span>Спросить ИИ <span class="arrow">↗</span></button>
     </div>
   </header>
 
+  <main class="page" id="pageNews" style="display:none"></main>
   <main class="page" id="pageRadar">
     <div class="bento" id="abento"><section class="t ink s5 r2 skt" aria-hidden="true"><i class="b w30"></i><i class="b h2 w45"></i><i class="b w60"></i><i class="b grow"></i></section><section class="t s4 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w30"></i><i class="b w90"></i><i class="b w90"></i><i class="b w90"></i></section><section class="t s3 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w60"></i><i class="b w30"></i></section><section class="t s7 skt" aria-hidden="true"><i class="b w45"></i><i class="b h1 w90"></i><i class="b h1 w60"></i><span class="row"><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i><i class="b h2"></i></span></section></div>
     <section class="t s12" id="brandTile">
@@ -2045,7 +2046,53 @@ function openDlg(d) { d.classList.remove("closing"); d.showModal(); }
 function closeDlg(d) { if (!d.open || d.classList.contains("closing")) return; if (reduce) { d.close(); return; } d.classList.add("closing"); setTimeout(() => { d.close(); d.classList.remove("closing"); }, 210); }
 for (const id of ["accDlg", "aiDlg"]) $(id).addEventListener("cancel", e => { e.preventDefault(); closeDlg($(id)); });
 function toast(t) { let el = $("toast"); if (!el) { el = document.createElement("div"); el.id = "toast"; el.className = "toast"; document.body.appendChild(el); } el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 3200); }
-function placeInd() { const a = document.querySelector('#nav a[data-p="ads"]'); if (!a) return; $("navInd").style.width = a.offsetWidth + "px"; $("navInd").style.transform = `translateX(${a.offsetLeft}px)`; }
+/* ---------- радар новостей (15.11, US Alert): все посты новостных пабликов из tracked.json, группа с all_posts ---------- */
+function renderNews() {
+  const N = S.news || {}, P = N.posts || [], acc = N.acc || [];
+  $("newsCnt").textContent = P.length || "";
+  const q = (S.nQ || "").trim().toLowerCase(), who = S.nU || "all";
+  const list = P.filter(p => (who === "all" || p.u === who) && (!q || p.u.includes(q) || (p.x || "").toLowerCase().includes(q)));
+  const n = S.nMore || 50;
+  const cnt = {}; for (const p of P) cnt[p.u] = (cnt[p.u] || 0) + 1;
+  const day = new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10);
+  const today = P.filter(p => p.at.slice(0, 10) === day).length;
+  const lastH = P.filter(p => Date.parse(p.at) > Date.now() - 36e5).length;
+  const when = at => { const d = at.slice(0, 10); return (d === day ? "" : dShort(d) + " ") + at.slice(11, 16); };
+  const ago = at => { const m = Math.round((Date.now() - Date.parse(at)) / 6e4); return m < 60 ? m + " мин назад" : m < 1440 ? Math.round(m / 60) + " ч назад" : ""; };
+  const chip = (k, l) => `<button type="button" class="chip" data-nu="${esc(k)}" aria-pressed="${who === k}">${l}</button>`;
+  const empty = (N.accounts || []).filter(u => !cnt[u]);
+  $("pageNews").innerHTML = `<div class="bento">
+    <section class="t ink s5"><div class="lab">Радар новостей <span class="tag">${esc((N.groups || []).join(", ") || "Новости")}</span></div>
+      <div class="big">${fmt(P.length)}</div><div class="sub">постов за 7 дней у ${Object.keys(cnt).length} из ${(N.accounts || []).length} пабликов · время МСК</div></section>
+    <section class="t orange s4"><div class="lab">Сегодня</div><div class="big">${fmt(today)}</div><div class="sub">постов с 00:00 МСК</div></section>
+    <section class="t blue s3"><div class="lab">За последний час</div><div class="big">${fmt(lastH)}</div><div class="sub">${N.at ? updLabel(N.at) : ""}</div></section>
+    <section class="t s12"><div class="dx-tools"><div class="lab" style="opacity:1">Лента · ${fmt(list.length)}</div>
+      <input class="search" id="nQ" type="search" placeholder="Слово из подписи или ник" aria-label="Поиск по ленте" value="${esc(S.nQ || "")}"></div>
+      <div class="chips2" role="group" aria-label="Паблик" style="margin:8px 0 12px">${chip("all", "Все")}${Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(([u, c]) => chip(u, "@" + esc(u) + " · " + c)).join("")}</div>
+      <div class="tbl-wrap"><table class="rank"><thead><tr><th style="text-align:left">Время</th><th style="text-align:left">Паблик</th><th style="text-align:left">Подпись</th><th>♥</th><th>💬</th></tr></thead><tbody>
+      ${list.slice(0, n).map(p => `<tr><td style="text-align:left;white-space:nowrap;vertical-align:top"><b>${esc(when(p.at))}</b><div class="muted" style="font-size:11px">${ago(p.at)}</div></td>
+        <td style="text-align:left;vertical-align:top"><a href="${postLink(p)}" target="_blank" rel="noopener"><b>@${esc(p.u)}</b></a></td>
+        <td style="text-align:left;vertical-align:top;max-width:680px"><details><summary style="cursor:pointer;list-style:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc((p.x || "—").split(String.fromCharCode(10))[0])}</summary><div style="white-space:pre-line;font-size:13px;margin-top:6px">${esc(p.x || "")}</div></details></td>
+        <td class="n" style="vertical-align:top">${compact(p.l)}</td><td class="n" style="vertical-align:top">${compact(p.cm)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">Ничего не нашли</td></tr>`}
+      </tbody></table></div>
+      ${list.length > n ? `<button type="button" class="pill" data-nmore="1" style="align-self:flex-start;margin-top:10px">Показать ещё · ${fmt(list.length - n)}</button>` : ""}
+      ${empty.length ? `<div class="foot">Пока без постов (замер только начался): ${empty.map(u => "@" + esc(u)).join(", ")}</div>` : ""}</section></div>`;
+}
+function showPage(p) {
+  const news = p === "news";
+  $("pageNews").style.display = news ? "" : "none"; $("pageRadar").style.display = news ? "none" : "";
+  for (const a of document.querySelectorAll("#nav a[data-p]")) a.toggleAttribute("aria-current", a.dataset.p === p), a.dataset.p === p && a.setAttribute("aria-current", "page");
+  $("pTitle").textContent = news ? "Радар новостей" : "Радар рекламодателей";
+  if (news) renderNews();
+  placeInd();
+}
+document.addEventListener("click", e => {
+  const a = e.target.closest("#nav a[data-p]"); if (a) { e.preventDefault(); history.replaceState(null, "", "#" + a.dataset.p); showPage(a.dataset.p); return; }
+  const nu = e.target.closest("[data-nu]"); if (nu) { S.nU = nu.dataset.nu; S.nMore = 50; renderNews(); return; }
+  if (e.target.closest("[data-nmore]")) { S.nMore = (S.nMore || 50) + 100; renderNews(); }
+});
+document.addEventListener("input", e => { if (e.target.id === "nQ") { S.nQ = e.target.value; clearTimeout(renderNews.t); renderNews.t = setTimeout(() => { renderNews(); const i = $("nQ"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 250); } });
+function placeInd() { const a = document.querySelector('#nav a[aria-current]') || document.querySelector('#nav a[data-p="ads"]'); if (!a) return; $("navInd").style.width = a.offsetWidth + "px"; $("navInd").style.transform = `translateX(${a.offsetLeft}px)`; }
 
 /* ---------- events ---------- */
 document.addEventListener("click", e => {
@@ -2161,9 +2208,11 @@ function dataIn(k) {
 setTimeout(reveal, 2500);
 placeInd(); document.fonts?.ready.then(placeInd); window.addEventListener("resize", placeInd);
 if (window.__PUBLIC_DATA) {
-  const D = window.__PUBLIC_DATA; S.brands = D.brands || []; S.hosts = D.hosts || []; S.hostsAt = D.hostsAt; S.insights = D.insights || []; S.viral = D.viral || [];
+  const D = window.__PUBLIC_DATA; S.brands = D.brands || []; S.hosts = D.hosts || []; S.hostsAt = D.hostsAt; S.insights = D.insights || []; S.viral = D.viral || []; S.news = D.news || {};
   S.cards = D.cards || []; S.cardsAt = D.cardsAt; S.crmLock = D.crmLock || null;
   document.body.classList.add("public"); reveal(); crmLoad();
+  $("newsCnt").textContent = (S.news.posts || []).length || "";
+  if (location.hash === "#news") showPage("news");
   // ссылка radar.html#b=<бренд> (из «Прямых конкурентов» на сетке) сразу открывает карточку бренда
   const hb = (location.hash.match(/^#b=(.+)/) || [])[1];
   if (hb && S.brands.some(b => b.key === decodeURIComponent(hb))) setTimeout(() => openBrand(decodeURIComponent(hb)), 450);
