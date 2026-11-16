@@ -1486,13 +1486,39 @@ async function tgChatId() {
   tgChat = f; try { localStorage.setItem("akm-tgchat", JSON.stringify(f)); } catch (e) {}
   return f.id;
 }
+function tgInfo(p, n, hq) {
+  const {sl, best} = recSlots(p), mu = musicOf(p), h = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const slotKey = sl || best?.key;      // дата числом, без «завтра»: сообщение читают и через день
+  const dated = k => `${k.slice(8, 10)}.${k.slice(5, 7)} (${["вс", "пн", "вт", "ср", "чт", "пт", "сб"][new Date(k.slice(0, 10) + "T12:00:00Z").getUTCDay()]}) ${k.slice(11, 16)}`;
+  return [`<b>📍 Канал:</b> @${h(p.account)}`,
+    `<b>🕒 Выложить:</b> ${slotKey ? h(dated(slotKey)) + " МСК" : "в ближайшее окно"}`,
+    `<b>🎵 Музыка</b> (${h(mu.m.ru)}): <code>${h(trackName(mu.pick[0]))}</code>\n<i>запасные:</i> <code>${h(trackName(mu.pick[1]))}</code>, <code>${h(trackName(mu.pick[2]))}</code>`,
+    `<b>🖼 Слайдов:</b> ${n}, по порядку 01 → ${pad(n)}${hq ? "" : " (превью 720×900)"}`].join("\n");
+}
+async function tgReachable() {        // 16.11: в РФ без VPN браузер не достаёт api.telegram.org — тогда пост отправит ПК
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 6000);
+  try { const r = await fetch(`https://api.telegram.org/bot${D.tg.token}/getMe`, {signal: ac.signal}); return r.ok; }
+  catch (e) { return false; } finally { clearTimeout(t); }
+}
+async function queueTg(p, cap) {      // задание для tg_relay.py на ПК: pulse/inbox/tgsend.enc
+  const n = (p.full || []).length || (p.slides || []).length;
+  await store.put("tgsend", p.key + "@" + Date.now(), {key: p.key, caption: cap, info: tgInfo(p, n, true), by: me || "пульт", at: new Date().toISOString()});
+}
 async function sendTg(p, btn) {
   if (!p || btn.disabled) return;
   if (!D.tg?.token) return toast("Токен бота не попал в пульт — подождите пересборку", 1);
   const label = btn.innerHTML; btn.disabled = true; btn.textContent = "Отправляю…";
+  const cap = edits[p.key]?.caption ?? p.caption ?? "";
+  if (!(await tgReachable())) {
+    try {
+      if (!token) throw new Error("Telegram недоступен из браузера (нужен VPN) — или нажмите «Подключить запись», тогда пост отправит сервер AKM");
+      await queueTg(p, cap);
+      toast("Telegram из браузера недоступен — пост отправит сервер AKM в течение 1–2 минут");
+    } catch (e) { toast("В Telegram не ушло: " + e.message, 1); }
+    btn.disabled = false; btn.innerHTML = label; return;
+  }
   try {
     const chat = await tgChatId();
-    const cap = edits[p.key]?.caption ?? p.caption ?? "";
     const {imgs, hq} = await postImgs(p);
     if (!imgs.length) throw new Error("у поста нет слайдов");
     for (let s = 0; s < imgs.length; s += 10) {          // альбом в Telegram — до 10 файлов
@@ -1504,14 +1530,7 @@ async function sendTg(p, btn) {
       else await tgCall("sendMediaGroup", fd);
     }
     await tgCall("sendMessage", {chat_id: chat, text: cap || "(подписи нет)", link_preview_options: {is_disabled: true}});
-    const {sl, best} = recSlots(p), mu = musicOf(p), h = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const slotKey = sl || best?.key;      // дата числом, без «завтра»: сообщение читают и через день
-    const dated = k => `${k.slice(8, 10)}.${k.slice(5, 7)} (${["вс", "пн", "вт", "ср", "чт", "пт", "сб"][new Date(k.slice(0, 10) + "T12:00:00Z").getUTCDay()]}) ${k.slice(11, 16)}`;
-    const info = [`<b>📍 Канал:</b> @${h(p.account)}`,
-      `<b>🕒 Выложить:</b> ${slotKey ? h(dated(slotKey)) + " МСК" : "в ближайшее окно"}`,
-      `<b>🎵 Музыка</b> (${h(mu.m.ru)}): <code>${h(trackName(mu.pick[0]))}</code>\n<i>запасные:</i> <code>${h(trackName(mu.pick[1]))}</code>, <code>${h(trackName(mu.pick[2]))}</code>`,
-      `<b>🖼 Слайдов:</b> ${imgs.length}, по порядку 01 → ${pad(imgs.length)}${hq ? "" : " (превью 720×900)"}`].filter(Boolean).join("\n");
-    await tgCall("sendMessage", {chat_id: chat, text: info, parse_mode: "HTML"});
+    await tgCall("sendMessage", {chat_id: chat, text: tgInfo(p, imgs.length, hq), parse_mode: "HTML"});
     toast(`Отправлено в Telegram: ${imgs.length} слайд. + подпись + время/музыка`);
   } catch (e) { toast("В Telegram не ушло: " + e.message, 1); }
   btn.disabled = false; btn.innerHTML = label;
@@ -1895,7 +1914,8 @@ let token = ""; try { token = localStorage.getItem("akm-gh") || ""; } catch (e) 
 const b64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode(...u8.subarray(i, i + 0x8000)); return btoa(s); };
 const gh = (path, opt = {}) => fetch("https://api.github.com/repos/" + REPO + "/contents/" + path, {...opt, cache: "no-store",
   headers: {Authorization: "Bearer " + token, Accept: "application/vnd.github+json", ...(opt.headers || {})}});
-const MAPS = {decisions: () => decisions, edits: () => edits, slotcfg: () => slotcfg};
+let tgsendMap = {};
+const MAPS = {decisions: () => decisions, edits: () => edits, slotcfg: () => slotcfg, tgsend: () => tgsendMap};
 const store = {
   async read(name) {
     if (token) {
@@ -1918,6 +1938,7 @@ const store = {
     for (let n = 0; n < 4; n++) {
       const {map, sha} = await store.read(name);
       map[key] = doc;
+      if (name === "tgsend") for (const [k, v] of Object.entries(map)) if (Date.now() - Date.parse(v.at || 0) > 3 * 864e5) delete map[k];   // задания старше 3 дней не нужны
       const body = {message: "Пульт: " + name + " " + key, branch: BRANCH, content: b64(await window.akmSeal(new TextEncoder().encode(JSON.stringify(map))))};
       if (sha) body.sha = sha;
       const r = await gh(INBOX + name + ".enc", {method: "PUT", body: JSON.stringify(body)});
