@@ -481,6 +481,18 @@ textarea{resize:vertical;min-height:76px}
 .uc .ub{padding:12px 14px;display:grid;gap:6px;align-content:start;font-size:12.5px}
 .uc h3{font-size:13.5px;font-weight:600;line-height:1.3}
 .uc .btns{display:flex;flex-wrap:wrap;gap:6px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:12px}
+.rc{background:var(--panel);border-radius:var(--r);overflow:hidden;display:grid;grid-template-columns:168px minmax(0,1fr)}
+.rc.done{opacity:.6}
+.rc .rv{position:relative;background:#000;aspect-ratio:9/16;border:0;padding:0;cursor:pointer;display:block;width:100%}
+.rc .rv img,.rc .rv video{width:100%;height:100%;object-fit:cover;display:block}
+.rc .rv .play{position:absolute;inset:auto 8px 8px auto;background:rgba(0,0,0,.65);color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600}
+.rc .rb{padding:12px 14px;display:grid;gap:6px;align-content:start;font-size:12.5px;min-width:0}
+.rc h3{font-size:13.5px;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.rc .btns{display:flex;flex-wrap:wrap;gap:6px}
+.rc .rmeta{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--muted);font-size:12px}
+.rc details{font-size:12px}.rc details summary{cursor:pointer;color:var(--blue)}.rc details pre{white-space:pre-wrap;font:inherit;background:var(--soft);border-radius:8px;padding:8px 10px;margin-top:6px;overflow-wrap:anywhere}
+@media(max-width:560px){.rc{grid-template-columns:120px minmax(0,1fr)}}
 .uc.done{opacity:.55}
 .rsn{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 6px}
 .rsn .chip{height:28px;font-size:12px}
@@ -1248,11 +1260,12 @@ function repairDailyBlock(L) {
 function render() {
   const w = items().filter(p => p.stage === "wait").length;
   const upN = D.posts.filter(p => p.manual && bucket(p) === "ok").length;
-  $("nav").innerHTML = [["flow", "Конвейер", w], ["upload", "Заливка", upN], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0], ["learn", "Обучение", 0]].map(([k, l, n]) =>
+  const reelN = (D.reels || []).filter(r => r.status !== "published" && !reelMarks[r.key]).length;
+  $("nav").innerHTML = [["flow", "Конвейер", w], ["upload", "Заливка", upN], ["reels", "Рилсы", reelN], ["slots", "Слоты", 0], ["accs", "Аккаунты", 0], ["learn", "Обучение", 0]].map(([k, l, n]) =>
     `<button data-v="${k}" aria-pressed="${view === k}">${l}${n ? `<span class="badge">${n}</span>` : ""}</button>`).join("");
   $("accSel").innerHTML = `<option value="">Все аккаунты · ${D.accounts.length}</option>` + D.accounts.map(a => `<option value="${esc(a.name)}" ${acc === a.name ? "selected" : ""}>@${esc(a.name)}</option>`).join("");
   $("accSel").hidden = D.accounts.length < 2;
-  if (view === "flow") renderFlow(); else if (view === "upload") renderUpload(); else if (view === "slots") renderSlots(); else if (view === "learn") renderLearn(); else renderAccounts();
+  if (view === "flow") renderFlow(); else if (view === "upload") renderUpload(); else if (view === "reels") renderReels(); else if (view === "slots") renderSlots(); else if (view === "learn") renderLearn(); else renderAccounts();
   hydrate();
 }
 $("accSel").onchange = e => { acc = e.target.value; saveLocal(); render(); };
@@ -1603,6 +1616,75 @@ function renderUpload() {
         ${done ? "" : `<button class="btn sm" data-up="${esc(p.key)}">${mine ? "Снять отметку" : "Опубликовано вручную"}</button>`}</div></div></article>`; }).join("")
       : `<div class="empty"><b>Нечего заливать</b>Одобрите посты ручных каналов на экране «Конвейер» — они появятся здесь со временем слота.</div>`}</div></section>`;
 }
+
+/* ---------- 17.11, владелец: «добавь их [рилсы] в пульт отдельно». Экран «Рилсы»: ролики reel_pipeline.py (posts/<канал>/ММДД_reel_*),
+   видео и обложка — шифром в ветке pulse-files, карточки — D.reels (reel_pulse.py). Отметка «залито» — в этом браузере. ---------- */
+let reelMarks = {}; try { reelMarks = JSON.parse(localStorage.getItem("akm-reel-up") || "{}"); } catch (e) {}
+const reelByKey = k => (D.reels || []).find(r => r.key === k);
+const reelBlobs = {};
+function reelFile(path, type) {
+  return reelBlobs[path] || (reelBlobs[path] = fetch(FILES_RAW(path), {cache: "force-cache"})
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.arrayBuffer(); })
+    .then(b => window.akmOpen(new Uint8Array(b))).then(u8 => new Blob([u8], {type}))
+    .catch(e => { delete reelBlobs[path]; throw e; }));
+}
+function renderReels() {
+  const all = D.reels || [], list = all.filter(r => !acc || r.account === acc);
+  const todo = list.filter(r => r.status !== "published" && !reelMarks[r.key]);
+  $("view").innerHTML = `<section><div class="ph" style="padding:0 6px"><h2>Рилсы</h2><span class="n">${todo.length}</span><span class="hint">отдельный конвейер reel_pipeline.py · видео 1080×1920, заливать как Reels. «Архив» — видео, обложка, подпись и info одним .zip; подпись сразу копируется в буфер</span></div>
+    <div class="rgrid">${list.length ? list.map(r => { const done = r.status === "published" || reelMarks[r.key];
+      return `<article class="rc ${done ? "done" : ""}"><button class="rv" data-rplay="${esc(r.key)}" aria-label="Смотреть рилс"><img data-enc="${esc(r.cover)}" alt=""><span class="play">▶ ${r.dur ? Math.round(r.dur) + " с" : ""}</span></button>
+      <div class="rb"><span class="uacc">${ava(r.account, 22)}<b>@${esc(r.account)}</b></span>
+        <div class="rmeta"><span>${r.status === "published" ? "вышел" : reelMarks[r.key] ? "отмечен вами как залитый" : r.slot ? "залить " + esc(r.slot) : "время не назначено"}</span><span>${r.dur ? Math.round(r.dur) + " с" : ""} · ${r.size_mb} МБ</span></div>
+        <h3>${esc(r.hook)}</h3><div class="hint">${esc(r.title)}</div>
+        <div class="cap-prev">${esc(r.caption)}</div>
+        <div class="btns"><button class="btn sm go" data-rzip="${esc(r.key)}">⬇ Архив .zip</button><button class="btn sm" data-rdl="${esc(r.key)}">Скачать видео</button><button class="btn sm" data-rcopy="${esc(r.key)}">Копировать подпись</button>
+          ${r.status === "published" ? "" : `<button class="btn sm" data-rmark="${esc(r.key)}">${reelMarks[r.key] ? "Снять отметку" : "Залито ✓"}</button>`}</div>
+        <details><summary>info и почему этот рилс</summary><pre>${esc(r.info)}</pre>${r.why ? `<pre>${esc(r.why)}${r.donor ? "\nДонор: " + esc(r.donor) : ""}</pre>` : ""}</details></div></article>`; }).join("")
+      : `<div class="empty"><b>Рилсов нет</b>${acc ? "У этого канала пока нет готовых рилсов — выберите «Все аккаунты»." : "Готовые рилсы появятся здесь после <code>python reel_pipeline.py make &lt;папка&gt;</code> и пересборки пульта."}</div>`}</div></section>`;
+}
+async function reelPlay(r, btn) {
+  if (btn.querySelector("video")) return;
+  const tag = btn.querySelector(".play"), was = tag.textContent; tag.textContent = "Загружаю…";
+  try {
+    const url = URL.createObjectURL(await reelFile(r.video, "video/mp4"));
+    btn.innerHTML = `<video src="${url}" controls autoplay playsinline></video>`;
+  } catch (e) { tag.textContent = was; toast("Видео не загрузилось: " + e.message, 1); }
+}
+async function reelDownload(r, btn) {
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Готовлю…";
+  try {
+    const f = new File([await reelFile(r.video, "video/mp4")], `${r.account}_${r.folder}.mp4`, {type: "video/mp4"});
+    if (navigator.canShare && navigator.canShare({files: [f]})) await navigator.share({files: [f], title: r.hook});
+    else { const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); }
+    toast("Видео сохранено");
+  } catch (e) { if (e.name !== "AbortError") toast("Не скачалось: " + e.message, 1); }
+  btn.disabled = false; btn.textContent = label;
+}
+async function reelZip(r, btn) {
+  try { navigator.clipboard?.writeText(r.caption).catch(() => {}); } catch (e) {}
+  const label = btn.textContent; btn.disabled = true; btn.textContent = "Собираю…";
+  try {
+    const te = new TextEncoder(), [v, c] = await Promise.all([reelFile(r.video, "video/mp4"), reelFile(r.cover_full, "image/jpeg")]);
+    const files = [{name: "reel.mp4", data: new Uint8Array(await v.arrayBuffer())}, {name: "cover.jpg", data: new Uint8Array(await c.arrayBuffer())},
+                   {name: "caption.txt", data: te.encode(r.caption)}, {name: "info.txt", data: te.encode(r.info.replace(/\n/g, "\r\n"))}];
+    const a = document.createElement("a"); a.href = URL.createObjectURL(makeZip(files)); a.download = `${r.account}_${r.folder}.zip`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+    toast("Архив рилса готов · подпись в буфере");
+  } catch (e) { toast("Архив не собрался: " + e.message, 1); }
+  btn.disabled = false; btn.textContent = label;
+}
+$("view").addEventListener("click", e => {
+  if (view !== "reels") return;
+  const t = e.target; let b;
+  b = t.closest("[data-rplay]"); if (b) return reelPlay(reelByKey(b.dataset.rplay), b);
+  b = t.closest("[data-rdl]"); if (b) return reelDownload(reelByKey(b.dataset.rdl), b);
+  b = t.closest("[data-rzip]"); if (b) return reelZip(reelByKey(b.dataset.rzip), b);
+  b = t.closest("[data-rcopy]"); if (b) { navigator.clipboard.writeText(reelByKey(b.dataset.rcopy).caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
+  b = t.closest("[data-rmark]"); if (b) { const k = b.dataset.rmark; reelMarks[k] = reelMarks[k] ? 0 : Date.now();
+    try { localStorage.setItem("akm-reel-up", JSON.stringify(reelMarks)); } catch (err) {}
+    toast(reelMarks[k] ? "Отмечено как залитое" : "Отметка снята"); return render(); }
+});
 
 /* ---------- 10.11: «Когда постить» — рекомендуемый слот крупно и карта слотов аккаунта на 7 дней (клик по свободной клетке выбирает слот) ---------- */
 function whenBlock(p, selKey) {
