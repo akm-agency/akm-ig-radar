@@ -771,7 +771,7 @@ function baseBucket(p) {
   if (p.status === "approved") return "ok";
   if (p.status === "rework") return "redo";
   if (p.status === "rejected") return "off";
-  if (p.status === "outdated") return "old";           // 14.11: архив «Неактуальная формула»
+  if (p.status === "outdated") return "old";           // 14.11: архив «Утратили актуальность»
   return p.status === "ready" ? "wait" : "low";
 }
 const decisionStamp = iso => !iso ? 0 : (Date.parse(/Z$|[+-]\d\d:\d\d$/.test(iso) ? iso : iso + "+03:00") || 0);
@@ -1047,12 +1047,12 @@ function renderFlow() {
   const track = `<section class="panel"><div class="ph"><h2>Конвейер</h2><span class="hint">нажмите на этап, чтобы увидеть посты</span></div><div class="track">${["ai", "you", "out"].map(ph => `<div class="phase ${ph}"><div class="pl">${PHASE[ph][0]} <em>· ${PHASE[ph][1]}</em></div><div class="steps">${STAGES.filter(s => s[1] === ph).map(([k, , l, d]) => {
     const n = by[k].length, live = by[k].some(p => p.live);
     return `<button class="step ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="c">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</div></section>`;
-  const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : stg === "old" ? "Неактуальная формула" : cur[2];
+  const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : stg === "old" ? "Утратили актуальность" : cur[2];
   const source = by[stg] || [], list = filterPosts(source);
   const EMPTY = {wait: ["Новых постов на проверку нет", "Сборщик добавит их при следующем запуске. Пока можно настроить слоты."], plan: ["Тем в плане нет", "Новый план появится при следующем запуске сборщика."], queue: ["Очередь пуста", "Одобренные посты стоят здесь до своего слота."], edit: ["Правок нет", "Посты, отправленные «На доработку», появятся здесь."]};
   const em = EMPTY[stg] || ["Здесь пока пусто", "Посты этого этапа появятся по мере работы конвейера."];
-  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : stg === "old" ? "собраны по старой формуле — в текущем виде не выкладывать; причина на карточке" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
-      <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button><button class="chip" data-stg="old" aria-pressed="${stg === "old"}">Неактуальная формула · ${by.old.length}</button></span></div>
+  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : stg === "old" ? "собраны по старым формулам (до v0045 «Знакомое + запретное») — в текущем виде не выкладывать; причина на карточке, «Вернуть в проверку» — в карточке поста" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
+      <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button><button class="chip" data-stg="old" aria-pressed="${stg === "old"}">Утратили актуальность · ${by.old.length}</button></span></div>
     ${postFilterBar(source.length, list.length)}<div class="cards">${list.length ? list.map(cardHtml).join("") : source.length ? `<div class="empty"><b>Нет постов по этим фильтрам</b>Измените диапазон балла или даты создания.</div>` : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
   const A = acc && accByName[acc];
   $("view").innerHTML = hero + (A && A.face ? profileHtml(A, false) : "") + livePanel() + track + lst;
