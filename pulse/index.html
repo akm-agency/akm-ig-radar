@@ -229,6 +229,12 @@ header.bar{position:sticky;top:8px;z-index:30;background:rgba(255,255,255,.92);b
 .step .l{font-weight:600;font-size:13px;line-height:1.2;margin-top:6px}
 .step .d{font-size:11.5px;color:var(--muted);line-height:1.25}
 .step.zero .c{color:#C3CCC0}
+/* 19.11: архивы «Снятые» / «Утратили актуальность» — отдельная строка под конвейером, повторный клик возвращает к «Ждут вас» */
+.arch{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--soft)}
+.arch .al{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.arch .chip b{font-weight:700;opacity:.65}
+.arch .chip[aria-pressed=true] b{opacity:1;color:var(--lime)}
+.arch .hint{color:var(--muted);font-size:12px}
 .step[aria-pressed=true]{background:var(--ink);color:#fff} .step[aria-pressed=true] .d{color:#B9C6BA} .step[aria-pressed=true] .c{color:var(--lime)}
 .step:not(:last-child)::after{content:"";position:absolute;right:-6px;top:50%;width:6px;height:2px;background:#C9D2C4}
 .live{position:absolute;right:10px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--orange);animation:pulse 1.6s ease-in-out infinite}
@@ -701,7 +707,7 @@ let view = "flow", stg = "wait", acc = "", sortBy = "wait";
 // Post ordering deliberately starts with score on every page load; never restore it from storage.
 const postFilters = {sort: "score", min: "", max: "", from: "", to: ""};
 const pick = {}, confirmRm = {};
-try { view = localStorage.getItem("akm-view2") || "flow"; stg = localStorage.getItem("akm-stg") || "wait"; acc = localStorage.getItem("akm-acc") || ""; } catch (e) {}
+try { view = localStorage.getItem("akm-view2") || "flow"; stg = localStorage.getItem("akm-stg") || "wait"; if (stg === "off" || stg === "old") stg = "wait"; acc = localStorage.getItem("akm-acc") || ""; } catch (e) {}
 if (acc && !accByName[acc]) acc = "";
 if (D.accounts.length === 1) acc = D.accounts[0].name;
 const saveLocal = () => { try { localStorage.setItem("akm-view2", view); localStorage.setItem("akm-stg", stg); localStorage.setItem("akm-acc", acc); } catch (e) {} };
@@ -1046,13 +1052,14 @@ function renderFlow() {
     </div></section>`;
   const track = `<section class="panel"><div class="ph"><h2>Конвейер</h2><span class="hint">нажмите на этап, чтобы увидеть посты</span></div><div class="track">${["ai", "you", "out"].map(ph => `<div class="phase ${ph}"><div class="pl">${PHASE[ph][0]} <em>· ${PHASE[ph][1]}</em></div><div class="steps">${STAGES.filter(s => s[1] === ph).map(([k, , l, d]) => {
     const n = by[k].length, live = by[k].some(p => p.live);
-    return `<button class="step ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="c">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</div></section>`;
+    return `<button class="step ${n ? "" : "zero"}" data-stg="${k}" aria-pressed="${stg === k}">${live ? '<span class="live" title="идёт сейчас"></span>' : ""}<span class="c">${n}</span><span class="l">${l}</span><span class="d">${d}</span></button>`; }).join("")}</div></div>`).join("")}</div>
+    <div class="arch"><span class="al">Архив</span><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые <b>${by.off.length}</b></button><button class="chip" data-stg="old" aria-pressed="${stg === "old"}">Утратили актуальность <b>${by.old.length}</b></button>${stg === "off" || stg === "old" ? '<span class="hint">нажмите ещё раз — назад к «Ждут вас»</span>' : ""}</div></section>`;
   const cur = STAGES.find(s => s[0] === stg) || STAGES[5], curName = stg === "off" ? "Снятые" : stg === "old" ? "Утратили актуальность" : cur[2];
   const source = by[stg] || [], list = filterPosts(source);
   const EMPTY = {wait: ["Новых постов на проверку нет", "Сборщик добавит их при следующем запуске. Пока можно настроить слоты."], plan: ["Тем в плане нет", "Новый план появится при следующем запуске сборщика."], queue: ["Очередь пуста", "Одобренные посты стоят здесь до своего слота."], edit: ["Правок нет", "Посты, отправленные «На доработку», появятся здесь."]};
   const em = EMPTY[stg] || ["Здесь пока пусто", "Посты этого этапа появятся по мере работы конвейера."];
-  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : stg === "old" ? "собраны по старым формулам (до v0045 «Знакомое + запретное») — в текущем виде не выкладывать; причина на карточке, «Вернуть в проверку» — в карточке поста" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
-      <span class="sp"><button class="chip" data-stg="off" aria-pressed="${stg === "off"}">Снятые · ${by.off.length}</button><button class="chip" data-stg="old" aria-pressed="${stg === "old"}">Утратили актуальность · ${by.old.length}</button></span></div>
+  const lst = `<section><div class="ph" style="padding:0 6px"><h2>${curName}</h2><span class="n">${list.length}</span><span class="hint">${stg === "off" ? "сняты с публикации" : stg === "old" ? "старые формулы (до v0045) — не выкладывать; вернуть можно в карточке поста" : cur[3]}${acc ? "" : " · все аккаунты"}</span>
+</div>
     ${postFilterBar(source.length, list.length)}<div class="cards">${list.length ? list.map(cardHtml).join("") : source.length ? `<div class="empty"><b>Нет постов по этим фильтрам</b>Измените диапазон балла или даты создания.</div>` : `<div class="empty"><b>${em[0]}</b>${em[1]}</div>`}</div></section>`;
   const A = acc && accByName[acc];
   $("view").innerHTML = hero + (A && A.face ? profileHtml(A, false) : "") + livePanel() + track + lst;
@@ -1285,7 +1292,7 @@ async function saveWindows(name, wins) {
 $("view").addEventListener("click", async e => {
   const t = e.target;
   if (t.closest("[data-post-reset]")) { Object.assign(postFilters, {min: "", max: "", from: "", to: ""}); render(); return; }
-  let b = t.closest("[data-stg]"); if (b) { stg = b.dataset.stg; saveLocal(); render(); return; }
+  let b = t.closest("[data-stg]"); if (b) { const k = b.dataset.stg; stg = (k === "off" || k === "old") && stg === k ? "wait" : k; saveLocal(); render(); return; }
   if (t.closest("[data-feedall]")) { liveFeedAll = !liveFeedAll; return paintLive(); }
   b = t.closest("[data-dl]"); if (b) return downloadSlides(byKey[b.dataset.dl], b);
   b = t.closest("[data-copy]"); if (b) { const p = byKey[b.dataset.copy]; navigator.clipboard.writeText(edits[p.key]?.caption ?? p.caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
