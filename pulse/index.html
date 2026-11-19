@@ -1626,6 +1626,7 @@ function renderUpload() {
 
 /* ---------- 17.11, владелец: «добавь их [рилсы] в пульт отдельно». Экран «Рилсы»: ролики reel_pipeline.py (posts/<канал>/ММДД_reel_*),
    видео и обложка — шифром в ветке pulse-files, карточки — D.reels (reel_pulse.py). Отметка «залито» — в этом браузере. ---------- */
+const reelSent = {};
 let reelMarks = {}; try { reelMarks = JSON.parse(localStorage.getItem("akm-reel-up") || "{}"); } catch (e) {}
 const reelByKey = k => (D.reels || []).find(r => r.key === k);
 const reelBlobs = {};
@@ -1646,6 +1647,7 @@ function renderReels() {
         <h3>${esc(r.hook)}</h3><div class="hint">${esc(r.title)}</div>
         <div class="cap-prev">${esc(r.caption)}</div>
         <div class="btns"><button class="btn sm go" data-rzip="${esc(r.key)}">⬇ Архив .zip</button><button class="btn sm" data-rdl="${esc(r.key)}">Скачать видео</button><button class="btn sm" data-rcopy="${esc(r.key)}">Копировать подпись</button>
+          ${r.status === "published" ? (r.permalink ? `<a class="btn sm" href="${esc(r.permalink)}" target="_blank" rel="noopener">В Instagram</a>` : "") : r.auto ? (r.publishing || reelSent[r.key] ? `<span class="btn sm" aria-disabled="true">⏳ выкладывается через API</span>` : `<button class="btn sm go" data-rpub="${esc(r.key)}" ${db ? "" : "disabled title='Сначала «Подключить запись»'"}>▶ Выложить через API</button>`) : ""}
           ${r.status === "published" ? "" : `<button class="btn sm" data-rmark="${esc(r.key)}">${reelMarks[r.key] ? "Снять отметку" : "Залито ✓"}</button>`}</div>
         <details><summary>info и почему этот рилс</summary><pre>${esc(r.info)}</pre>${r.why ? `<pre>${esc(r.why)}${r.donor ? "\nДонор: " + esc(r.donor) : ""}</pre>` : ""}</details></div></article>`; }).join("")
       : `<div class="empty"><b>Рилсов нет</b>${acc ? "У этого канала пока нет готовых рилсов — выберите «Все аккаунты»." : "Готовые рилсы появятся здесь после <code>python reel_pipeline.py make &lt;папка&gt;</code> и пересборки пульта."}</div>`}</div></section>`;
@@ -1688,6 +1690,12 @@ $("view").addEventListener("click", e => {
   b = t.closest("[data-rdl]"); if (b) return reelDownload(reelByKey(b.dataset.rdl), b);
   b = t.closest("[data-rzip]"); if (b) return reelZip(reelByKey(b.dataset.rzip), b);
   b = t.closest("[data-rcopy]"); if (b) { navigator.clipboard.writeText(reelByKey(b.dataset.rcopy).caption).then(() => toast("Подпись скопирована"), () => toast("Не скопировалось", 1)); return; }
+  b = t.closest("[data-rpub]"); if (b) { const r = reelByKey(b.dataset.rpub); if (!r || !db) return toast("Сначала «Подключить запись»");
+    if (!confirm(`Выложить рилс на @${r.account} прямо сейчас через Instagram API?
+
+${r.hook}`)) return;
+    b.disabled = true; decide({key: r.key, headline: r.hook}, "publish_reel", "").then(() => { reelSent[r.key] = Date.now(); toast("Принято: ПК выложит рилс за 2–5 минут после синхронизации"); render(); },
+      e => { b.disabled = false; toast("Не записалось: " + e.message); }); return; }
   b = t.closest("[data-rmark]"); if (b) { const k = b.dataset.rmark; reelMarks[k] = reelMarks[k] ? 0 : Date.now();
     try { localStorage.setItem("akm-reel-up", JSON.stringify(reelMarks)); } catch (err) {}
     toast(reelMarks[k] ? "Отмечено как залитое" : "Отметка снята"); return render(); }
