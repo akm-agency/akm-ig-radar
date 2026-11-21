@@ -1,0 +1,67 @@
+# Подписчики сетки из официального API — каждый час, без нашего сервера и VPN (см. .github/scripts/graph_live.py)
+name: graph-live
+
+on:
+  schedule:
+    # GitHub запускает по расписанию «по возможности» (08.11 — раз в 3–4 ч при "раз в час"), поэтому каждые 15 мин,
+    # а скрипт сам решает: сервер выгружал < 70 мин назад или цифры API свежее 50 мин — ничего не делает
+    - cron: "5,20,35,50 * * * *"
+  workflow_dispatch: {}
+  push:
+    # main + run-now.txt — запуск «прямо сейчас» (принудительно);
+    # тег graph-kick — пинок с ПК (graph_kick.py, раз в 15 мин): расписание GitHub 08.11 не срабатывало часами
+    branches: [main]
+    paths: [".github/run-now.txt"]
+    # пинок с ПК — тегом: для тегов фильтр путей не действует (09.11 пинки в ветку GitHub молча пропускал)
+    # тег server-pulse — пульс сервера (server_pulse.py сборщика, раз в 15 мин): запуск не зависит от ПК с graph_kick.py
+    tags: [graph-kick, server-pulse]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: graph-live
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main            # пинок приходит в ветку graph-kick, а работаем всегда с main
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: API → data/live.enc, data/network.enc
+        env:
+          GRAPH_TOKENS: ${{ secrets.GRAPH_TOKENS }}
+          AKM_SITE_PIN: ${{ secrets.AKM_SITE_PIN }}
+        run: |
+          git config user.name "AKM graph-live"
+          git config user.email "graph-live@users.noreply.github.com"
+          # репозиторий часто пишут другие (пульт, сервер): не вышло запушить — берём свежий и считаем заново
+          for i in 1 2 3; do
+            python .github/scripts/graph_live.py || exit 1
+            git add data/live.enc data/network.enc
+            git diff --cached --quiet && exit 0
+            git commit -q -m "API: подписчики сетки $(TZ=Europe/Moscow date +'%Y-%m-%d %H:%M')"
+            git push -q origin HEAD:main && exit 0
+            git fetch -q --depth 1 origin main
+            git reset -q --hard origin/main
+            sleep 10
+          done
+          exit 1
+
+      # сервер не выгружал дольше 3 ч — запуск помечается ошибкой, GitHub шлёт письмо
+      - name: Сервер выгружает данные?
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/server_stale.txt" ]; then
+            echo "::error::$(cat "$RUNNER_TEMP/server_stale.txt")"
+            exit 1
+          fi
