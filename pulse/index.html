@@ -715,6 +715,12 @@ const nowMsk = () => new Date(Date.now() + 3 * 3600e3).toISOString().slice(0, 16
 const ts = iso => Date.parse(/(Z|[+-]\d\d:?\d\d)$/.test(iso) ? iso : iso + "+03:00");
 const ago = iso => { if (!iso) return ""; const m = Math.round((Date.now() - ts(iso)) / 60000);
   return m < 1 ? "только что" : m < 60 ? m + " мин назад" : m < 1440 ? Math.round(m / 60) + " ч назад" : Math.round(m / 1440) + " дн назад"; };
+function postTime(p) {
+  const published = p.status === "published", at = published ? p.published_at : p.updated;
+  if (!at) return published ? "Дата публикации не зафиксирована" : "";
+  const date = new Intl.DateTimeFormat("ru-RU", {timeZone: "Europe/Moscow", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit"}).format(new Date(ts(at)));
+  return `${published ? "Опубликован" : "Обновлён"} ${date} МСК · ${ago(at)}`;
+}
 const addDays = (d, n) => new Date(Date.parse(d + "T00:00:00Z") + n * 864e5).toISOString().slice(0, 10);
 const wdOf = d => (new Date(d + "T00:00:00Z").getUTCDay() + 6) % 7;
 const slotLabel = key => { const d = key.slice(0, 10), t = key.slice(11, 16), today = nowMsk().slice(0, 10);
@@ -1030,7 +1036,7 @@ function cardHtml(p) {
       ${s ? `<small>${s.str ? "сила слота " + s.str.score + ", " + sWord(s.str) : "лучший свободный слот"}</small>` : ""}${hand}</div>`;
   } else if (p.stage === "queue" && hand) act = `<div class="act">${hand}</div>`;
   return `<article class="pc">${cover}<div class="bd"><h3>${esc(flat(p.headline))}</h3>
-    <div class="mt"><b>@${esc(p.account)}</b><span>${ago(p.updated || p.published_at)}</span>${followChip(p)}</div>${publicationMeta(p)}${formulaMeta(p)}<div class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) : "Дата создания не зафиксирована"}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
+    <div class="mt"><b>@${esc(p.account)}</b><span>${esc(postTime(p))}</span>${followChip(p)}</div>${publicationMeta(p)}${formulaMeta(p)}<div class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) : "Дата создания не зафиксирована"}</div>${extra}<div class="la" data-la="${esc(p.key)}"></div></div>${act}</article>`;
 }
 
 function renderFlow() {
@@ -1887,6 +1893,7 @@ function card(p) {
   <div class="phead">${ava(p.account, 40)}<span class="pa"><b>@${esc(p.account)}</b><small>${fmtType || "пост"}${p.collab ? " · совместно с @" + esc(p.collab) : ""}</small></span>
     <span class="pr"><span class="pill ${pill[0]}">${pill[1]}</span><span class="big-score">${c.score ?? "—"}<small>/10</small></span></span></div>
   <h3>${esc(p.headline)}</h3>
+  <p class="formula-meta">${esc(postTime(p))}</p>
   ${publicationMeta(p)}${formulaMeta(p)}<p class="formula-meta">${createdDay(p) ? "Создан " + esc(createdDay(p).split("-").reverse().join(".")) + " · Москва" : "Дата создания не зафиксирована"}</p>
   ${Object.keys(pr).length ? `<div class="parts">${PARTS.filter(([ks]) => partVal(pr, ks) != null).map(([ks, l]) => { const v = partVal(pr, ks); return `<div class="part ${v >= 8 ? "hi" : v <= 5 ? "lo" : ""}"><small>${l}</small><b>${v}</b></div>`; }).join("")}</div>` : ""}
   ${p.status === "published" ? (p.permalink ? `<a class="btn" href="${esc(p.permalink)}" target="_blank" rel="noopener">Пост в Instagram</a>` : p.manual_upload ? `<p class="state">Опубликован вручную${p.published_at ? " · " + esc(p.published_at.slice(5, 16).replace("T", " ")) : ""} — конвейер ищет пост в ленте, чтобы снять итоги.</p>` : "") : whenBlock(p, selKey) + musicBlock(p) + hbox + `
