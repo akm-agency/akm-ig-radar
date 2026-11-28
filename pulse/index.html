@@ -1366,7 +1366,7 @@ function openSlot(name, sk) {
     const cands = D.posts.filter(p => p.account === name && ["wait", "low"].includes(bucket(p)))
       .sort((x, y) => (bucket(x) === "wait" ? 0 : 1) - (bucket(y) === "wait" ? 0 : 1) || (y.critic?.score || 0) - (x.critic?.score || 0));
     dlg.innerHTML = head + strengthBlock(s.str, s.wdi) + `<p class="state">Выберите пост — он будет одобрен и встанет в этот слот.</p>${needDb()}
-      <div class="plist">${cands.length ? cands.map(p => `<div class="prow"><span class="th"><img data-enc="${p.slides[0]}" alt=""></span><span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${bucket(p) === "wait" ? "готов" : "не прошёл критика"} · балл ${p.critic?.score ?? "—"}</span></span>
+      <div class="plist">${cands.length ? cands.map(p => `<div class="prow"><span class="th"><img data-enc="${p.slides[0]}" alt=""></span><span><span class="ti">${esc(flat(p.headline))}</span><span class="su">${bucket(p) === "wait" ? "готов" : p.critic?.score == null ? "нужна проверка" : "нужна доработка"} · балл ${p.critic?.score ?? "—"}</span></span>
         <button class="btn go sm" data-put="${esc(p.key)}" data-slot="${sk}" ${db ? "" : "disabled"}>Сюда</button></div>`).join("") : `<p class="state">Готовых постов для этого аккаунта нет — нужна новая партия.</p>`}</div>`;
   }
   dlg.showModal(); hydrate();
